@@ -671,23 +671,39 @@ static void gfx_scegu_resample_8bit(const unsigned char *in, int inwidth, int in
     }
 }
 
+/* swizzle_fast (psp_texture_manager.c) organizes data in 8-row blocks
+ * (height_blocks = height/8) -- for height < 8 that's 0, so its whole outer
+ * loop never runs and NOT A SINGLE BYTE of the texture actually gets
+ * written, leaving whatever was previously in that VRAM slot (effectively
+ * garbage). Confirmed as the real cause of OoT's "NINTENDO 64" boot-logo
+ * text rendering as a dashed/garbled mess: its per-character glyph texture
+ * (ConsoleLogo_Draw, z_title.c) is only 2 texels tall. Real PSP homebrew
+ * generally only swizzles textures tall enough for it to matter; fall back
+ * to the plain (non-swizzled, already fully supported via texman_upload/
+ * sceGuTexMode's own swizzle flag) upload path for anything shorter. */
+static inline void texman_upload_swizzle_or_plain(int width, int height, unsigned int type, void *buf) {
+    if (height < 8) {
+        texman_upload(width, height, type, buf);
+    } else {
+        texman_upload_swizzle(width, height, type, buf);
+    }
+}
+
 static void gfx_scegu_upload_texture(const uint8_t *rgba32_buf, int width, int height, unsigned int type) {
     if (ispow2(width) && ispow2(height)) {
-        texman_upload_swizzle(width, height, type, (void *) rgba32_buf);
+        texman_upload_swizzle_or_plain(width, height, type, (void *) rgba32_buf);
     } else {
         int scaled_width = nextpow2(width);
         int scaled_height = nextpow2(height);
 
         if (type == GU_PSM_8888) {
             gfx_scegu_resample_32bit((const unsigned int *) rgba32_buf, width, height, (void *) scaled, scaled_width, scaled_height);
-            texman_upload_swizzle(scaled_width, scaled_height, type, (void *) scaled);
         } else if (type == GU_PSM_5551) {
             gfx_scegu_resample_16bit((const unsigned short *) rgba32_buf, width, height, (void *) scaled, scaled_width, scaled_height);
-            texman_upload_swizzle(scaled_width, scaled_height, type, (void *) scaled);
         } else {
             gfx_scegu_resample_8bit((const unsigned char *) rgba32_buf, width, height, (void *) scaled, scaled_width, scaled_height);
-            texman_upload_swizzle(scaled_width, scaled_height, type, (void *) scaled);
         }
+        texman_upload_swizzle_or_plain(scaled_width, scaled_height, type, (void *) scaled);
     }
 }
 
