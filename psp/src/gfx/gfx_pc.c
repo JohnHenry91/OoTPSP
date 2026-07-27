@@ -187,6 +187,18 @@ static struct RenderingState {
     bool alpha_blend;
 } rendering_state __attribute__((aligned(16)));
 
+/* Exposed to gfx_scegu.c's N64-logo-cube 2-pass hack: it needs to toggle
+ * GU_BLEND directly for one extra pass, and must restore it to whatever
+ * this cache (not the generic dispatch) currently believes, or a direct
+ * sceGuEnable/Disable(GU_BLEND) desyncs this cache from real hardware state
+ * -- confirmed by a real regression: an unrelated later draw (the "NINTENDO
+ * 64" text quads) came out solid white because their own alpha-blend need
+ * was skipped by set_use_alpha() thinking (from this now-stale cache) that
+ * GU_BLEND was already in the right state when it wasn't. */
+bool gfx_get_alpha_blend_state(void) {
+    return rendering_state.alpha_blend;
+}
+
 struct GfxDimensions gfx_current_dimensions __attribute__((aligned(4)));
 
 static bool dropped_frame;
@@ -1838,11 +1850,28 @@ static void gfx_dp_set_combine_mode(uint32_t rgb, uint32_t alpha) {
     rdp.combine_mode = rgb | (alpha << 12);
 }
 
+/* Exposed to gfx_scegu.c for the N64-logo-cube 2-pass combine emulation
+ * (see gfx_scegu.c's gfx_scegu_draw_n64_logo_cube_2pass) -- same packing as
+ * gRdpPrimColorPacked. */
+uint32_t gRdpEnvColorPacked = 0xFFFFFFFF;
+
 static void gfx_dp_set_env_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    /* Multiple consecutive triangle groups sharing the same shader+texture
+     * (e.g. the OoT boot logo cube's 5 face groups, all one combine/texture,
+     * only PRIM/ENV differing) get batched into a single buffered draw call
+     * by gfx_flush()'s own triggers (shader/texture change only) -- without
+     * flushing here first, an already-buffered-but-not-yet-drawn group would
+     * retroactively pick up this NEW env color instead of the one that was
+     * active when its vertices were actually processed. Real hardware has no
+     * such batching, so every group's color is always correct there. */
+    if (rdp.env_color.r != r || rdp.env_color.g != g || rdp.env_color.b != b || rdp.env_color.a != a) {
+        gfx_flush();
+    }
     rdp.env_color.r = r;
     rdp.env_color.g = g;
     rdp.env_color.b = b;
     rdp.env_color.a = a;
+    gRdpEnvColorPacked = (uint32_t)a << 24 | (uint32_t)b << 16 | (uint32_t)g << 8 | (uint32_t)r;
 }
 
 /* Exposed to gfx_scegu.c for the 2-cycle "N64 logo cube" combine hack (see
@@ -1851,6 +1880,13 @@ static void gfx_dp_set_env_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 uint32_t gRdpPrimColorPacked = 0xFFFFFFFF;
 
 static void gfx_dp_set_prim_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    /* Same batching hazard as gfx_dp_set_env_color -- flush before adopting
+     * the new PRIM color/gRdpPrimColorPacked so any already-buffered group
+     * still gets drawn (and, for the logo-cube hack, gets sceGuTexEnvColor()
+     * refreshed) with the color that was actually active when it was built. */
+    if (rdp.prim_color.r != r || rdp.prim_color.g != g || rdp.prim_color.b != b || rdp.prim_color.a != a) {
+        gfx_flush();
+    }
     rdp.prim_color.r = r;
     rdp.prim_color.g = g;
     rdp.prim_color.b = b;

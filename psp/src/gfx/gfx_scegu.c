@@ -305,6 +305,8 @@ static inline int texenv_set_texture(UNUSED struct ShaderProgram *prg) {
 }
 
 extern uint32_t gRdpPrimColorPacked;
+extern uint32_t gRdpEnvColorPacked;
+extern bool gfx_get_alpha_blend_state(void);
 
 /* OoT N64-logo cube: real combine is 2-cycle
  * (TEXEL0-PRIMITIVE)*ENV_ALPHA+TEXEL0 then (PRIMITIVE-ENVIRONMENT)*COMBINED+ENVIRONMENT
@@ -762,6 +764,106 @@ static inline void gfx_scegu_blend_fog_tris(void) {
  * identical, just not VFPU-accelerated; a reasonable simplification to
  * revisit if vertex upload turns out to be a real bottleneck. */
 
+/* Two-pass emulation of the OoT N64-logo cube's real 2-cycle RDP combine
+ * (see is_n64_logo_cube_combine above for the exact formula and why the
+ * single-stage GU_TFX_BLEND hack there is only a rough approximation --
+ * confirmed by the user against real reference footage that hues were
+ * noticeably off, e.g. showing cyan/pink instead of the real logo's
+ * green/blue/red faces).
+ *
+ * Cycle 1 = (TEXEL0-PRIM)*ENV_ALPHA + TEXEL0 = TEXEL0*(1+ENV_ALPHA) - PRIM*ENV_ALPHA
+ * Cycle 2 = (PRIM-ENV)*COMBINED + ENV
+ * Substituting cycle 1 into cycle 2 and expanding (PRIM/ENV/ENV_ALPHA are all
+ * flat per-face-group constants -- the only thing that varies per-pixel is
+ * TEXEL0, and it appears exactly once after expansion) collapses the whole
+ * 2-cycle formula to a plain affine function of TEXEL0:
+ *   final = TEXEL0 * K1 + K2
+ *   K1 = (PRIM-ENV) * (1+ENV_ALPHA)
+ *   K2 = ENV - (PRIM-ENV) * PRIM * ENV_ALPHA
+ * (all channels normalized to 0..1, K1/K2 independently clamped back to
+ * 0..1 afterward -- real values can occasionally fall slightly outside that
+ * range, e.g. K1 up to ~2.0, and PSP vertex colors can't represent that
+ * directly; clamping loses a bit of dynamic range at the extremes but keeps
+ * every group's hue correct across the bulk of the texture's intensity
+ * range, which is what was actually wrong before this fix).
+ *
+ * Rendered as: pass 1 draws TEXEL0*K1 via GU_TFX_MODULATE with the vertex
+ * color forced to K1 (opaque, replaces the framebuffer); pass 2 re-draws
+ * the exact same buffered geometry with texturing disabled, vertex color
+ * forced to K2, and additive blending, adding the flat K2 term on top.
+ * Doesn't apply to the "NINTENDO 64" text (is_n64_logo_text_combine): that
+ * combine's cycle 1 mixes TWO different textures (TEXEL0 and TEXEL1) with
+ * no repeated single term, so it can't be collapsed the same way. */
+static inline uint8_t clamp_u8_from_unit(float v) {
+    if (v <= 0.0f) return 0;
+    if (v >= 1.0f) return 255;
+    return (uint8_t)(v * 255.0f + 0.5f);
+}
+
+static void gfx_scegu_draw_n64_logo_cube_2pass(void *buf, size_t num_verts) {
+    float pr = (gRdpPrimColorPacked & 0xFF) / 255.0f;
+    float pg = ((gRdpPrimColorPacked >> 8) & 0xFF) / 255.0f;
+    float pb = ((gRdpPrimColorPacked >> 16) & 0xFF) / 255.0f;
+    float er = (gRdpEnvColorPacked & 0xFF) / 255.0f;
+    float eg = ((gRdpEnvColorPacked >> 8) & 0xFF) / 255.0f;
+    float eb = ((gRdpEnvColorPacked >> 16) & 0xFF) / 255.0f;
+    float ea = ((gRdpEnvColorPacked >> 24) & 0xFF) / 255.0f;
+
+    float k1r = (pr - er) * (1.0f + ea), k1g = (pg - eg) * (1.0f + ea), k1b = (pb - eb) * (1.0f + ea);
+    float k2r = er - (pr - er) * pr * ea, k2g = eg - (pg - eg) * pg * ea, k2b = eb - (pb - eb) * pb * ea;
+
+    uint32_t k1_packed = 0xFF000000u | (uint32_t)clamp_u8_from_unit(k1b) << 16 | (uint32_t)clamp_u8_from_unit(k1g) << 8 | clamp_u8_from_unit(k1r);
+    uint32_t k2_packed = 0xFF000000u | (uint32_t)clamp_u8_from_unit(k2b) << 16 | (uint32_t)clamp_u8_from_unit(k2g) << 8 | clamp_u8_from_unit(k2r);
+
+    /* sceGuDrawArray's buffer is consumed by the GE asynchronously (only
+     * guaranteed processed by the next sceGuFinish/frame sync) -- mutating
+     * the SAME memory in place for a second draw risks the GE seeing pass
+     * 2's color for pass 1 too. Use two independent buffers. */
+    Vertex *verts1 = (Vertex *)buf;
+    void *buf2 = sceGuGetMemory(sizeof(Vertex) * num_verts);
+    Vertex *verts2 = (Vertex *)buf2;
+    memcpy(buf2, buf, sizeof(Vertex) * num_verts);
+    size_t i;
+    for (i = 0; i < num_verts; i++) verts1[i].color = k1_packed;
+    for (i = 0; i < num_verts; i++) verts2[i].color = k2_packed;
+
+    /* real GU_BLEND state going in, per gfx_pc.c's own cache -- restore to
+     * exactly this afterward, NOT an assumed constant. A direct
+     * sceGuEnable/Disable(GU_BLEND) that diverges from this cache (which
+     * only gfx_pc.c's set_use_alpha() normally updates) desyncs it from real
+     * hardware state -- confirmed via a real regression: doing exactly that
+     * here made an unrelated later draw (the "NINTENDO 64" text quads, which
+     * need GU_BLEND enabled) come out solid white, because set_use_alpha()
+     * saw its cached belief already matched the (actually wrong) hardware
+     * state and skipped re-enabling it. */
+    bool prev_alpha_blend = gfx_get_alpha_blend_state();
+
+    /* Pass 1: TEXEL0 * K1, opaque -- this cube's own render mode
+     * (G_RM_AA_ZB_OPA_SURF2) is already opaque, so GU_BLEND is already
+     * correctly disabled going in; only the texture function needs
+     * switching away from this shader's normal GU_TFX_BLEND. */
+    sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
+    sceGuDrawArray(GU_TRIANGLES, GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | GU_TRANSFORM_3D, (int)num_verts, 0, buf);
+
+    /* Pass 2: + K2 flat, additive, no texture. */
+    sceGuDisable(GU_TEXTURE_2D);
+    sceGuEnable(GU_BLEND);
+    sceGuBlendFunc(GU_ADD, GU_FIX, GU_FIX, 0x00ffffff, 0x00ffffff);
+    sceGuDrawArray(GU_TRIANGLES, GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | GU_TRANSFORM_3D, (int)num_verts, 0, buf2);
+
+    /* Restore the shared GU state this shader (and the rest of the renderer)
+     * normally relies on. */
+    sceGuEnable(GU_TEXTURE_2D);
+    if (prev_alpha_blend) {
+        sceGuEnable(GU_BLEND);
+    } else {
+        sceGuDisable(GU_BLEND);
+    }
+    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGBA);
+    sceGuTexEnvColor(gRdpPrimColorPacked);
+}
+
 static void gfx_scegu_draw_triangles(float buf_vbo[], UNUSED size_t buf_vbo_len, size_t buf_vbo_num_tris) {
     if (!is_shader_enabled(cur_shader->shader_id)) {
         gfx_scegu_apply_shader(get_shader_from_id(get_shader_remap(cur_shader->shader_id)));
@@ -776,7 +878,12 @@ static void gfx_scegu_draw_triangles(float buf_vbo[], UNUSED size_t buf_vbo_len,
 
     void *buf = sceGuGetMemory(sizeof(Vertex) * 3 * buf_vbo_num_tris);
     memcpy(buf, buf_vbo, sizeof(Vertex) * 3 * buf_vbo_num_tris);
-    sceGuDrawArray(GU_TRIANGLES, GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | GU_TRANSFORM_3D, 3 * buf_vbo_num_tris, 0, buf);
+
+    if (cur_shader->mix == SH_MT_TEXTURE_COLOR && is_n64_logo_cube_combine(cur_shader)) {
+        gfx_scegu_draw_n64_logo_cube_2pass(buf, 3 * buf_vbo_num_tris);
+    } else {
+        sceGuDrawArray(GU_TRIANGLES, GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | GU_TRANSFORM_3D, 3 * buf_vbo_num_tris, 0, buf);
+    }
 
     // cur_fog_ofs is only set if GL_EXT_fog_coord isn't used
     // if (cur_fog_ofs) gfx_scegu_blend_fog_tris();
