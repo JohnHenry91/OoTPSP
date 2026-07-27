@@ -109,8 +109,23 @@ void Object_InitContext(PlayState* play, ObjectContext* objectCtx) {
         GAME_STATE_ALLOC(&play->state, spaceSize, "../z_scene.c", 219);
     objectCtx->spaceEnd = (void*)((uintptr_t)objectCtx->spaceStart + spaceSize);
 
+#if TARGET_PSP
+    {
+        extern void PspDebugLogKeepObject(unsigned int vromStart, unsigned int vromEnd, void* slot0Segment,
+                                           void* spaceEnd);
+        PspDebugLogKeepObject((unsigned int)gObjectTable[OBJECT_GAMEPLAY_KEEP].vromStart,
+                               (unsigned int)gObjectTable[OBJECT_GAMEPLAY_KEEP].vromEnd, objectCtx->slots[0].segment,
+                               objectCtx->spaceEnd);
+    }
+#endif
     objectCtx->mainKeepSlot = Object_SpawnPersistent(objectCtx, OBJECT_GAMEPLAY_KEEP);
     gSegments[4] = OS_K0_TO_PHYSICAL(objectCtx->slots[objectCtx->mainKeepSlot].segment);
+#if TARGET_PSP
+    {
+        extern void PspDebugLogKeepObject2(void* mainKeepSegment, unsigned int gSegments4);
+        PspDebugLogKeepObject2(objectCtx->slots[objectCtx->mainKeepSlot].segment, (unsigned int)gSegments[4]);
+    }
+#endif
 }
 
 void Object_UpdateEntries(ObjectContext* objectCtx) {
@@ -128,10 +143,26 @@ void Object_UpdateEntries(ObjectContext* objectCtx) {
 
                 PRINTF("OBJECT EXCHANGE BANK-%2d SIZE %8.3fK SEG=%08x\n", i, size / 1024.0f, entry->segment);
 
+#if TARGET_PSP
+                /* Load object files (character models/textures) synchronously
+                 * on this port: the async request runs on a real background
+                 * DMA thread here, and the real N64 code relies on single-core
+                 * PI-bus-DMA ordering to have the data ready before that
+                 * object's display lists are interpreted later the same frame.
+                 * With a real background thread that ordering isn't guaranteed,
+                 * so gfx_run can read partially-written object memory. Same
+                 * fix pattern already proven for the animation-frame DMA (see
+                 * z_skelanime.c). Mark it loaded immediately (id flipped
+                 * positive) since the data is fully present on return. */
+                DMA_REQUEST_SYNC(entry->segment, objectFile->vromStart, size, "../z_scene.c", 266);
+                entry->dmaRequest.vromAddr = objectFile->vromStart;
+                entry->id = -entry->id;
+#else
                 DMA_REQUEST_ASYNC(&entry->dmaRequest, entry->segment, objectFile->vromStart, size, 0, &entry->loadQueue,
                                   NULL, "../z_scene.c", 266);
             } else if (osRecvMesg(&entry->loadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
                 entry->id = -entry->id;
+#endif
             }
         }
         entry++;
@@ -196,8 +227,22 @@ void* func_800982FC(ObjectContext* objectCtx, s32 slot, s16 objectId) {
 }
 
 s32 Scene_ExecuteCommands(PlayState* play, SceneCmd* sceneCmd) {
+#if TARGET_PSP
+    extern void PspDebugLogSceneCmd(void* addr, unsigned int code, unsigned int data1, unsigned int data2);
+    int dbgIter = 0;
+#endif
     while (true) {
         u32 cmdCode = sceneCmd->base.code;
+
+#if TARGET_PSP
+        if (dbgIter < 40) {
+            PspDebugLogSceneCmd(sceneCmd, cmdCode, sceneCmd->base.data1, sceneCmd->base.data2);
+            dbgIter++;
+        } else if (dbgIter == 40) {
+            PspDebugLogSceneCmd(sceneCmd, 0xDEADBEEF, 0, 0);
+            dbgIter++;
+        }
+#endif
 
         PRINTF("*** Scene_Word = { code=%d, data1=%02x, data2=%04x } ***\n", cmdCode, sceneCmd->base.data1,
                sceneCmd->base.data2);
@@ -225,6 +270,23 @@ BAD_RETURN(s32) Scene_CommandPlayerEntryList(PlayState* play, SceneCmd* cmd) {
         (ActorEntry*)SEGMENTED_TO_VIRTUAL(cmd->playerEntryList.data) + play->spawnList[play->spawn].playerEntryIndex;
     s16 linkObjectId;
 
+#if TARGET_PSP
+    /* Unlike the room's own actor list (Scene_CommandActorEntryList, fixed
+     * above), Player's spawn entry lives in the SCENE's playerEntryList --
+     * a separate raw-DMA'd array that was never routed through the same
+     * endian fixup, discovered via a real symptom: playerStartBgCamIndex
+     * (PLAYER_GET_START_BG_CAM_INDEX, low byte of params) came out as the
+     * byte-reversed value of the real params (e.g. real 0x0D00 read back as
+     * 0x000D), so the "start with this fixed bg camera" path silently
+     * requested a garbage index instead of the intended one. Only the
+     * single selected entry needs fixing, not the whole array (its total
+     * length isn't tracked here). */
+    {
+        extern void PspFixupActorEntryListEndian(void* actorEntryList, unsigned int count);
+        PspFixupActorEntryListEndian(playerEntry, 1);
+    }
+#endif
+
     play->linkAgeOnLoad = ((void)0, gSaveContext.save.linkAge);
 
     linkObjectId = gLinkObjectIds[((void)0, gSaveContext.save.linkAge)];
@@ -236,6 +298,12 @@ BAD_RETURN(s32) Scene_CommandPlayerEntryList(PlayState* play, SceneCmd* cmd) {
 BAD_RETURN(s32) Scene_CommandActorEntryList(PlayState* play, SceneCmd* cmd) {
     play->numActorEntries = cmd->actorEntryList.length;
     play->actorEntryList = SEGMENTED_TO_VIRTUAL(cmd->actorEntryList.data);
+#if TARGET_PSP
+    {
+        extern void PspFixupActorEntryListEndian(void* actorEntryList, unsigned int count);
+        PspFixupActorEntryListEndian(play->actorEntryList, play->numActorEntries);
+    }
+#endif
 }
 
 BAD_RETURN(s32) Scene_CommandUnused2(PlayState* play, SceneCmd* cmd) {
@@ -245,18 +313,46 @@ BAD_RETURN(s32) Scene_CommandUnused2(PlayState* play, SceneCmd* cmd) {
 BAD_RETURN(s32) Scene_CommandCollisionHeader(PlayState* play, SceneCmd* cmd) {
     CollisionHeader* colHeader = SEGMENTED_TO_VIRTUAL(cmd->colHeader.data);
 
+#if TARGET_PSP
+    {
+        extern void PspFixupCollisionHeaderEndian(void* colHeader);
+        PspFixupCollisionHeaderEndian(colHeader);
+    }
+    { extern void PspDebugLogColHeader(void*, int, void*, void*, void*, void*, void*, void*); PspDebugLogColHeader(cmd, 0, colHeader, NULL, NULL, NULL, NULL, NULL); }
+#endif
+
     colHeader->vtxList = SEGMENTED_TO_VIRTUAL(colHeader->vtxList);
     colHeader->polyList = SEGMENTED_TO_VIRTUAL(colHeader->polyList);
     colHeader->surfaceTypeList = SEGMENTED_TO_VIRTUAL(colHeader->surfaceTypeList);
     colHeader->bgCamList = SEGMENTED_TO_VIRTUAL(colHeader->bgCamList);
     colHeader->waterBoxes = SEGMENTED_TO_VIRTUAL(colHeader->waterBoxes);
 
+#if TARGET_PSP
+    {
+        extern void PspFixupVtxListEndian(void* vtxList, unsigned int count);
+        extern void PspFixupPolyListEndian(void* polyList, unsigned int count);
+        PspFixupVtxListEndian(colHeader->vtxList, colHeader->numVertices);
+        PspFixupPolyListEndian(colHeader->polyList, colHeader->numPolygons);
+    }
+    { extern void PspDebugLogColHeader(void*, int, void*, void*, void*, void*, void*, void*); PspDebugLogColHeader(cmd, 1, colHeader, colHeader->vtxList, colHeader->polyList, colHeader->surfaceTypeList, colHeader->bgCamList, colHeader->waterBoxes); }
+#endif
+
     BgCheck_Allocate(&play->colCtx, play, colHeader);
+
+#if TARGET_PSP
+    { extern void PspDebugLogColHeader(void*, int, void*, void*, void*, void*, void*, void*); PspDebugLogColHeader(cmd, 2, NULL, NULL, NULL, NULL, NULL, NULL); }
+#endif
 }
 
 BAD_RETURN(s32) Scene_CommandRoomList(PlayState* play, SceneCmd* cmd) {
     play->roomList.count = cmd->roomList.length;
     play->roomList.romFiles = SEGMENTED_TO_VIRTUAL(cmd->roomList.data);
+#if TARGET_PSP
+    {
+        extern void PspFixupRomFileListEndian(void* romFileList, unsigned int count);
+        PspFixupRomFileListEndian(play->roomList.romFiles, play->roomList.count);
+    }
+#endif
 }
 
 BAD_RETURN(s32) Scene_CommandSpawnList(PlayState* play, SceneCmd* cmd) {
@@ -283,6 +379,12 @@ BAD_RETURN(s32) Scene_CommandRoomBehavior(PlayState* play, SceneCmd* cmd) {
 
 BAD_RETURN(s32) Scene_CommandRoomShape(PlayState* play, SceneCmd* cmd) {
     play->roomCtx.curRoom.roomShape = SEGMENTED_TO_VIRTUAL(cmd->mesh.data);
+#if TARGET_PSP
+    {
+        extern void PspFixupRoomShapeEndian(void* roomShape);
+        PspFixupRoomShapeEndian(play->roomCtx.curRoom.roomShape);
+    }
+#endif
 }
 
 BAD_RETURN(s32) Scene_CommandObjectList(PlayState* play, SceneCmd* cmd) {
@@ -294,6 +396,13 @@ BAD_RETURN(s32) Scene_CommandObjectList(PlayState* play, SceneCmd* cmd) {
     ObjectEntry* entries;
     s16* objectListEntry = SEGMENTED_TO_VIRTUAL(cmd->objectList.data);
     void* nextPtr;
+
+#if TARGET_PSP
+    {
+        extern void PspFixupS16ArrayEndian(void* data, unsigned int count);
+        PspFixupS16ArrayEndian(objectListEntry, (unsigned int)cmd->objectList.length);
+    }
+#endif
 
     k = 0;
     i = play->objectCtx.numPersistentEntries;
@@ -354,6 +463,12 @@ BAD_RETURN(s32) Scene_CommandPathList(PlayState* play, SceneCmd* cmd) {
 BAD_RETURN(s32) Scene_CommandTransitionActorEntryList(PlayState* play, SceneCmd* cmd) {
     play->transitionActors.count = cmd->transiActorList.length;
     play->transitionActors.list = SEGMENTED_TO_VIRTUAL(cmd->transiActorList.data);
+#if TARGET_PSP
+    {
+        extern void PspFixupTransitionActorEntryListEndian(void* transitionActorList, unsigned int count);
+        PspFixupTransitionActorEntryListEndian(play->transitionActors.list, play->transitionActors.count);
+    }
+#endif
 }
 
 void Scene_ResetTransitionActorList(GameState* state, TransitionActorList* transitionActors) {

@@ -29,6 +29,14 @@
 #include "audio.h"
 #include "save.h"
 #include "play_state.h"
+#if TARGET_PSP
+#include "gfx_pc.h"
+#include "padmgr.h"
+/* Not part of padmgr.h's public API (only used internally by
+ * PadMgr_ThreadEntry there) -- forward-declare for the direct per-frame
+ * call this port needs instead. */
+void PadMgr_HandleRetrace(PadMgr* padMgr);
+#endif
 
 #define GFXPOOL_HEAD_MAGIC 0x1234
 #define GFXPOOL_TAIL_MAGIC 0x5678
@@ -224,6 +232,13 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
     gGfxTaskSentToNextReadyMinusAudioThreadUpdateTime =
         osGetTime() - sGraphPrevTaskTimeStart - gAudioThreadUpdateTimeAcc;
 
+#if TARGET_PSP
+    /* No real RCP hardware to wait on -- the PSP gfx dispatch below (see the
+     * matching #if TARGET_PSP further down this function) is fully
+     * synchronous, so by construction the "previous task" is always already
+     * done by the time we get here. Nothing to wait for. See plan decision
+     * #6. */
+#else
     {
         OSTimer timer;
         OSMesg msg;
@@ -262,6 +277,7 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
         sPrevTaskWorkBuffer = gfxCtx->workBuffer;
 #endif
     }
+#endif
 
     if (gfxCtx->callback != NULL) {
         gfxCtx->callback(gfxCtx, gfxCtx->callbackParam);
@@ -284,6 +300,18 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
     }
 
     task->type = M_GFXTASK;
+#if TARGET_PSP
+    /* Only data_ptr/data_size are ever read on PSP (by gfx_run() below) --
+     * everything else here configures a real RSP microcode task
+     * (boot ucode, F3DEX2 ucode blob, RSP-local stacks/output buffers) that
+     * never gets dispatched to real hardware, so skip it entirely. Avoids
+     * needing to link the RSP microcode blobs at all (see sys_ucode.c). */
+    task->data_ptr = (u64*)gfxCtx->workBuffer;
+
+    OPEN_DISPS(gfxCtx, "../graph.c", 828);
+    task->data_size = (uintptr_t)WORK_DISP - (uintptr_t)gfxCtx->workBuffer;
+    CLOSE_DISPS(gfxCtx, "../graph.c", 830);
+#else
     task->flags = OS_SC_DRAM_DLIST;
     task->ucode_boot = SysUcode_GetUCodeBoot();
     task->ucode_boot_size = SysUcode_GetUCodeBootSize();
@@ -302,8 +330,8 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
     CLOSE_DISPS(gfxCtx, "../graph.c", 830);
 
     task->yield_data_ptr = gGfxSPTaskYieldBuffer;
-
     task->yield_data_size = sizeof(gGfxSPTaskYieldBuffer);
+#endif
 
     scTask->next = NULL;
     scTask->flags = OS_SC_NEEDS_RSP | OS_SC_NEEDS_RDP | OS_SC_SWAPBUFFER | OS_SC_LAST_TASK;
@@ -341,8 +369,24 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
 
     gfxCtx->schedMsgQueue = &gScheduler.cmdQueue;
 
+#if TARGET_PSP
+    /* Direct hook per plan decision #6: interpret the just-built display
+     * list immediately instead of enqueuing it for real RCP hardware via
+     * Sched. gfxCtx->curFrameBuffer (set up by Graph_InitTHGA below via
+     * SysCfb_GetFbPtr) tracks which double-buffered target this frame
+     * intended to swap to -- the PSP-side main loop reads that after this
+     * call to drive its own sceGu buffer swap (see psp/src/main.c). */
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before gfx_start_frame"); }
+    gfx_start_frame();
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before gfx_run"); }
+    gfx_run((Gfx*)task->data_ptr);
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before gfx_end_frame"); }
+    gfx_end_frame();
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after gfx_end_frame"); }
+#else
     osSendMesg(&gScheduler.cmdQueue, (OSMesg)scTask, OS_MESG_BLOCK);
     Sched_Notify(&gScheduler);
+#endif
 }
 
 void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
@@ -350,6 +394,14 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 
     gameState->inPreNMIState = false;
     Graph_InitTHGA(gfxCtx);
+
+#if TARGET_PSP
+    /* IrqMgr's vsync-tick fan-out is bypassed for Phase 1 (Sched is a
+     * no-op here, AudioMgr is stubbed out) -- PadMgr is the one subsystem
+     * that still genuinely needs a once-per-frame tick, so call it
+     * directly. See plan decision #4. */
+    PadMgr_HandleRetrace(&gPadMgr);
+#endif
 
 #if DEBUG_FEATURES
     OPEN_DISPS(gfxCtx, "../graph.c", 966);
@@ -465,7 +517,11 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
         gfxCtx->fbIdx++;
     }
 
+#if !TARGET_PSP
+    /* Audio is out of scope for Phase 1 (see plan roadmap) -- avoid pulling
+     * in the whole audio subsystem just to link the engine skeleton. */
     Audio_Update();
+#endif
 
     {
         OSTime timeNow = osGetTime();

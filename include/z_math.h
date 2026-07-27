@@ -3,7 +3,23 @@
 
 // This file has a z_ prefix to indicate that it is the game-side math header, not libc
 
+#if TARGET_PSP
+/* real decomp resolves this "math.h" against include/libc/math.h (via
+ * -Iinclude/libc, see reference/oot's own Makefile) for SHT_MAX/SHT_MINV +
+ * fabsf/sqrtf-family macros. We don't add that -I globally on PSP because
+ * it also shadows the REAL PSP SDK <stdint.h>/<stdio.h>/etc for any file
+ * that needs them (psptypes.h, pspiofilemgr.h, ...) with the decomp's own
+ * much smaller stand-in. Include the real system math.h (for fabsf etc,
+ * already usable everywhere else in this build) and just add the two
+ * decomp-only constants directly instead. */
+#include <math.h>
+#ifndef SHT_MAX
+#define SHT_MAX 32767.0f
+#define SHT_MINV (1.0f / SHT_MAX)
+#endif
+#else
 #include "math.h"
+#endif
 #include "ultra64.h"
 
 typedef union FloatInt {

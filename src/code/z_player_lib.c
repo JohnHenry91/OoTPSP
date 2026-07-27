@@ -1277,6 +1277,17 @@ s32 Player_OverrideLimbDrawGameplayCommon(PlayState* play, s32 limbIndex, Gfx** 
                                           void* thisx) {
     Player* this = (Player*)thisx;
 
+#if TARGET_PSP
+    {
+        extern void PspDebugLogVtxFixup(unsigned int, unsigned int, unsigned int, unsigned int);
+        static unsigned int sCallCount = 0;
+        ++sCallCount;
+        if (sCallCount <= 10 || (sCallCount % 1000) == 0) {
+            PspDebugLogVtxFixup(0xCB000000 | (unsigned int)(unsigned char)limbIndex, sCallCount,
+                                 (unsigned int)(uintptr_t)__builtin_return_address(0), 0);
+        }
+    }
+#endif
     if (limbIndex == PLAYER_LIMB_ROOT) {
         sLeftHandType = this->leftHandType;
         sRightHandType = this->rightHandType;

@@ -4217,6 +4217,14 @@ s32 Camera_Fixed3(Camera* camera) {
     s32 pad;
 
     bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+    {
+        extern void PspReadBgCamFuncDataStruct(void*, void*);
+        static BgCamFuncData sBgCamFuncDataFixed;
+        PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamFuncDataFixed);
+        bgCamFuncData = &sBgCamFuncDataFixed;
+    }
+#endif
 
     eyeAtOffset = OLib_Vec3fDiffToVecGeo(eye, at);
 

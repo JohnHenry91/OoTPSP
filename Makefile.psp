@@ -1,0 +1,216 @@
+# PSP build target for the OoT decomp fork.
+#
+# Deliberately kept as a separate Makefile (invoked via `make -f Makefile.psp`)
+# rather than an ifeq-branch inside the main `Makefile`: that Makefile is a
+# 1200+ line IDO/GCC dual-path, spec-driven build system for the byte-perfect
+# N64 ROM target, and entangling a from-scratch PSP target into it risks
+# breaking the verified-working N64 build. This file reuses the *pattern*
+# (fork the decomp, add a PSP target) without touching the original.
+#
+# Unlike the N64 build, the file list here is NOT derived from the ROM `spec`
+# — it's an explicit, incrementally-grown list (PSP_C_FILES below), same
+# spirit as attempt 1's psp-port/Makefile. It starts with just the PSP-side
+# engine skeleton (psp/src/) and grows to include ported decomp files
+# (src/boot/z_std_dma.c, src/code/graph.c, etc.) as each gets wired in.
+
+TARGET = ootpsp
+
+# PSP-side engine skeleton (new code, not from the decomp): main loop, libultra
+# shim, gfx_pc-style F3DEX2 interpreter/sceGu backend. See psp/README.md.
+PSP_C_FILES := psp/src/main.c
+
+# libultra/libu64 shim, carried forward from attempt 1 (zelda-oot-psp/psp-port).
+# os_thread.c/os_mesg.c use real PSP threads/semaphores -- kept deliberately
+# (see plan decision #4: DmaMgr, added next, needs a real consumer thread).
+PSP_C_FILES += psp/src/libultra/os_thread.c
+PSP_C_FILES += psp/src/libultra/os_mesg.c
+PSP_C_FILES += psp/src/libultra/os_time.c
+PSP_C_FILES += psp/src/libultra/os_cache.c
+PSP_C_FILES += psp/src/libultra/os_cont.c
+PSP_C_FILES += psp/src/libultra/os_rom.c
+PSP_C_FILES += psp/src/libultra/os_syncprintf.c
+PSP_C_FILES += psp/src/libultra/sleep.c
+
+# Real decomp files, unmodified except bzero->memset and .errno->.errno_
+# (see attempt 1's PORTING.md) -- hardware-format-only pad code, no threading.
+PSP_C_FILES += psp/src/libu64/pad.c
+PSP_C_FILES += psp/src/libu64/padsetup.c
+PSP_C_FILES += psp/src/libu64/stackcheck.c
+
+# Stand-ins needed to link DmaMgr without a full game link (see plan decision
+# #4 / step 4): dummy segment symbols, dead N64DD globals, PI-bus entry
+# points DmaMgr's audio/64DD paths call but that aren't wired up on PSP yet.
+PSP_C_FILES += psp/src/libultra/segment_symbols_stub.c
+PSP_C_FILES += psp/src/libultra/n64dd_stub.c
+PSP_C_FILES += psp/src/libultra/os_pi.c
+PSP_C_FILES += psp/src/libultra/fault.c
+PSP_C_FILES += psp/src/libultra/os_interrupt_stub.c
+
+# DmaMgr itself: real decomp code (src/boot/z_std_dma.c, src/boot/yaz0.c),
+# unmodified except DmaMgr_DmaRomToRam's leaf hardware-transfer call, which
+# now does a direct sceIo read against the .z64 shipped alongside EBOOT.PBP
+# instead of N64 cartridge PI-bus DMA (see psp_rom.h / psp/src/boot/z_std_dma.c
+# header comment). Kept on a real PSP thread deliberately -- see plan
+# decision #4.
+PSP_C_FILES += psp/src/boot/z_std_dma.c
+PSP_C_FILES += psp/src/boot/yaz0.c
+
+# 4-entry hand-built gDmaDataTable (real offsets from reference/oot's own
+# pal-1.0 build map), standing in for the ~940-entry table a full game link
+# would generate. Smoke-test only, replaced once real segments link.
+PSP_C_FILES += psp/src/dmadata_test_table.c
+
+# Real decomp engine files, collapsed to single-loop per plan decision #4.
+# Edits are guarded with #if TARGET_PSP so the N64 pal-1.0 build (still built
+# from this same fork's default Makefile) stays byte-identical.
+# gfx_pc.c/gfx_cc.c ported from sm64-port-psp (see plan step 6) -- generic
+# F3D/F3DEX2 display-list interpreter, confirmed N64-microcode-generic not
+# SM64-specific. gfx_scegu.c is sm64-port-psp's PSP/sceGu backend, started
+# with an EMPTIED shader-ID table (plan step 7) -- OoT's material set will
+# need its own table built up empirically, not SM64's.
+PSP_C_FILES += psp/src/gfx/gfx_pc.c
+PSP_C_FILES += psp/src/gfx/gfx_cc.c
+PSP_C_FILES += psp/src/gfx/gfx_scegu.c
+PSP_C_FILES += psp/src/gfx/gfx_wm_psp.c
+PSP_C_FILES += psp/src/gfx/psp_texture_manager.c
+
+PSP_C_FILES += src/code/irqmgr.c
+PSP_C_FILES += src/code/graph.c
+PSP_C_FILES += src/code/main.c
+PSP_C_FILES += src/code/padmgr.c
+PSP_C_FILES += src/code/game.c
+PSP_C_FILES += src/code/sys_cfb.c
+PSP_C_FILES += src/code/TwoHeadGfxArena.c
+PSP_C_FILES += src/libc64/malloc.c
+PSP_C_FILES += src/boot/viconfig.c
+PSP_C_FILES += src/code/title_setup.c
+PSP_C_FILES += src/overlays/gamestates/ovl_title/z_title.c
+PSP_C_FILES += src/overlays/gamestates/ovl_opening/z_opening.c
+PSP_C_FILES += src/code/z_sram.c
+PSP_C_FILES += src/code/z_inventory.c
+PSP_C_FILES += src/code/z_play.c
+PSP_C_FILES += psp/src/z_actor_dlftbls_psp.c
+PSP_C_FILES += psp/src/z_endian_fixup_psp.c
+# --- Phase 2: real gameplay-engine core (scene/room/camera/collision/actor) ---
+PSP_C_FILES += src/code/z_scene.c
+PSP_C_FILES += src/code/z_scene_table.c
+PSP_C_FILES += src/code/z_room.c
+PSP_C_FILES += src/code/z_construct.c
+PSP_C_FILES += src/code/z_lights.c
+PSP_C_FILES += src/code/z_vr_box.c
+PSP_C_FILES += src/code/z_vr_box_draw.c
+PSP_C_FILES += src/code/z_bgcheck.c
+PSP_C_FILES += src/code/z_collision_check.c
+PSP_C_FILES += src/code/z_camera.c
+PSP_C_FILES += src/code/z_actor.c
+PSP_C_FILES += src/code/z_skelanime.c
+PSP_C_FILES += src/code/z_effect.c
+PSP_C_FILES += src/code/z_effect_soft_sprite.c
+PSP_C_FILES += src/code/sys_math3d.c
+PSP_C_FILES += src/code/z_env_flags.c
+PSP_C_FILES += src/code/z_nulltask.c
+PSP_C_FILES += src/code/object_table.c
+PSP_C_FILES += src/code/sys_math.c
+PSP_C_FILES += src/code/z_olib.c
+PSP_C_FILES += psp/src/phase2_stubs.c
+PSP_C_FILES += psp/src/phase2_stubs_gen.c
+PSP_C_FILES += psp/src/segment_roms_psp.c
+PSP_C_FILES += psp/src/phase2_debug_log.c
+# --- Phase 2: real Player (flattened, no overlay indirection -- see file header) ---
+PSP_C_FILES += src/overlays/actors/ovl_player_actor/z_player.c
+PSP_C_FILES += psp/src/z_player_profile_psp.c
+PSP_C_FILES += assets/objects/gameplay_keep/player_anim_headers.c
+PSP_C_FILES += src/code/z_player_lib.c
+PSP_C_FILES += assets/objects/object_link_child/object_link_child.c
+PSP_C_FILES += assets/objects/gameplay_keep/hover_boots_circle.c
+PSP_C_FILES += assets/objects/gameplay_keep/gameplay_keep_0x33910.c
+PSP_C_FILES += extracted/pal-1.0/assets/misc/link_animetion/link_animetion.c
+PSP_C_FILES += assets/objects/gameplay_keep/link_textures.c
+PSP_C_FILES += assets/objects/gameplay_keep/gameplay_keep_0x32090.c
+PSP_C_FILES += assets/objects/object_link_boy/object_link_boy.c
+PSP_C_FILES += assets/objects/gameplay_keep/hilite_textures.c
+PSP_C_FILES += assets/objects/gameplay_keep/player_pause_joint_tables.c
+PSP_C_FILES += psp/src/phase2_player_stubs.c
+PSP_C_FILES += src/code/z_DLF.c
+PSP_C_FILES += psp/src/gamestate_table_psp.c
+PSP_C_FILES += psp/src/phase1_stubs.c
+
+PSP_C_FILES += src/code/sys_matrix.c
+PSP_C_FILES += src/code/z_view.c
+PSP_C_FILES += src/code/z_rcp.c
+PSP_C_FILES += src/code/z_debug.c
+# z_sram.c NOT linked for TARGET_PSP: Sram_InitSram/Sram_Alloc are the only
+# functions z_title.c's ConsoleLogo state actually calls, but the full file
+# (save-file corruption repair) drags in Inventory/Rumble/Audio/ZeldaArena
+# as a side effect -- stubbed instead, see psp/src/phase1_stubs.c.
+PSP_C_FILES += src/code/z_common_data.c
+PSP_C_FILES += src/code/TwoHeadArena.c
+# z_vismono.c/z_viszbuf.c NOT linked for TARGET_PSP: both hardcode real N64
+# KSEG1 physical addresses (D_0E000000/D_0F000000, real linker-script-
+# provided symbols for RDRAM scratch regions used by these debug
+# framebuffer visualizers) that don't exist on PSP -- stubbed instead
+# (debug-hotkey-only tools, never exercised by Phase 1's boot path anyway).
+PSP_C_FILES += src/code/z_viscvg.c
+PSP_C_FILES += src/code/gamealloc.c
+PSP_C_FILES += src/code/z_rumble.c
+PSP_C_FILES += src/code/speed_meter.c
+PSP_C_FILES += src/code/z_vimode.c
+PSP_C_FILES += src/code/gfxalloc.c
+PSP_C_FILES += src/code/sys_freeze.c
+PSP_C_FILES += src/libc64/__osMalloc_n64.c
+PSP_C_FILES += src/libu64/debug.c
+PSP_C_FILES += psp/src/libultra/os_vi_misc_stub.c
+
+PSP_C_FILES += src/code/sched.c
+PSP_C_FILES += src/libc64/math64.c
+PSP_C_FILES += src/code/z_memory_utils.c
+PSP_C_FILES += src/libu64/gfxprint.c
+PSP_C_FILES += src/libu64/runtime.c
+PSP_C_FILES += src/code/z_prenmi_buff.c
+PSP_C_FILES += src/libultra/gu/ortho.c
+PSP_C_FILES += src/libultra/gu/lookat.c
+PSP_C_FILES += src/libultra/gu/lookathil.c
+PSP_C_FILES += src/libultra/gu/perspective.c
+PSP_C_FILES += src/libultra/gu/translate.c
+PSP_C_FILES += src/libultra/gu/mtxutil.c
+PSP_C_FILES += src/code/z_lib.c
+PSP_C_FILES += src/libc64/aprintf.c
+PSP_C_FILES += psp/src/libultra/trig_stub.c
+PSP_C_FILES += src/code/sys_rumble.c
+PSP_C_FILES += src/code/z_skin_matrix.c
+PSP_C_FILES += src/code/z_malloc.c
+PSP_C_FILES += src/libc64/qrand.c
+PSP_C_FILES += src/code/shrink_window.c
+PSP_C_FILES += src/code/sys_math_atan.c
+PSP_C_FILES += src/libultra/libc/xprintf.c
+PSP_C_FILES += src/libultra/libc/xldtob.c
+PSP_C_FILES += src/libultra/libc/xlitob.c
+PSP_C_FILES += src/buffers/gfxbuffers.c
+PSP_C_FILES += src/buffers/zbuffer.c
+PSP_C_FILES += extracted/pal-1.0/assets/textures/nintendo_rogo_static/nintendo_rogo_static.c
+PSP_C_FILES += extracted/pal-1.0/assets/textures/icon_item_static/icon_item_static.c
+PSP_C_FILES += assets/textures/icon_item_24_static/icon_item_24_static.c
+PSP_C_FILES += extracted/pal-1.0/assets/textures/parameter_static/parameter_static.c
+
+OBJS := $(PSP_C_FILES:.c=.o)
+
+INCDIR = psp/include psp/include/gfx include src . extracted/pal-1.0 build/pal-1.0
+# PLATFORM_N64=1 matches how the decomp itself builds pal-1.0 (see
+# reference/oot's own Makefile) -- keeps ported src/ files on the same #if
+# branches a real N64 build takes, rather than drifting onto GC/iQue-only
+# paths. OOT_VERSION/DEBUG_FEATURES/NDEBUG mirror that build's own recipe.
+CFLAGS = -O2 -G0 -Wall -D_PSP_FW_VERSION=600 -DPLATFORM_N64=1 -DPLATFORM_GC=0 -DPLATFORM_IQUE=0 \
+         -DOOT_VERSION=PAL_1_0 -DDEBUG_FEATURES=0 -DNDEBUG -DTARGET_PSP=1 -DNON_MATCHING=1 -DAVOID_UB=1 \
+         -DF3DEX_GBI_2 -include libc/assert.h
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
+ASFLAGS = $(CFLAGS)
+
+LIBDIR = psp/lib
+LIBS = -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lm
+
+BUILD_PRX = 1
+PSP_EBOOT_TITLE = OoT PSP (bring-up)
+EXTRA_TARGETS = EBOOT.PBP
+
+PSPSDK = $(shell psp-config --pspsdk-path)
+include $(PSPSDK)/lib/build.mak

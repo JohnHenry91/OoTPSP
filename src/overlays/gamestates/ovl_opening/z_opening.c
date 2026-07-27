@@ -17,11 +17,56 @@
 void TitleSetup_SetupTitleScreen(TitleSetupState* this) {
     gSaveContext.gameMode = GAMEMODE_TITLE_SCREEN;
     this->state.running = false;
+#if TARGET_PSP
+    /* Phase 2 milestone target: skip the real intro cutscene (CS_INDEX_3,
+     * needs cutscene-command playback + several actors not in scope yet)
+     * and boot straight into a normal, controllable Link's House spawn --
+     * see the Phase 2 plan's Key Decision 4. Revisit once Play_Init itself
+     * is proven and cutscene playback is in scope.
+     *
+     * IMPORTANT: override gameMode back to GAMEMODE_NORMAL (not
+     * TITLE_SCREEN, set above) -- Play_Init's own sceneLayer computation
+     * branches on `gameMode != GAMEMODE_NORMAL` to decide between the
+     * *cutscene* scene-layer formula (GET_CUTSCENE_LAYER(cutsceneIndex),
+     * which we never set here since we're not playing a cutscene) and the
+     * normal age/day-night formula. Leaving TITLE_SCREEN mode meant Play_Init
+     * took the cutscene branch with a garbage cutsceneIndex, producing a
+     * bogus non-zero sceneLayer -- which made Scene_CommandAlternateHeaderList
+     * (scene cmd code 24) think this scene had an alternate header to chase,
+     * recursing into Scene_ExecuteCommands with an unresolved/garbage
+     * segmented pointer. Confirmed via file-log diagnostics in z_scene.c. */
+    gSaveContext.gameMode = GAMEMODE_NORMAL;
+    gSaveContext.save.linkAge = LINK_AGE_CHILD;
+    Sram_InitDebugSave();
+    /* TEMPORARY (2026-07-26): SCENE_LINKS_HOUSE uses a prerendered JPEG
+     * background room shape (ROOM_SHAPE_TYPE_IMAGE), whose draw path
+     * (Room_DrawImageSingle) is disabled on this port (see z_room.c --
+     * its S2DEX opcodes collide with our F3DEX2-only interpreter). That
+     * means Link's House can never show any room geometry on this port
+     * yet, independent of any other fix. SCENE_REDEAD_GRAVE is a small
+     * grotto using a real 3D mesh (ROOM_SHAPE_TYPE_NORMAL) instead, to
+     * validate the room-mesh rendering path while image-room support
+     * isn't implemented. Its other actors (EN_BOX, EN_RD, OBJ_SYOKUDAI)
+     * all fall back to the shared no-op dummy ActorProfile on this port
+     * (see psp/src/z_actor_dlftbls_psp.c), same as everywhere else --
+     * only Player has a real profile compiled in. Switch back to
+     * ENTR_LINKS_HOUSE_0 once image-room drawing is implemented. */
+    gSaveContext.save.entranceIndex = ENTR_REDEAD_GRAVE_0;
+    /* Force a safe midday value -- Play_Init derives IS_DAY (and thus which
+     * of SCENE_LAYER_CHILD_DAY/CHILD_NIGHT it picks) from this, and an
+     * unset/zero dayTime would land before the 6:30 threshold, i.e. night,
+     * which -- same as the gameMode fix above -- would make sceneLayer !=
+     * SCENE_LAYER_CHILD_DAY and wrongly re-trigger the alternate-header
+     * recursion this milestone deliberately avoids. */
+    gSaveContext.save.dayTime = CLOCK_TIME(12, 0);
+    gSaveContext.sceneLayer = 0;
+#else
     gSaveContext.save.linkAge = LINK_AGE_ADULT;
     Sram_InitDebugSave();
     gSaveContext.save.cutsceneIndex = CS_INDEX_3;
     // assigning scene layer here is redundant, as Play_Init sets it right away
     gSaveContext.sceneLayer = GET_CUTSCENE_LAYER(CS_INDEX_3);
+#endif
     SET_NEXT_GAMESTATE(&this->state, Play_Init, PlayState);
 }
 

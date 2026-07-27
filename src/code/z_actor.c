@@ -2361,9 +2361,21 @@ void Actor_InitContext(PlayState* play, ActorContext* actorCtx, ActorEntry* play
 
     actorCtx->absoluteSpace = NULL;
 
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Actor_SpawnEntry (Player)"); }
+#endif
     Actor_SpawnEntry(actorCtx, playerEntry, play);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Actor_SpawnEntry (Player)"); }
+#endif
     Attention_Init(&actorCtx->attention, actorCtx->actorLists[ACTORCAT_PLAYER].head, play);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Attention_Init"); }
+#endif
     func_8002FA60(play);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after func_8002FA60"); }
+#endif
 }
 
 u32 sCategoryFreezeMasks[ACTORCAT_MAX] = {
@@ -2894,6 +2906,13 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
 
     invisibleActorCounter = 0;
 
+#if TARGET_PSP
+    /* Reset the shared limb-draw call guard (z_skelanime.c) once per frame --
+     * see that file's comment for why a per-call-site depth cap alone isn't
+     * enough against a corrupted/cyclic limb tree. */
+    { extern unsigned int gPspSkelLimbCallCount; gPspSkelLimbCallCount = 0; }
+#endif
+
     OPEN_DISPS(play->state.gfxCtx, "../z_actor.c", 6336);
 
     actorListEntry = &actorCtx->actorLists[0];
@@ -3345,6 +3364,14 @@ void Actor_SpawnTransitionActors(PlayState* play, ActorContext* actorCtx) {
     numActors = play->transitionActors.count;
 
     for (i = 0; i < numActors; i++) {
+#if TARGET_PSP
+        {
+            extern void PspDebugLogDmaAlignErr(unsigned int, unsigned int, unsigned int, unsigned int);
+            PspDebugLogDmaAlignErr(0xE0000000 | (unsigned short)transitionActor->id, (unsigned int)numActors,
+                                   (unsigned int)(unsigned char)transitionActor->sides[0].room,
+                                   (unsigned int)(unsigned char)transitionActor->sides[1].room);
+        }
+#endif
         if (transitionActor->id >= 0) {
             if (((transitionActor->sides[0].room >= 0) &&
                  ((transitionActor->sides[0].room == play->roomCtx.curRoom.num) ||

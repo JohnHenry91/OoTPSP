@@ -1,4 +1,5 @@
 #include "ultra64.h"
+#include "libc/math.h"
 #include "z_lib.h"
 #include "ichain.h"
 #include "printf.h"

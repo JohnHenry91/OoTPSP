@@ -4,6 +4,7 @@
  * Description: Displays the Nintendo Logo
  */
 
+#include "libc/assert.h"
 #include "libu64/gfxprint.h"
 #if PLATFORM_N64
 #include "cic6105.h"
@@ -30,6 +31,25 @@
 #include "save.h"
 
 #include "assets/textures/nintendo_rogo_static/nintendo_rogo_static.h"
+
+#if TARGET_PSP
+/* TEMPORARY diagnostic -- confirming whether ConsoleLogo_Draw's text-quad
+ * section is reached at runtime at all (shader_log.txt never showed the
+ * text's expected distinct combine ID across several runs). Remove once
+ * diagnosed. */
+#include <pspiofilemgr.h>
+static void PspDebugLogTextReached(void) {
+    static int sLogged = 0;
+    if (sLogged) return;
+    sLogged = 1;
+    SceUID fd = sceIoOpen("ms0:/text_reached.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    if (fd >= 0) {
+        const char msg[] = "text section reached\n";
+        sceIoWrite(fd, msg, sizeof(msg) - 1);
+        sceIoClose(fd);
+    }
+}
+#endif
 
 #if DEBUG_FEATURES
 void ConsoleLogo_PrintBuildInfo(Gfx** gfxP) {
@@ -142,6 +162,9 @@ void ConsoleLogo_Draw(ConsoleLogoState* this) {
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 170, 255, 255, 255);
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 255, 128);
 
+#if TARGET_PSP
+    PspDebugLogTextReached();
+#endif
     gDPLoadMultiBlock(POLY_OPA_DISP++, nintendo_rogo_static_Tex_001800, 0x100, 1, G_IM_FMT_I, G_IM_SIZ_8b, 32, 32, 0,
                       G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 5, 5, 2, 11);
 
@@ -216,8 +239,33 @@ void ConsoleLogo_Destroy(GameState* thisx) {
 #endif
 }
 
+#if TARGET_PSP
+/* Real ROM byte offsets for the "nintendo_rogo_static" segment, read
+ * directly from reference/oot's own verified-byte-perfect pal-1.0 build map
+ * (build/pal-1.0/oot-pal-1.0.map): "_nintendo_rogo_staticSegmentRomStart =
+ * LOADADDR(...) = 0x01a40000", "...RomEnd = ... = 0x01a42dc0". Our shipped
+ * oot-pal-1.0.z64 is byte-identical to that build (verified step 1), so
+ * these offsets are valid. Used instead of the dummy zero-size symbols so
+ * this segment's DMA is a real transfer, not a no-op. Note: this asset's
+ * own display-list commands (gNintendo64LogoDL.inc.c) reference real C
+ * symbols directly (e.g. "gsSPVertex(&gNintendo64LogoVtx[0], 3, 0)"), not
+ * segment-relative addresses, so this DMA doesn't affect THIS asset's own
+ * rendering -- kept real anyway since this->staticSegment is still a
+ * legitimate segment 1 base for any OTHER code that might reference it,
+ * and because "always DMA real data" is a safer default than a silent
+ * no-op once more scenes are in scope. (Earlier in this session, enabling
+ * this appeared to cause a rendering regression -- turned out to be a false
+ * signal from unfocused screenshots, see reference memory notes.) */
+#define NINTENDO_ROGO_STATIC_ROM_START 0x01a40000
+#define NINTENDO_ROGO_STATIC_ROM_SIZE 0x2dc0
+#endif
+
 void ConsoleLogo_Init(GameState* thisx) {
+#if TARGET_PSP
+    u32 size = NINTENDO_ROGO_STATIC_ROM_SIZE;
+#else
     u32 size = (uintptr_t)_nintendo_rogo_staticSegmentRomEnd - (uintptr_t)_nintendo_rogo_staticSegmentRomStart;
+#endif
     ConsoleLogoState* this = (ConsoleLogoState*)thisx;
 
 #if PLATFORM_N64
@@ -234,7 +282,11 @@ void ConsoleLogo_Init(GameState* thisx) {
     this->staticSegment = GAME_STATE_ALLOC(&this->state, size, "../z_title.c", 611);
     PRINTF("z_title.c\n");
     ASSERT(this->staticSegment != NULL, "this->staticSegment != NULL", "../z_title.c", 614);
+#if TARGET_PSP
+    DMA_REQUEST_SYNC(this->staticSegment, NINTENDO_ROGO_STATIC_ROM_START, size, "../z_title.c", 615);
+#else
     DMA_REQUEST_SYNC(this->staticSegment, (uintptr_t)_nintendo_rogo_staticSegmentRomStart, size, "../z_title.c", 615);
+#endif
     R_UPDATE_RATE = 1;
     Matrix_Init(&this->state);
     View_Init(&this->view, this->state.gfxCtx);

@@ -24,6 +24,10 @@ void Interface_Init(PlayState* play) {
     u16 doActionOffset;
     u8 timerId;
 
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("Interface_Init entry"); }
+#endif
+
     gSaveContext.sunsSongState = SUNSSONG_INACTIVE;
     gSaveContext.nextHudVisibilityMode = gSaveContext.hudVisibilityMode = HUD_VISIBILITY_NO_CHANGE;
 
@@ -51,8 +55,14 @@ void Interface_Init(PlayState* play) {
     PRINTF("parameter->parameterSegment=%x\n", interfaceCtx->parameterSegment);
 
     ASSERT(interfaceCtx->parameterSegment != NULL, "parameter->parameterSegment != NULL", "../z_construct.c", 161);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before parameterSize DMA"); }
+#endif
     DMA_REQUEST_SYNC(interfaceCtx->parameterSegment, (uintptr_t)_parameter_staticSegmentRomStart, parameterSize,
                      "../z_construct.c", 162);
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 30); }
+#endif
 
     interfaceCtx->doActionSegment = GAME_STATE_ALLOC(&play->state, 3 * DO_ACTION_TEX_SIZE, "../z_construct.c", 166);
 
@@ -79,6 +89,9 @@ void Interface_Init(PlayState* play) {
 
     DMA_REQUEST_SYNC(interfaceCtx->doActionSegment, (uintptr_t)_do_action_staticSegmentRomStart + doActionOffset,
                      2 * DO_ACTION_TEX_SIZE, "../z_construct.c", 174);
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 31); }
+#endif
 
 #if OOT_NTSC
     if (gSaveContext.language == LANGUAGE_JPN) {
@@ -99,6 +112,9 @@ void Interface_Init(PlayState* play) {
     DMA_REQUEST_SYNC(interfaceCtx->doActionSegment + 2 * DO_ACTION_TEX_SIZE,
                      (uintptr_t)_do_action_staticSegmentRomStart + doActionOffset, DO_ACTION_TEX_SIZE,
                      "../z_construct.c", 178);
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 32); }
+#endif
 
     interfaceCtx->iconItemSegment = GAME_STATE_ALLOC(&play->state, ICON_ITEM_SEGMENT_SIZE, "../z_construct.c", 190);
 
@@ -141,6 +157,9 @@ void Interface_Init(PlayState* play) {
                          GET_ITEM_ICON_VROM(gSaveContext.save.info.equips.buttonItems[3]), ITEM_ICON_SIZE,
                          "../z_construct.c", 219);
     }
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 33); }
+#endif
 
     PRINTF("ＥＶＥＮＴ＝%d\n", ((void)0, gSaveContext.timerState));
 

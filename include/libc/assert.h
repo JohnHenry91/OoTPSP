@@ -7,7 +7,14 @@
 
 // Runtime assertions
 
+#if !TARGET_PSP
+/* PSPSDK's own <assert.h> (pulled in transitively by some pspsdk headers)
+ * declares __assert with a different, incompatible signature. ASSERT is a
+ * no-op on PSP anyway (DEBUG_FEATURES=0), so nothing ever calls this --
+ * just skip the conflicting declaration rather than chase the exact
+ * PSPSDK include path that pulls its version in. */
 __attribute__((noreturn)) void __assert(const char* assertion, const char* file, int line);
+#endif
 
 // assert for matching
 #ifndef NDEBUG

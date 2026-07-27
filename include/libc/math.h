@@ -60,6 +60,7 @@ f64 sqrt(f64 f);
 #pragma intrinsic(sqrt)
 #endif
 
+
 #if !PLATFORM_N64
 extern float gPositiveInfinity;
 extern float gNegativeInfinity;

@@ -3,6 +3,18 @@
 
 #include "assert.h"
 #include "math.h"
+#if TARGET_PSP
+/* See include/z_math.h's identical block for why: SHT_MAX/SHT_MINV normally
+ * come from the decomp's own include/libc/math.h (via -Iinclude/libc, not
+ * used globally on PSP since it'd shadow the real PSP SDK headers), so any
+ * file reaching this "math.h" via ultra64.h instead of z_math.h -- e.g.
+ * sys_math.c, which doesn't include z_math.h -- otherwise never gets these
+ * two constants defined at all. */
+#ifndef SHT_MAX
+#define SHT_MAX 32767.0f
+#define SHT_MINV (1.0f / SHT_MAX)
+#endif
+#endif
 #include "stdarg.h"
 #include "stdbool.h"
 #include "stddef.h"

@@ -701,9 +701,17 @@ void Sched_Init(Scheduler* sc, void* stack, OSPri priority, u8 viModeType, UNK_T
     osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON | OS_VI_GAMMA_OFF);
 #endif
 
+#if TARGET_PSP
+    /* No real RSP/RDP/VI hardware to register interrupt events for, and
+     * gScheduler's gfx-task dispatch is bypassed entirely on PSP (see
+     * plan decision #6, src/code/graph.c's Graph_TaskSet00) -- Sched is a
+     * near-total no-op here, so don't spawn its thread either. */
+    IrqMgr_AddClient(irqMgr, &sc->irqClient, &sc->interruptQueue);
+#else
     osSetEventMesg(OS_EVENT_SP, &sc->interruptQueue, (OSMesg)RSP_DONE_MSG);
     osSetEventMesg(OS_EVENT_DP, &sc->interruptQueue, (OSMesg)RDP_DONE_MSG);
     IrqMgr_AddClient(irqMgr, &sc->irqClient, &sc->interruptQueue);
     osCreateThread(&sc->thread, THREAD_ID_SCHED, Sched_ThreadEntry, sc, stack, priority);
     osStartThread(&sc->thread);
+#endif
 }

@@ -297,6 +297,11 @@ void Play_Init(GameState* thisx) {
     u8 baseSceneLayer;
     s32 pad[2];
 
+#if TARGET_PSP
+    extern int gPspBootLogoActive;
+    gPspBootLogoActive = 0;
+#endif
+
     if (gSaveContext.save.entranceIndex == ENTR_LOAD_OPENING) {
         gSaveContext.save.entranceIndex = 0;
         this->state.running = false;
@@ -402,9 +407,27 @@ void Play_Init(GameState* thisx) {
         gSaveContext.sceneLayer = GET_EVENTCHKINF(EVENTCHKINF_48) ? 3 : 2;
     }
 
+#if TARGET_PSP
+    /* TEMPORARY diagnostic -- confirming Play_SpawnScene is reached and what
+     * sceneId/segment/room state results. Remove once diagnosed. */
+    {
+        extern void PspDebugLogPlaySpawn(s32 sceneId, s32 spawn, void* sceneSegment, u32 checkVal);
+        s32 dbgSceneId = gEntranceTable[((void)0, gSaveContext.save.entranceIndex) + ((void)0, gSaveContext.sceneLayer)].sceneId;
+        s32 dbgSpawn = gEntranceTable[((void)0, gSaveContext.save.entranceIndex) + ((void)0, gSaveContext.sceneLayer)].spawn;
+        PspDebugLogPlaySpawn(dbgSceneId, dbgSpawn, NULL, 0xAAAAAAAA);
+    }
+#endif
     Play_SpawnScene(
         this, gEntranceTable[((void)0, gSaveContext.save.entranceIndex) + ((void)0, gSaveContext.sceneLayer)].sceneId,
         gEntranceTable[((void)0, gSaveContext.save.entranceIndex) + ((void)0, gSaveContext.sceneLayer)].spawn);
+#if TARGET_PSP
+    {
+        extern void PspDebugLogPlaySpawn(s32 sceneId, s32 spawn, void* sceneSegment, u32 checkVal);
+        PspDebugLogPlaySpawn(-1, -1, this->sceneSegment, 0xBBBBBBBB);
+        extern void PspDebugLogCheckpoint(const char* name);
+        PspDebugLogCheckpoint("after Play_SpawnScene");
+    }
+#endif
 
     PRINTF("\nSCENE_NO=%d COUNTER=%d\n", ((void)0, gSaveContext.save.entranceIndex), gSaveContext.sceneLayer);
 
@@ -419,6 +442,10 @@ void Play_Init(GameState* thisx) {
     }
 #endif
 
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 20);
+      extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Cutscene_HandleEntranceTriggers"); }
+#endif
 #if PLATFORM_N64
     if ((B_80121220 != NULL && B_80121220->unk_54 != NULL && B_80121220->unk_54(this))) {
     } else {
@@ -427,9 +454,21 @@ void Play_Init(GameState* thisx) {
 #else
     Cutscene_HandleEntranceTriggers(this);
 #endif
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 21);
+      extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Cutscene_HandleEntranceTriggers"); }
+#endif
 
     KaleidoScopeCall_Init(this);
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 22);
+      extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after KaleidoScopeCall_Init, before Interface_Init"); }
+#endif
     Interface_Init(this);
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 23);
+      extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Interface_Init"); }
+#endif
 
     if (gSaveContext.nextDayTime != NEXT_TIME_NONE) {
         if (gSaveContext.nextDayTime == NEXT_TIME_DAY) {
@@ -455,6 +494,28 @@ void Play_Init(GameState* thisx) {
     PreRender_SetValues(&this->pauseBgPreRender, SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL);
     gTransitionTileState = TRANS_TILE_OFF;
     this->transitionMode = TRANS_MODE_OFF;
+#if TARGET_PSP
+    /* this->transitionCtx (its transitionType/init/destroy/draw/update/etc.
+     * function pointers) is only ever populated by Play_SetupTransition,
+     * called from the TRANS_MODE_SETUP case below once a real transition
+     * actually starts (walking through a door, etc.) -- until then it holds
+     * whatever was last in this PlayState's arena allocation. Real hardware
+     * never reads it before that first real setup call. On this port,
+     * PlayState memory isn't guaranteed zeroed (SYSTEM_ARENA_MALLOC makes no
+     * such promise), and Play_Draw's own instance-transition-drawing check
+     * (`transitionCtx.transitionType >= 56`) is independent of
+     * transitionMode -- if leftover arena bytes happen to make
+     * transitionType read as >= 56, Play_Draw calls through
+     * transitionCtx.draw despite it never having been set, jumping to
+     * whatever garbage address happens to be there (observed: PPSSPP-
+     * reported "Bad Execution Address" a few frames into gameplay, at
+     * different garbage destinations across different runs/builds --
+     * consistent with genuinely uninitialized memory content, not a fixed
+     * bug in one spot). Zero the whole struct explicitly so transitionType
+     * is a safe 0 and every function pointer is NULL until a real
+     * transition legitimately sets them up. */
+    bzero(&this->transitionCtx, sizeof(this->transitionCtx));
+#endif
     FrameAdvance_Init(&this->frameAdvCtx);
     Rand_Seed((u32)osGetTime());
     Matrix_Init(&this->state);
@@ -498,15 +559,33 @@ void Play_Init(GameState* thisx) {
     Fault_AddClient(&D_801614B8, ZeldaArena_Display, NULL, NULL);
 #endif
 
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Actor_InitContext"); }
+#endif
     Actor_InitContext(this, &this->actorCtx, this->playerEntry);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Actor_InitContext"); }
+#endif
 
     // Busyloop until the room loads
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 10); }
+#endif
     while (!Room_ProcessRoomRequest(this, &this->roomCtx)) {
         ; // Empty Loop
     }
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 11); }
+#endif
 
     player = GET_PLAYER(this);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Camera_InitDataUsingPlayer"); }
+#endif
     Camera_InitDataUsingPlayer(&this->mainCamera, player);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Camera_InitDataUsingPlayer"); }
+#endif
     Camera_RequestMode(&this->mainCamera, CAM_MODE_NORMAL);
 
     playerStartBgCamIndex = PLAYER_GET_START_BG_CAM_INDEX(&player->actor);
@@ -528,8 +607,17 @@ void Play_Init(GameState* thisx) {
     Environment_PlaySceneSequence(this);
     gSaveContext.seqId = this->sceneSequences.seqId;
     gSaveContext.natureAmbienceId = this->sceneSequences.natureAmbienceId;
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Actor_InitPlayerHorse"); }
+#endif
     Actor_InitPlayerHorse(this, GET_PLAYER(this));
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before AnimTaskQueue_Update"); }
+#endif
     AnimTaskQueue_Update(this, &this->animTaskQueue);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("end of Play_Init"); }
+#endif
     gSaveContext.respawnFlag = 0;
 
 #if DEBUG_FEATURES
@@ -550,6 +638,17 @@ void Play_Update(PlayState* this) {
     Input* input = this->state.input;
     s32 isPaused;
     s32 pad1;
+
+#if TARGET_PSP
+    {
+        static int sPlayUpdateCallCount = 0;
+        extern void PspDebugLogCheckpoint(const char* name);
+        if (sPlayUpdateCallCount < 3) {
+            PspDebugLogCheckpoint("Play_Update entry");
+            sPlayUpdateCallCount++;
+        }
+    }
+#endif
 
 #if DEBUG_FEATURES
     if ((SREG(1) < 0) || (DREG(0) != 0)) {
@@ -962,6 +1061,9 @@ void Play_Update(PlayState* this) {
 
             PLAY_LOG(3561);
             Object_UpdateEntries(&this->objectCtx);
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Object_UpdateEntries"); }
+#endif
 
             PLAY_LOG(3577);
 
@@ -985,6 +1087,9 @@ void Play_Update(PlayState* this) {
                 } else {
                     PLAY_LOG(3606);
                     Room_ProcessRoomRequest(this, &this->roomCtx);
+#if TARGET_PSP
+                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Room_ProcessRoomRequest"); }
+#endif
 
                     PLAY_LOG(3612);
                     CollisionCheck_AT(this, &this->colChkCtx);
@@ -997,24 +1102,36 @@ void Play_Update(PlayState* this) {
 
                     PLAY_LOG(3631);
                     CollisionCheck_ClearContext(this, &this->colChkCtx);
+#if TARGET_PSP
+                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after CollisionCheck_ClearContext"); }
+#endif
 
                     PLAY_LOG(3637);
 
                     if (!this->haltAllActors) {
                         Actor_UpdateAll(this, &this->actorCtx);
                     }
+#if TARGET_PSP
+                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Actor_UpdateAll"); }
+#endif
 
                     PLAY_LOG(3643);
                     Cutscene_UpdateManual(this, &this->csCtx);
 
                     PLAY_LOG(3648);
                     Cutscene_UpdateScripted(this, &this->csCtx);
+#if TARGET_PSP
+                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Cutscene_UpdateScripted"); }
+#endif
 
                     PLAY_LOG(3651);
                     Effect_UpdateAll(this);
 
                     PLAY_LOG(3657);
                     EffectSs_UpdateAll(this);
+#if TARGET_PSP
+                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after EffectSs_UpdateAll"); }
+#endif
 
                     PLAY_LOG(3662);
                 }
@@ -1027,6 +1144,9 @@ void Play_Update(PlayState* this) {
 
             PLAY_LOG(3675);
             func_80095AA0(this, &this->roomCtx.prevRoom, &input[1], 1);
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after func_80095AA0 x2"); }
+#endif
 
             PLAY_LOG(3677);
 
@@ -1052,6 +1172,9 @@ void Play_Update(PlayState* this) {
 
             PLAY_LOG(3708);
             Skybox_Update(&this->skyboxCtx);
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Skybox_Update"); }
+#endif
 
             PLAY_LOG(3716);
 
@@ -1065,14 +1188,23 @@ void Play_Update(PlayState* this) {
                 PLAY_LOG(3733);
                 Message_Update(this);
             }
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Message_Update branch"); }
+#endif
 
             PLAY_LOG(3737);
 
             PLAY_LOG(3742);
             Interface_Update(this);
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Interface_Update"); }
+#endif
 
             PLAY_LOG(3765);
             AnimTaskQueue_Update(this, &this->animTaskQueue);
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after AnimTaskQueue_Update"); }
+#endif
 
             PLAY_LOG(3771);
             SfxSource_UpdateAll(this);
@@ -1082,6 +1214,9 @@ void Play_Update(PlayState* this) {
 
             PLAY_LOG(3783);
             TransitionFade_Update(&this->transitionFadeFlash, R_UPDATE_RATE);
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after TransitionFade_Update"); }
+#endif
         } else {
             goto skip;
         }
@@ -1111,10 +1246,16 @@ skip:
 
         PLAY_LOG(3814);
     }
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Camera_Update"); }
+#endif
 
     PLAY_LOG(3816);
     Environment_Update(this, &this->envCtx, &this->lightCtx, &this->pauseCtx, &this->msgCtx, &this->gameOverCtx,
                        this->state.gfxCtx);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Environment_Update (end of Play_Update)"); }
+#endif
 }
 
 void Play_DrawOverlayElements(PlayState* this) {
@@ -1122,9 +1263,20 @@ void Play_DrawOverlayElements(PlayState* this) {
     s32 pad;
 #endif
 
+#if !TARGET_PSP
     if (IS_PAUSED(&this->pauseCtx)) {
         KaleidoScopeCall_Draw(this);
     }
+#else
+    /* KaleidoScopeCall_Draw() calls sKaleidoScopeDrawFunc(), a function
+     * pointer resolved via KaleidoManager_GetRamAddr() (the N64 overlay
+     * system). IS_PAUSED() only tests pauseCtx.state != PAUSE_STATE_OFF,
+     * so it trips on ANY stray nonzero write to that field, not just a
+     * real pause-menu open -- same corruption class as transitionCtx.draw
+     * (see Play_Init). Pause menu is out of scope for this milestone, so
+     * skip the whole path on PSP rather than chase a corrupted call target.
+     */
+#endif
 
     if (gSaveContext.gameMode == GAMEMODE_NORMAL) {
         Interface_Draw(this);
@@ -1142,11 +1294,44 @@ void Play_Draw(PlayState* this) {
     Lights* sp228;
     Vec3f sp21C;
 
+#if TARGET_PSP
+    {
+        static int c = 0;
+        extern void PspDebugLogCheckpoint(const char* name);
+        if (c < 2) { c++; PspDebugLogCheckpoint("Play_Draw entry"); }
+    }
+#endif
+
     OPEN_DISPS(gfxCtx, "../z_play.c", 3907);
 
     gSegments[4] = OS_K0_TO_PHYSICAL(this->objectCtx.slots[this->objectCtx.mainKeepSlot].segment);
     gSegments[5] = OS_K0_TO_PHYSICAL(this->objectCtx.slots[this->objectCtx.subKeepSlot].segment);
     gSegments[2] = OS_K0_TO_PHYSICAL(this->sceneSegment);
+#if TARGET_PSP
+    /* Segments 8/9 (Player's eye/mouth texture segments, set via
+     * gSPSegment in Player_DrawImpl with an ALREADY-native pointer, see
+     * z_player_lib.c) only take effect in gSegments[] once THIS frame's
+     * display list is interpreted by gfx_run, at the end of the frame --
+     * so the value from last frame's gSPSegment(8/9,...) is still sitting
+     * in gSegments[] right now, before this frame's own Actor_DrawAll even
+     * runs. PspSegmentedToVirtualDefensive (segmented_address.h) treats any
+     * populated gSegments[N] slot as "this is a real N64 segment" -- but
+     * because PSP's own native/statically-linked pointers all start with
+     * the same upper nibble as PSP_MODULE_BASE (0x08804000, i.e. nibble 8),
+     * a stale gSegments[8] causes EVERY other native pointer resolution
+     * this frame (e.g. Player's own skeleton limb array in
+     * SkelAnime_DrawFlexLimbLod) to be wrongly reinterpreted as "segment 8
+     * plus offset", producing garbage and a real hang (a corrupted
+     * limb->child/sibling walk that cycles indefinitely -- root-caused via
+     * project memory's DMA-thread-hang investigation). Clearing them here,
+     * before this frame's C-side draw-building starts, does not affect
+     * gfx_run's own later resolution of this frame's fresh eye/mouth
+     * G_SETTIMG commands, since gfx_run's interpretation (at the end of the
+     * frame, after this point) sets gSegments[8]/[9] again from this same
+     * frame's own gSPSegment commands before using them. */
+    gSegments[8] = 0;
+    gSegments[9] = 0;
+#endif
 
     gSPSegment(POLY_OPA_DISP++, 0x00, NULL);
     gSPSegment(POLY_XLU_DISP++, 0x00, NULL);
@@ -1173,6 +1358,31 @@ void Play_Draw(PlayState* this) {
         View_SetPerspective(&this->view, this->view.fovy, this->view.zNear, this->lightCtx.zFar);
         View_Apply(&this->view, VIEW_ALL);
 
+#if TARGET_PSP
+        {
+            static int sViewLogged = 0;
+            if (sViewLogged < 3) {
+                sViewLogged++;
+                extern int sprintf(char* str, const char* format, ...);
+                char msg[256];
+                int len = sprintf(msg,
+                    "eye=(%f,%f,%f) at=(%f,%f,%f) fovy=%f zNear=%f zFar=%d roomType=%d roomNumEntries=%d entry0.opa=%p entry0.xlu=%p\n",
+                    this->view.eye.x, this->view.eye.y, this->view.eye.z,
+                    this->view.at.x, this->view.at.y, this->view.at.z,
+                    this->view.fovy, this->view.zNear, (int)this->lightCtx.zFar,
+                    this->roomCtx.curRoom.roomShape ? this->roomCtx.curRoom.roomShape->base.type : -1,
+                    (this->roomCtx.curRoom.roomShape && this->roomCtx.curRoom.roomShape->base.type == ROOM_SHAPE_TYPE_NORMAL)
+                        ? this->roomCtx.curRoom.roomShape->normal.numEntries : -1,
+                    (this->roomCtx.curRoom.roomShape && this->roomCtx.curRoom.roomShape->base.type == ROOM_SHAPE_TYPE_NORMAL)
+                        ? ((RoomShapeDListsEntry*)SEGMENTED_TO_VIRTUAL(this->roomCtx.curRoom.roomShape->normal.entries))->opa : NULL,
+                    (this->roomCtx.curRoom.roomShape && this->roomCtx.curRoom.roomShape->base.type == ROOM_SHAPE_TYPE_NORMAL)
+                        ? ((RoomShapeDListsEntry*)SEGMENTED_TO_VIRTUAL(this->roomCtx.curRoom.roomShape->normal.entries))->xlu : NULL);
+                extern void PspDebugLogRaw(const char* msg, int len);
+                PspDebugLogRaw(msg, len);
+            }
+        }
+#endif
+
         // The billboard matrix temporarily stores the viewing matrix
         Matrix_MtxToMtxF(&this->view.viewing, &this->billboardMtxF);
         Matrix_MtxToMtxF(&this->view.projection, &this->viewProjectionMtxF);
@@ -1196,6 +1406,7 @@ void Play_Draw(PlayState* this) {
             gfxP = Gfx_Open(sp1CC);
             gSPDisplayList(OVERLAY_DISP++, gfxP);
 
+#if !TARGET_PSP
             if ((this->transitionMode == TRANS_MODE_INSTANCE_RUNNING) ||
                 (this->transitionMode == TRANS_MODE_INSTANCE_WAIT) || (this->transitionCtx.transitionType >= 56)) {
                 View view;
@@ -1208,6 +1419,23 @@ void Play_Draw(PlayState* this) {
                 View_ApplyTo(&view, VIEW_ALL, &gfxP);
                 this->transitionCtx.draw(&this->transitionCtx.instanceData, &gfxP);
             }
+#else
+            /* Instance-style transition drawing (circle wipes, etc. -- real
+             * scene transitions triggered by walking through a door) is not
+             * exercised by this port's current single-room milestone, and
+             * calling through this->transitionCtx.draw has been observed to
+             * crash ("Bad Execution Address") several frames into gameplay:
+             * this->transitionCtx.draw reads back as a small-but-nonzero,
+             * not-a-real-function value (varies across runs/builds) even
+             * though it's explicitly bzero'd at the top of Play_Init --
+             * something (root cause not yet found, likely the same general
+             * class of wild-write bug as the corrupted skeleton limb chain
+             * investigated earlier this session) overwrites it before this
+             * point is ever reached. Skip this block entirely on this port
+             * until real scene-transition support is in scope -- safer than
+             * chasing the exact corruption source right now, since nothing
+             * in the current milestone actually needs it to draw anything. */
+#endif
 
             TransitionFade_Draw(&this->transitionFadeFlash, &gfxP);
 
@@ -1304,8 +1532,29 @@ void Play_Draw(PlayState* this) {
                     roomDrawFlags = R_PLAY_DRAW_ROOM_FLAGS;
                 }
                 Scene_Draw(this);
+#if TARGET_PSP
+                { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Room_Draw curRoom"); }
+#endif
                 Room_Draw(this, &this->roomCtx.curRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
+#if TARGET_PSP
+                { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Room_Draw curRoom"); }
+#endif
+#if TARGET_PSP
+                /* roomCtx.prevRoom is only ever populated by a real room transition
+                 * (Room_RequestNewRoom / Room_FinishRoomChange), which this port's
+                 * single-room milestone never triggers. Room_Draw() itself gates on
+                 * room->segment != NULL before indexing sRoomDrawHandlers[] with
+                 * room->roomShape->base.type, so a stray nonzero write into
+                 * prevRoom.segment elsewhere in the frame (same corruption class as
+                 * transitionCtx.draw and pauseCtx, see above) makes it call a garbage
+                 * function pointer. Force it NULL right before use rather than trust
+                 * upstream state to stay clean for the whole frame. */
+                this->roomCtx.prevRoom.segment = NULL;
+#endif
                 Room_Draw(this, &this->roomCtx.prevRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
+#if TARGET_PSP
+                { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Room_Draw prevRoom"); }
+#endif
             }
         }
 
@@ -1329,7 +1578,44 @@ void Play_Draw(PlayState* this) {
         }
 
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_ACTORS) {
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Actor_DrawAll"); }
+            /* Segments 8/9 are reused broadly (Player's eye/mouth textures,
+             * hilite/specular effects, room props) via gSPSegment -- once
+             * ANY such command runs during THIS interpreter walk, gSegments
+             * [8]/[9] stay populated for the rest of the frame (authentic
+             * N64 semantics: segments are not scoped to a display-list call
+             * frame). On real N64 hardware that's harmless, since segment
+             * numbers (0-15) never collide with RDRAM's actual physical
+             * address range. On PSP they collide directly: native pointers
+             * commonly start with byte 0x08/0x09 (PSP_MODULE_BASE region),
+             * which is numerically indistinguishable from a small N64
+             * segment number once gSegments[8]/[9] is non-zero (see
+             * seg_addr()'s heuristic in gfx_pc.c). Confirmed via a dedicated
+             * entry-address+content trace this session: after the room's
+             * own mesh sub-lists (which can legitimately touch segment 8 for
+             * their own materials) finish, the very next G_DL push resolved
+             * to an unaligned garbage pointer (0x8997070a, all-zero content)
+             * instead of Player's real limb draw list -- a real, already-
+             * resolved native pointer whose upper nibble coincidentally
+             * matched a still-populated gSegments[8/9] slot left over from
+             * room content. Emitting a real gSPSegment(...,0) command here,
+             * right at the room/actor boundary in the actual display-list
+             * stream (not just the C-side gSegments[] array, which the
+             * interpreter never reads directly -- see project memory's
+             * "two independent timelines" note), closes that poisoning
+             * window before Actor_DrawAll's own content -- including
+             * Player's own subsequent, correct gSPSegment(8/9,...) calls --
+             * gets interpreted. */
+            gSPSegment(POLY_OPA_DISP++, 0x08, NULL);
+            gSPSegment(POLY_OPA_DISP++, 0x09, NULL);
+            gSPSegment(POLY_XLU_DISP++, 0x08, NULL);
+            gSPSegment(POLY_XLU_DISP++, 0x09, NULL);
+#endif
             Actor_DrawAll(this, &this->actorCtx);
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Actor_DrawAll"); }
+#endif
         }
 
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_LENS_FLARES) {
@@ -1393,11 +1679,20 @@ void Play_Draw(PlayState* this) {
 
     Play_Draw_DrawOverlayElements:
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_OVERLAY_ELEMENTS) {
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Play_DrawOverlayElements"); }
+#endif
             Play_DrawOverlayElements(this);
+#if TARGET_PSP
+            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Play_DrawOverlayElements"); }
+#endif
         }
     }
 
 Play_Draw_skip:
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("Play_Draw_skip label"); }
+#endif
 
     if (this->view.unk_124 != 0) {
         Camera_Update(GET_ACTIVE_CAM(this));
@@ -1409,8 +1704,14 @@ Play_Draw_skip:
     }
 
     Camera_Finish(GET_ACTIVE_CAM(this));
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before CLOSE_DISPS"); }
+#endif
 
     CLOSE_DISPS(gfxCtx, "../z_play.c", 4508);
+#if TARGET_PSP
+    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("end of Play_Draw"); }
+#endif
 }
 
 void Play_Main(GameState* thisx) {
@@ -1523,7 +1824,21 @@ void* Play_LoadFile(PlayState* this, RomFile* file) {
 
     size = file->vromEnd - file->vromStart;
     allocp = GAME_STATE_ALLOC(&this->state, size, "../z_play.c", 4692);
+#if TARGET_PSP
+    {
+        extern void PspDebugLogFileLoad(void* allocp, unsigned int vromStart, unsigned int size, unsigned int b0, unsigned int b1, unsigned int b2, unsigned int b3, int stage);
+        u8* b = (u8*)allocp;
+        PspDebugLogFileLoad(allocp, (unsigned int)file->vromStart, (unsigned int)size, b[0], b[1], b[2], b[3], 0);
+    }
+#endif
     DMA_REQUEST_SYNC(allocp, file->vromStart, size, "../z_play.c", 4694);
+#if TARGET_PSP
+    {
+        extern void PspDebugLogFileLoad(void* allocp, unsigned int vromStart, unsigned int size, unsigned int b0, unsigned int b1, unsigned int b2, unsigned int b3, int stage);
+        u8* b = (u8*)allocp;
+        PspDebugLogFileLoad(allocp, (unsigned int)file->vromStart, (unsigned int)size, b[0], b[1], b[2], b[3], 1);
+    }
+#endif
 
     return allocp;
 }
@@ -1583,6 +1898,14 @@ void Play_SpawnScene(PlayState* this, s32 sceneId, s32 spawn) {
     scene = &gSceneTable[sceneId];
     scene->unk_13 = 0;
 #endif
+#if TARGET_PSP
+    {
+        extern void PspDebugLogGSceneTable(void* gSceneTableAddr, void* sceneAddr, s32 sceneId, u32 vromStart,
+                                            u32 vromEnd, u32 structSize);
+        PspDebugLogGSceneTable(gSceneTable, scene, sceneId, (u32)scene->sceneFile.vromStart,
+                                (u32)scene->sceneFile.vromEnd, (u32)sizeof(SceneTableEntry));
+    }
+#endif
 
     this->loadedScene = scene;
     this->sceneId = sceneId;
@@ -1602,12 +1925,23 @@ void Play_SpawnScene(PlayState* this, s32 sceneId, s32 spawn) {
     this->sceneSegment = Play_LoadFile(this, &scene->sceneFile);
     scene->unk_13 = 0;
 #endif
+#if TARGET_PSP
+    {
+        extern void PspFixupCommandStreamEndian(void* data, unsigned int size);
+        PspFixupCommandStreamEndian(this->sceneSegment,
+                                     (unsigned int)(scene->sceneFile.vromEnd - scene->sceneFile.vromStart));
+    }
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, this->sceneSegment, 2); }
+#endif
 
     ASSERT(this->sceneSegment != NULL, "this->sceneSegment != NULL", "../z_play.c", 4960);
 
     gSegments[2] = OS_K0_TO_PHYSICAL(this->sceneSegment);
 
     Play_InitScene(this, spawn);
+#if TARGET_PSP
+    { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 3); }
+#endif
 
 #if PLATFORM_N64
     if ((B_80121220 != NULL) && (B_80121220->unk_0C != NULL)) {

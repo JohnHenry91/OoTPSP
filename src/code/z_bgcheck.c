@@ -1564,6 +1564,13 @@ void BgCheck_Allocate(CollisionContext* colCtx, PlayState* play, CollisionHeader
     colCtx->colHeader = colHeader;
     customNodeListMax = -1;
 
+#if TARGET_PSP
+    {
+        extern void PspDebugLogBgCheck(int, unsigned int, unsigned int, unsigned int, unsigned int);
+        PspDebugLogBgCheck(0, colHeader->numVertices, colHeader->numPolygons, colHeader->numWaterBoxes, 0);
+    }
+#endif
+
     PRINTF(T("/*---------------- BGCheck バッファーメモリサイズ -------------*/\n",
              "/*---------------- BGCheck Buffer Memory Size -------------*/\n"));
 
@@ -1628,6 +1635,13 @@ void BgCheck_Allocate(CollisionContext* colCtx, PlayState* play, CollisionHeader
         LogUtils_HungupThread("../z_bgcheck.c", LN1(4173, 4176));
     }
 
+#if TARGET_PSP
+    {
+        extern void PspDebugLogBgCheck(int, unsigned int, unsigned int, unsigned int, unsigned int);
+        PspDebugLogBgCheck(1, colCtx->subdivAmount.x, colCtx->subdivAmount.y, colCtx->subdivAmount.z, 0);
+    }
+#endif
+
     colCtx->minBounds.x = colCtx->colHeader->minBounds.x;
     colCtx->minBounds.y = colCtx->colHeader->minBounds.y;
     colCtx->minBounds.z = colCtx->colHeader->minBounds.z;
@@ -1645,6 +1659,13 @@ void BgCheck_Allocate(CollisionContext* colCtx, PlayState* play, CollisionHeader
               colCtx->dyna.polyListMax * sizeof(CollisionPoly) + colCtx->dyna.vtxListMax * sizeof(Vec3s) +
               sizeof(CollisionContext);
 
+#if TARGET_PSP
+    {
+        extern void PspDebugLogBgCheck(int, unsigned int, unsigned int, unsigned int, unsigned int);
+        PspDebugLogBgCheck(2, memSize, colCtx->memSize, customNodeListMax, 0);
+    }
+#endif
+
     if (customNodeListMax > 0) {
         // tblMax is set without checking if customNodeListMax will result in a memory overflow
         // this is a non-issue as long as sceneSubdivisionList.nodeListMax is -1
@@ -1656,17 +1677,54 @@ void BgCheck_Allocate(CollisionContext* colCtx, PlayState* play, CollisionHeader
         tblMax = (colCtx->memSize - memSize) / sizeof(SSNode);
     }
 
+#if TARGET_PSP
+    {
+        extern void PspDebugLogBgCheck(int, unsigned int, unsigned int, unsigned int, unsigned int);
+        PspDebugLogBgCheck(3, tblMax, 0, 0, 0);
+    }
+#endif
+
     SSNodeList_Initialize(&colCtx->polyNodes);
     SSNodeList_Alloc(play, &colCtx->polyNodes, tblMax, colCtx->colHeader->numPolygons);
 
+#if TARGET_PSP
+    {
+        extern void PspDebugLogBgCheck(int, unsigned int, unsigned int, unsigned int, unsigned int);
+        PspDebugLogBgCheck(4, 0, 0, 0, 0);
+    }
+#endif
+
     lookupTblMemSize = BgCheck_InitializeStaticLookup(colCtx, play, colCtx->lookupTbl);
+
+#if TARGET_PSP
+    {
+        extern void PspDebugLogBgCheck(int, unsigned int, unsigned int, unsigned int, unsigned int);
+        PspDebugLogBgCheck(5, lookupTblMemSize, 0, 0, 0);
+    }
+#endif
+
     PRINTF_COLOR_GREEN();
     PRINTF(T("/*---結局 BG使用サイズ %dbyte---*/\n", "/*---BG size used in the end %dbyte---*/\n"),
            memSize + lookupTblMemSize);
     PRINTF_RST();
 
     DynaPoly_Init(play, &colCtx->dyna);
+
+#if TARGET_PSP
+    {
+        extern void PspDebugLogBgCheck(int, unsigned int, unsigned int, unsigned int, unsigned int);
+        PspDebugLogBgCheck(6, 0, 0, 0, 0);
+    }
+#endif
+
     DynaPoly_Alloc(play, &colCtx->dyna);
+
+#if TARGET_PSP
+    {
+        extern void PspDebugLogBgCheck(int, unsigned int, unsigned int, unsigned int, unsigned int);
+        PspDebugLogBgCheck(7, 0, 0, 0, 0);
+    }
+#endif
 }
 
 /**
@@ -3984,7 +4042,18 @@ u16 BgCheck_GetBgCamSettingImpl(CollisionContext* colCtx, u32 bgCamIndex, s32 bg
     }
 
     bgCamList = colHeader->bgCamList;
+#if TARGET_PSP
+    /* BgCamInfo entries are raw-DMA'd big-endian data, never byte-swapped in
+     * bulk (see PspReadBgCamSettingRaw's doc comment in
+     * psp/src/z_endian_fixup_psp.h for why) -- read it correctly here
+     * instead of trusting the native (byte-reversed) field directly. */
+    {
+        extern unsigned short PspReadBgCamSettingRaw(void*);
+        camSetting = PspReadBgCamSettingRaw(&bgCamList[bgCamIndex]);
+    }
+#else
     camSetting = bgCamList[bgCamIndex].setting;
+#endif
 
     return camSetting;
 }
@@ -4030,7 +4099,14 @@ u16 BgCheck_GetBgCamCountImpl(CollisionContext* colCtx, u32 bgCamIndex, s32 bgId
         return 0;
     }
 
+#if TARGET_PSP
+    {
+        extern short PspReadBgCamCountRaw(void*);
+        return (u16)PspReadBgCamCountRaw(&bgCamList[bgCamIndex]);
+    }
+#else
     return bgCamList[bgCamIndex].count;
+#endif
 }
 
 /**
@@ -4074,7 +4150,18 @@ Vec3s* BgCheck_GetBgCamFuncDataImpl(CollisionContext* colCtx, s32 bgCamIndex, s3
         return NULL;
     }
 
+#if TARGET_PSP
+    /* See BgCheck_GetBgCamSettingImpl's comment -- bgCamFuncData is still raw
+     * big-endian, so the field itself can't be trusted before resolving it;
+     * PspReadBgCamFuncDataRaw does its own segment resolution, replacing
+     * SEGMENTED_TO_VIRTUAL here rather than composing with it. */
+    {
+        extern void* PspReadBgCamFuncDataRaw(void*);
+        return (Vec3s*)PspReadBgCamFuncDataRaw(&bgCamList[bgCamIndex]);
+    }
+#else
     return (Vec3s*)SEGMENTED_TO_VIRTUAL(bgCamList[bgCamIndex].bgCamFuncData);
+#endif
 }
 
 /**

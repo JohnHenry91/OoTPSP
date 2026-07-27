@@ -1,0 +1,244 @@
+/* AUTO-GENERATED Phase 2 stubs (psp/src/phase2_stubs_gen.c).
+ * No-op / dummy definitions for cosmetic and out-of-scope subsystems
+ * (HUD/interface, screen transitions, pause/kaleido menu, message system,
+ * cutscene/demo, game-over, weather/environment draws, particle effects,
+ * positional SFX, camera quake, framebuffer post-effects, map, jpeg).
+ * Deliberately declares NO prototypes/headers: the C linker matches these
+ * by name only, so signature mismatches vs the real decl are irrelevant for
+ * linking. These exist so z_play.c + the real engine core link; the code
+ * paths that call them are not exercised by a static Link's-House room
+ * render. Promote any of these to a real source file in Makefile.psp when
+ * its subsystem comes into scope. Regenerate via the same script if the
+ * linked file set changes. */
+
+/* --- functions: 166 --- */
+void Audio_QueueSeqCmd(void) {}
+void Audio_SetEnvReverb(void) {}
+void Audio_SetExtraFilter(void) {}
+void Audio_StopSfxByPos(void) {}
+void Cutscene_HandleConditionalTriggers(void) {}
+void Cutscene_HandleEntranceTriggers(void) {}
+void Cutscene_InitContext(void) {}
+void Cutscene_UpdateManual(void) {}
+void Cutscene_UpdateScripted(void) {}
+void DamageTable_Get(void) {}
+void DebugDisplay_DrawObjects(void) {}
+void DebugDisplay_Init(void) {}
+void DynaPolyActor_TransformCarriedActor(void) {}
+void DynaPolyActor_UnsetAllInteractFlags(void) {}
+void EffectBlure_Destroy(void) {}
+void EffectBlure_Draw(void) {}
+void EffectBlure_Init1(void) {}
+void EffectBlure_Init2(void) {}
+void EffectBlure_Update(void) {}
+void EffectShieldParticle_Destroy(void) {}
+void EffectShieldParticle_Draw(void) {}
+void EffectShieldParticle_Init(void) {}
+void EffectShieldParticle_Update(void) {}
+void EffectSpark_Destroy(void) {}
+void EffectSpark_Draw(void) {}
+void EffectSpark_Init(void) {}
+void EffectSpark_Update(void) {}
+void EffectSsGRipple_Spawn(void) {}
+void EffectSsHitMark_SpawnFixedScale(void) {}
+void EffectSsKiraKira_SpawnDispersed(void) {}
+void EffectSsKiraKira_SpawnSmall(void) {}
+void EffectSsSibuki_SpawnBurst(void) {}
+void Environment_DisableUnderwaterLights(void) {}
+void Environment_DrawCustomLensFlare(void) {}
+void Environment_DrawLightning(void) {}
+void Environment_DrawRain(void) {}
+void Environment_DrawSandstorm(void) {}
+void Environment_DrawSkyboxFilters(void) {}
+void Environment_DrawSunAndMoon(void) {}
+void Environment_DrawSunLensFlare(void) {}
+void Environment_EnableUnderwaterLights(void) {}
+void Environment_Init(void) {}
+void Environment_IsForcedSequenceDisabled(void) {}
+void Environment_LerpWeight(void) {}
+void Environment_PlaySceneSequence(void) {}
+void Environment_Update(void) {}
+void Environment_UpdateLightningStrike(void) {}
+void Environment_UpdateSkybox(void) {}
+void Environment_ZBufValToFixedPoint(void) {}
+void Fault_Printf(void) {}
+void Fault_SetCursor(void) {}
+void Font_LoadOrderedFont(void) {}
+void FrameAdvance_Init(void) {}
+void FrameAdvance_Update(void) {}
+void GameOver_FadeInLights(void) {}
+void GameOver_Init(void) {}
+void GameOver_Update(void) {}
+void Health_InitMeter(void) {}
+void Horse_InitPlayerHorse(void) {}
+void Interface_ChangeHudVisibilityMode(void) {}
+void Interface_Draw(void) {}
+void Interface_SetSceneRestrictions(void) {}
+void Interface_Update(void) {}
+void Inventory_ReplaceItem(void) {}
+void Inventory_SwapAgeEquipment(void) {}
+void Item_Give(void) {}
+void Jpeg_Decode(void) {}
+void KaleidoManager_Destroy(void) {}
+void KaleidoManager_Init(void) {}
+void KaleidoScopeCall_Destroy(void) {}
+void KaleidoScopeCall_Draw(void) {}
+void KaleidoScopeCall_Init(void) {}
+void KaleidoScopeCall_Update(void) {}
+void KaleidoSetup_Update(void) {}
+void Magic_Reset(void) {}
+void Map_Destroy(void) {}
+void Map_Init(void) {}
+void Map_InitRoomData(void) {}
+void Map_SavePlayerInitialInfo(void) {}
+void Message_ContinueTextbox(void) {}
+void Message_Draw(void) {}
+void Message_GetState(void) {}
+void Message_SetTables(void) {}
+void Message_ShouldAdvance(void) {}
+void Message_StartTextbox(void) {}
+void Message_Update(void) {}
+void OnePointCutscene_Init(void) {}
+void Overlay_Load(void) {}
+void PreRender_ApplyFilters(void) {}
+void PreRender_Destroy(void) {}
+void PreRender_DrawCoverage(void) {}
+void PreRender_Init(void) {}
+void PreRender_RestoreFramebuffer(void) {}
+void PreRender_SaveFramebuffer(void) {}
+void PreRender_SetValues(void) {}
+void PreRender_SetValuesSave(void) {}
+void Quake_GetTimeLeft(void) {}
+void Quake_Init(void) {}
+void Quake_RemoveRequest(void) {}
+void Quake_Request(void) {}
+void Quake_SetDuration(void) {}
+void Quake_SetPerturbations(void) {}
+void Quake_SetSpeed(void) {}
+void Quake_Update(void) {}
+void Rupees_ChangeBy(void) {}
+void SfxSource_InitAll(void) {}
+void SfxSource_PlaySfxAtFixedWorldPos(void) {}
+void SfxSource_UpdateAll(void) {}
+void SysUcode_GetUCode(void) {}
+void SysUcode_GetUCodeData(void) {}
+void TransitionCircle_Destroy(void) {}
+void TransitionCircle_Draw(void) {}
+void TransitionCircle_Init(void) {}
+void TransitionCircle_IsDone(void) {}
+void TransitionCircle_SetColor(void) {}
+void TransitionCircle_SetType(void) {}
+void TransitionCircle_SetUnkColor(void) {}
+void TransitionCircle_Start(void) {}
+void TransitionCircle_Update(void) {}
+void TransitionFade_Destroy(void) {}
+void TransitionFade_Draw(void) {}
+void TransitionFade_Init(void) {}
+void TransitionFade_IsDone(void) {}
+void TransitionFade_SetColor(void) {}
+void TransitionFade_SetType(void) {}
+void TransitionFade_Start(void) {}
+void TransitionFade_Update(void) {}
+void TransitionTile_Destroy(void) {}
+void TransitionTile_Draw(void) {}
+void TransitionTile_Init(void) {}
+void TransitionTile_Update(void) {}
+void TransitionTriforce_Destroy(void) {}
+void TransitionTriforce_Draw(void) {}
+void TransitionTriforce_Init(void) {}
+void TransitionTriforce_IsDone(void) {}
+void TransitionTriforce_SetColor(void) {}
+void TransitionTriforce_SetType(void) {}
+void TransitionTriforce_Start(void) {}
+void TransitionTriforce_Update(void) {}
+void TransitionWipe_Destroy(void) {}
+void TransitionWipe_Draw(void) {}
+void TransitionWipe_Init(void) {}
+void TransitionWipe_IsDone(void) {}
+void TransitionWipe_SetColor(void) {}
+void TransitionWipe_SetType(void) {}
+void TransitionWipe_Start(void) {}
+void TransitionWipe_Update(void) {}
+void func_80026400(void) {}
+void func_80026608(void) {}
+void func_80026860(void) {}
+void func_80026A6C(void) {}
+void func_8002857C(void) {}
+void func_8002865C(void) {}
+void func_800286CC(void) {}
+void func_80043334(void) {}
+void func_800BB2B4(void) {}
+void func_800F4010(void) {}
+void func_800F4C58(void) {}
+void func_800F6964(void) {}
+void func_801C7C1C(void) {}
+void gspS2DEX2d_fifoTextStart(void) {}
+void guS2DInitBg(void) {}
+
+/* --- data: 66 --- */
+char gBossDoorChainDL[64];
+char gBossDoorLockDL[64];
+char gCircleShadowDL[64];
+char gCustomLensFlareOn[64];
+char gCustomLensFlarePos[64];
+char gDCDayEntranceTex[64];
+char gDCLavaFloor1Tex[64];
+char gDCLavaFloor2Tex[64];
+char gDCLavaFloor3Tex[64];
+char gDCLavaFloor4Tex[64];
+char gDCLavaFloor5Tex[64];
+char gDCLavaFloor6Tex[64];
+char gDCLavaFloor7Tex[64];
+char gDCLavaFloor8Tex[64];
+char gDCNightEntranceTex[64];
+char gDekuTreeDayEntranceTex[64];
+char gDekuTreeNightEntranceTex[64];
+char gDoorChainDL[64];
+char gDoorLockDL[64];
+char gEffFlash1DL[64];
+char gEffectSsOverlayTable[64];
+char gFootShadowDL[64];
+char gForestTempleDayEntranceTex[64];
+char gForestTempleNightEntranceTex[64];
+char gGTGDayEntranceTex[64];
+char gGTGNightEntranceTex[64];
+char gGerudoFortressDayWallTex[64];
+char gGerudoFortressNightWallTex[64];
+char gGlowCircleDL[64];
+char gGlowCircleTextureLoadDL[64];
+char gGoronCityDayEntranceTex[64];
+char gGoronCityNightEntranceTex[64];
+char gGuardHouseOutSideView1DayTex[64];
+char gGuardHouseOutSideView1NightTex[64];
+char gGuardHouseOutSideView2DayTex[64];
+char gGuardHouseOutSideView2NightTex[64];
+char gHorseShadowDL[64];
+char gIceCavernDayEntranceTex[64];
+char gIceCavernNightEntranceTex[64];
+char gKakarikoVillageDayWindowTex[64];
+char gKakarikoVillageNightWindowTex[64];
+char gLensFlareColorIntensity[64];
+char gLensFlareGlareStrength[64];
+char gLensFlareScale[64];
+char gLensOfTruthMaskTex[64];
+char gLockOnArrowDL[64];
+char gLockOnReticleTriangleDL[64];
+char gLonLonHouseDayEntranceTex[64];
+char gLonLonHouseNightEntranceTex[64];
+char gLonLonRanchDayWindowTex[64];
+char gLonLonRangeNightWindowsTex[64];
+char gNormalSkyFiles[64];
+char gSpiritTempleDayEntranceTex[64];
+char gSpiritTempleNightEntranceTex[64];
+char gThievesHideoutDayEntranceTex[64];
+char gThievesHideoutNightEntranceTex[64];
+char gTimeBasedSkyboxConfigs[64];
+char gTimeSpeed[64];
+char gWaterTempleDayEntranceTex[64];
+char gWaterTempleNightEntranceTex[64];
+char gWeatherMode[64];
+char gZorasDomainDayEntranceTex[64];
+char gZorasDomainNightEntranceTex[64];
+char gspS2DEX2d_fifoDataStart[64];
+char spot00_room_0DL_012B20[64];
+char spot16_room_0DL_00AA48[64];

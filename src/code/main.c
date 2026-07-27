@@ -100,7 +100,7 @@ void Main(void* arg) {
     gAppNmiBufferPtr = (PreNmiBuff*)osAppNMIBuffer;
     PreNmiBuff_Init(gAppNmiBufferPtr);
     Fault_Init();
-#if PLATFORM_N64
+#if PLATFORM_N64 && !TARGET_PSP
     func_800AD410();
     if (D_80121211 != 0) {
         systemHeapStart = (uintptr_t)_n64ddSegmentEnd;
@@ -111,10 +111,25 @@ void Main(void* arg) {
         SysCfb_Init(0);
     }
 #else
+    /* On PSP, same as any real pal-1.0 N64 cart (no 64DD hardware exists to
+     * probe): always take the no-64DD path. */
     SysCfb_Init(0);
     systemHeapStart = (uintptr_t)_buffersSegmentEnd;
 #endif
+#if TARGET_PSP
+    /* _buffersSegmentEnd/SysCfb_GetFbPtr's addresses only mean something
+     * inside a real linker-placed N64 ROM segment layout, which Phase 1
+     * doesn't have (no full game link yet -- see plan step 4's note on
+     * segment_symbols_stub.c). Use a plain static PSP heap instead, same
+     * pattern as sm64-port-psp's static main_pool. Size is a tunable
+     * starting point, not final -- revisit once real scenes/actors load. */
+    static u8 sPspSystemHeap[2 * 1024 * 1024] __attribute__((aligned(16)));
+
+    systemHeapStart = (uintptr_t)sPspSystemHeap;
+    fb = systemHeapStart + sizeof(sPspSystemHeap);
+#else
     fb = (uintptr_t)SysCfb_GetFbPtr(0);
+#endif
     gSystemHeapSize = fb - systemHeapStart;
     PRINTF(T("システムヒープ初期化 %08x-%08x %08x\n", "System heap initialization %08x-%08x %08x\n"), systemHeapStart,
            fb, gSystemHeapSize);
@@ -157,29 +172,47 @@ void Main(void* arg) {
     StackCheck_Init(&sSchedStackInfo, sSchedStack, STACK_TOP(sSchedStack), 0, 0x100, "sched");
     Sched_Init(&gScheduler, STACK_TOP(sSchedStack), THREAD_PRI_SCHED, gViConfigModeType, 1, &gIrqMgr);
 
-#if PLATFORM_N64
+#if PLATFORM_N64 && !TARGET_PSP
+    /* Real cartridge CIC security-chip boot handshake -- no such hardware
+     * on PSP. */
     CIC6105_AddFaultClient();
     CIC6105_RunBootTask();
 #endif
 
     IrqMgr_AddClient(&gIrqMgr, &irqClient, &irqMgrMsgQueue);
 
+#if !TARGET_PSP
+    /* Audio is out of scope for Phase 1 (see plan roadmap). */
     StackCheck_Init(&sAudioStackInfo, sAudioStack, STACK_TOP(sAudioStack), 0, 0x100, "audio");
     AudioMgr_Init(&sAudioMgr, STACK_TOP(sAudioStack), THREAD_PRI_AUDIOMGR, THREAD_ID_AUDIOMGR, &gScheduler, &gIrqMgr);
+#endif
 
     StackCheck_Init(&sPadMgrStackInfo, sPadMgrStack, STACK_TOP(sPadMgrStack), 0, 0x100, "padmgr");
     PadMgr_Init(&gPadMgr, &sSerialEventQueue, &gIrqMgr, THREAD_ID_PADMGR, THREAD_PRI_PADMGR, STACK_TOP(sPadMgrStack));
 
+#if !TARGET_PSP
     AudioMgr_WaitForInit(&sAudioMgr);
+#endif
 
     StackCheck_Init(&sGraphStackInfo, sGraphStack, STACK_TOP(sGraphStack), 0, 0x100, "graph");
+#if TARGET_PSP
+    /* Single-loop collapse (plan decision #4): Graph_ThreadEntry's own
+     * while(nextOvl != NULL) loop already IS the per-game-state engine
+     * loop once Graph_Update/Graph_TaskSet00's blocking waits are removed
+     * (see src/code/graph.c) -- call it directly instead of spawning a
+     * thread. It returns once the game truly exits (no game state left),
+     * same as the real thread would terminate. */
+    Graph_ThreadEntry(arg);
+#else
     osCreateThread(&sGraphThread, THREAD_ID_GRAPH, Graph_ThreadEntry, arg, STACK_TOP(sGraphStack), THREAD_PRI_GRAPH);
     osStartThread(&sGraphThread);
+#endif
 
 #if OOT_VERSION >= PAL_1_0
     osSetThreadPri(NULL, THREAD_PRI_MAIN);
 #endif
 
+#if !TARGET_PSP
     while (true) {
         s16* msg = NULL;
 
@@ -201,7 +234,8 @@ void Main(void* arg) {
     PRINTF(T("mainproc 後始末\n", "mainproc Cleanup\n"));
     osDestroyThread(&sGraphThread);
     RcpUtils_Reset();
-#if PLATFORM_N64
+#endif
+#if PLATFORM_N64 && !TARGET_PSP
     CIC6105_RemoveFaultClient();
 #endif
     PRINTF(T("mainproc 実行終了\n", "mainproc End of execution\n"));

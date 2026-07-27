@@ -16,6 +16,47 @@
 
 #define ANIM_INTERP 1
 
+#if TARGET_PSP
+/* Shared, total-call guard against a corrupted/cyclic limb->child or
+ * limb->sibling chain in any of the six recursive limb-draw functions below.
+ * A per-function recursion-*depth* cap alone isn't enough: real limb trees
+ * only ever branch by at most 2 (one child-recursion, one sibling-recursion)
+ * per node, but a corrupted structure that turns the tree into a general
+ * graph (e.g. two different limbs' `child`/`sibling` both pointing into the
+ * same subtree) can still explore an exponential number of calls within a
+ * bounded depth, causing an effectively-infinite hang despite never
+ * exceeding a depth cap. This counter is shared across all six functions and
+ * reset once per frame (Actor_DrawAll, z_actor.c) rather than per-call, so it
+ * catches runaway *total* work regardless of whether it's deep or wide. */
+unsigned int gPspSkelLimbCallCount = 0;
+/* TEMPORARY diagnostic: sparse heartbeat (count==1/500/1000/1500) plus a
+ * trip-fired log, to tell whether a hang inside Actor_DrawAll is actually
+ * this guard slowly climbing (proves per-call work got expensive, or a
+ * genuinely huge/corrupted tree) vs. never starting at all (proves the hang
+ * is elsewhere in Player_Draw before any limb gets walked). Sparse on
+ * purpose -- file-log overhead itself perturbs this port's timing-sensitive
+ * bugs (see project memory). Remove once resolved. */
+#define PSP_SKEL_LIMB_CALL_GUARD(returnExpr)                                                    \
+    do {                                                                                        \
+        ++gPspSkelLimbCallCount;                                                                \
+        if (gPspSkelLimbCallCount == 1 || gPspSkelLimbCallCount == 500 ||                       \
+            gPspSkelLimbCallCount == 1000 || gPspSkelLimbCallCount == 1500) {                   \
+            extern void PspDebugLogCheckpoint(const char* name);                                \
+            char pspSkelLimbMsg[32];                                                            \
+            extern int sprintf(char* str, const char* format, ...);                             \
+            sprintf(pspSkelLimbMsg, "skelLimbCall=%u", gPspSkelLimbCallCount);                  \
+            PspDebugLogCheckpoint(pspSkelLimbMsg);                                              \
+        }                                                                                        \
+        if (gPspSkelLimbCallCount > 2000) {                                                     \
+            if (gPspSkelLimbCallCount == 2001) {                                                \
+                extern void PspDebugLogCheckpoint(const char* name);                            \
+                PspDebugLogCheckpoint("skelLimbGuard TRIPPED at 2000");                         \
+            }                                                                                    \
+            return returnExpr;                                                                  \
+        }                                                                                        \
+    } while (0)
+#endif
+
 s32 LinkAnimation_Loop(PlayState* play, SkelAnime* skelAnime);
 s32 LinkAnimation_Once(PlayState* play, SkelAnime* skelAnime);
 s32 SkelAnime_LoopFull(SkelAnime* skelAnime);
@@ -32,6 +73,10 @@ void SkelAnime_DrawLimbLod(PlayState* play, s32 limbIndex, void** skeleton, Vec3
     Gfx* dList;
     Vec3f pos;
     Vec3s rot;
+
+#if TARGET_PSP
+    PSP_SKEL_LIMB_CALL_GUARD();
+#endif
 
     OPEN_DISPS(play->state.gfxCtx, "../z_skelanime.c", 773);
 
@@ -135,6 +180,10 @@ void SkelAnime_DrawFlexLimbLod(PlayState* play, s32 limbIndex, void** skeleton, 
     Vec3f pos;
     Vec3s rot;
 
+#if TARGET_PSP
+    PSP_SKEL_LIMB_CALL_GUARD();
+#endif
+
     Matrix_Push();
 
     limb = (LodLimb*)SEGMENTED_TO_VIRTUAL(skeleton[limbIndex]);
@@ -196,6 +245,18 @@ void SkelAnime_DrawFlexLod(PlayState* play, void** skeleton, Vec3s* jointTable, 
     Vec3s rot;
     Mtx* mtx = GRAPH_ALLOC(play->state.gfxCtx, dListCount * sizeof(Mtx));
 
+#if TARGET_PSP
+    {
+        static unsigned int sCallCount = 0;
+        extern void PspDebugLogVtxFixup(unsigned int, unsigned int, unsigned int, unsigned int);
+        ++sCallCount;
+        if (sCallCount <= 10 || (sCallCount % 500) == 0) {
+            PspDebugLogVtxFixup(0xCA000000, sCallCount, (unsigned int)(uintptr_t)skeleton,
+                                 (unsigned int)(uintptr_t)mtx);
+        }
+    }
+#endif
+
     if (skeleton == NULL) {
         PRINTF_COLOR_RED();
         PRINTF(T("Si2_Lod_draw_SV():skelがNULLです。\n", "Si2_Lod_draw_SV(): skel is NULL.\n"));
@@ -252,6 +313,10 @@ void SkelAnime_DrawLimbOpa(PlayState* play, s32 limbIndex, void** skeleton, Vec3
     Gfx* dList;
     Vec3f pos;
     Vec3s rot;
+
+#if TARGET_PSP
+    PSP_SKEL_LIMB_CALL_GUARD();
+#endif
 
     OPEN_DISPS(play->state.gfxCtx, "../z_skelanime.c", 1076);
     Matrix_Push();
@@ -350,6 +415,10 @@ void SkelAnime_DrawFlexLimbOpa(PlayState* play, s32 limbIndex, void** skeleton, 
     Gfx* limbDList;
     Vec3f pos;
     Vec3s rot;
+
+#if TARGET_PSP
+    PSP_SKEL_LIMB_CALL_GUARD();
+#endif
 
     OPEN_DISPS(play->state.gfxCtx, "../z_skelanime.c", 1214);
 
@@ -516,6 +585,10 @@ Gfx* SkelAnime_DrawLimb(PlayState* play, s32 limbIndex, void** skeleton, Vec3s* 
     Vec3f pos;
     Vec3s rot;
 
+#if TARGET_PSP
+    PSP_SKEL_LIMB_CALL_GUARD(gfx);
+#endif
+
     Matrix_Push();
 
     limb = (StandardLimb*)SEGMENTED_TO_VIRTUAL(skeleton[limbIndex]);
@@ -616,6 +689,10 @@ Gfx* SkelAnime_DrawFlexLimb(PlayState* play, s32 limbIndex, void** skeleton, Vec
     Gfx* limbDList;
     Vec3f pos;
     Vec3s rot;
+
+#if TARGET_PSP
+    PSP_SKEL_LIMB_CALL_GUARD(gfx);
+#endif
 
     Matrix_Push();
 
@@ -878,6 +955,24 @@ AnimTask* AnimTaskQueue_NewTask(AnimTaskQueue* animTaskQueue, s32 type) {
  */
 void AnimTaskQueue_AddLoadPlayerFrame(PlayState* play, LinkAnimationHeader* animation, s32 frame, s32 limbCount,
                                       Vec3s* frameTable) {
+#if TARGET_PSP
+    /* The async request below (queued, then waited on later whenever
+     * AnimTaskQueue_Update next runs) relies on real N64 hardware's
+     * PI-bus-DMA-and-single-CPU-core ordering guarantee to be safe -- on
+     * this port DMA runs on a real background PSP thread, and in practice
+     * even an immediate AnimTaskQueue_Update flush right after queuing
+     * (see Player_InitCommon) wasn't enough to reliably avoid a race that
+     * corrupts nearby Player struct fields (this->ageProperties observed
+     * stomped to a tiny garbage pointer). Root cause not fully nailed down
+     * (address-computation bug vs. genuine timing race), but doing the
+     * transfer synchronously here removes the race by construction: no
+     * task is queued, so there's nothing for a later AnimTaskQueue_Update
+     * to race against. */
+    LinkAnimationHeader* linkAnimHeader = SEGMENTED_TO_VIRTUAL(animation);
+
+    DMA_REQUEST_SYNC(frameTable, LINK_ANIMATION_OFFSET(linkAnimHeader->segment, ((sizeof(Vec3s) * limbCount + 2) * frame)),
+                      sizeof(Vec3s) * limbCount + 2, "../z_skelanime.c", 2004);
+#else
     AnimTask* task = AnimTaskQueue_NewTask(&play->animTaskQueue, ANIMTASK_LOAD_PLAYER_FRAME);
 
     if (task != NULL) {
@@ -890,6 +985,7 @@ void AnimTaskQueue_AddLoadPlayerFrame(PlayState* play, LinkAnimationHeader* anim
                           sizeof(Vec3s) * limbCount + 2, 0, &task->data.loadPlayerFrame.msgQueue, NULL,
                           "../z_skelanime.c", 2004);
     }
+#endif
 }
 
 /**

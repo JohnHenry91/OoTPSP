@@ -417,6 +417,7 @@ void Room_DrawImageSingle(PlayState* play, Room* room, u32 flags) {
             gSPDisplayList(POLY_OPA_DISP++, entry->opa);
         }
 
+#if !TARGET_PSP
         if (drawBackground) {
             gSPLoadUcodeL(POLY_OPA_DISP++, gspS2DEX2d_fifo);
 
@@ -446,6 +447,19 @@ void Room_DrawImageSingle(PlayState* play, Room* room, u32 flags) {
             //!      after a ucode switch, however most other rendering state is set shortly before use so typically
             //!      does not manifest as a bug.
         }
+#else
+        /* drawBackground (the pre-rendered JPEG background image, S2DEX-microcode-based) is not
+         * implemented on this port yet: our single-microcode gfx_pc.c interpreter has no concept of
+         * "S2DEX is now the active ucode" the way real N64 hardware does, so S2DEX-only opcodes
+         * emitted by Room_DrawBackground2D (gSPBgRect1Cyc/gSPBgRectCopy/gSPObjRenderMode) collide
+         * with real F3DEX2 opcode numbers (e.g. G_BG_1CYC's 0x01 == G_VTX) and get misinterpreted,
+         * corrupting the shared POLY_OPA_DISP buffer -- observed as the interpreter wandering into
+         * an unrelated all-zero memory region hunting for a G_ENDDL that's no longer there, which
+         * silently discards every command written *after* this point (Player, room geometry, etc.)
+         * for the rest of the frame, not just the background. Skip entirely for now -- room geometry
+         * (drawOpa, unaffected) is more valuable to have visible than a background image would be.
+         * Revisit once gfx_pc.c gains real per-ucode opcode-table dispatch. */
+#endif
     }
 
     if (drawXlu) {
@@ -693,12 +707,33 @@ s32 Room_RequestNewRoom(PlayState* play, RoomContext* roomCtx, s32 roomNum) {
         ASSERT(roomNum < play->roomList.count, "read_room_ID < game_play->room_rom_address.num", "../z_room.c", 1009);
 
         size = play->roomList.romFiles[roomNum].vromEnd - play->roomList.romFiles[roomNum].vromStart;
+#if TARGET_PSP
+        {
+            extern void PspDebugLogDmaAlignErr(unsigned int, unsigned int, unsigned int, unsigned int);
+            PspDebugLogDmaAlignErr((unsigned int)play->roomList.romFiles[roomNum].vromStart, (unsigned int)size,
+                                   (unsigned int)roomNum, 0xDDDDDDDD);
+        }
+#endif
         roomCtx->roomRequestAddr = (void*)ALIGN16((uintptr_t)roomCtx->bufPtrs[roomCtx->activeBufPage] -
                                                   ((size + 8) * roomCtx->activeBufPage + 7));
 
         osCreateMesgQueue(&roomCtx->loadQueue, &roomCtx->loadMsg, 1);
 
-#if PLATFORM_N64
+#if TARGET_PSP
+        /* Async DMA + later osRecvMesg poll races the main thread reading
+         * roomCtx->roomRequestAddr before the background DMA thread's write
+         * actually lands -- same bug class already fixed for object loads in
+         * Object_UpdateEntries (z_scene.c) and Player's animation frames
+         * (z_skelanime.c). Symptom here was subtler: no crash, but
+         * roomShape->normal.numEntries reading back as 0 (room mesh command
+         * list still all-zero at the time Scene_ExecuteCommands ran),
+         * producing a fully stable but completely black gameplay frame.
+         * Do the DMA synchronously and queue the completion message
+         * immediately so Room_ProcessRoomRequest's very next check succeeds. */
+        DMA_REQUEST_SYNC(roomCtx->roomRequestAddr, play->roomList.romFiles[roomNum].vromStart, size, "../z_room.c",
+                         1036);
+        osSendMesg(&roomCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+#elif PLATFORM_N64
         if ((B_80121220 != NULL) && (B_80121220->unk_08 != NULL)) {
             B_80121220->unk_08(play, roomCtx, roomNum);
         } else {
@@ -731,6 +766,18 @@ s32 Room_ProcessRoomRequest(PlayState* play, RoomContext* roomCtx) {
             roomCtx->curRoom.segment = roomCtx->roomRequestAddr;
             gSegments[3] = OS_K0_TO_PHYSICAL(roomCtx->curRoom.segment);
 
+#if TARGET_PSP
+            /* Room command data is DMA'd raw from the big-endian .z64, same
+             * as the scene file -- needs the same fixup Play_SpawnScene
+             * applies to scene->sceneFile. See z_endian_fixup_psp.c. */
+            {
+                extern void PspFixupCommandStreamEndian(void* data, unsigned int size);
+                u32 roomSize = play->roomList.romFiles[roomCtx->curRoom.num].vromEnd -
+                               play->roomList.romFiles[roomCtx->curRoom.num].vromStart;
+                PspFixupCommandStreamEndian(roomCtx->curRoom.segment, roomSize);
+            }
+#endif
+
             Scene_ExecuteCommands(play, roomCtx->curRoom.segment);
             Player_SetBootData(play, GET_PLAYER(play));
             Actor_SpawnTransitionActors(play, &play->actorCtx);
@@ -747,6 +794,17 @@ void Room_Draw(PlayState* play, Room* room, u32 flags) {
         gSegments[3] = OS_K0_TO_PHYSICAL(room->segment);
         ASSERT(room->roomShape->base.type < ARRAY_COUNTU(sRoomDrawHandlers),
                "this->ground_shape->polygon.type < number(Room_Draw_Proc)", "../z_room.c", 1125);
+#if TARGET_PSP
+        /* ASSERT is compiled to a no-op on this port (NDEBUG), so a corrupted/
+         * stale room->roomShape (same general memory-corruption class as
+         * transitionCtx/pauseCtx/prevRoom.segment above) would otherwise index
+         * sRoomDrawHandlers[] out of bounds and jalr through whatever garbage
+         * sits there -- this is the exact "CPU Jump to 00000040" crash observed
+         * a few dozen frames into gameplay. Actually check the bound here. */
+        if (room->roomShape->base.type >= ARRAY_COUNTU(sRoomDrawHandlers)) {
+            return;
+        }
+#endif
         sRoomDrawHandlers[room->roomShape->base.type](play, room, flags);
     }
 }

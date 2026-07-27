@@ -345,8 +345,15 @@ void IrqMgr_Init(IrqMgr* irqMgr, void* stack, OSPri pri, u8 retraceCount) {
     irqMgr->resetTime = 0;
 
     osCreateMesgQueue(&irqMgr->queue, irqMgr->msgBuf, ARRAY_COUNT(irqMgr->msgBuf));
+#if TARGET_PSP
+    /* No real PRENMI/VI hardware events on PSP -- IrqMgr_HandleRetrace (the
+     * only per-tick body that matters for Phase 1) is instead called
+     * directly, once per host frame, from the PSP single-loop main. See
+     * plan decision #4 / psp/src/main.c. */
+#else
     osSetEventMesg(OS_EVENT_PRENMI, &irqMgr->queue, (OSMesg)IRQ_PRENMI_MSG);
     osViSetEvent(&irqMgr->queue, (OSMesg)IRQ_RETRACE_MSG, retraceCount);
     osCreateThread(&irqMgr->thread, THREAD_ID_IRQMGR, IrqMgr_ThreadEntry, irqMgr, stack, pri);
     osStartThread(&irqMgr->thread);
+#endif
 }
