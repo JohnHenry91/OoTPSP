@@ -701,8 +701,27 @@ static void import_texture_i4(int tile) {
 static void import_texture_i8(int tile) {
     uint8_t rgba32_buf[16384];
 
+    /* Real N64 RDP hardware stores/loads <=8bpp texel formats (I4/I8/CI4/
+     * CI8) into TMEM with the bytes of every 8-byte (64-bit) word reversed
+     * -- a real, documented TMEM addressing quirk, invisible on real
+     * hardware because the RDP's own texture-fetch stage reads TMEM with a
+     * matching addressing scheme that cancels it back out. Our pipeline
+     * treats "loaded texture bytes" as directly-consumable linear source
+     * data with no separate fetch-stage un-swizzle, so it needs to be
+     * undone once, here. Confirmed empirically (not just from hardware
+     * docs) via a byte-for-byte diff of two different rows of OoT's boot-
+     * logo "NINTENDO 64" text glyph texture (192x2, G_IM_FMT_I/G_IM_SIZ_8b)
+     * against its known-correct extracted source PNG: every single 8-byte
+     * chunk of both tested rows matched EXACTLY when reversed (48/48 chunks
+     * across the two rows) -- this is what was causing the text to render
+     * as legible-but-horizontally-mirrored letters after the swizzle fix.
+     * Not yet verified for I4/CI4/CI8 (this project's other <=8bpp import
+     * functions) -- likely affected by the same real hardware behavior, but
+     * left alone until confirmed rather than assumed. */
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
-        uint8_t intensity = rdp.loaded_texture[tile].addr[i];
+        uint32_t chunk_base = i & ~7u;
+        uint32_t src_i = chunk_base + (7 - (i - chunk_base));
+        uint8_t intensity = rdp.loaded_texture[tile].addr[src_i];
         uint8_t r = intensity;
         uint8_t g = intensity;
         uint8_t b = intensity;
