@@ -376,13 +376,9 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
      * SysCfb_GetFbPtr) tracks which double-buffered target this frame
      * intended to swap to -- the PSP-side main loop reads that after this
      * call to drive its own sceGu buffer swap (see psp/src/main.c). */
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before gfx_start_frame"); }
     gfx_start_frame();
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before gfx_run"); }
     gfx_run((Gfx*)task->data_ptr);
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before gfx_end_frame"); }
     gfx_end_frame();
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after gfx_end_frame"); }
 #else
     osSendMesg(&gScheduler.cmdQueue, (OSMesg)scTask, OS_MESG_BLOCK);
     Sched_Notify(&gScheduler);

@@ -559,13 +559,7 @@ void Play_Init(GameState* thisx) {
     Fault_AddClient(&D_801614B8, ZeldaArena_Display, NULL, NULL);
 #endif
 
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Actor_InitContext"); }
-#endif
     Actor_InitContext(this, &this->actorCtx, this->playerEntry);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Actor_InitContext"); }
-#endif
 
     // Busyloop until the room loads
 #if TARGET_PSP
@@ -579,13 +573,7 @@ void Play_Init(GameState* thisx) {
 #endif
 
     player = GET_PLAYER(this);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Camera_InitDataUsingPlayer"); }
-#endif
     Camera_InitDataUsingPlayer(&this->mainCamera, player);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Camera_InitDataUsingPlayer"); }
-#endif
     Camera_RequestMode(&this->mainCamera, CAM_MODE_NORMAL);
 
     playerStartBgCamIndex = PLAYER_GET_START_BG_CAM_INDEX(&player->actor);
@@ -607,17 +595,8 @@ void Play_Init(GameState* thisx) {
     Environment_PlaySceneSequence(this);
     gSaveContext.seqId = this->sceneSequences.seqId;
     gSaveContext.natureAmbienceId = this->sceneSequences.natureAmbienceId;
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Actor_InitPlayerHorse"); }
-#endif
     Actor_InitPlayerHorse(this, GET_PLAYER(this));
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before AnimTaskQueue_Update"); }
-#endif
     AnimTaskQueue_Update(this, &this->animTaskQueue);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("end of Play_Init"); }
-#endif
     gSaveContext.respawnFlag = 0;
 
 #if DEBUG_FEATURES
@@ -1061,9 +1040,6 @@ void Play_Update(PlayState* this) {
 
             PLAY_LOG(3561);
             Object_UpdateEntries(&this->objectCtx);
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Object_UpdateEntries"); }
-#endif
 
             PLAY_LOG(3577);
 
@@ -1087,9 +1063,6 @@ void Play_Update(PlayState* this) {
                 } else {
                     PLAY_LOG(3606);
                     Room_ProcessRoomRequest(this, &this->roomCtx);
-#if TARGET_PSP
-                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Room_ProcessRoomRequest"); }
-#endif
 
                     PLAY_LOG(3612);
                     CollisionCheck_AT(this, &this->colChkCtx);
@@ -1102,36 +1075,24 @@ void Play_Update(PlayState* this) {
 
                     PLAY_LOG(3631);
                     CollisionCheck_ClearContext(this, &this->colChkCtx);
-#if TARGET_PSP
-                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after CollisionCheck_ClearContext"); }
-#endif
 
                     PLAY_LOG(3637);
 
                     if (!this->haltAllActors) {
                         Actor_UpdateAll(this, &this->actorCtx);
                     }
-#if TARGET_PSP
-                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Actor_UpdateAll"); }
-#endif
 
                     PLAY_LOG(3643);
                     Cutscene_UpdateManual(this, &this->csCtx);
 
                     PLAY_LOG(3648);
                     Cutscene_UpdateScripted(this, &this->csCtx);
-#if TARGET_PSP
-                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Cutscene_UpdateScripted"); }
-#endif
 
                     PLAY_LOG(3651);
                     Effect_UpdateAll(this);
 
                     PLAY_LOG(3657);
                     EffectSs_UpdateAll(this);
-#if TARGET_PSP
-                    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after EffectSs_UpdateAll"); }
-#endif
 
                     PLAY_LOG(3662);
                 }
@@ -1144,9 +1105,6 @@ void Play_Update(PlayState* this) {
 
             PLAY_LOG(3675);
             func_80095AA0(this, &this->roomCtx.prevRoom, &input[1], 1);
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after func_80095AA0 x2"); }
-#endif
 
             PLAY_LOG(3677);
 
@@ -1172,9 +1130,6 @@ void Play_Update(PlayState* this) {
 
             PLAY_LOG(3708);
             Skybox_Update(&this->skyboxCtx);
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Skybox_Update"); }
-#endif
 
             PLAY_LOG(3716);
 
@@ -1188,23 +1143,14 @@ void Play_Update(PlayState* this) {
                 PLAY_LOG(3733);
                 Message_Update(this);
             }
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Message_Update branch"); }
-#endif
 
             PLAY_LOG(3737);
 
             PLAY_LOG(3742);
             Interface_Update(this);
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Interface_Update"); }
-#endif
 
             PLAY_LOG(3765);
             AnimTaskQueue_Update(this, &this->animTaskQueue);
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after AnimTaskQueue_Update"); }
-#endif
 
             PLAY_LOG(3771);
             SfxSource_UpdateAll(this);
@@ -1214,9 +1160,6 @@ void Play_Update(PlayState* this) {
 
             PLAY_LOG(3783);
             TransitionFade_Update(&this->transitionFadeFlash, R_UPDATE_RATE);
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after TransitionFade_Update"); }
-#endif
         } else {
             goto skip;
         }
@@ -1246,16 +1189,10 @@ skip:
 
         PLAY_LOG(3814);
     }
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Camera_Update"); }
-#endif
 
     PLAY_LOG(3816);
     Environment_Update(this, &this->envCtx, &this->lightCtx, &this->pauseCtx, &this->msgCtx, &this->gameOverCtx,
                        this->state.gfxCtx);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PU: after Environment_Update (end of Play_Update)"); }
-#endif
 }
 
 void Play_DrawOverlayElements(PlayState* this) {
@@ -1437,17 +1374,48 @@ void Play_Draw(PlayState* this) {
              * in the current milestone actually needs it to draw anything. */
 #endif
 
+#if !TARGET_PSP
             TransitionFade_Draw(&this->transitionFadeFlash, &gfxP);
+#else
+            /* Suppressed alongside transitionCtx.draw above: this second,
+             * independent TransitionFade instance ("flash", e.g. the
+             * damage/heal screen flash) draws every single frame
+             * unconditionally, regardless of scene-transition state --
+             * unlike transitionCtx.draw, which only runs during an actual
+             * door/entrance transition. Its FillRect goes through the same
+             * gfx_dp_fill_rectangle() PRIM-color path implicated in the
+             * Redead Grave black/white flip investigation (see project
+             * memory), and since it runs every frame it's a plausible
+             * standing contributor to that flip independent of any real
+             * scene transition. Parked here (not drawn) until that
+             * investigation resumes -- nothing in the current milestone
+             * needs it. */
+#endif
 
-#if PLATFORM_N64
+#if TARGET_PSP
+            /* Suppressed alongside the TransitionFade draws above: VisMono_Draw
+             * reads back the CURRENT FRAMEBUFFER as a texture (via
+             * gDPLoadTLUT_pal256 + a display list built from the live
+             * color-framebuffer address) to desaturate it -- a real N64
+             * framebuffer-effect technique this port's texture pipeline has
+             * no support for. If gVisMonoColor.a is ever nonzero here
+             * (expected 0 outside real cutscenes, which this port's
+             * single-room milestone doesn't run -- see z_opening.c), this
+             * would feed garbage/uninitialized data through import_texture()
+             * as a full-screen quad, a plausible standing contributor to the
+             * Redead Grave black/white flip (see project memory). Parked
+             * here until framebuffer-as-texture support is in scope. */
+#elif PLATFORM_N64
             if (gVisMonoColor.a != 0)
 #else
             if (gVisMonoColor.a > 0)
 #endif
+#if !TARGET_PSP
             {
                 gPlayVisMono.vis.primColor.rgba = gVisMonoColor.rgba;
                 VisMono_Draw(&gPlayVisMono, &gfxP);
             }
+#endif
 
             gSPEndDisplayList(gfxP++);
             Gfx_Close(sp1CC, gfxP);
@@ -1532,13 +1500,7 @@ void Play_Draw(PlayState* this) {
                     roomDrawFlags = R_PLAY_DRAW_ROOM_FLAGS;
                 }
                 Scene_Draw(this);
-#if TARGET_PSP
-                { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Room_Draw curRoom"); }
-#endif
                 Room_Draw(this, &this->roomCtx.curRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
-#if TARGET_PSP
-                { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Room_Draw curRoom"); }
-#endif
 #if TARGET_PSP
                 /* roomCtx.prevRoom is only ever populated by a real room transition
                  * (Room_RequestNewRoom / Room_FinishRoomChange), which this port's
@@ -1552,9 +1514,6 @@ void Play_Draw(PlayState* this) {
                 this->roomCtx.prevRoom.segment = NULL;
 #endif
                 Room_Draw(this, &this->roomCtx.prevRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
-#if TARGET_PSP
-                { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Room_Draw prevRoom"); }
-#endif
             }
         }
 
@@ -1579,7 +1538,6 @@ void Play_Draw(PlayState* this) {
 
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_ACTORS) {
 #if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Actor_DrawAll"); }
             /* Segments 8/9 are reused broadly (Player's eye/mouth textures,
              * hilite/specular effects, room props) via gSPSegment -- once
              * ANY such command runs during THIS interpreter walk, gSegments
@@ -1613,9 +1571,6 @@ void Play_Draw(PlayState* this) {
             gSPSegment(POLY_XLU_DISP++, 0x09, NULL);
 #endif
             Actor_DrawAll(this, &this->actorCtx);
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Actor_DrawAll"); }
-#endif
         }
 
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_LENS_FLARES) {
@@ -1679,20 +1634,11 @@ void Play_Draw(PlayState* this) {
 
     Play_Draw_DrawOverlayElements:
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_OVERLAY_ELEMENTS) {
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Play_DrawOverlayElements"); }
-#endif
             Play_DrawOverlayElements(this);
-#if TARGET_PSP
-            { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Play_DrawOverlayElements"); }
-#endif
         }
     }
 
 Play_Draw_skip:
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("Play_Draw_skip label"); }
-#endif
 
     if (this->view.unk_124 != 0) {
         Camera_Update(GET_ACTIVE_CAM(this));
@@ -1704,14 +1650,8 @@ Play_Draw_skip:
     }
 
     Camera_Finish(GET_ACTIVE_CAM(this));
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before CLOSE_DISPS"); }
-#endif
 
     CLOSE_DISPS(gfxCtx, "../z_play.c", 4508);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("end of Play_Draw"); }
-#endif
 }
 
 void Play_Main(GameState* thisx) {

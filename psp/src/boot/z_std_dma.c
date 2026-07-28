@@ -523,15 +523,6 @@ s32 DmaMgr_RequestAsync(DmaRequest* req, void* ram, uintptr_t vrom, size_t size,
                         OSMesg msg) {
     static s32 sDmaMgrQueueFullLogged = 0;
 
-#if TARGET_PSP
-    {
-        extern void PspDebugLogDmaRequest(unsigned int vrom, unsigned int size, void* ram);
-        extern void PspDebugLogDmaCaller(void* retAddr);
-        PspDebugLogDmaRequest((unsigned int)vrom, (unsigned int)size, ram);
-        PspDebugLogDmaCaller(__builtin_return_address(0));
-    }
-#endif
-
 #if PLATFORM_IQUE
     PRINTF("dmacopy_bg(%x, %x, %x, %x, %x, %x, %x)\n", req, ram, vrom, size, unk, queue, msg);
 #endif
@@ -591,13 +582,6 @@ s32 DmaMgr_RequestSync(void* ram, uintptr_t vrom, size_t size) {
     OSMesgQueue queue;
     OSMesg msg;
     s32 ret;
-
-#if TARGET_PSP
-    {
-        extern void PspDebugLogDmaSyncCaller(unsigned int vrom, unsigned int size, void* retAddr);
-        PspDebugLogDmaSyncCaller((unsigned int)vrom, (unsigned int)size, __builtin_return_address(0));
-    }
-#endif
 
     osCreateMesgQueue(&queue, &msg, 1);
     ret = DmaMgr_RequestAsync(&req, ram, vrom, size, 0, &queue, NULL);

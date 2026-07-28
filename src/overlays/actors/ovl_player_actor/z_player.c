@@ -10683,31 +10683,16 @@ void Player_InitCommon(Player* this, PlayState* play, FlexSkeletonHeader* skelHe
     }
 #endif
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawFeet, this->ageProperties->unk_04);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after ActorShape_Init"); }
-#endif
     this->subCamId = CAM_ID_NONE;
 
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Collider_InitCylinder"); }
-#endif
     Collider_InitCylinder(play, &this->cylinder);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before Collider_SetCylinder"); }
-#endif
     Collider_SetCylinder(play, &this->cylinder, &this->actor, &D_80854624);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("before quads"); }
-#endif
     Collider_InitQuad(play, &this->meleeWeaponQuads[0]);
     Collider_SetQuad(play, &this->meleeWeaponQuads[0], &this->actor, &D_80854650);
     Collider_InitQuad(play, &this->meleeWeaponQuads[1]);
     Collider_SetQuad(play, &this->meleeWeaponQuads[1], &this->actor, &D_80854650);
     Collider_InitQuad(play, &this->shieldQuad);
     Collider_SetQuad(play, &this->shieldQuad, &this->actor, &D_808546A0);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("after Player_InitCommon"); }
-#endif
 }
 
 static void (*sStartModeFuncs[PLAYER_START_MODE_MAX])(PlayState* play, Player* this) = {
@@ -11717,9 +11702,6 @@ static f32 sFloorConveyorSpeeds[CONVEYOR_SPEED_MAX - 1] = {
 void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
     s32 pad;
 
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PUC: entry"); }
-#endif
 
     sControlInput = input;
 
@@ -11756,14 +11738,8 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
     }
 
     Player_UpdateInterface(play, this);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PUC: after Player_UpdateInterface"); }
-#endif
 
     Player_UpdateZTargeting(this, play);
-#if TARGET_PSP
-    { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PUC: after Player_UpdateZTargeting"); }
-#endif
 
     if ((this->heldItemAction == PLAYER_IA_DEKU_STICK) && (this->unk_860 != 0)) {
         Player_UpdateBurningDekuStick(play, this);
@@ -11925,9 +11901,6 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
             sConveyorSpeed = CONVEYOR_SPEED_DISABLED;
             this->pushedSpeed = 0.0f;
         }
-#if TARGET_PSP
-        { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PUC: after movement/collision if-else"); }
-#endif
 
         // This block applies the bg conveyor to pushedSpeed
         if ((sConveyorSpeed != CONVEYOR_SPEED_DISABLED) && (this->currentBoots != PLAYER_BOOTS_IRON)) {
@@ -11978,9 +11951,6 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
                 Player_DetectRumbleSecrets(this);
             }
         }
-#if TARGET_PSP
-        { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PUC: after func_8083D53C block"); }
-#endif
 
         if ((play->csCtx.state != CS_STATE_IDLE) && (this->csAction != PLAYER_CSACTION_6) &&
             !(this->stateFlags1 & PLAYER_STATE1_23) && !(this->stateFlags2 & PLAYER_STATE2_7) &&
@@ -12035,15 +12005,9 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
         sUseHeldItem = sHeldItemButtonIsHeldDown = false;
         sSavedCurrentMask = this->currentMask;
 
-#if TARGET_PSP
-        { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PUC: before actionFunc"); }
-#endif
         if (!(this->stateFlags3 & PLAYER_STATE3_2)) {
             this->actionFunc(this, play);
         }
-#if TARGET_PSP
-        { extern void PspDebugLogCheckpoint(const char* name); PspDebugLogCheckpoint("PUC: after actionFunc"); }
-#endif
 
         Player_UpdateCamAndSeqModes(play, this);
 
