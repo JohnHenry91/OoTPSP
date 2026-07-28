@@ -203,3 +203,4 @@ Some tasks also don't require much knowledge to get started.
 Most discussions happen on our [Discord Server][discord], where you are welcome to ask if you need help getting started, or if you have any questions regarding this project and other decompilation projects.
 # OoTPSP
 # OoTPSP
+# OoTPSP
