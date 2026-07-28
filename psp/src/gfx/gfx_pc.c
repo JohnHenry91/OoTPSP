@@ -2050,20 +2050,43 @@ static void gfx_dp_fill_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t
         return;
     }
     uint32_t mode = (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE));
-    
+
     if (mode == G_CYC_COPY || mode == G_CYC_FILL) {
         // Per documentation one extra pixel is added in this modes to each edge
         lrx += 1 << 2;
         lry += 1 << 2;
     }
-    
-    for (int i = 0; i < 2; i++) {
-        struct VertexColor* v = &rsp.loaded_vertices_2D[i];
-        v->color = rdp.fill_color;
-    }
-    
+
     uint32_t saved_combine_mode = rdp.combine_mode;
-    gfx_dp_set_combine_mode(color_comb(0, 0, 0, G_CCMUX_SHADE), color_comb(0, 0, 0, G_ACMUX_SHADE));
+
+    if (mode == G_CYC_FILL || mode == G_CYC_COPY) {
+        // Real hardware: FILL/COPY cycle bypasses the color combiner
+        // entirely and paints the raw fill_color register directly.
+        for (int i = 0; i < 2; i++) {
+            rsp.loaded_vertices_2D[i].color = rdp.fill_color;
+        }
+        gfx_dp_set_combine_mode(color_comb(0, 0, 0, G_CCMUX_SHADE), color_comb(0, 0, 0, G_ACMUX_SHADE));
+    } else {
+        // 1-cycle/2-cycle mode: real hardware runs FILLRECT through
+        // whatever combiner the caller already configured, NOT fill_color.
+        // z_fbdemo_fade.c's TransitionFade (the OoT scene-transition fade
+        // used e.g. entering Redead Grave) sets up a PRIMITIVE-based
+        // 1-cycle combine and a per-frame ramping alpha via gDPSetPrimColor
+        // before its gDPFillRectangle call -- unconditionally forcing
+        // SHADE/fill_color here, as this code used to do, silently
+        // discarded that real per-frame PRIM alpha ramp, which manifested
+        // as the fade only ever showing its two extreme colors (solid
+        // black/solid white flicker) instead of a smooth cross-fade.
+        // CC_PRIM and CC_SHADE both map to the vertex-color shader input in
+        // this port's simplified combiner (see gfx_generate_cc's CC_PRIM/
+        // CC_SHADE case), so feeding prim_color through the vertex color
+        // here keeps the caller's already-set combine_mode intact and
+        // correct without needing a dedicated PRIM shader path.
+        for (int i = 0; i < 2; i++) {
+            rsp.loaded_vertices_2D[i].color = rdp.prim_color;
+        }
+    }
+
     gfx_draw_rectangle(ulx, uly, lrx, lry);
     rdp.combine_mode = saved_combine_mode;
 }
