@@ -125,6 +125,15 @@ PSP_C_FILES += src/code/z_nulltask.c
 PSP_C_FILES += src/code/object_table.c
 PSP_C_FILES += src/code/sys_math.c
 PSP_C_FILES += src/code/z_olib.c
+
+# Promoted out of phase2_stubs_gen.c. Not cosmetic: Camera_Update feeds
+# Quake_Update's ShakeInfo out-parameter straight into the view's `at`, so a
+# no-op stub left the camera adding uninitialised stack to its look-at target
+# every frame -- the port's long-standing "perspective flips back and forth".
+# See the note where the stubs used to be. Needs only Math_SinS / OLib_* /
+# Rand_ZeroOne, all already linked above.
+PSP_C_FILES += src/code/z_quake.c
+
 PSP_C_FILES += psp/src/phase2_stubs.c
 PSP_C_FILES += psp/src/phase2_stubs_gen.c
 PSP_C_FILES += psp/src/segment_roms_psp.c

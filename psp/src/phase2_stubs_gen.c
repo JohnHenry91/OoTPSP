@@ -113,14 +113,33 @@ void PreRender_RestoreFramebuffer(void) {}
 void PreRender_SaveFramebuffer(void) {}
 void PreRender_SetValues(void) {}
 void PreRender_SetValuesSave(void) {}
-void Quake_GetTimeLeft(void) {}
-void Quake_Init(void) {}
-void Quake_RemoveRequest(void) {}
-void Quake_Request(void) {}
-void Quake_SetDuration(void) {}
-void Quake_SetPerturbations(void) {}
-void Quake_SetSpeed(void) {}
-void Quake_Update(void) {}
+/* Quake_* PROMOTED to the real src/code/z_quake.c (see Makefile.psp).
+ *
+ * These stubs caused the port's long-standing "the perspective flips back and
+ * forth" bug, and the mechanism is worth reading before adding stubs like
+ * this again. z_camera.c:8231 does:
+ *
+ *     numQuakesApplied = Quake_Update(camera, &camShake);
+ *     if ((numQuakesApplied != 0) && (camera->setting != CAM_SET_TURN_AROUND)) {
+ *         viewAt.x = camera->at.x + camShake.atOffset.x;   // ...etc
+ *
+ * `void Quake_Update(void) {}` standing in for
+ * `s16 Quake_Update(Camera*, ShakeInfo*)` means: the stub never writes
+ * `camShake` (a caller stack local, so it holds whatever was there before),
+ * and never sets $v0, so `numQuakesApplied` is leftover garbage from the
+ * previous call -- reliably non-zero. The quake branch is therefore taken on
+ * every single frame and adds uninitialised stack to the camera's `at`.
+ *
+ * Measured symptom: `camera->at` constant and correct, `play->view.at` equal
+ * to it plus a garbage offset that settles into a couple of stable values --
+ * i.e. the view snapping between two orientations.
+ *
+ * NOTE FOR WHOEVER REGENERATES THIS FILE: the header above says signature
+ * mismatches "are irrelevant for linking". That is true, and it is also
+ * exactly the trap -- it is irrelevant for *linking* and disastrous at
+ * runtime for any function that returns a value or fills an out-parameter.
+ * A no-op stub is only safe for a function that returns void AND writes
+ * nothing through its arguments. */
 void Rupees_ChangeBy(void) {}
 void SfxSource_InitAll(void) {}
 void SfxSource_PlaySfxAtFixedWorldPos(void) {}
