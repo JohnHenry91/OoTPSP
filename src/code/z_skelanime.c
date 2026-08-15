@@ -235,6 +235,16 @@ void SkelAnime_DrawFlexLimbLod(PlayState* play, s32 limbIndex, void** skeleton, 
  * Limbs in a flexible skeleton have meshes that can stretch to line up with other limbs.
  * An array of matrices is dynamically allocated so each limb can access any transform to ensure its meshes line up.
  */
+#if TARGET_PSP
+/* Flex-limb matrix probe -- see the sample site inside SkelAnime_DrawFlexLod,
+ * which is the variant z_player_lib.c uses for Link. */
+u32 gPspFlexMagic;
+u32 gPspFlexCalls;
+u32 gPspFlexWritten;
+u32 gPspFlexDListCount;
+u32 gPspFlexSkipped;
+#endif
+
 void SkelAnime_DrawFlexLod(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dListCount,
                            OverrideLimbDrawOpa overrideLimbDraw, PostLimbDrawOpa postLimbDraw, void* arg, s32 lod) {
     LodLimb* rootLimb;
@@ -244,6 +254,9 @@ void SkelAnime_DrawFlexLod(PlayState* play, void** skeleton, Vec3s* jointTable, 
     Vec3f pos;
     Vec3s rot;
     Mtx* mtx = GRAPH_ALLOC(play->state.gfxCtx, dListCount * sizeof(Mtx));
+#if TARGET_PSP
+    Mtx* pspMtxBase = mtx;
+#endif
 
 #if TARGET_PSP
     {
@@ -300,6 +313,29 @@ void SkelAnime_DrawFlexLod(PlayState* play, void** skeleton, Vec3s* jointTable, 
     }
 
     Matrix_Pop();
+
+#if TARGET_PSP
+    /* Link's display lists reference limb matrices by FIXED index into this
+     * array (gsSPMatrix(0x0D0001C0, ...) = segment 13 + index*0x40, up to
+     * index 17 for dListCount == 18). A matrix is only written when the limb
+     * is actually drawn, and Player_OverrideLimbDraw decides that from
+     * equipment and from several functions still stubbed in this port. Write
+     * fewer than the lists index and the high indices read uninitialised
+     * arena -- geometry that is displaced rather than missing, which is what
+     * the floating sleeves and the brown lumps on the floor look like.
+     *
+     *   written == dListCount -> array fully built, look elsewhere
+     *   written <  dListCount -> confirmed, and the gap counts skipped limbs
+     *
+     * NB this lives in DrawFlexLod, not DrawFlexOpa: z_player_lib.c:1128 uses
+     * the Lod variant. The probe sat in the Opa one first and simply never
+     * ran, which the magic word caught. */
+    gPspFlexMagic = 0x50464C58U; /* 'PFLX' */
+    gPspFlexWritten = (u32)(mtx - pspMtxBase);
+    gPspFlexDListCount = (u32)dListCount;
+    gPspFlexSkipped = (u32)(dListCount - (s32)(mtx - pspMtxBase));
+    gPspFlexCalls++;
+#endif
 
     CLOSE_DISPS(play->state.gfxCtx, "../z_skelanime.c", 1053);
 }

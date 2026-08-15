@@ -1042,6 +1042,21 @@ static void import_texture_ci4(int tile) {
     gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
 }
 
+/* A/B switch for the CI8 alpha bit, pokeable at runtime with the debugger so a
+ * test costs no rebuild (same idea as gDebugDisableCull).
+ *
+ * CI8 takes its transparency from ONE bit of the 16-bit palette entry, so a
+ * palette that is byte-swapped or off by one byte turns alpha into noise and
+ * individual texels vanish -- scattered holes across exactly the limbs that use
+ * CI8, which is 27 of the textures in Link's object and none at all in the test
+ * scene, so nothing before now would have shown it.
+ *
+ *   set to 1 -> holes fill in  => the palette decode is wrong, look at PALSRC /
+ *                                the TLUT unswap
+ *   set to 1 -> holes stay     => alpha is innocent, the geometry really is
+ *                                missing; look at the flex-limb matrices */
+int gDebugCi8Opaque = 0;
+
 static void import_texture_ci8(int tile) {
     const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
     const bool pal_unswap = tex_needs_u64_unswap(rdp.palette);
@@ -1057,7 +1072,7 @@ static void import_texture_ci8(int tile) {
         rgba32_buf[4*i + 0] = SCALE_5_8(r);
         rgba32_buf[4*i + 1] = SCALE_5_8(g);
         rgba32_buf[4*i + 2] = SCALE_5_8(b);
-        rgba32_buf[4*i + 3] = a ? 255 : 0;
+        rgba32_buf[4*i + 3] = (a || gDebugCi8Opaque) ? 255 : 0;
     }
     
     uint32_t width = rdp.texture_tile[tile].line_size_bytes;
