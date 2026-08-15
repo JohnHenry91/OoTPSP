@@ -969,34 +969,45 @@ void AnimTaskQueue_AddLoadPlayerFrame(PlayState* play, LinkAnimationHeader* anim
      * task is queued, so there's nothing for a later AnimTaskQueue_Update
      * to race against. */
     LinkAnimationHeader* linkAnimHeader = SEGMENTED_TO_VIRTUAL(animation);
+    size_t frameSize = sizeof(Vec3s) * limbCount + 2;
 
-    DMA_REQUEST_SYNC(frameTable, LINK_ANIMATION_OFFSET(linkAnimHeader->segment, ((sizeof(Vec3s) * limbCount + 2) * frame)),
-                      sizeof(Vec3s) * limbCount + 2, "../z_skelanime.c", 2004);
-
-    /* link_animetion is raw ROM: every value in it is a BIG-ENDIAN s16 and
-     * this DMA is a straight byte copy, so without this the whole frame is
-     * read byte-swapped.
+    /* link_animetion is COMPILED IN on this port (see Makefile.psp:
+     * extracted/pal-1.0/assets/misc/link_animetion/link_animetion.c), so
+     * `linkAnimHeader->segment` is not an N64 segmented address at all -- it is
+     * a real linker-resolved pointer straight at the frame data, e.g.
+     * `gPlayerAnim_link_normal_wait_free_Data`. Two consequences, and getting
+     * either wrong produces the same picture:
      *
-     * The frame is `limbCount` Vec3s plus a trailing s16, and jointTable[0] is
-     * the root TRANSLATION while the rest are binary angles -- which is why the
-     * two symptoms appear together: garbage angles crumple the model, and a
-     * garbage root translation hurls it across the screen every frame.
+     *  - LINK_ANIMATION_OFFSET must not be used. It does
+     *    romStart + SEGMENT_OFFSET(segment) + ..., and SEGMENT_OFFSET of a
+     *    native pointer is its low 24 bits: measured 0x0894EF50 -> 0x94EF50,
+     *    i.e. a ~9.7 MB offset into a file far smaller than that. The read
+     *    landed at 0x00E29810, still inside the 55 MB .z64 so no guard fired
+     *    (gPspRomBadReadCount stayed 0), and quietly returned unrelated bytes.
+     *  - The data must NOT be byte-swapped. The decomp declares it as
+     *    `s16 gPlayerAnim_*_Data[]`, so the little-endian compiler already
+     *    emitted native s16. Only a raw .z64 read would need the swap.
      *
-     * Verified against the ROM at link_animetion's own offset (0x004DA490):
-     * big-endian gives root (-57, 3377, 0) and a joint angle of -16384, i.e.
-     * exactly -0x4000 = -90 degrees; little-endian gives (-14337, 12557, 0)
-     * and 192. The size is bytes, so the s16 count is half of it.
+     * jointTable[0] is the root TRANSLATION and the rest are binary angles,
+     * which is why one wrong address gave both halves of the symptom at once:
+     * garbage angles crumpled the model and a garbage root hurled it to a
+     * different place on screen every frame.
      *
-     * NOTE the coupling: the fixup guard inside PspFixupS16ArrayEndian tests
-     * the pointer it is GIVEN, and that is the destination buffer, which is
-     * never static. So if link_animetion is ever registered as a compiled-in
-     * or blob asset (psp_static_assets.c / psp_blob_assets.c), PspRom_Read will
-     * hand over already-native data and this call must go -- it cannot detect
-     * that by itself. */
+     * The fallback is kept honest rather than assumed away: if the pointer is
+     * ever NOT compiled-in data, this is a genuine raw-ROM read and then the
+     * swap really is required. PspStaticAssetIsStatic is the same single
+     * "is this already native-endian?" predicate the endian fixups use. */
     {
+        extern int PspStaticAssetIsStatic(const void* data);
         extern void PspFixupS16ArrayEndian(void* data, unsigned int count);
 
-        PspFixupS16ArrayEndian(frameTable, (unsigned int)(sizeof(Vec3s) * limbCount + 2) / 2);
+        if (PspStaticAssetIsStatic(linkAnimHeader->segment)) {
+            memcpy(frameTable, (u8*)linkAnimHeader->segment + frameSize * frame, frameSize);
+        } else {
+            DMA_REQUEST_SYNC(frameTable, LINK_ANIMATION_OFFSET(linkAnimHeader->segment, frameSize * frame),
+                             frameSize, "../z_skelanime.c", 2004);
+            PspFixupS16ArrayEndian(frameTable, (unsigned int)frameSize / 2);
+        }
     }
 #else
     AnimTask* task = AnimTaskQueue_NewTask(&play->animTaskQueue, ANIMTASK_LOAD_PLAYER_FRAME);
