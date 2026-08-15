@@ -41,6 +41,34 @@ void PadMgr_HandleRetrace(PadMgr* padMgr);
 #define GFXPOOL_HEAD_MAGIC 0x1234
 #define GFXPOOL_TAIL_MAGIC 0x5678
 
+#if TARGET_PSP
+/* Graphics pool usage counters -- see the sampling site in Graph_Update.
+ * Plain globals, read with the debugger, never file I/O. */
+u32 gPspPoolOpaUsed;
+u32 gPspPoolXluUsed;
+u32 gPspPoolOvlUsed;
+u32 gPspPoolWrkUsed;
+u32 gPspPoolOpaMax;
+u32 gPspPoolXluMax;
+u32 gPspPoolOvlMax;
+u32 gPspPoolWrkMax;
+u32 gPspPoolOpaCap;
+u32 gPspPoolXluCap;
+u32 gPspPoolOvlCap;
+u32 gPspPoolWrkCap;
+u32 gPspPoolOverflows;
+/* Tail side of polyOpa -- where GRAPH_ALLOC puts matrices/viewports. */
+u32 gPspPoolOpaTailUsed;
+u32 gPspPoolOpaTailMax;
+s32 gPspPoolOpaHeadroom;
+s32 gPspPoolOpaHeadroomMin = 0x7FFFFFFF;
+/* Matrix stack depth at end of frame -- see the sampling site in Graph_Update.
+ * min != max means Matrix_Push/Matrix_Pop are unbalanced across frames. */
+s32 gPspMtxStackDepth;
+s32 gPspMtxStackMax;
+s32 gPspMtxStackMin = 0x7FFFFFFF;
+#endif
+
 #pragma increment_block_number "gc-eu:0 gc-eu-mq:0 gc-jp:0 gc-jp-ce:0 gc-jp-mq:0 gc-us:0 gc-us-mq:0 ique-cn:128" \
                                "ntsc-1.0:224 ntsc-1.1:224 ntsc-1.2:224 pal-1.0:224 pal-1.1:224"
 
@@ -488,7 +516,142 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     problem = false;
 
     {
+#if PSP_DIAG_SINGLE_GFX_POOL && TARGET_PSP
+        /* Must match Graph_InitTHGA's choice. Pinning only the init site (as
+         * the first version of this diagnostic did) makes the guard word get
+         * written to pool 0 and then read back from pool 1 on alternate
+         * frames, which fails `../graph.c:951` immediately and looks exactly
+         * like real pool corruption. That false positive is what produced the
+         * earlier conclusion that "the two pools are load-bearing" -- they may
+         * well be, but this experiment never showed it. */
+        GfxPool* pool = &gGfxPools[0];
+#else
         GfxPool* pool = &gGfxPools[gfxCtx->gfxPoolIdx & 1];
+#endif
+
+#if TARGET_PSP
+        /* Matrix stack depth at end of frame.
+         *
+         * Last hypothesis standing for the alternating-view bug. Everything
+         * else has been measured and cleared: Link's position, the camera
+         * (play->view is byte-stable), all four projection loads, the geometry
+         * and display list, both ends of the graphics pool (6% used, no
+         * overflow), stray writes to the pool guard words (a PPSSPP memory
+         * watchpoint saw only Graph_InitTHGA), the Mtx fixed-point packing,
+         * and pool alternation itself (the flicker survives a single pool once
+         * the diagnostic is applied consistently at BOTH sites).
+         *
+         * What remains is that 43 of 45 modelview loads produce a different
+         * matrix every frame. Matrix_NewMtx converts whatever sCurrentMatrix
+         * points at, so an unbalanced Matrix_Push/Matrix_Pop leaves the stack
+         * pointer somewhere else at the same point in the next frame, and
+         * every matrix built after that comes from a different stack level --
+         * which is exactly the observed signature. Matrix_Init resets the
+         * pointer only once, at scene load, not per frame, so drift persists.
+         *
+         * depth should be identical at the same point in every frame. Anything
+         * else, and this is the bug. */
+        {
+            extern MtxF* sMatrixStack;
+            extern MtxF* sCurrentMatrix;
+
+            if (sMatrixStack != NULL) {
+                s32 depth = (s32)(sCurrentMatrix - sMatrixStack);
+
+                gPspMtxStackDepth = depth;
+                if (depth > gPspMtxStackMax) {
+                    gPspMtxStackMax = depth;
+                }
+                if (depth < gPspMtxStackMin) {
+                    gPspMtxStackMin = depth;
+                }
+            }
+        }
+
+        /* Graphics pool usage, sampled at the point OoT itself checks the
+         * pool's guard words.
+         *
+         * Why this matters: forcing a SINGLE pool
+         * (PSP_DIAG_SINGLE_GFX_POOL 1) makes the game die immediately on
+         * `../graph.c:951`, i.e. this very headMagic check -- the display
+         * list overruns its buffer inside one frame. With the normal TWO
+         * pools that same overrun lands in the *neighbouring* pool instead of
+         * its own guard word, so the check stays quiet and the damage is
+         * silent. But the neighbouring pool is exactly where the NEXT frame's
+         * matrices live, which is the mechanism behind the every-other-frame
+         * flicker: identical camera and geometry, yet corrupted modelviews on
+         * alternate frames.
+         *
+         * So record how far each arena's head actually advanced, plus the
+         * high-water mark, and compare against the buffer's real capacity.
+         * `over` counting up proves the overrun directly. */
+        {
+            u32 opaUsed = (u32)((uintptr_t)gfxCtx->polyOpa.p - (uintptr_t)pool->polyOpaBuffer);
+            u32 xluUsed = (u32)((uintptr_t)gfxCtx->polyXlu.p - (uintptr_t)pool->polyXluBuffer);
+            u32 ovlUsed = (u32)((uintptr_t)gfxCtx->overlay.p - (uintptr_t)pool->overlayBuffer);
+            u32 wrkUsed = (u32)((uintptr_t)gfxCtx->work.p - (uintptr_t)pool->workBuffer);
+
+            /* THGA is TWO-headed: `p` grows up with display list commands,
+             * while `d` grows DOWN from the end. GRAPH_ALLOC (include/gfx.h)
+             * takes every matrix and viewport off polyOpa.d specifically:
+             *
+             *   gfxCtx->polyOpa.d = polyOpa.d - ALIGN16(size)
+             *
+             * Measuring only `p` (as the first version of this did) therefore
+             * misses the allocation direction that can actually reach the
+             * pool's headMagic, which sits *below* polyOpaBuffer. `d` running
+             * past the buffer start is the only way to corrupt that guard
+             * word from this side -- and corrupting it is exactly what the
+             * single-pool experiment showed happening.
+             *
+             * tailUsed = how far d has descended from the buffer end.
+             * headroom = bytes still between the two heads; it reaching 0 is
+             * the real collision condition (THGA_IsCrash). */
+            {
+                uintptr_t opaEnd = (uintptr_t)pool->polyOpaBuffer + sizeof(pool->polyOpaBuffer);
+
+                gPspPoolOpaTailUsed = (u32)(opaEnd - (uintptr_t)gfxCtx->polyOpa.d);
+                if (gPspPoolOpaTailUsed > gPspPoolOpaTailMax) {
+                    gPspPoolOpaTailMax = gPspPoolOpaTailUsed;
+                }
+                /* Signed on purpose: negative means the heads have crossed. */
+                gPspPoolOpaHeadroom =
+                    (s32)((uintptr_t)gfxCtx->polyOpa.d - (uintptr_t)gfxCtx->polyOpa.p);
+                if (gPspPoolOpaHeadroom < gPspPoolOpaHeadroomMin) {
+                    gPspPoolOpaHeadroomMin = gPspPoolOpaHeadroom;
+                }
+                if (gPspPoolOpaHeadroom < 0) {
+                    ++gPspPoolOverflows;
+                }
+            }
+
+            gPspPoolOpaUsed = opaUsed;
+            gPspPoolXluUsed = xluUsed;
+            gPspPoolOvlUsed = ovlUsed;
+            gPspPoolWrkUsed = wrkUsed;
+            gPspPoolOpaCap = (u32)sizeof(pool->polyOpaBuffer);
+            gPspPoolXluCap = (u32)sizeof(pool->polyXluBuffer);
+            gPspPoolOvlCap = (u32)sizeof(pool->overlayBuffer);
+            gPspPoolWrkCap = (u32)sizeof(pool->workBuffer);
+
+            if (opaUsed > gPspPoolOpaMax) {
+                gPspPoolOpaMax = opaUsed;
+            }
+            if (xluUsed > gPspPoolXluMax) {
+                gPspPoolXluMax = xluUsed;
+            }
+            if (ovlUsed > gPspPoolOvlMax) {
+                gPspPoolOvlMax = ovlUsed;
+            }
+            if (wrkUsed > gPspPoolWrkMax) {
+                gPspPoolWrkMax = wrkUsed;
+            }
+            if (opaUsed > gPspPoolOpaCap || xluUsed > gPspPoolXluCap ||
+                ovlUsed > gPspPoolOvlCap || wrkUsed > gPspPoolWrkCap) {
+                ++gPspPoolOverflows;
+            }
+        }
+#endif
 
         if (pool->headMagic != GFXPOOL_HEAD_MAGIC) {
             //! @bug (?) : "problem = true;" may be missing

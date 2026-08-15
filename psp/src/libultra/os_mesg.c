@@ -81,6 +81,22 @@ static int PspMesgWait(SceUID sema) {
     return sceKernelWaitSema(sema, 1, NULL) < 0 ? -1 : 0;
 }
 
+/* Queue-table health.
+ *
+ * osCreateMesgQueue has no libultra counterpart for destruction, so this shim
+ * tracks queues in a fixed table and evicts round-robin when it fills. That is
+ * only safe if evicted queues are genuinely dead. DmaMgr_RequestSync creates a
+ * queue on the CALLER'S STACK on every single call, so the table churns
+ * through a new address per call and eviction becomes routine rather than
+ * exceptional -- and once a still-live queue is evicted, FindEntry returns
+ * NULL for it and every send/receive on it fails with -1 forever.
+ *
+ * evictions climbing, and noEntry non-zero, is that failure. */
+unsigned int gPspMesgEvictions;
+unsigned int gPspMesgNoEntrySend;
+unsigned int gPspMesgNoEntryRecv;
+unsigned int gPspMesgLiveQueues;
+
 #define MAX_TRACKED_QUEUES 64
 
 typedef struct {
@@ -142,6 +158,7 @@ static MesgQueueMapEntry* AllocEntry(OSMesgQueue* mq) {
         PspDebugLogQueueEvict((void*)sQueueMap[sNextEvictIdx].mq, (void*)mq);
     }
 #endif
+    ++gPspMesgEvictions;
     e = &sQueueMap[sNextEvictIdx];
     sNextEvictIdx = (sNextEvictIdx + 1) % MAX_TRACKED_QUEUES;
     DeleteEntrySemas(e);
@@ -183,12 +200,14 @@ unsigned int gPspMesgBlockedRecvQueue;
 unsigned int gPspMesgSendWaits;
 unsigned int gPspMesgRecvWaits;
 
+
 s32 osSendMesg(OSMesgQueue* mq, OSMesg msg, s32 flag) {
     MesgQueueMapEntry* e = FindEntry(mq);
     s32 index;
 
     if (e == NULL) {
-        return -1; /* osCreateMesgQueue was never called on this address */
+        ++gPspMesgNoEntrySend; /* queue unknown or evicted while still in use */
+        return -1;
     }
 
     if (flag == OS_MESG_BLOCK) {
@@ -257,6 +276,7 @@ s32 osRecvMesg(OSMesgQueue* mq, OSMesg* msg, s32 flag) {
     MesgQueueMapEntry* e = FindEntry(mq);
 
     if (e == NULL) {
+        ++gPspMesgNoEntryRecv; /* queue unknown or evicted while still in use */
         return -1;
     }
 

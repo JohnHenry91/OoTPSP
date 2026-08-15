@@ -138,6 +138,25 @@ u16 gPspTransRawField = 0;
 
 /* Player position / ground state, sampled once per drawn frame in Play_Draw. */
 Vec3f gPspPlayerPos;
+
+/* See the sampling site in Play_Draw. Laid out as plain floats/u32 so the
+ * whole block reads in one debugger request; magic word so a stale symbol
+ * address is caught instead of silently reading plausible garbage (that
+ * mistake has cost real time twice on this project). */
+typedef struct {
+    u32 magic; /* 'PVIW' */
+    u32 sample;
+    u32 activeCamId;
+    u32 camStatus;
+    Vec3f eye;
+    Vec3f at;
+    Vec3f up;
+    f32 fovy;
+} PspViewSample;
+
+PspViewSample gPspViewCur = { 0x50564957 };
+PspViewSample gPspViewPrev = { 0x50564957 };
+PspViewSample gPspViewPrev2 = { 0x50564957 };
 f32 gPspPlayerVelY;
 f32 gPspPlayerFloorHeight;
 u16 gPspPlayerBgFlags;
@@ -1324,6 +1343,44 @@ void Play_Draw(PlayState* this) {
         gPspPlayerFloorHeight = pspPlayer->actor.floorHeight;
         gPspPlayerBgFlags = pspPlayer->actor.bgCheckFlags;
         gPspPlayerSampleCount++;
+    }
+#endif
+
+#if TARGET_PSP
+    /* Camera / view sampling, three generations.
+     *
+     * The measured flicker is a view transform that differs every frame while
+     * the geometry, the projection and Link's position are all provably
+     * constant (see the per-modelview-slot instrumentation in gfx_pc.c: 43 of
+     * 45 modelview loads change between consecutive frames, slot 0 and all
+     * four projection loads do not). The user describes it precisely: the view
+     * alternates between looking into the room correctly and looking straight
+     * at a wall.
+     *
+     * Two distinct views alternating points at the camera, not at a numerical
+     * wobble -- most likely the active camera id flipping between the real
+     * gameplay camera and a second, uninitialised one, since OoT keeps several
+     * in play->cameraPtrs[]. So sample the view basis together with which
+     * camera produced it.
+     *
+     * This is also why movement is worth looking at from here rather than from
+     * Player: OoT computes the walk direction relative to the camera, so a
+     * view that is wrong every other frame makes "forward" wrong every other
+     * frame -- which is what "only backward works" would feel like. */
+    {
+        gPspViewPrev2 = gPspViewPrev;
+        gPspViewPrev = gPspViewCur;
+
+        gPspViewCur.eye = this->view.eye;
+        gPspViewCur.at = this->view.at;
+        gPspViewCur.up = this->view.up;
+        gPspViewCur.fovy = this->view.fovy;
+        gPspViewCur.activeCamId = this->activeCamId;
+        gPspViewCur.camStatus = this->cameraPtrs[this->activeCamId] != NULL
+                                    ? this->cameraPtrs[this->activeCamId]->status
+                                    : 0xFF;
+        gPspViewCur.sample = gPspPlayerSampleCount;
+        gPspViewCur.magic = 0x50564957;
     }
 #endif
 
