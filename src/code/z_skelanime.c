@@ -972,6 +972,32 @@ void AnimTaskQueue_AddLoadPlayerFrame(PlayState* play, LinkAnimationHeader* anim
 
     DMA_REQUEST_SYNC(frameTable, LINK_ANIMATION_OFFSET(linkAnimHeader->segment, ((sizeof(Vec3s) * limbCount + 2) * frame)),
                       sizeof(Vec3s) * limbCount + 2, "../z_skelanime.c", 2004);
+
+    /* link_animetion is raw ROM: every value in it is a BIG-ENDIAN s16 and
+     * this DMA is a straight byte copy, so without this the whole frame is
+     * read byte-swapped.
+     *
+     * The frame is `limbCount` Vec3s plus a trailing s16, and jointTable[0] is
+     * the root TRANSLATION while the rest are binary angles -- which is why the
+     * two symptoms appear together: garbage angles crumple the model, and a
+     * garbage root translation hurls it across the screen every frame.
+     *
+     * Verified against the ROM at link_animetion's own offset (0x004DA490):
+     * big-endian gives root (-57, 3377, 0) and a joint angle of -16384, i.e.
+     * exactly -0x4000 = -90 degrees; little-endian gives (-14337, 12557, 0)
+     * and 192. The size is bytes, so the s16 count is half of it.
+     *
+     * NOTE the coupling: the fixup guard inside PspFixupS16ArrayEndian tests
+     * the pointer it is GIVEN, and that is the destination buffer, which is
+     * never static. So if link_animetion is ever registered as a compiled-in
+     * or blob asset (psp_static_assets.c / psp_blob_assets.c), PspRom_Read will
+     * hand over already-native data and this call must go -- it cannot detect
+     * that by itself. */
+    {
+        extern void PspFixupS16ArrayEndian(void* data, unsigned int count);
+
+        PspFixupS16ArrayEndian(frameTable, (unsigned int)(sizeof(Vec3s) * limbCount + 2) / 2);
+    }
 #else
     AnimTask* task = AnimTaskQueue_NewTask(&play->animTaskQueue, ANIMTASK_LOAD_PLAYER_FRAME);
 
