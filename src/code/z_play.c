@@ -717,6 +717,30 @@ void Play_Update(PlayState* this) {
     gSegments[2] = OS_K0_TO_PHYSICAL(this->sceneSegment);
 
     if (FrameAdvance_Update(&this->frameAdvCtx, &input[1])) {
+#if TARGET_PSP
+        /* Development switch: refuse every scene/room transition, so the test
+         * room cannot be left by walking into an exit.
+         *
+         * Set to 1 while working on rendering. Scene changing is the least
+         * finished part of this port (multi-room scenes do not work at all,
+         * and the teardown path only just stopped deadlocking -- see
+         * GameState_Destroy in game.c), so an accidental exit ends a test
+         * session that was really about something else. Pinning the player in
+         * one known-good room removes that whole variable.
+         *
+         * Keep at 0 whenever transitions themselves are what is being tested,
+         * which is the only way to find out whether they work. This is a
+         * blunt "stay put", not a fix for anything -- gPspTransitionsBlocked
+         * counts refusals so a silently-stuck-here state is still visible in
+         * the stats rather than looking like the game ignoring input. */
+#define PSP_BLOCK_SCENE_TRANSITIONS 0
+        if (PSP_BLOCK_SCENE_TRANSITIONS && (this->transitionTrigger != TRANS_TRIGGER_OFF)) {
+            extern unsigned int gPspTransitionsBlocked;
+
+            ++gPspTransitionsBlocked;
+            this->transitionTrigger = TRANS_TRIGGER_OFF;
+        }
+#endif
         if ((this->transitionMode == TRANS_MODE_OFF) && (this->transitionTrigger != TRANS_TRIGGER_OFF)) {
             this->transitionMode = TRANS_MODE_SETUP;
         }

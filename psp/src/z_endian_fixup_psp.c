@@ -26,6 +26,11 @@ unsigned int gPspSegVirtAmbiguous8;
 unsigned int gPspSegVirtAmbiguous9;
 unsigned int gPspSegVirtAmbiguousLast;
 
+/* Counts scene/room transitions refused by PSP_BLOCK_SCENE_TRANSITIONS
+ * (src/code/z_play.c). Non-zero means the player is deliberately pinned in the
+ * test room, not that the game stopped responding. */
+unsigned int gPspTransitionsBlocked;
+
 static void PspSwapU16At(unsigned char* p, unsigned int off) {
     unsigned char t = p[off];
     p[off] = p[off + 1];

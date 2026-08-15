@@ -506,7 +506,24 @@ void GameState_Init(GameState* gameState, GameStateFunc init, GraphicsContext* g
     }
     SpeedMeter_Init(&D_801664D0);
     Rumble_Init();
+#if TARGET_PSP
+    /* Paired with the receive dropped in GameState_Destroy below -- these two
+     * are one mechanism and must be enabled or disabled together.
+     *
+     * On N64 this primes gfxCtx->queue with a token that GameState_Destroy
+     * later consumes, so teardown waits for the RCP to finish the last
+     * graphics task. This port dispatches display lists synchronously and has
+     * no RCP, so the receive is pointless and was removed -- but removing only
+     * the receive breaks the balance: every game-state transition would post
+     * one more token that nobody takes, and after 8 of them (msgBuff[0x08])
+     * this *blocking* send fills the queue and waits forever.
+     *
+     * That regression was observed live: the game hung at frame 324 with
+     * user_main parked in osSendMesg+0x88, shortly after the receive side
+     * alone was guarded. Skipping both leaves the queue unused and balanced. */
+#else
     osSendMesg(&gameState->gfxCtx->queue, NULL, OS_MESG_BLOCK);
+#endif
     endTime = osGetTime();
     PRINTF(T("その他初期化 処理時間 %d us\n", "Other initialization processing time %d us\n"),
            OS_CYCLES_TO_USEC(endTime - startTime));
