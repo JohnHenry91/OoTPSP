@@ -273,6 +273,32 @@ typedef struct {
     uint32_t settile;       /* G_SETTILE reached gfx_dp_set_tile               */
     uint32_t tex_used;      /* gfx_sp_tri1: combiner wanted a texture          */
     uint32_t tex_unused;    /* gfx_sp_tri1: combiner wanted none               */
+
+    /* --- shade probe (session 12) -------------------------------------------
+     * hakaana2's EnvLightSettings are strongly BLUE (ambient 40,60,90;
+     * light1 110,110,250) and 9 of its 18 textures are intensity-only, so they
+     * carry no colour of their own and MUST take it from shade. The render is
+     * pure greyscale, so the blue is lost somewhere between the light data and
+     * the vertex buffer. These fields cut that path at its two joints:
+     *
+     *   lit_*      what gfx_sp_vertex COMPUTED from rsp.current_lights
+     *   vtx_*      what gfx_sp_tri1 actually WROTE into buf_vbo
+     *
+     * Blue in lit_ but not in vtx_ => the CC input mapping is dropping CC_SHADE
+     * (look at shader_input_mapping / the "last input wins" loop).
+     * Grey already in lit_ => the lights never reach the interpreter (look at
+     * G_MOVEMEM/G_MV_LIGHT and z_lights.c), and the combiner is innocent.
+     *
+     * Sampled from lit triangles only (G_LIGHTING set, textured), because the
+     * question is about the walls and floor. Colours are packed 0x00RRGGBB. */
+    uint32_t num_lights;    /* rsp.current_num_lights, incl. ambient           */
+    uint32_t amb_color;     /* current_lights[num-1].col -- the ambient        */
+    uint32_t light0_color;  /* current_lights[0].col -- the first directional  */
+    uint32_t lit_color;     /* d->color computed by the lighting maths         */
+    uint32_t lit_samples;   /* how many lit vertices contributed               */
+    uint32_t vtx_color;     /* the colour gfx_sp_tri1 chose for the vertex     */
+    uint32_t vtx_cc_input;  /* which CC_* won, +1 (0 = loop never matched)     */
+    uint32_t vtx_num_inputs;/* comb->num_inputs for that draw                  */
 } PspGfxFrameStats;
 
 PspGfxFrameStats gPspGfxStats;      /* live, currently being built */
@@ -1346,7 +1372,24 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
             d->color.r = r > 255 ? 255 : r;
             d->color.g = g > 255 ? 255 : g;
             d->color.b = b > 255 ? 255 : b;
-            
+
+            /* Shade probe -- see PspGfxFrameStats. Records the LAST lit vertex
+             * of the frame rather than the first: the first vertices of a frame
+             * are Link and the fountain (rgba16, coloured anyway), the room
+             * geometry comes later, and the room is the thing in question. */
+            gPspGfxStats.num_lights = rsp.current_num_lights;
+            gPspGfxStats.amb_color =
+                ((uint32_t)rsp.current_lights[rsp.current_num_lights - 1].col[0] << 16) |
+                ((uint32_t)rsp.current_lights[rsp.current_num_lights - 1].col[1] << 8) |
+                ((uint32_t)rsp.current_lights[rsp.current_num_lights - 1].col[2]);
+            gPspGfxStats.light0_color = ((uint32_t)rsp.current_lights[0].col[0] << 16) |
+                                        ((uint32_t)rsp.current_lights[0].col[1] << 8) |
+                                        ((uint32_t)rsp.current_lights[0].col[2]);
+            gPspGfxStats.lit_color = ((uint32_t)d->color.r << 16) | ((uint32_t)d->color.g << 8) |
+                                     ((uint32_t)d->color.b);
+            gPspGfxStats.lit_samples++;
+
+
             if (rsp.geometry_mode & G_TEXTURE_GEN) {
                 float dotx = 0, doty = 0;
                 dotx += vn->n[0] * rsp.current_lookat_coeffs[0][0];
@@ -1652,19 +1695,45 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         */
         struct RGBA white = (struct RGBA){0xff, 0xff, 0xff, 0xff};
         struct RGBA tmp = (struct RGBA){0x00, 0x00, 0x00, 0x00};
-        struct RGBA *color = &white;
+        /* comb->shader_input_mapping's FIRST index is [0] = RGB, [1] = ALPHA
+         * (see gfx_dp_set_combine_mode: `rgb | (alpha << 12)`), so the k loop
+         * below walks two independent channels and they need two independent
+         * results.
+         *
+         * This used to be a single `color` that both iterations wrote, with one
+         * memcpy of the whole RGBA after the loop -- which meant the ALPHA row
+         * silently decided the RGB. For the room geometry that is fatal: the
+         * walls' combine is (TEXEL0 - 0) * SHADE + 0 with a constant-1 alpha,
+         * so k == 0 correctly picked CC_SHADE and then k == 1 hit `default:`
+         * on the constant and overwrote it with white. Every intensity-only
+         * texture (i4/i8/ia8 carry no colour of their own) therefore rendered
+         * as flat greyscale no matter how correct the lighting was.
+         *
+         * sm64-port, which this is a fork of, does not have the bug: its k == 0
+         * branch writes r/g/b and its k == 1 branch writes ONLY the alpha
+         * component, into separate float slots (the original is still here,
+         * commented out, a few lines below). The defect was introduced in
+         * collapsing that into one packed PSP vertex colour. */
+        struct RGBA *color = &white;       /* RGB   channel, k == 0 */
+        struct RGBA *alpha_src = &white;   /* ALPHA channel, k == 1 */
+        uint32_t probe_cc_input = 0; /* shade probe: 0 == the loop matched nothing */
 
         for (int j = 0; j < num_inputs; j++) {
             for (int k = 0; k < 1 + (use_alpha ? 1 : 0); k++) {
+                struct RGBA **dst = (k == 0) ? &color : &alpha_src;
+
+                if (k == 0) {
+                    probe_cc_input = (uint32_t)comb->shader_input_mapping[k][j] + 1;
+                }
                 switch (comb->shader_input_mapping[k][j]) {
                     case CC_PRIM:
-                        color = &rdp.prim_color;
+                        *dst = &rdp.prim_color;
                         break;
                     case CC_SHADE:
-                        color = &clipped_vertices[i]->color;
+                        *dst = &clipped_vertices[i]->color;
                         break;
                     case CC_ENV:
-                        color = &rdp.env_color;
+                        *dst = &rdp.env_color;
                         break;
                     case CC_LOD:
                     {
@@ -1672,11 +1741,11 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
                         if (distance_frac < 0.0f) distance_frac = 0.0f;
                         if (distance_frac > 1.0f) distance_frac = 1.0f;
                         tmp.r = tmp.g = tmp.b = tmp.a = distance_frac * 255.0f;
-                        color = &tmp;
+                        *dst = &tmp;
                         break;
                     }
                     default:
-                        color = &white;
+                        *dst = &white;
                         break;
                 }
                 /*@Note: should this be here ? */
@@ -1699,7 +1768,26 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
 
             }
         }
-        memcpy(&buf_vbo[buf_num_vert].color, color, sizeof(struct RGBA));
+        buf_vbo[buf_num_vert].color.r = color->r;
+        buf_vbo[buf_num_vert].color.g = color->g;
+        buf_vbo[buf_num_vert].color.b = color->b;
+        /* Alpha comes from the ALPHA row, not from whatever supplied the RGB.
+         * When that row is a constant (the common `(0-0)*0+1` case) nothing
+         * matches and alpha_src stays white, i.e. fully opaque -- which is what
+         * a constant 1 means. Note this also stops the vertex alpha picking up
+         * gfx_sp_vertex's fog factor, which it stores in color.a when G_FOG is
+         * set (the room's display lists do set it) and which is not an alpha at
+         * all; that is the likely source of the walls' half-transparent look. */
+        buf_vbo[buf_num_vert].color.a = alpha_src->a;
+
+        /* Shade probe -- the other half of the cut, see PspGfxFrameStats.
+         * Only textured, lit draws: that is the walls and the floor. */
+        if (use_texture) {
+            gPspGfxStats.vtx_color = ((uint32_t)color->r << 16) | ((uint32_t)color->g << 8) |
+                                     ((uint32_t)color->b);
+            gPspGfxStats.vtx_cc_input = probe_cc_input;
+            gPspGfxStats.vtx_num_inputs = (uint32_t)num_inputs;
+        }
 
         /*@Note: Blue Star color */
         if((rendering_state.shader_program->shader_id == 0x01200200)){
