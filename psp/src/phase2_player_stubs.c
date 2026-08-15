@@ -39,8 +39,8 @@ void EffectSsGSplash_Spawn(void* play, void* pos, void* primColor, void* envColo
 void EffectSsIcePiece_SpawnBurst(void* play, void* refPos, f32 scale) {}
 void EffectSsStick_Spawn(void* play, void* pos, s16 yaw) {}
 
-void Environment_ChangeLightSetting(void* play, u32 lightSetting) {}
-void Environment_WarpSongLeave(void* play) {}
+/* Environment_ChangeLightSetting / Environment_WarpSongLeave now come from the
+ * real src/code/z_kankyo.c (see Makefile.psp). */
 
 void func_8002836C(void* play, void* pos, void* velocity, void* accel, void* primColor, void* envColor, f32 scale,
                     s32 arg7, s32 arg8, s32 arg9) {}

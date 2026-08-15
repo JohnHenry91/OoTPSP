@@ -132,6 +132,30 @@ PSP_C_FILES += src/code/z_olib.c
 # Rand_ZeroOne, all already linked above.
 PSP_C_FILES += src/code/z_quake.c
 
+# Promoted out of phase2_stubs_gen.c for the same reason: Environment_Update is
+# a void function that writes through its EnvironmentContext*/LightContext*
+# arguments, so the no-op stub meant the scene's ENV_LIGHT_SETTINGS never became
+# real light state and every intensity-only texture (which takes ALL of its
+# colour from the combiner) rendered white-grey. See the note where the stubs
+# used to be.
+#
+# The asset files below are here because they are what z_kankyo.c's draw
+# functions reference by symbol -- the sun/moon, lens flare, raindrop, lightning
+# and shockwave models, plus gameplay_field_keep for gFieldSandstormDL. They are
+# small (~95 KB of .o in total). Linking them is deliberate rather than
+# --defsym'ing the symbols to dummies: fake asset data is the same category of
+# problem the blob pipeline exists to remove.
+PSP_C_FILES += src/code/z_kankyo.c
+PSP_C_FILES += assets/objects/gameplay_keep/gameplay_keep_0x4D160.c
+PSP_C_FILES += assets/objects/gameplay_keep/sun_textures.c
+PSP_C_FILES += assets/objects/gameplay_keep/sun_evening_textures.c
+PSP_C_FILES += assets/objects/gameplay_keep/moon.c
+PSP_C_FILES += assets/objects/gameplay_keep/lens_flare.c
+PSP_C_FILES += assets/objects/gameplay_keep/raindrop_model.c
+PSP_C_FILES += assets/objects/gameplay_keep/eff_lightning.c
+PSP_C_FILES += assets/objects/gameplay_keep/eff_shockwave.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/gameplay_field_keep/gameplay_field_keep.c
+
 PSP_C_FILES += psp/src/phase2_stubs.c
 PSP_C_FILES += psp/src/phase2_stubs_gen.c
 PSP_C_FILES += psp/src/segment_roms_psp.c
@@ -273,6 +297,16 @@ ASFLAGS = $(CFLAGS)
 
 LIBDIR = psp/lib
 LIBS = -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lm
+
+# D_01000000 is not data -- it is a segmented ADDRESS that the N64 build's own
+# spec resolves to the literal 0x01000000, and segment 1 is the billboard matrix
+# (z_play.c: gSPSegment(POLY_OPA_DISP++, 0x01, this->billboardMtx)). Code writes
+# `gSPMatrix(..., &D_01000000, ...)`, i.e. it emits 0x01000000 into the display
+# list, and gfx_pc.c's seg_addr() resolves it against gSegments[1] at draw time.
+# So the faithful port is to reproduce the absolute symbol, not to allocate a
+# real Mtx here -- allocating one would silently give every billboarded sprite
+# an identity matrix instead of the camera's.
+LDFLAGS += -Wl,--defsym,D_01000000=0x01000000
 
 BUILD_PRX = 1
 PSP_EBOOT_TITLE = OoT PSP (bring-up)

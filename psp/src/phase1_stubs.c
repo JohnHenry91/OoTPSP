@@ -17,12 +17,10 @@
 #include "ocarina.h"
 #include "player.h"
 
-/* Real impl: src/code/z_kankyo.c (2681 lines, weather/lighting/skybox
- * system) -- z_title.c's console-logo fade only needs "draw a solid-color
- * rect", not the whole environment system. No-op for now: the logo state
- * still renders/functions without the fade-to-color background. */
-void Environment_FillScreen(GraphicsContext* gfxCtx, u8 red, u8 green, u8 blue, u8 alpha, u8 drawFlags) {
-}
+/* Environment_FillScreen now comes from the real src/code/z_kankyo.c, which
+ * is compiled in as of the environment-lighting promotion (see Makefile.psp).
+ * The Phase 1 no-op here existed only so z_title.c's console-logo fade would
+ * link without pulling in the whole weather/lighting/skybox system. */
 
 /* Real impl: src/code/z_sram.c -- now built for real (Phase 2, needed for
  * Sram_InitDebugSave in TitleSetup_SetupTitleScreen), see Makefile.psp. It
@@ -152,6 +150,37 @@ u8 gViConfigModeType = OS_VI_NTSC_LAN1;
 void Audio_Update(void) {
 }
 void AudioMgr_StopAllSfx(void) {
+}
+
+/* Sequence/ambience control, referenced by the real src/code/z_kankyo.c
+ * (Environment_PlaySceneSequence, Environment_PlayTimeBasedSequence,
+ * Environment_Play/StopStormNatureAmbience). Same subsystem, same reason.
+ *
+ * These four are the safe kind of no-op stub: they return void and take only
+ * scalars by value, so there is no out-parameter left unwritten and no $v0
+ * left holding the previous call's garbage. Written with their REAL
+ * signatures anyway -- see the note in phase2_stubs_gen.c about why a
+ * mismatched signature that "links fine" is the trap, not the shortcut. */
+void Audio_PlaySceneSequence(u16 seqId) {
+}
+void Audio_PlayMorningSceneSequence(u16 seqId) {
+}
+void Audio_PlayNatureAmbienceSequence(u8 natureAmbienceId) {
+}
+void Audio_SetNatureAmbienceChannelIO(u8 channelIdxRange, u8 ioPort, u8 ioData) {
+}
+
+/* This one returns a value, so it must NOT be a no-op: z_kankyo.c's
+ * Environment_StopStormNatureAmbience does
+ *
+ *     if (Audio_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN) == NA_BGM_NATURE_AMBIENCE)
+ *
+ * and a garbage $v0 would take that branch at random. With no audio driver
+ * nothing is ever playing, and NA_BGM_DISABLED is exactly the value the real
+ * function returns for an idle sequence player -- so this is the honest
+ * answer rather than a placeholder. */
+u16 Audio_GetActiveSeqId(u8 seqPlayerIndex) {
+    return NA_BGM_DISABLED;
 }
 
 /* _nintendo_rogo_staticSegmentRomStart/End dummies removed: z_title.c now

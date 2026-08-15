@@ -49,23 +49,28 @@ void EffectSsHitMark_SpawnFixedScale(void) {}
 void EffectSsKiraKira_SpawnDispersed(void) {}
 void EffectSsKiraKira_SpawnSmall(void) {}
 void EffectSsSibuki_SpawnBurst(void) {}
-void Environment_DisableUnderwaterLights(void) {}
-void Environment_DrawCustomLensFlare(void) {}
-void Environment_DrawLightning(void) {}
-void Environment_DrawRain(void) {}
-void Environment_DrawSandstorm(void) {}
-void Environment_DrawSkyboxFilters(void) {}
-void Environment_DrawSunAndMoon(void) {}
-void Environment_DrawSunLensFlare(void) {}
-void Environment_EnableUnderwaterLights(void) {}
-void Environment_Init(void) {}
-void Environment_IsForcedSequenceDisabled(void) {}
-void Environment_LerpWeight(void) {}
-void Environment_PlaySceneSequence(void) {}
-void Environment_Update(void) {}
-void Environment_UpdateLightningStrike(void) {}
-void Environment_UpdateSkybox(void) {}
-void Environment_ZBufValToFixedPoint(void) {}
+/* Environment_* PROMOTED to the real src/code/z_kankyo.c (see Makefile.psp).
+ *
+ * Second instance of the same failure mode as the Quake_* block below, and the
+ * one behind the port's long-standing "walls and floor are white-grey".
+ * Environment_Update's real signature is
+ *
+ *     void Environment_Update(PlayState*, EnvironmentContext*, LightContext*,
+ *                             PauseContext*, MessageContext*, GameOverContext*,
+ *                             GraphicsContext*)
+ *
+ * i.e. the "void, but writes through pointer arguments" class -- of the 154
+ * no-op stubs in this file, 113 fall into it. A no-op therefore left the
+ * scene's ENV_LIGHT_SETTINGS never becoming actual light state, so shade sat
+ * at its default. That is visible on exactly the surfaces it should be:
+ * hakaana2's 18 textures are 9 intensity-only formats (5x i4, 3x i8, 1x ia8),
+ * which carry no colour at all and take it entirely from the combiner (shade /
+ * prim / env), and 8 rgba16 ones that carry their own -- which is why the
+ * fountain water and Link looked right while the walls and floor did not.
+ *
+ * Environment_ZBufValToFixedPoint, Environment_LerpWeight and
+ * Environment_IsForcedSequenceDisabled additionally return values, so they were
+ * in the 29-strong "caller reads garbage $v0" class as well. */
 void Fault_Printf(void) {}
 void Fault_SetCursor(void) {}
 void Font_LoadOrderedFont(void) {}
@@ -213,12 +218,24 @@ void guS2DInitBg(void) {}
  * intent the zeroed stub had, but actually expressed. */
 #define PSP_STUB_ENDDL { [3] = (char)0xDF }
 
-/* --- data: 66 --- */
+/* NOTE: nine `char x[64]` placeholders were removed here -- gWeatherMode,
+ * gTimeSpeed, gTimeBasedSkyboxConfigs, gNormalSkyFiles, gLensFlareScale,
+ * gLensFlareGlareStrength, gLensFlareColorIntensity, gCustomLensFlarePos and
+ * gCustomLensFlareOn. They are real definitions in src/code/z_kankyo.c, which
+ * is now compiled in.
+ *
+ * They are worth naming rather than just deleting, because they are the data
+ * counterpart of the signature-mismatch trap documented above: a `char[64]`
+ * standing in for an `f32` or a `SkyboxFile[]` links fine and then reads as
+ * whatever the neighbouring bytes happen to be, and a WRITE through one of the
+ * smaller ones (gTimeSpeed is a u16) leaves 62 bytes of unrelated storage
+ * inside the same object. Same rule as for functions: a placeholder is only
+ * safe when nothing reads or writes it. */
+
+/* --- data: 57 --- */
 char gBossDoorChainDL[64] = PSP_STUB_ENDDL;
 char gBossDoorLockDL[64] = PSP_STUB_ENDDL;
 char gCircleShadowDL[64] = PSP_STUB_ENDDL;
-char gCustomLensFlareOn[64];
-char gCustomLensFlarePos[64];
 char gDCDayEntranceTex[64];
 char gDCLavaFloor1Tex[64];
 char gDCLavaFloor2Tex[64];
@@ -255,9 +272,6 @@ char gIceCavernDayEntranceTex[64];
 char gIceCavernNightEntranceTex[64];
 char gKakarikoVillageDayWindowTex[64];
 char gKakarikoVillageNightWindowTex[64];
-char gLensFlareColorIntensity[64];
-char gLensFlareGlareStrength[64];
-char gLensFlareScale[64];
 char gLensOfTruthMaskTex[64];
 char gLockOnArrowDL[64] = PSP_STUB_ENDDL;
 char gLockOnReticleTriangleDL[64] = PSP_STUB_ENDDL;
@@ -265,16 +279,12 @@ char gLonLonHouseDayEntranceTex[64];
 char gLonLonHouseNightEntranceTex[64];
 char gLonLonRanchDayWindowTex[64];
 char gLonLonRangeNightWindowsTex[64];
-char gNormalSkyFiles[64];
 char gSpiritTempleDayEntranceTex[64];
 char gSpiritTempleNightEntranceTex[64];
 char gThievesHideoutDayEntranceTex[64];
 char gThievesHideoutNightEntranceTex[64];
-char gTimeBasedSkyboxConfigs[64];
-char gTimeSpeed[64];
 char gWaterTempleDayEntranceTex[64];
 char gWaterTempleNightEntranceTex[64];
-char gWeatherMode[64];
 char gZorasDomainDayEntranceTex[64];
 char gZorasDomainNightEntranceTex[64];
 char gspS2DEX2d_fifoDataStart[64];
