@@ -152,7 +152,50 @@ typedef struct {
     Vec3f at;
     Vec3f up;
     f32 fovy;
+    /* Appended session 11 (keep new fields at the END -- the debugger scripts
+     * address this struct by field offset).
+     *
+     * Measured: eye is rock-constant while `at` and `up` alternate between two
+     * well-formed values every frame -- which is the flicker the user sees.
+     * `Camera_Update` runs from TWO places per frame:
+     *   Play_Update  (z_play.c, the normal per-frame update), and
+     *   Play_Draw    (`if (this->view.unk_124 != 0)`, at Play_Draw_skip).
+     * `unk_124` is a latch several Camera_* mode functions set when
+     * RELOAD_PARAMS(camera) is true, and they `return 1` early *without*
+     * computing at/eye when they set it. So on a latched frame the camera does
+     * not update during Play_Update and instead updates after drawing; on an
+     * unlatched frame it updates before drawing. If the latch fires every
+     * frame, the drawn view alternates -- exactly the observed signature.
+     * These fields test that directly. */
+    u32 unk124;      /* view.unk_124 as seen at sampling time (before the latch runs) */
+    u32 camAnimState;/* RELOAD_PARAMS() is animState == 0 || 10 || 20 */
+    u32 camSetting;
+    u32 camMode;
+    u32 camStateFlags;
+    /* The latch turned out NOT to be it (extraCameraUpdates stayed 0 over 1257
+     * draws, and animState/setting/mode/stateFlags are all constant), yet
+     * view.at still takes exactly two values. Camera_CalcAtDefault builds it as
+     *
+     *   atTarget = playerPosRot.pos + playerToAtOffset;   at LERPs towards it
+     *
+     * and Link's world position is measured constant, so decompose the sum and
+     * see which term carries the two states. camAt/camEye separate "the camera
+     * computed something else" from "the view got something else". */
+    Vec3f camAt;
+    Vec3f camEye;
+    Vec3f camPlayerToAtOffset;
+    Vec3f camPlayerPos;      /* camera->playerPosRot.pos */
+    f32 camAtLERPStepScale;
+    f32 camDist;
+    s16 camPlayerPosRotY;    /* playerPosRot.rot.y -- feeds the at/eye geometry */
+    s16 camPad;
 } PspViewSample;
+
+/* How often Play_Draw's extra Camera_Update actually fired, vs how many draws
+ * happened at all. If these two track each other, the latch fires every frame
+ * and the camera is permanently in the reload handshake. */
+u32 gPspCamExtraUpdates;
+u32 gPspCamDrawFrames;
 
 PspViewSample gPspViewCur = { 0x50564957 };
 PspViewSample gPspViewPrev = { 0x50564957 };
@@ -1380,6 +1423,27 @@ void Play_Draw(PlayState* this) {
                                     ? this->cameraPtrs[this->activeCamId]->status
                                     : 0xFF;
         gPspViewCur.sample = gPspPlayerSampleCount;
+
+        {
+            Camera* pspCam = GET_ACTIVE_CAM(this);
+
+            gPspViewCur.unk124 = (u32)this->view.unk_124;
+            gPspViewCur.camAnimState = pspCam != NULL ? (u32)pspCam->animState : 0xFFFFFFFF;
+            gPspViewCur.camSetting = pspCam != NULL ? (u32)pspCam->setting : 0xFFFFFFFF;
+            gPspViewCur.camMode = pspCam != NULL ? (u32)pspCam->mode : 0xFFFFFFFF;
+            gPspViewCur.camStateFlags = pspCam != NULL ? (u32)pspCam->stateFlags : 0;
+
+            if (pspCam != NULL) {
+                gPspViewCur.camAt = pspCam->at;
+                gPspViewCur.camEye = pspCam->eye;
+                gPspViewCur.camPlayerToAtOffset = pspCam->playerToAtOffset;
+                gPspViewCur.camPlayerPos = pspCam->playerPosRot.pos;
+                gPspViewCur.camAtLERPStepScale = pspCam->atLERPStepScale;
+                gPspViewCur.camDist = pspCam->dist;
+                gPspViewCur.camPlayerPosRotY = pspCam->playerPosRot.rot.y;
+            }
+        }
+
         gPspViewCur.magic = 0x50564957;
     }
 #endif
@@ -1792,6 +1856,14 @@ void Play_Draw(PlayState* this) {
     }
 
 Play_Draw_skip:
+
+#if TARGET_PSP
+    /* See PspViewSample above: counts the latched (extra) camera update. */
+    gPspCamDrawFrames++;
+    if (this->view.unk_124 != 0) {
+        gPspCamExtraUpdates++;
+    }
+#endif
 
     if (this->view.unk_124 != 0) {
         Camera_Update(GET_ACTIVE_CAM(this));

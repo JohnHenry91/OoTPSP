@@ -604,11 +604,54 @@ s32 DmaMgr_RequestAsync(DmaRequest* req, void* ram, uintptr_t vrom, size_t size,
  * @param size Transfer size.
  * @return 0
  */
+#if TARGET_PSP
+/* Forward-movement livelock diagnostics (session 11).
+ *
+ * Caught live: frames frozen at 560, but user_main's pc keeps MOVING, cycling
+ * osCreateMesgQueue -> osSendMesg -> osRecvMesg -- i.e. this function called in
+ * an unbounded loop. Session 10 suspected the os_mesg.c queue-table eviction,
+ * but that is now ruled out by measurement: gPspMesgEvictions,
+ * gPspMesgNoEntryRecv and gPspMesgNoEntrySend all read 0 during the hang, and
+ * gPspRomBadReadCount is 0 too (so it is not the bad-DMA-size class either).
+ *
+ * So the shim is fine and the *caller* is spinning. Record who, and what it
+ * keeps asking for: a repeating (ra, vrom) pair names both the code and the
+ * file it cannot get past. gPspDmaSyncRa resolves via the psp-nm
+ * nearest-preceding-symbol lookup. Magic word so a stale symbol address is
+ * caught rather than read as plausible garbage. */
+u32 gPspDmaSyncMagic = 0x50444D41; /* 'PDMA' */
+u32 gPspDmaSyncCount;
+u32 gPspDmaSyncRa;
+u32 gPspDmaSyncVrom;
+u32 gPspDmaSyncSize;
+u32 gPspDmaSyncRam;
+/* Second-newest distinct caller, so a two-call loop is visible as a loop
+ * rather than looking like a single stuck call. */
+u32 gPspDmaSyncRaPrev;
+u32 gPspDmaSyncVromPrev;
+#endif
+
 s32 DmaMgr_RequestSync(void* ram, uintptr_t vrom, size_t size) {
     DmaRequest req;
     OSMesgQueue queue;
     OSMesg msg;
     s32 ret;
+
+#if TARGET_PSP
+    {
+        u32 ra = (u32)__builtin_return_address(0);
+
+        if (ra != gPspDmaSyncRa) {
+            gPspDmaSyncRaPrev = gPspDmaSyncRa;
+            gPspDmaSyncVromPrev = gPspDmaSyncVrom;
+        }
+        gPspDmaSyncRa = ra;
+        gPspDmaSyncVrom = (u32)vrom;
+        gPspDmaSyncSize = (u32)size;
+        gPspDmaSyncRam = (u32)ram;
+        gPspDmaSyncCount++;
+    }
+#endif
 
     osCreateMesgQueue(&queue, &msg, 1);
     ret = DmaMgr_RequestAsync(&req, ram, vrom, size, 0, &queue, NULL);

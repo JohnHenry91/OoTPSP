@@ -31,11 +31,75 @@ RomFile sNaviQuestHintFiles[];
  * persistent, which will likely cause either the amount of free slots or object space memory to run out.
  * This function is only meant to be called internally on scene load, before the object list from any room is processed.
  */
+#if TARGET_PSP
+/* Forward/backward-movement hang (session 11).
+ *
+ * Caught live: frames frozen, user_main's pc cycling through the message-queue
+ * shim, and DmaMgr_RequestSync called 91672 times with vrom=0, size=0,
+ * ram=NULL. The return address resolves to Object_SpawnPersistent+0x54, i.e.
+ * the DMA_REQUEST_SYNC below -- so gObjectTable[objectId] is an EMPTY row
+ * (vromStart == vromEnd == 0) and the caller retries forever.
+ *
+ * Record which object, so the empty row can be identified rather than guessed
+ * at. numEntries/segment come along because a full slot table or a NULL
+ * segment would point at a different failure with the same symptom. */
+u32 gPspObjSpawnMagic = 0x504F424A; /* 'POBJ' */
+u32 gPspObjSpawnCount;
+s32 gPspObjSpawnLastId;
+s32 gPspObjSpawnEmptyId;   /* last objectId whose table row was empty */
+u32 gPspObjSpawnEmptyCount;
+u32 gPspObjSpawnNumEntries;
+u32 gPspObjSpawnSegment;
+/* Overflow guard, see below. gPspObjSpawnOverflowRa names the caller. */
+u32 gPspObjSpawnOverflowCount;
+u32 gPspObjSpawnOverflowRa;
+u32 gPspObjSpawnOverflowNum;
+u32 gPspObjSpawnCallerRa;
+/* Scene_ExecuteCommands runaway guard, see the bound inside that loop. */
+u32 gPspSceneCmdRunaway;
+u32 gPspSceneCmdRunawayAddr;
+u32 gPspSceneCmdRunawayCode;
+#endif
+
 s32 Object_SpawnPersistent(ObjectContext* objectCtx, s16 objectId) {
     u32 size;
 
+#if TARGET_PSP
+    /* HARD BOUND. Measured: numEntries reached 193 against a slots[] of
+     * ARRAY_COUNT(objectCtx->slots) entries, with the function called ~10^8
+     * times. Vanilla relies on the ASSERT below to catch this, but this build
+     * compiles with -DNDEBUG so the ASSERT is gone, and the very first
+     * statement of this function then writes slots[numEntries].id far past the
+     * array -- an unbounded memory smash that corrupts whatever follows
+     * (including, ironically, these diagnostic counters, which is why their
+     * values could not be trusted before this guard existed).
+     *
+     * Same philosophy as the PspRom_Read and os_cache guards: turn an
+     * unbounded smash into a bounded, observable event, and record who caused
+     * it. Returning the last valid slot keeps callers that index the result
+     * from going out of bounds in turn. */
+    gPspObjSpawnCallerRa = (u32)__builtin_return_address(0);
+    if (objectCtx->numEntries >= ARRAY_COUNT(objectCtx->slots)) {
+        gPspObjSpawnOverflowCount++;
+        gPspObjSpawnOverflowRa = gPspObjSpawnCallerRa;
+        gPspObjSpawnOverflowNum = objectCtx->numEntries;
+        return (s32)ARRAY_COUNT(objectCtx->slots) - 1;
+    }
+#endif
+
     objectCtx->slots[objectCtx->numEntries].id = objectId;
     size = gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart;
+
+#if TARGET_PSP
+    gPspObjSpawnCount++;
+    gPspObjSpawnLastId = objectId;
+    gPspObjSpawnNumEntries = objectCtx->numEntries;
+    gPspObjSpawnSegment = (u32)objectCtx->slots[objectCtx->numEntries].segment;
+    if (gObjectTable[objectId].vromStart == 0 || size == 0) {
+        gPspObjSpawnEmptyId = objectId;
+        gPspObjSpawnEmptyCount++;
+    }
+#endif
 
     PRINTF("OBJECT[%d] SIZE %fK SEG=%x\n", objectId, size / 1024.0f, objectCtx->slots[objectCtx->numEntries].segment);
 
@@ -230,11 +294,36 @@ s32 Scene_ExecuteCommands(PlayState* play, SceneCmd* sceneCmd) {
 #if TARGET_PSP
     extern void PspDebugLogSceneCmd(void* addr, unsigned int code, unsigned int data1, unsigned int data2);
     int dbgIter = 0;
+    int pspIter = 0; /* always increments, unlike dbgIter which stops at 41 */
 #endif
     while (true) {
         u32 cmdCode = sceneCmd->base.code;
 
 #if TARGET_PSP
+        /* BOUND. Measured during the forward/backward-movement hang: this loop
+         * never reaches SCENE_CMD_ID_END and keeps dispatching handlers off the
+         * end of the command list -- Object_SpawnPersistent alone was re-entered
+         * from here (Scene_ExecuteCommands+0x88, the handler inlined at -O2)
+         * 8.4 million times, driving objectCtx->numEntries to 193 against a
+         * 19-slot array before the guard in Object_SpawnPersistent stopped it.
+         *
+         * This is the same bug class session 9 already hit once: a command
+         * stream that is not terminated (there, zeroed display-list stubs) runs
+         * forever instead of faulting. A real scene header is a few dozen
+         * commands; 4096 is far past any legitimate list, so hitting this means
+         * the list is garbage -- record where and stop, rather than hang.
+         *
+         * NOTE this is containment, not the fix. The open question is why a
+         * scene/room whose command list is not the compiled-in hakaana2 one is
+         * being executed at all on movement (psp_static_assets.c only registers
+         * hakaana2's scene + room 0; anything else falls back to a DMA that has
+         * nothing valid behind it). */
+        if (++pspIter > 4096) {
+            gPspSceneCmdRunaway++;
+            gPspSceneCmdRunawayAddr = (u32)sceneCmd;
+            gPspSceneCmdRunawayCode = cmdCode;
+            break;
+        }
         if (dbgIter < 40) {
             PspDebugLogSceneCmd(sceneCmd, cmdCode, sceneCmd->base.data1, sceneCmd->base.data2);
             dbgIter++;

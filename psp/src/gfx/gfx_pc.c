@@ -256,6 +256,22 @@ typedef struct {
     uint32_t tex_imports;   /* import_texture() -> real decode+upload         */
     uint32_t tex_hits;      /* import_texture() -> served from the cache      */
     uint32_t dropped;       /* 1 if gfx_wapi->start_frame() refused the frame */
+    /* --- appended (keep new fields at the END: the debugger read scripts
+     * address this struct by field offset, so inserting anywhere else
+     * silently reinterprets every existing counter) ---
+     *
+     * The room's display lists contain 44 texture loads (29 gsDPLoadTextureBlock
+     * + 15 gsDPLoadTextureBlock_4b, counted in the .inc.c sources), yet the
+     * frame stats read tex_hits == 2 and tex_imports == 0. These narrow down
+     * where the other 42 go: does the interpreter even see the loads
+     * (settimg/loadblock/settile), and does the combiner then ask for a
+     * texture (tex_used/tex_unused)? */
+    uint32_t settimg;       /* G_SETTIMG reached gfx_dp_set_texture_image      */
+    uint32_t loadblock;     /* G_LOADBLOCK reached gfx_dp_load_block           */
+    uint32_t loadtile;      /* G_LOADTILE reached gfx_dp_load_tile             */
+    uint32_t settile;       /* G_SETTILE reached gfx_dp_set_tile               */
+    uint32_t tex_used;      /* gfx_sp_tri1: combiner wanted a texture          */
+    uint32_t tex_unused;    /* gfx_sp_tri1: combiner wanted none               */
 } PspGfxFrameStats;
 
 PspGfxFrameStats gPspGfxStats;      /* live, currently being built */
@@ -1537,6 +1553,7 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     }
     
     bool use_texture = used_textures[0] || used_textures[1];
+    if (use_texture) { GFXSTAT_INC(tex_used); } else { GFXSTAT_INC(tex_unused); }
     uint32_t tex_width = (rdp.texture_tile[0].lrs - rdp.texture_tile[0].uls + 4) / 4;
     uint32_t tex_height = (rdp.texture_tile[0].lrt - rdp.texture_tile[0].ult + 4) / 4;
 
@@ -1965,6 +1982,7 @@ static void gfx_dp_set_texture_image(uint32_t format, uint32_t size, uint32_t wi
     _UNUSED(format);
     _UNUSED(width);
 
+    GFXSTAT_INC(settimg);
     rdp.texture_to_load.addr = addr;
     rdp.texture_to_load.siz = size;
 }
@@ -1975,6 +1993,7 @@ static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t t
     _UNUSED(masks);
     _UNUSED(shifts);
 
+    GFXSTAT_INC(settile);
     if (tile < 2) {
         SUPPORT_CHECK(palette == 0); // palette should set upper 4 bits of color index in 4b mode
         rdp.texture_tile[tile].fmt = fmt;
@@ -2011,6 +2030,7 @@ static void gfx_dp_load_tlut(UNUSED uint8_t tile, uint32_t high_index) {
 static void gfx_dp_load_block(uint8_t tile, UNUSED uint32_t uls, UNUSED uint32_t ult, uint32_t lrs, uint32_t dxt) {
     _UNUSED(dxt);
 
+    GFXSTAT_INC(loadblock);
     if (tile == 1) return;
     SUPPORT_CHECK(tile == G_TX_LOADTILE);
     SUPPORT_CHECK(uls == 0);
@@ -2041,6 +2061,7 @@ static void gfx_dp_load_block(uint8_t tile, UNUSED uint32_t uls, UNUSED uint32_t
 }
 
 static void gfx_dp_load_tile(uint8_t tile, uint32_t uls, uint32_t ult, uint32_t lrs, uint32_t lrt) {
+    GFXSTAT_INC(loadtile);
     if (tile == 1) return;
     SUPPORT_CHECK(tile == G_TX_LOADTILE);
     SUPPORT_CHECK(uls == 0);

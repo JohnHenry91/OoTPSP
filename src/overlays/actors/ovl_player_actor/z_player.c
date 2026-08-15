@@ -2209,6 +2209,42 @@ void Player_ProcessControlStick(PlayState* play, Player* this) {
 
     sControlStickWorldYaw = Camera_GetInputDirYaw(GET_ACTIVE_CAM(play)) + sControlStickAngle;
 
+#if TARGET_PSP
+    /* "Pressing forward walks backward" -- probe the whole chain at the one
+     * point where it converges.
+     *
+     * Everything upstream has already been read and matches the decomp
+     * byte-for-byte (libu64/pad.c, padmgr.c, Lib_GetControlStickData), and the
+     * PSP mapping in os_cont.c has the right sign (stick_y = 128 - Ly, N64
+     * stick_y positive when pushed up). So the flip is either in the stick
+     * angle or in the camera yaw it is added to, and these six values say which:
+     *
+     *   holding forward should give  cur/rel stick_y > 0,  stickAngle ~ 0,
+     *   and worldYaw ~ camInputDirY (i.e. Link runs along the camera's look
+     *   direction, away from the camera).
+     *
+     * A stickAngle near 0x8000 means the input side; a camInputDirY pointing
+     * back at the camera means Camera_Update's eyeAtAngle. */
+    {
+        extern s16 gPspInpCurX, gPspInpCurY, gPspInpRelX, gPspInpRelY;
+        extern s16 gPspInpStickAngle, gPspInpWorldYaw, gPspInpCamYaw, gPspInpShapeYaw;
+        extern u32 gPspInpMagic, gPspInpSamples;
+        extern f32 gPspInpMagnitude;
+
+        gPspInpMagic = 0x50494E50; /* 'PINP' */
+        gPspInpCurX = sControlInput->cur.stick_x;
+        gPspInpCurY = sControlInput->cur.stick_y;
+        gPspInpRelX = sControlInput->rel.stick_x;
+        gPspInpRelY = sControlInput->rel.stick_y;
+        gPspInpStickAngle = sControlStickAngle;
+        gPspInpWorldYaw = sControlStickWorldYaw;
+        gPspInpCamYaw = Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
+        gPspInpShapeYaw = this->actor.shape.rot.y;
+        gPspInpMagnitude = sControlStickMagnitude;
+        gPspInpSamples++;
+    }
+#endif
+
     this->controlStickDataIndex = (this->controlStickDataIndex + 1) % 4;
 
     if (sControlStickMagnitude < 55.0f) {

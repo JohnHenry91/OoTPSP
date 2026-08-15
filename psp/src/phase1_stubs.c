@@ -181,3 +181,12 @@ int gDebugDisableCull = 0;
  * detection collides with common real N64 combine formulas once real scenes
  * start rendering, see project memory). Set to 0 in Play_Init (z_play.c). */
 int gPspBootLogoActive = 1;
+
+/* "Pressing forward walks backward" probe -- see the sample site in
+ * z_player.c (Player_ProcessControlStick, right after sControlStickWorldYaw is
+ * computed). Defined here rather than in z_player.c so the probe block there
+ * stays a pure read with no storage of its own. */
+short gPspInpCurX, gPspInpCurY, gPspInpRelX, gPspInpRelY;
+short gPspInpStickAngle, gPspInpWorldYaw, gPspInpCamYaw, gPspInpShapeYaw;
+unsigned int gPspInpMagic, gPspInpSamples;
+float gPspInpMagnitude;
