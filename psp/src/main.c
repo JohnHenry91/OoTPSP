@@ -42,7 +42,15 @@ PSP_HEAP_SIZE_KB(-1024);
 static unsigned int __attribute__((aligned(16))) sDmaTestList[16384];
 
 int main(void) {
+    extern void PspOsMesgSetMainThread(void);
+
     pspDebugScreenInit();
+
+    /* Register this thread as the one that must never park forever in a
+     * libultra message queue. Worker threads (padmgr, DmaMgr) still block
+     * indefinitely, which is correct for them -- see the long note in
+     * psp/src/libultra/os_mesg.c. Must run before any osCreateMesgQueue. */
+    PspOsMesgSetMainThread();
 
     /* gfx_init() runs the real sceGu bring-up (gfx_scegu_init, via the
      * rendering API's .init callback) and exit-callback registration (via

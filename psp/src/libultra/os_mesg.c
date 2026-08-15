@@ -30,6 +30,57 @@
 
 #include "ultra64.h"
 
+/* ---------------------------------------------------------------------------
+ * Main-thread deadlock guard.
+ *
+ * This port's single most common failure mode is a silent stall: the game stops
+ * responding with no crash, no assert and no CPU load, because the main thread
+ * is parked in a blocking queue operation whose counterpart no longer exists.
+ * That happens because the N64 thread topology was collapsed into one loop, so
+ * several libultra send/receive pairs lost one half (GameState_Init/Destroy's
+ * gfxCtx->queue token is one example that cost two debugging rounds).
+ *
+ * reference/libultraship/src/libultraship/libultra/os_mesg.cpp solves this by
+ * making the queues NEVER block -- it ignores the OS_MESG_BLOCK flag entirely
+ * and returns -1 when a queue is full or empty. That is safe there because
+ * that port has no libultra worker threads at all.
+ *
+ * We cannot copy it wholesale: padmgr.c and z_std_dma.c really do create PSP
+ * threads here (they are the two `oot_thread` entries visible in PPSSPP's
+ * thread list), and their entry functions are `for(;;) osRecvMesg(..., BLOCK)`
+ * loops. Making those non-blocking would turn them into busy-wait spins.
+ *
+ * So the guard is applied where the problem actually is: only the MAIN thread
+ * gets a bounded wait. Worker threads keep waiting forever, which is precisely
+ * what they are for. On timeout the call returns -1 like libultraship's would,
+ * leaving the caller's own error handling to deal with it -- a bounded glitch
+ * instead of a dead console, the same philosophy as the os_cache argument
+ * clamping and the display-list depth cap.
+ * ------------------------------------------------------------------------- */
+#define PSP_MESG_MAIN_TIMEOUT_US 2000000 /* generous: no legitimate wait is this long */
+
+static SceUID sPspMainThreadId = -1;
+
+/* Counts waits that timed out rather than being satisfied. Non-zero means a
+ * real send/receive imbalance was hit and survived -- pair it with
+ * gPspMesgBlockedSendRa/RecvRa to find the call site. */
+unsigned int gPspMesgSendTimeouts;
+unsigned int gPspMesgRecvTimeouts;
+
+void PspOsMesgSetMainThread(void) {
+    sPspMainThreadId = sceKernelGetThreadId();
+}
+
+/* Wait on `sema`, bounded if we are the main thread. Returns 0 on success. */
+static int PspMesgWait(SceUID sema) {
+    if (sPspMainThreadId >= 0 && sceKernelGetThreadId() == sPspMainThreadId) {
+        SceUInt timeout = PSP_MESG_MAIN_TIMEOUT_US;
+
+        return sceKernelWaitSema(sema, 1, &timeout) < 0 ? -1 : 0;
+    }
+    return sceKernelWaitSema(sema, 1, NULL) < 0 ? -1 : 0;
+}
+
 #define MAX_TRACKED_QUEUES 64
 
 typedef struct {
@@ -111,6 +162,27 @@ void osCreateMesgQueue(OSMesgQueue* mq, OSMesg* msgBuf, s32 count) {
     mq->msg = msgBuf;
 }
 
+/* Who is parked in a blocking queue operation right now.
+ *
+ * This port's characteristic failure is not a crash but a silent stall: the
+ * game stops responding with no fault, no assert and no CPU load, because a
+ * blocking osSendMesg/osRecvMesg is waiting on a queue whose counterpart no
+ * longer exists on this platform (the N64 thread topology was collapsed into a
+ * single loop, so several send/receive pairs lost one half). Resolving the PC
+ * only ever says "osSendMesg" -- useless, since every queue in the game funnels
+ * through here. What is actually needed is the CALLER and the QUEUE.
+ *
+ * So record both immediately before parking, and clear on wake. Non-zero
+ * gPspMesgBlockedSendRa while the game is stalled names the exact call site;
+ * feed it to the psp-nm nearest-preceding-symbol lookup. Costs two stores on
+ * the blocking path only. */
+unsigned int gPspMesgBlockedSendRa;
+unsigned int gPspMesgBlockedSendQueue;
+unsigned int gPspMesgBlockedRecvRa;
+unsigned int gPspMesgBlockedRecvQueue;
+unsigned int gPspMesgSendWaits;
+unsigned int gPspMesgRecvWaits;
+
 s32 osSendMesg(OSMesgQueue* mq, OSMesg msg, s32 flag) {
     MesgQueueMapEntry* e = FindEntry(mq);
     s32 index;
@@ -120,7 +192,26 @@ s32 osSendMesg(OSMesgQueue* mq, OSMesg msg, s32 flag) {
     }
 
     if (flag == OS_MESG_BLOCK) {
-        sceKernelWaitSema(e->semFree, 1, NULL);
+        /* Only record when the queue is actually full, i.e. when this call is
+         * about to park. A poll that succeeds is the normal case and must stay
+         * free of bookkeeping. */
+        if (sceKernelPollSema(e->semFree, 1) != 0) {
+            int waited;
+
+            ++gPspMesgSendWaits;
+            gPspMesgBlockedSendRa = (unsigned int)(uintptr_t)__builtin_return_address(0);
+            gPspMesgBlockedSendQueue = (unsigned int)(uintptr_t)mq;
+            waited = PspMesgWait(e->semFree);
+            if (waited != 0) {
+                /* Main-thread timeout: the queue is full and nothing is
+                 * draining it. Leave the diagnostics set so the stalled call
+                 * site stays identifiable, and fail like libultraship does. */
+                ++gPspMesgSendTimeouts;
+                return -1;
+            }
+            gPspMesgBlockedSendRa = 0;
+            gPspMesgBlockedSendQueue = 0;
+        }
     } else {
         if (sceKernelPollSema(e->semFree, 1) != 0) {
             return -1;
@@ -170,7 +261,24 @@ s32 osRecvMesg(OSMesgQueue* mq, OSMesg* msg, s32 flag) {
     }
 
     if (flag == OS_MESG_BLOCK) {
-        sceKernelWaitSema(e->semFull, 1, NULL);
+        /* See the note above osSendMesg: record caller and queue only when
+         * this call is actually about to park. */
+        if (sceKernelPollSema(e->semFull, 1) != 0) {
+            int waited;
+
+            ++gPspMesgRecvWaits;
+            gPspMesgBlockedRecvRa = (unsigned int)(uintptr_t)__builtin_return_address(0);
+            gPspMesgBlockedRecvQueue = (unsigned int)(uintptr_t)mq;
+            waited = PspMesgWait(e->semFull);
+            if (waited != 0) {
+                /* Main-thread timeout: nothing is going to post to this queue.
+                 * Diagnostics stay set on purpose, see the send side. */
+                ++gPspMesgRecvTimeouts;
+                return -1;
+            }
+            gPspMesgBlockedRecvRa = 0;
+            gPspMesgBlockedRecvQueue = 0;
+        }
     } else {
         if (sceKernelPollSema(e->semFull, 1) != 0) {
             return -1;
