@@ -82,6 +82,12 @@ struct LoadedVertex {
     float u, v;
     struct RGBA color;
     uint32_t clip_rej;
+    /* Which modelview load was in force when this vertex was LOADED. The N64
+     * transforms at G_VTX time, so a vertex belongs to the matrix that was
+     * current then. This port stores object space and lets the GE transform at
+     * DRAW time, so any gap between load and draw silently re-transforms the
+     * vertex under a later matrix. Probe for exactly that gap. */
+    uint32_t mtx_slot_at_load;
 } __attribute__((packed, aligned(16)));
 
 typedef struct VertexColor {
@@ -304,6 +310,48 @@ typedef struct {
     uint32_t vtx_color;     /* the colour gfx_sp_tri1 chose for the vertex     */
     uint32_t vtx_cc_input;  /* which CC_* won, +1 (0 = loop never matched)     */
     uint32_t vtx_num_inputs;/* comb->num_inputs for that draw                  */
+
+    /* --- matrix/batch coherency probe (session 13) ---------------------------
+     * On PSP the vertices in buf_vbo are OBJECT space (gfx_sp_tri1 writes
+     * clipped_vertices[i]->x, which gfx_sp_vertex filled from v->ob[]); the
+     * transform is applied by the GE from the GU_MODEL/GU_PROJECTION matrices
+     * that were last uploaded via sceGuSetMatrix. Those uploads go into the GE
+     * display list IMMEDIATELY when the G_MTX command is interpreted, but the
+     * triangles sit in buf_vbo until gfx_flush(). So any triangle still pending
+     * when a new matrix is uploaded gets drawn by the GE under the NEW matrix.
+     *
+     * mtx_dirty_* count exactly that situation: how often a matrix upload
+     * happened with triangles pending, and how many triangles were affected.
+     * If these are ~0, this whole hypothesis is dead. */
+    uint32_t mtx_dirty_events;  /* matrix uploads with buf_vbo non-empty      */
+    uint32_t mtx_dirty_tris;    /* triangles pending across those uploads     */
+    uint32_t mtxpop_dirty_events; /* same, for G_POPMTX                       */
+
+    /* --- depth-state probe (session 13) --------------------------------------
+     * The defect is VIEW-DEPENDENT (front view looked fine, side view broken),
+     * which a wrong matrix cannot be -- a wrong matrix is wrong from every
+     * angle. Wrong depth ordering is exactly view-dependent: it only shows
+     * where geometry occludes itself.
+     *
+     * We enable the depth test from `rsp.geometry_mode & G_ZBUFFER` alone.
+     * libultraship additionally requires the Z_CMP bit of other_mode_l
+     * (interpreter.cpp:1787) -- a bit this port never reads, and which only
+     * started arriving at all with 93dda6f (G_RDPSETOTHERMODE). These count how
+     * often that actually matters, so the hypothesis is measurable even if the
+     * picture does not visibly change. */
+    uint32_t depth_zbuf_set;   /* draws with G_ZBUFFER set                     */
+    uint32_t depth_zcmp_clear; /* ...of those, Z_CMP CLEAR = the disagreement  */
+    uint32_t depth_zupd_off;   /* draws with Z_UPD clear (no depth WRITE)      */
+
+    /* --- vertex/matrix timing probe (session 13, from the user's "his chest is
+     * pasted onto his chin" observation) -- triangles at least one of whose
+     * vertices was LOADED under a different modelview than the one in force
+     * when the triangle is DRAWN. On N64 that cannot happen (G_VTX transforms
+     * immediately); here it silently re-transforms the vertex.
+     * vtx_stale_slot packs (load_slot << 16) | draw_slot for the first 8. */
+    uint32_t tri_stale_mtx;
+    uint32_t vtx_stale_examples;
+    uint32_t vtx_stale_slot[8];
 } PspGfxFrameStats;
 
 PspGfxFrameStats gPspGfxStats;      /* live, currently being built */
@@ -351,7 +399,36 @@ typedef struct {
     uint32_t mv_hash[PSP_MTX_MV_SLOTS];
     uint32_t mv_tris[PSP_MTX_MV_SLOTS];
     uint32_t mv_rej[PSP_MTX_MV_SLOTS];
+
+    /* --- appended (session 13): where each modelview load actually puts its
+     * object. Link's skeleton renders correctly but his ATTACHED items (sword,
+     * sheath, shield, hands) are displaced by plausible rigid transforms, and
+     * one lands on the floor several units away. A hash says "different", this
+     * says "different HOW": if a misplaced item's translation equals Link's
+     * root/actor position rather than the limb it hangs off, the item is being
+     * drawn under the wrong matrix rather than under a wrong matrix.
+     * Row 3 of the (row-vector convention) modelview, i.e. m[3][0..2]. */
+    float mv_trans[PSP_MTX_MV_SLOTS][3];
+
+    /* --- appended (session 13, user's hypothesis): the parts may not be
+     * mis-POSITIONED but mis-ORIENTED. mv_trans only proves each limb sits in
+     * the right place; it says nothing about the upper 3x3.
+     *
+     * det < 0 means the transform MIRRORS: the mesh turns inside out, back
+     * faces point outward, and the result looks like holes and stray shards
+     * while every part stays where it belongs -- and it would be strongly
+     * view-dependent, which is what the screenshots show.
+     * |det| also catches a wrong scale. Link is drawn at scale 0.01, so the
+     * expected magnitude is 1e-6; the room's identity slots should read 1.0. */
+    float mv_det[PSP_MTX_MV_SLOTS];
 } PspGfxMtxTrace;
+
+/* Determinant of the upper 3x3 of a row-vector 4x4. */
+static float psp_mtx_det3(const float m[4][4]) {
+    return m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+         - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+         + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+}
 
 PspGfxMtxTrace gPspGfxMtx;
 PspGfxMtxTrace gPspGfxMtxPrev;
@@ -1203,8 +1280,33 @@ static void gfx_matrix_mul(float res[4][4], const float a[4][4], const float b[4
 }
 #endif
 
+/* Runtime-pokeable A/B for the batch-vs-matrix ordering described at
+ * mtx_dirty_events above. 1 = flush pending triangles before every matrix
+ * upload (correct ordering); 0 = the inherited sm64-port-psp behaviour, which
+ * lets a batch straddle matrix changes. Poke this live to compare without a
+ * rebuild. */
+int gDebugFlushOnMtx = 1;
+/* 1 = re-upload GU_MODEL after G_POPMTX. The inherited code updates only the
+ * software rsp.MP_matrix on a pop and never tells the GE, so after a pop the
+ * hardware still holds the popped child's matrix until the next G_MTX load. */
+int gDebugPopUploadMtx = 1;
+
 static void gfx_sp_matrix(uint8_t parameters, const int32_t *addr) {
     float matrix[4][4] __attribute__((aligned(16)));
+
+#if TARGET_PSP
+    if (buf_vbo_num_tris > 0) {
+        GFXSTAT_INC(mtx_dirty_events);
+        GFXSTAT_ADD(mtx_dirty_tris, buf_vbo_num_tris);
+    }
+#endif
+    /* Must happen before either sceGuSetMatrix below: the GE consumes the
+     * matrix command in list order, so anything still buffered would otherwise
+     * be transformed by the matrix that is about to be uploaded. */
+    if (gDebugFlushOnMtx) {
+        gfx_flush();
+    }
+
 #ifndef GBI_FLOATS
     /* Original GBI where fixed point matrices are used. Real N64 Mtx format
      * (see Mtx union in ultra64/gbi.h): 16 u16 integer parts (intPart[4][4],
@@ -1264,6 +1366,29 @@ static void gfx_sp_matrix(uint8_t parameters, const int32_t *addr) {
         memcpy(matrix_inline, rsp.P_matrix, sizeof(rsp.P_matrix));
         sceGuSetMatrix(GU_PROJECTION, (const ScePspFMatrix4 *)matrix_inline);
     } else { // G_MTX_MODELVIEW
+        /* The stack starts EMPTY (static -> 0) and OoT never pushes: every limb
+         * matrix is an absolute G_MTX_LOAD | G_MTX_NOPUSH, so size stays 0 and
+         * every access below indexes modelview_matrix_stack[-1]. That is 64
+         * bytes BEFORE rsp -- which the linker fills with the tail of `rdp`,
+         * starting exactly at other_mode_l and running through other_mode_h,
+         * combine_mode, env/prim/fog/fill_color, viewport and scissor.
+         *
+         * So "the current modelview matrix" and "the back half of the RDP
+         * state" were literally the same 64 bytes: every gDPSetPrimColor,
+         * gDPSetEnvColor and gsDPSetOtherMode issued between a matrix load and
+         * its triangles overwrote that matrix, and every matrix load trashed
+         * the render mode and colours in return. Small ints landing in float
+         * slots is why the result was DISPLACED geometry rather than exploded
+         * geometry.
+         *
+         * libultraship guards this (interpreter.cpp:1482, `if (size == 0)
+         * ++size` before the load memcpy); sm64-port-psp, which this file is a
+         * fork of, does not -- SM64 pushes before it loads, so it never has an
+         * empty stack. Bumping the floor here covers the MUL branch and the
+         * MP_matrix recompute below as well, not just G_MTX_LOAD. */
+        if (rsp.modelview_matrix_stack_size == 0) {
+            rsp.modelview_matrix_stack_size = 1;
+        }
         if ((parameters & G_MTX_PUSH) && rsp.modelview_matrix_stack_size < 11) {
             ++rsp.modelview_matrix_stack_size;
             memcpy(rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1], rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 2], sizeof(matrix));
@@ -1284,20 +1409,31 @@ static void gfx_sp_matrix(uint8_t parameters, const int32_t *addr) {
          * what transform it actually produced. */
         sPspMtxCurSlot = gPspGfxMtx.mv_loads - 1;
         if (sPspMtxCurSlot < PSP_MTX_MV_SLOTS) {
-            gPspGfxMtx.mv_hash[sPspMtxCurSlot] =
-                psp_mtx_hash(rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1]);
+            const float (*mv)[4] = rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1];
+            gPspGfxMtx.mv_hash[sPspMtxCurSlot] = psp_mtx_hash(mv);
+            gPspGfxMtx.mv_trans[sPspMtxCurSlot][0] = mv[3][0];
+            gPspGfxMtx.mv_trans[sPspMtxCurSlot][1] = mv[3][1];
+            gPspGfxMtx.mv_trans[sPspMtxCurSlot][2] = mv[3][2];
+            gPspGfxMtx.mv_det[sPspMtxCurSlot] = psp_mtx_det3(mv);
         }
 #endif
-        /* Allocate space in DL for current model matrix */
-        void *matrix_inline = (void *)ALIGN((unsigned int)sceGuGetMemory(sizeof(rsp.P_matrix)+15), 16);
-        memcpy(matrix_inline, rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1], sizeof(rsp.P_matrix));
-        sceGuSetMatrix(GU_MODEL, (const ScePspFMatrix4 *)matrix_inline);
+        /* The modelview is applied in software in gfx_sp_vertex now (N64 G_VTX
+         * semantics), so the GE must NOT apply it a second time. GU_MODEL is
+         * set to identity once at init and deliberately left alone here. */
         rsp.lights_changed = 1;
     }
     gfx_matrix_mul(rsp.MP_matrix, rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1], rsp.P_matrix);
 }
 
 static void gfx_sp_pop_matrix(uint32_t count) {
+#if TARGET_PSP
+    if (buf_vbo_num_tris > 0) {
+        GFXSTAT_INC(mtxpop_dirty_events);
+    }
+#endif
+    if (gDebugFlushOnMtx) {
+        gfx_flush();
+    }
     while (count--) {
         if (rsp.modelview_matrix_stack_size > 0) {
             --rsp.modelview_matrix_stack_size;
@@ -1305,6 +1441,11 @@ static void gfx_sp_pop_matrix(uint32_t count) {
     }
     if (rsp.modelview_matrix_stack_size > 0) {
         gfx_matrix_mul(rsp.MP_matrix, rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1], rsp.P_matrix);
+        /* No GU_MODEL upload here: the modelview is applied in software at
+         * G_VTX time (see gfx_sp_vertex), so the GE's model matrix stays
+         * identity throughout. Restoring the software matrix above is all a
+         * pop has to do now. */
+        rsp.lights_changed = 1;
     }
 }
 
@@ -1324,6 +1465,7 @@ struct ShaderProgram {
 
 static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *vertices) {
     float temp_vec[4] __attribute__((aligned(16)));
+    float world_vec[4] __attribute__((aligned(16)));
     float proj_vec[4] __attribute__((aligned(16)));
     GFXSTAT_ADD(verts_loaded, n_vertices);
     for (size_t i = 0; i < n_vertices; i++, dest_index++) {
@@ -1339,18 +1481,44 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
         __asm__ volatile (
             ".set			push\n"					// save assember option
             ".set			noreorder\n"			// suppress reordering
-            "lv.q			c700,  0 + %1\n"		// c700 = MP_matrix->x
-            "lv.q			c710, 16 + %1\n"		// c710 = MP_matrix->y
-            "lv.q			c720, 32 + %1\n"		// c720 = MP_matrix->z
-            "lv.q			c730, 48 + %1\n"		// c730 = MP_matrix->w
-            "lv.q			c200, %2\n"				// c200 = *temp_vec
-            "vtfm4.q		c000, e700, c200\n"		// c000 = e700 * c200
-            "sv.q			c000, %0\n"				// *proj_vec = c000
-            ".set			pop\n"					// restore assember option
-            : "=m"(*proj_vec)
-            : "m"(*rsp.MP_matrix), "m"(*temp_vec)
+            "lv.q			c700,  0 + %1\n"
+            "lv.q			c710, 16 + %1\n"
+            "lv.q			c720, 32 + %1\n"
+            "lv.q			c730, 48 + %1\n"
+            "lv.q			c200, %2\n"
+            "vtfm4.q		c000, e700, c200\n"
+            "sv.q			c000, %0\n"
+            ".set			pop\n"
+            : "=m"(*world_vec)
+            : "m"(*rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1]), "m"(*temp_vec)
         );
 
+        __asm__ volatile (
+            ".set			push\n"
+            ".set			noreorder\n"
+            "lv.q			c700,  0 + %1\n"
+            "lv.q			c710, 16 + %1\n"
+            "lv.q			c720, 32 + %1\n"
+            "lv.q			c730, 48 + %1\n"
+            "lv.q			c200, %2\n"
+            "vtfm4.q		c000, e700, c200\n"
+            "sv.q			c000, %0\n"
+            ".set			pop\n"
+            : "=m"(*proj_vec)
+            : "m"(*rsp.P_matrix), "m"(*world_vec)
+        );
+
+        /* N64 semantics: G_VTX transforms IMMEDIATELY, so a vertex belongs to
+         * the matrix in force when it was loaded. This port used to store raw
+         * object space and let the GE apply GU_MODEL at DRAW time -- so any
+         * display list that loads a matrix, loads vertices, then loads a
+         * DIFFERENT matrix before drawing (measured: 138 of ~550 triangles per
+         * frame, load slot 7 -> draw slot 8) silently re-transformed those
+         * vertices onto the neighbouring limb. That is what pasted Link's chest
+         * onto his chin.
+         *
+         * Now the modelview is applied HERE, at load time, and GU_MODEL is kept
+         * at identity so the GE only applies the projection. */
         //const float x = proj_vec[0];
         const float x = gfx_adjust_x_for_aspect_ratio(proj_vec[0]);
         const float y = proj_vec[1];
@@ -1455,9 +1623,12 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
         if (w < -gPspNearClipT * z) d->clip_rej |= Z_POS;
         if (z > w) d->clip_rej |= Z_NEG;
 
-        d->x = v->ob[0];
-        d->y = v->ob[1];
-        d->z = v->ob[2];
+        d->x = world_vec[0];
+        d->y = world_vec[1];
+        d->z = world_vec[2];
+#if TARGET_PSP
+        d->mtx_slot_at_load = sPspMtxCurSlot;
+#endif
 
         d->_x = x;
         d->_y = y;
@@ -1513,6 +1684,30 @@ static inline const struct RGBA *cc_operand_color(uint8_t cc, const struct Loade
     }
 }
 
+/* 1 = also require Z_CMP from other_mode_l before enabling the depth test,
+ * matching libultraship. 0 = the inherited sm64-port behaviour (G_ZBUFFER
+ * only). Runtime-pokeable so the two can be compared without a rebuild. */
+int gDebugZCmpMode = 1;
+
+/* Shared by gfx_sp_tri1 and its 2D twin -- the two copies of this logic had
+ * already drifted once in this file's history. */
+static inline bool psp_depth_test_enabled(void) {
+    bool zbuf = (rsp.geometry_mode & G_ZBUFFER) == G_ZBUFFER;
+    bool zcmp = (rdp.other_mode_l & Z_CMP) == Z_CMP;
+
+    if (zbuf) {
+        GFXSTAT_INC(depth_zbuf_set);
+        if (!zcmp) {
+            GFXSTAT_INC(depth_zcmp_clear);
+        }
+    }
+    if ((rdp.other_mode_l & Z_UPD) != Z_UPD) {
+        GFXSTAT_INC(depth_zupd_off);
+    }
+
+    return gDebugZCmpMode ? (zbuf && zcmp) : zbuf;
+}
+
 static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     struct LoadedVertex *v1 = &rsp.loaded_vertices[vtx1_idx];
     struct LoadedVertex *v2 = &rsp.loaded_vertices[vtx2_idx];
@@ -1523,6 +1718,24 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
 #if TARGET_PSP
     if (sPspMtxCurSlot < PSP_MTX_MV_SLOTS) {
         ++gPspGfxMtx.mv_tris[sPspMtxCurSlot];
+    }
+    /* THE test for "loaded under one matrix, drawn under another". */
+    {
+        int k;
+        int stale = 0;
+        for (k = 0; k < 3; k++) {
+            if (v_arr[k]->mtx_slot_at_load != sPspMtxCurSlot) {
+                stale = 1;
+                if (gPspGfxStats.vtx_stale_examples < 8) {
+                    gPspGfxStats.vtx_stale_slot[gPspGfxStats.vtx_stale_examples] =
+                        (v_arr[k]->mtx_slot_at_load << 16) | (sPspMtxCurSlot & 0xffff);
+                    gPspGfxStats.vtx_stale_examples++;
+                }
+            }
+        }
+        if (stale) {
+            GFXSTAT_INC(tri_stale_mtx);
+        }
     }
 #endif
 
@@ -1595,7 +1808,7 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         clipped_vertices = ptr_clipped_vertices;
     }
 
-    bool depth_test = (rsp.geometry_mode & G_ZBUFFER) == G_ZBUFFER;
+    bool depth_test = psp_depth_test_enabled();
     if (depth_test != rendering_state.depth_test) {
         gfx_flush();
         gfx_rapi->set_depth_test(depth_test);
@@ -1915,7 +2128,7 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
     struct VertexColor *v2 = &rsp.loaded_vertices_2D[vtx2_idx];
     struct VertexColor *v_arr[2] = {v1, v2};
 
-    bool depth_test = (rsp.geometry_mode & G_ZBUFFER) == G_ZBUFFER;
+    bool depth_test = psp_depth_test_enabled();
     if (depth_test != rendering_state.depth_test) {
         gfx_flush();
         gfx_rapi->set_depth_test(depth_test);
@@ -3213,6 +3426,12 @@ void gfx_init(struct GfxWindowManagerAPI *wapi, struct GfxRenderingAPI *rapi, co
 
     memcpy(rsp.P_matrix, identity_matrix, sizeof(identity_matrix));
     memcpy(rsp.modelview_matrix_stack[0], identity_matrix, sizeof(identity_matrix));
+    /* Slot 0 now holds a real identity, so make it the live one. Without this
+     * the stack is still logically empty until the first G_MTX, and the
+     * lighting path (calculate_normal_dir, which reads
+     * modelview_matrix_stack[size - 1]) can run first -- same [-1] aliasing
+     * onto rdp's tail as in gfx_sp_matrix. */
+    rsp.modelview_matrix_stack_size = 1;
 
     gfx_wapi->get_dimensions(&gfx_current_dimensions.width, &gfx_current_dimensions.height);
     if (gfx_current_dimensions.height == 0) {
