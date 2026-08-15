@@ -3014,6 +3014,26 @@ static void gfx_run_dl(Gfx* cmd) {
                 gfx_sp_tri1(C1(16, 8) / 2, C1(8, 8) / 2, C1(0, 8) / 2);
                 break;
 #endif
+            /* The COMBINED othermode write. sm64-port never needed this case:
+             * SM64 only ever emits the split G_SETOTHERMODE_H/_L pair below.
+             * OoT uses gsDPSetOtherMode -- which expands to this opcode -- in
+             * every one of z_rcp.c's setup display lists, i.e. before nearly
+             * every draw in the game, so all of othermode was arriving stale.
+             *
+             * That is a lot of state: other_mode_h carries the CYCLE TYPE and
+             * the texture filter, and other_mode_l carries the render mode,
+             * which is where gfx_sp_tri1 reads use_alpha, use_fog, z_upd,
+             * zmode_decal and texture_edge from. Concretely it is why Link's
+             * tunic stayed untinted -- the cycle-2 tint is only applied in
+             * G_CYC_2CYCLE, and the cycle type never got set.
+             *
+             * Unlike the split writes this is a full assignment, not a masked
+             * merge: mode0 is the whole H word (24 significant bits, packed
+             * into w0) and mode1 the whole L word. */
+            case (uint8_t)G_RDPSETOTHERMODE:
+                rdp.other_mode_h = C0(0, 24);
+                rdp.other_mode_l = cmd->words.w1;
+                break;
             case (uint8_t)G_SETOTHERMODE_L:
 #ifdef F3DEX_GBI_2
                 gfx_sp_set_other_mode(31 - C0(8, 8) - C0(0, 8), C0(0, 8) + 1, cmd->words.w1);
