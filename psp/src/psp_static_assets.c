@@ -1,8 +1,7 @@
 #include "psp_static_assets.h"
+#include "psp_blob_assets.h"
 
 #include "segment_symbols.h"
-#include "assets/scenes/misc/hakaana2/hakaana2_scene.h"
-#include "assets/scenes/misc/hakaana2/hakaana2_room_0.h"
 
 unsigned int gPspStaticAssetHits;
 unsigned int gPspStaticAssetMisses;
@@ -17,21 +16,28 @@ unsigned int gPspStaticAssetMisses;
  * unconditional relocation cancels back out to the true offset. Using the
  * symbols rather than hardcoded hex keeps this table correct if the ROM or
  * that generated file changes. */
-DECLARE_ROM_SEGMENT(hakaana2_scene)
 
 typedef struct {
     const u8* vromStart; /* identity: matches RomFile.vromStart at runtime */
     void* data;          /* compiled-in, native-endian, symbol-referenced */
 } PspStaticAsset;
 
-/* hakaana2 = "Grave with Fairy's Fountain" (ENTR_GRAVE_WITH_FAIRYS_FOUNTAIN_0),
- * this port's standing test scene: one room, ROOM_SHAPE_TYPE_NORMAL, no
- * prerendered JPEG background, and known to boot and render. Both halves must
- * be registered together -- the room's display lists reference the scene's
- * textures by symbol across the file boundary. */
+/* EMPTY ON PURPOSE -- superseded by psp_blob_assets.c.
+ *
+ * Compiling scenes into the EBOOT was always described here as a development
+ * mode, not the final architecture, because PSP RAM cannot hold every scene.
+ * It did its job: it proved the renderer is sound and that the defects lived in
+ * the raw-asset pipeline. The blob loader now gets the same guarantee (native
+ * byte order, resolved references) for scenes that are NOT resident, so nothing
+ * needs to be linked in any more -- and hakaana2 must go through the blob path
+ * for that path to actually be under test.
+ *
+ * The lookup and the range predicate below are kept: PspStaticAssetIsStatic is
+ * still the single "is this already native-endian?" question that all ten
+ * PspFixup*Endian guards ask, and it now answers for blob-loaded data too.
+ * The sentinel keeps the array a valid C definition while it holds no entries. */
 static const PspStaticAsset sStaticAssets[] = {
-    { _hakaana2_sceneSegmentRomStart, hakaana2_scene },
-    { _hakaana2_room_0SegmentRomStart, hakaana2_room_0 },
+    { NULL, NULL },
 };
 
 #define PSP_STATIC_ASSET_COUNT ((int)(sizeof(sStaticAssets) / sizeof(sStaticAssets[0])))
@@ -40,7 +46,7 @@ void* PspStaticAssetLookup(uintptr_t vromStart) {
     int i;
 
     for (i = 0; i < PSP_STATIC_ASSET_COUNT; i++) {
-        if ((uintptr_t)sStaticAssets[i].vromStart == vromStart) {
+        if (sStaticAssets[i].data != NULL && (uintptr_t)sStaticAssets[i].vromStart == vromStart) {
             ++gPspStaticAssetHits;
             return sStaticAssets[i].data;
         }
@@ -75,5 +81,21 @@ extern char __bss_start[];
 int PspStaticAssetIsStatic(const void* data) {
     const char* p = (const char*)data;
 
-    return p >= _ftext && p < __bss_start;
+    /* Compiled-in data: carries an initialiser, so it lives in [_ftext, __bss_start). */
+    if (p >= _ftext && p < __bss_start) {
+        return 1;
+    }
+
+    /* Data loaded from a native-endian blob (psp_blob_assets.c). It sits in the
+     * arena like any DMA'd file, so the address-range test above cannot see it,
+     * but it is just as native and running a fixup over it would byte-reverse
+     * correct data exactly the same way.
+     *
+     * The name of this predicate is now narrower than what it means -- every
+     * caller asks it the one question "is this already native-endian, i.e. must
+     * I skip the fixup?", and both cases answer yes. Kept as one predicate on
+     * purpose: the guard lives INSIDE each of the ten PspFixup*Endian functions
+     * rather than at their 22 call sites, precisely so it is impossible to
+     * forget one, and that only works while there is a single question to ask. */
+    return PspBlob_IsNative(data);
 }

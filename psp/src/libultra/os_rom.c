@@ -3,6 +3,7 @@
 #include <pspiofilemgr.h>
 
 #include "psp_rom.h"
+#include "psp_blob_assets.h"
 
 static SceUID sRomFd = -1;
 
@@ -43,11 +44,27 @@ void PspRom_Init(const char* path) {
 void PspRom_Read(uint32_t romOffset, void* dst, size_t size) {
     uintptr_t d = (uintptr_t)dst;
 
-    if (sRomFd < 0) {
+    if (size == 0) {
         return;
     }
 
-    if (size == 0) {
+    /* Blobs first. This is the single leaf every asset transfer funnels
+     * through, which is why the hook lives here rather than at the callers:
+     * DmaMgr's queue and thread, the allocation, and Room_RequestNewRoom's
+     * buffer paging all stay exactly as the decomp wrote them, and the caller
+     * cannot forget to ask. See psp/include/psp_blob_assets.h.
+     *
+     * Deliberately placed AFTER the size==0 check but BEFORE the destination
+     * validation below, so a blob-served transfer still gets its dst range
+     * validated by the same rules -- the guard exists because a bad size here
+     * smashes RAM regardless of where the bytes come from. */
+    if (dst != NULL && size <= PSP_ROM_MAX_READ && d >= PSP_RAM_START && (d + size) <= PSP_RAM_END) {
+        if (PspBlob_Read(romOffset, dst, size)) {
+            return;
+        }
+    }
+
+    if (sRomFd < 0) {
         return;
     }
 

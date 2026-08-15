@@ -102,8 +102,6 @@ PSP_C_FILES += psp/src/z_endian_fixup_psp.c
 # psp/include/psp_static_assets.h. Development mode only: PSP RAM cannot hold
 # every scene, so this list stays deliberately short.
 PSP_C_FILES += psp/src/psp_static_assets.c
-PSP_C_FILES += extracted/pal-1.0/assets/scenes/misc/hakaana2/hakaana2_scene.c
-PSP_C_FILES += extracted/pal-1.0/assets/scenes/misc/hakaana2/hakaana2_room_0.c
 # --- Phase 2: real gameplay-engine core (scene/room/camera/collision/actor) ---
 PSP_C_FILES += src/code/z_scene.c
 PSP_C_FILES += src/code/z_scene_table.c
@@ -214,9 +212,55 @@ PSP_C_FILES += extracted/pal-1.0/assets/textures/icon_item_static/icon_item_stat
 PSP_C_FILES += assets/textures/icon_item_24_static/icon_item_24_static.c
 PSP_C_FILES += extracted/pal-1.0/assets/textures/parameter_static/parameter_static.c
 
+PSP_C_FILES += psp/src/psp_blob_assets.c
+
 OBJS := $(PSP_C_FILES:.c=.o)
 
-INCDIR = psp/include psp/include/gfx include src . extracted/pal-1.0 build/pal-1.0
+# --- Native-endian asset blobs -----------------------------------------------
+#
+# See psp/include/psp_blob_assets.h. Each scene listed here is linked at its N64
+# segment base and objcopy'd to a flat binary, so its data is native-endian with
+# every internal pointer already a real segment address -- no PspFixup*Endian
+# pass, no hand-listed struct offsets.
+#
+# Format: <asset-subdir>:<scene-name>:<room-count>
+BLOB_DIR = build/blobs
+BLOB_SCENES = \
+	misc/hakaana2:hakaana2:1 \
+	overworld/spot02:spot02:2
+
+BLOB_REGISTRY = $(BLOB_DIR)/blobs_registry.inc
+
+# PSPSDK's build.mak (included at the bottom of this file) is what defines `all`,
+# so the blob rule below would otherwise become the default goal simply by being
+# the first target in the file.
+.DEFAULT_GOAL := all
+
+# Regenerated whenever the tool changes. The generated registry maps each file's
+# vromStart to its blob path; psp_blob_assets.c #includes it, so no vrom hex is
+# ever written by hand.
+$(BLOB_REGISTRY): psp/tools/make_scene_blob.sh
+	@rm -f $(BLOB_DIR)/*.reg
+	@for s in $(BLOB_SCENES); do \
+		d=$${s%%:*}; r=$${s##*:}; n=$${s#*:}; n=$${n%:*}; \
+		echo "  BLOB    $$n ($$r room(s))"; \
+		sh psp/tools/make_scene_blob.sh \
+			extracted/pal-1.0/assets/scenes/$$d $$n $(BLOB_DIR) $$r > /dev/null || exit 1; \
+	done
+	@cat $(BLOB_DIR)/*.reg > $@
+
+# Ship the blobs next to EBOOT.PBP: PSP resolves the registry's relative paths
+# ("blobs/<name>.bin") against the EBOOT's own directory. Separate rule with its
+# own stamp so the copy still happens when the registry is already up to date.
+blobs/.stamp: $(BLOB_REGISTRY)
+	@mkdir -p blobs && cp -f $(BLOB_DIR)/*.bin blobs/ && touch $@
+
+psp/src/psp_blob_assets.o: $(BLOB_REGISTRY)
+
+blobs: $(BLOB_REGISTRY)
+.PHONY: blobs
+
+INCDIR = psp/include psp/include/gfx include src . extracted/pal-1.0 build/pal-1.0 $(BLOB_DIR)
 # PLATFORM_N64=1 matches how the decomp itself builds pal-1.0 (see
 # reference/oot's own Makefile) -- keeps ported src/ files on the same #if
 # branches a real N64 build takes, rather than drifting onto GC/iQue-only
@@ -232,7 +276,7 @@ LIBS = -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lm
 
 BUILD_PRX = 1
 PSP_EBOOT_TITLE = OoT PSP (bring-up)
-EXTRA_TARGETS = EBOOT.PBP
+EXTRA_TARGETS = EBOOT.PBP blobs/.stamp
 
 PSPSDK = $(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak

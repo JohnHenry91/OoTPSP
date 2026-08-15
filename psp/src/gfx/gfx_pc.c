@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include "psp_static_assets.h"
 #include <assert.h>
 
 #ifndef _LANGUAGE_C
@@ -788,13 +789,25 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
  * __bss_start), while DMA targets are .bss/arena/heap, i.e. at or above
  * __bss_start. So we decide once per texture (and once per TLUT) and index
  * through tex_src_index() everywhere, instead of hardcoding an assumption per
- * pixel format. */
-extern char _ftext[];
-extern char __bss_start[];
-
+ * pixel format.
+ *
+ *  3. BLOB-loaded assets (psp/src/psp_blob_assets.c). These are a THIRD case
+ *     and they behave like case 1, not case 2: a blob is produced by compiling
+ *     the very same `u64 name[] = { 0x..., ... }` sources with the PSP
+ *     (little-endian) compiler, so its pixel bytes are reversed in 8-byte
+ *     groups exactly like compiled-in data. But a blob is read into the arena,
+ *     so the address test below places it with the DMA case and the unswap was
+ *     skipped -- which showed up immediately as correct geometry covered in
+ *     confetti-coloured noise the first time a scene came from a blob.
+ *
+ * So the question this predicate really asks is "did a little-endian compiler
+ * produce these bytes from u64 literals?", and that is the same question
+ * PspStaticAssetIsStatic() answers for the endian fixups. Call it rather than
+ * keeping a second copy of the rule here: session 9 already lost time to two
+ * copies of the segment discriminator drifting apart, and this is the same
+ * trap. */
 static inline bool tex_needs_u64_unswap(const void *addr) {
-    const char *p = (const char *)addr;
-    return p >= _ftext && p < __bss_start;
+    return PspStaticAssetIsStatic(addr) != 0;
 }
 
 /* Undo the compiler's little-endian storage of a u64 literal: byte i of the
