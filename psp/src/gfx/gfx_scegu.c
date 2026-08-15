@@ -1006,8 +1006,21 @@ static void gfx_scegu_init(void) {
     }
 }
 
+/* The GE's only clipper is a single Z = -W near plane, and it clips against
+ * the projection we upload -- i.e. at OoT's zNear (10.0f), which the
+ * F3DZEX2.NoN microcode this game ships does NOT clip against. gfx_pc.c's
+ * software clipper already guarantees w > 0 (see gPspNearClipT) and clips the
+ * four sides, so the hardware plane only ever removes geometry that should
+ * have been drawn. Set to 1 to restore the old behaviour for an A/B test. */
+int gPspGuClipPlanes = 0;
+
 static void gfx_scegu_start_frame(void) {
     sceGuStart(GU_DIRECT, list);
+    if (gPspGuClipPlanes) {
+        sceGuEnable(GU_CLIP_PLANES);
+    } else {
+        sceGuDisable(GU_CLIP_PLANES);
+    }
     sceGuDisable(GU_SCISSOR_TEST);
     sceGuDepthMask(GU_TRUE); // Must be set to clear Z-buffer
     sceGuClearColor(0xFF000000);

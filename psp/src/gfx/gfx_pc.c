@@ -388,6 +388,34 @@ static unsigned long get_time(void) {
 #define CLIP_TEST_FLAGS ( X_POS | X_NEG | Y_POS | Y_NEG | Z_POS | Z_NEG)
 //#define CLIP_TEST_FLAGS ( Z_POS | Z_NEG ) /* Faster but worse */
 
+/* --- Near clipping: OoT is a "NoN" (No Nearclipping) game ------------------
+ *
+ * src/code/sys_ucode.c loads gspF3DZEX2_NoN_fifo. "NoN" means the RSP does NOT
+ * clip against the near plane: geometry between the eye and zNear (10.0f, see
+ * z_view.c:63) is still drawn. SM64 uses a near-clipping microcode, so the
+ * clipper this file inherited from sm64-port-psp cuts away exactly the
+ * geometry OoT expects to keep -- worst when the camera turns and walls/actors
+ * sweep past the eye.
+ *
+ * Every mature OoT port handles this explicitly:
+ *   - libultraship/Shipwright gfx_pc.cpp: `// if (z < -w) d->clip_rej |= 16;`
+ *     (CLIP_NEAR commented out), plus glEnable(GL_DEPTH_CLAMP) in gfx_opengl
+ *     and DepthClipEnable = false in gfx_direct3d11.
+ *   - DaedalusX64 (PSP) nudges the projection instead
+ *     (BaseRenderer::SetProjection, `if (g_ROM.ZELDA_HACK) mProjectionMat[3][2]
+ *     += 0.4f;` -- "needed to show heart in OOT & MM, it renders at Z = 0.0f
+ *     that gets clipped away").
+ *
+ * We cannot simply delete the plane the way a GL/D3D port can: the PSP GE has
+ * no depth clamp and its perspective divide needs w > 0. So we slide the plane
+ * from zNear towards the eye instead. Plane {0,0,-t,-1} is the true near plane
+ * at t = 1 and degenerates to the eye plane (w >= 0) at t = 0; a small positive
+ * t keeps a hair of margin so w never actually reaches zero.
+ * With the software clip guaranteeing w > 0, the GE's own Z = -W clipper (which
+ * would still cut at the game's zNear) can be turned off -- see
+ * gPspGuClipPlanes in gfx_scegu.c. */
+float gPspNearClipT = 0.02f;   /* 1.0f restores the old (sm64) near clipping */
+
 static inline float vec3_dot(const float *lhs, const float *rhs){
     return (lhs[0]*rhs[0]) + (lhs[1]*rhs[1]) + (lhs[2]*rhs[2]);
 }
@@ -432,6 +460,10 @@ void gfx_clip_interpolate_vert(struct LoadedVertex* out, const struct  LoadedVer
 //	Copyright (C) 2002-2006 Nikolaus Gebhardt/Alten Thomas
 //
 //*****************************************************************************
+/* NB: the near/far labels below are the ones inherited from Daedalus/Irrlicht
+ * and they are swapped with respect to the actual maths -- plane[0] rejects
+ * z > w (that is the FAR plane) and plane[5] rejects z < -w (the NEAR plane).
+ * plane[5] is the one the NoN microcode does not have; see gPspNearClipT. */
 static const float NDCPlane[6][4] =
 {
 	{  0.f,  0.f,  1.f, -1.f },	// near
@@ -523,7 +555,12 @@ uint32_t clip_to_frustum( struct LoadedVertex * v0, struct LoadedVertex * v1, ui
 	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[4] );		// top
 	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[3] );		// bottom
 	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[0] );		// near
-	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[5] );		// far
+	{
+		/* The one plane F3DZEX2.NoN does not have. Slid towards the eye by
+		 * gPspNearClipT instead of removed, because the GE needs w > 0. */
+		const float near_plane[4] = { 0.f, 0.f, -gPspNearClipT, -1.f };
+		vOut = clipToHyperPlane( v0, v1, vOut, near_plane );		// far
+	}
 
 	return vOut;
 }
@@ -1334,7 +1371,12 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
         if (x > w) d->clip_rej |= X_NEG;
         if (y < -w) d->clip_rej |= Y_POS;
         if (y > w) d->clip_rej |= Y_NEG;
-        if (z < -w) d->clip_rej |= Z_POS;
+        /* Z_POS is the near plane. `z < -w` is the plane at zNear; the
+         * generalised form `w < -t*z` is the same plane at t == 1 and slides
+         * towards the eye as t -> 0, matching F3DZEX2.NoN (see gPspNearClipT).
+         * This has to match near_plane[] in clip_to_frustum exactly, otherwise
+         * triangles get trivially rejected that the clipper would have kept. */
+        if (w < -gPspNearClipT * z) d->clip_rej |= Z_POS;
         if (z > w) d->clip_rej |= Z_NEG;
 
         d->x = v->ob[0];
