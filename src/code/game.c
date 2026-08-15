@@ -522,7 +522,28 @@ void GameState_Destroy(GameState* gameState) {
     PRINTF(T("game デストラクタ開始\n", "game destructor start\n"));
     AudioMgr_StopAllSfx();
     Audio_Update();
+#if TARGET_PSP
+    /* On N64 this waits for the Scheduler to report that the RCP has finished
+     * the last graphics task before tearing the state down. This port has no
+     * RCP and no Scheduler thread: Graph_ExecuteAndDraw dispatches the display
+     * list synchronously (see the matching TARGET_PSP branch in
+     * Graph_Update/graph.c, which drops the same wait for the same reason), so
+     * the "previous task" is always already complete here -- and, critically,
+     * nothing ever posts to gfxCtx->queue, so this blocking receive can only
+     * wait forever.
+     *
+     * Found live: the game ran normally for thousands of frames and then went
+     * unresponsive with no crash, no assert (fault.txt absent) and no CPU
+     * load, with user_main parked in osRecvMesg+0x114. GameState_Destroy runs
+     * on every game-state transition, which is why it presented as "hangs when
+     * leaving the scene" rather than as a startup failure.
+     *
+     * graph.c's twin was guarded during Phase 1; this one was missed because
+     * nothing reached a state teardown until scene transitions started
+     * working. */
+#else
     osRecvMesg(&gameState->gfxCtx->queue, NULL, OS_MESG_BLOCK);
+#endif
     LOG_UTILS_CHECK_NULL_POINTER("this->cleanup", gameState->destroy, "../game.c", 1139);
     if (gameState->destroy != NULL) {
         gameState->destroy(gameState);
