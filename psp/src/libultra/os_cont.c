@@ -91,10 +91,33 @@ void osContGetReadData(OSContPad* pad) {
     if (sceData.Buttons & PSP_CTRL_RIGHT) button |= BTN_CRIGHT;
 
     pad[0].button = button;
+    /* Both axes map PSP's unsigned 0..255 onto N64's signed s8, but only one of
+     * the two naive expressions actually fits.
+     *
+     *   X:  Lx - 128         -> -128 .. +127   fits s8 exactly
+     *   Y:  128 - Ly         -> -127 .. +128   +128 does NOT fit
+     *
+     * Ly == 0 is the stick pushed fully UP, and 128 - 0 == 128 wraps in s8 to
+     * -128 -- the value meaning fully DOWN. So holding forward read as holding
+     * backward, while left/right were fine, because X's range happens to line up
+     * and Y's is off by one. It cost a session's worth of looking in the wrong
+     * places (the camera, the walk-direction maths, the user's key bindings)
+     * because the asymmetry looked like it had to come from somewhere the two
+     * axes did not share -- when in fact they simply did not share this line.
+     *
+     * sm64-port-psp (src/pc/controller/controller_psp.c) writes it as
+     * 0xff - (Ly + 0x80), which lands on -128..+127 with no overflow; the
+     * subtraction below is the same mapping written the other way round, with
+     * the top end clamped instead of wrapping. */
     pad[0].stick_x = (s8)((s32)sceData.Lx - 128);
-    /* PSP analog Y grows downward; N64 stick_y is positive when pushed
-     * away from the player (forward/up), so invert. */
-    pad[0].stick_y = (s8)(128 - (s32)sceData.Ly);
+    {
+        s32 y = 128 - (s32)sceData.Ly;
+
+        if (y > 127) {
+            y = 127;
+        }
+        pad[0].stick_y = (s8)y;
+    }
 }
 
 /* Real N64 hardware uses these to auto-detect which of the 4 ports have a
