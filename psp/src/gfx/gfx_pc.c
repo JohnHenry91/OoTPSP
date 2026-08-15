@@ -179,6 +179,11 @@ static struct RDP {
     
     uint32_t other_mode_l, other_mode_h;
     uint32_t combine_mode;
+    /* The colour register cycle 2 multiplies the cycle-1 result by, or CC_0 if
+     * cycle 2 is not that shape. Deliberately NOT part of combine_mode/cc_id:
+     * folding it in there would change every shader_id in the port. See
+     * gfx_dp_set_combine_cycle2_tint. */
+    uint8_t combine_cyc2_tint;
     
     struct RGBA env_color, prim_color, fog_color, fill_color;
     struct XYWidthHeight viewport, scissor;
@@ -1819,6 +1824,25 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             }
         }
 
+        /* Cycle 2's tint (see combine_cycle2_tint). Folding it into the vertex
+         * colour is exact for the shape we accept: the GE computes
+         * texture * vertexColour, cycle 1 is texture * X, and cycle 2 is
+         * REG * that -- so vertexColour = X * REG reproduces it. Only applies
+         * in 2-cycle mode; in 1-cycle the second set of operands is unused
+         * (the gsDPSetCombineMode macros just repeat cycle 1 there). */
+        if (rdp.combine_cyc2_tint != CC_0 &&
+            (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) {
+            const struct RGBA *t = cc_operand_color(rdp.combine_cyc2_tint, clipped_vertices[i]);
+
+            if (t != NULL) {
+                prod.r = (uint8_t)((color->r * t->r) / 255);
+                prod.g = (uint8_t)((color->g * t->g) / 255);
+                prod.b = (uint8_t)((color->b * t->b) / 255);
+                prod.a = color->a;
+                color = &prod;
+            }
+        }
+
         buf_vbo[buf_num_vert].color.r = color->r;
         buf_vbo[buf_num_vert].color.g = color->g;
         buf_vbo[buf_num_vert].color.b = color->b;
@@ -2330,6 +2354,54 @@ static inline uint32_t color_comb(uint32_t a, uint32_t b, uint32_t c, uint32_t d
            (color_comb_component(b) << 3) |
            (color_comb_component(c) << 6) |
            (color_comb_component(d) << 9);
+}
+
+/* OoT tints almost everything in the SECOND combiner cycle, and this port only
+ * ever decoded the first (see G_SETCOMBINE, where the cycle-2 operands sit
+ * commented out). Link's tunic is the clearest case:
+ *
+ *   gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0,  0,0,0,TEXEL0,
+ *                      ENVIRONMENT, 0, COMBINED, 0,  0,0,0,COMBINED)
+ *
+ * cycle 1 is TEXEL0 * SHADE and cycle 2 is ENV * COMBINED -- and ENV is where
+ * Player_DrawImpl puts the tunic colour (sTunicColors, {30,105,27} for Kokiri).
+ * Dropping cycle 2 left the tunic untinted, i.e. white. 49 of Link's combines
+ * multiply by PRIMITIVE in cycle 2 and 18 by ENVIRONMENT, so this is the rule
+ * for this game rather than a special case.
+ *
+ * Full 2-cycle emulation is not needed for the dominant shape. When cycle 2 is
+ * just "multiply the whole cycle-1 result by one colour register", and cycle 1
+ * already resolves to texture * vertexColour, the register folds straight into
+ * the vertex colour -- which the GE then multiplies by the texture exactly as
+ * before. So all this has to recover is WHICH register.
+ *
+ * Returns CC_PRIM / CC_ENV / CC_SHADE, or CC_0 for "not this shape, do
+ * nothing". Slot encodings differ (a/b are 4 bits, c is 5, d is 3) and a
+ * written 0 is G_CCMUX_0 == 31 truncated to the slot width, which
+ * color_comb_component already maps to CC_0. Raw 0 means COMBINED in every
+ * slot, which is the one thing color_comb_component cannot express, so it is
+ * tested directly. */
+static uint8_t combine_cycle2_tint(uint32_t a, uint32_t b, uint32_t c, uint32_t d) {
+    uint8_t reg;
+
+    /* b and d must be genuine zero, not COMBINED: anything else is a subtract
+     * or an add and no longer a plain multiply. */
+    if (b == G_CCMUX_COMBINED || color_comb_component(b) != CC_0) {
+        return CC_0;
+    }
+    if (d == G_CCMUX_COMBINED || color_comb_component(d) != CC_0) {
+        return CC_0;
+    }
+
+    if (a == G_CCMUX_COMBINED) {
+        reg = color_comb_component(c); /* (COMBINED - 0) * REG + 0 */
+    } else if (c == G_CCMUX_COMBINED) {
+        reg = color_comb_component(a); /* (REG - 0) * COMBINED + 0 */
+    } else {
+        return CC_0;
+    }
+
+    return (reg == CC_PRIM || reg == CC_ENV || reg == CC_SHADE) ? reg : CC_0;
 }
 
 static void gfx_dp_set_combine_mode(uint32_t rgb, uint32_t alpha) {
@@ -2992,8 +3064,13 @@ static void gfx_run_dl(Gfx* cmd) {
                 gfx_dp_set_combine_mode(
                     color_comb(C0(20, 4), C1(28, 4), C0(15, 5), C1(15, 3)),
                     color_comb(C0(12, 3), C1(12, 3), C0(9, 3), C1(9, 3)));
-                    /*color_comb(C0(5, 4), C1(24, 4), C0(0, 5), C1(6, 3)),
-                    color_comb(C1(21, 3), C1(3, 3), C1(18, 3), C1(0, 3)));*/
+                /* Cycle 2's RGB row -- the operands that used to be dropped
+                 * here (they are the commented-out line this replaces). Only
+                 * the "multiply everything by one colour register" shape is
+                 * recovered; see combine_cycle2_tint. Kept out of cc_id on
+                 * purpose so shader ids are unaffected. */
+                rdp.combine_cyc2_tint = combine_cycle2_tint(C0(5, 4), C1(24, 4), C0(0, 5), C1(6, 3));
+                /* alpha cycle 2 would be color_comb(C1(21,3), C1(3,3), C1(18,3), C1(0,3)) */
                 break;
             // G_SETPRIMCOLOR, G_CCMUX_PRIMITIVE, G_ACMUX_PRIMITIVE, is used by Goddard
             // G_CCMUX_TEXEL1, LOD_FRACTION is used in Bowser room 1
