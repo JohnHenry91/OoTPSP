@@ -31,6 +31,7 @@
 #include "play_state.h"
 #if TARGET_PSP
 #include "gfx_pc.h"
+#include "psp_frame_pace.h"
 #include "padmgr.h"
 /* Not part of padmgr.h's public API (only used internally by
  * PadMgr_ThreadEntry there) -- forward-declare for the direct per-frame
@@ -426,6 +427,13 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
     gfx_start_frame();
     gfx_run((Gfx*)task->data_ptr);
     gfx_end_frame();
+
+    /* The other half of what the skipped Sched submission did: hold this frame
+     * for cfb->updateRate video fields before the loop runs the game again.
+     * Without it the engine advanced once per rendered frame -- measured 30.1
+     * Hz against PAL's 50/3 = 16.67 Hz, i.e. everything ran 1.81x too fast.
+     * See psp/src/psp_frame_pace.c. */
+    PspFramePace_Wait(R_UPDATE_RATE);
 #else
     osSendMesg(&gScheduler.cmdQueue, (OSMesg)scTask, OS_MESG_BLOCK);
     Sched_Notify(&gScheduler);

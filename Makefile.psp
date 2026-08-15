@@ -237,6 +237,7 @@ PSP_C_FILES += assets/textures/icon_item_24_static/icon_item_24_static.c
 PSP_C_FILES += extracted/pal-1.0/assets/textures/parameter_static/parameter_static.c
 
 PSP_C_FILES += psp/src/psp_blob_assets.c
+PSP_C_FILES += psp/src/psp_frame_pace.c
 
 OBJS := $(PSP_C_FILES:.c=.o)
 
