@@ -376,6 +376,32 @@ BAD_RETURN(s32) Scene_CommandPlayerEntryList(PlayState* play, SceneCmd* cmd) {
     }
 #endif
 
+#if TARGET_PSP
+    /* Debug A/B for the open "Link's geometry is displaced" bug: render ADULT
+     * Link instead of child. Adult is a different object (object_link_boy), a
+     * different skeleton (gLinkAdultSkel) and different limb display lists, all
+     * through the SAME renderer -- so if adult breaks identically the defect is
+     * in the renderer and every model-data theory dies, and if adult is clean
+     * it is something about the child assets.
+     *
+     * This is the right single point: both linkAgeOnLoad (which Player_Init
+     * copies back into gSaveContext, z_player.c:12419) and linkObjectId below
+     * read gSaveContext.save.linkAge, so overriding it here covers skeleton and
+     * object together. It runs on every scene load, so poking the flag and then
+     * walking through a scene transition switches age without a rebuild.
+     *
+     * -1 = leave alone, 0 = LINK_AGE_ADULT, 1 = LINK_AGE_CHILD.
+     * NOTE: equipment is not age-swapped here (no Inventory_SwapAgeEquipment),
+     * so adult Link may hold child gear or nothing. That is fine for a geometry
+     * comparison and deliberately avoided to keep this to one variable. */
+    {
+        extern int gDebugForceLinkAge;
+        if (gDebugForceLinkAge >= 0) {
+            gSaveContext.save.linkAge = (u8)gDebugForceLinkAge;
+        }
+    }
+#endif
+
     play->linkAgeOnLoad = ((void)0, gSaveContext.save.linkAge);
 
     linkObjectId = gLinkObjectIds[((void)0, gSaveContext.save.linkAge)];

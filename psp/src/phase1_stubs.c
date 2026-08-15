@@ -203,6 +203,15 @@ int gDebugForceWhiteVerts = 0;
  * diagnosed. */
 int gDebugDisableCull = 0;
 
+/* Which Link to spawn -- see the override in z_scene.c's Play_SpawnScene.
+ * -1 = leave the save's own value alone, 0 = LINK_AGE_ADULT, 1 = LINK_AGE_CHILD.
+ * Kept after it did its job: forcing ADULT proved the displaced-geometry bug
+ * was in the renderer and not in the child model data, because adult is a
+ * different object, skeleton and set of limb display lists yet broke
+ * identically. Default -1 = leave the save's own value alone. Read at every
+ * scene load, so poking it and crossing a scene transition switches age live. */
+int gDebugForceLinkAge = -1;
+
 /* 1 while the boot logo (ConsoleLogo/TitleSetup) is on screen, 0 once real
  * gameplay (Play_Init) starts -- see gfx_scegu.c's is_n64_logo_cube_combine/
  * is_n64_logo_text_combine, which gate the boot-logo-only 2-cycle-blend
