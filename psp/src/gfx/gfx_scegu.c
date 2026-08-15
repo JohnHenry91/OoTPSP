@@ -1045,6 +1045,41 @@ static void gfx_scegu_init(void) {
  * have been drawn. Set to 1 to restore the old behaviour for an A/B test. */
 int gPspGuClipPlanes = 0;
 
+/* --- two runtime A/B switches for the open "Link's geometry is displaced" bug.
+ * Measured so far: matrices are all correct, adult Link breaks identically to
+ * child (so it is the renderer, not model data), and Z_CMP is set on every
+ * single depth-tested draw (so the libultraship depth-test divergence never
+ * fires here). What is left is HOW the depth comparison and the alpha test are
+ * configured, both of which are inherited from sm64-port-psp unexamined.
+ *
+ * gDebugDepthMode -- NOTE: this one is a NO-OP by construction and was a badly
+ * designed experiment; it is kept only so both conventions stay expressible.
+ * Flipping range, function AND clear together cancels out exactly (reversed
+ * range + GEQUAL is the SAME test as normal range + LEQUAL), so it can never
+ * change the picture, and measuring "no change" with it proves nothing.
+ * 0 = inherited: reversed range (near = 0xffff) + GU_GEQUAL,
+ * cleared to 0 (far). Self-consistent, but only if the z the GE derives from
+ * OoT's projection maps the way SM64's did. 1 = conventional: range
+ * (0 .. 0xffff) + GU_LEQUAL, cleared to 0xffff. If the ordering is inverted,
+ * flipping this fixes or dramatically worsens the picture instantly -- either
+ * outcome is an answer.
+ *
+ * gDebugAlphaTest -- the inherited setup enables GU_ALPHA_TEST unconditionally
+ * with GU_GREATER, 0x55, i.e. every fragment with alpha <= 0x55 is discarded,
+ * regardless of what other_mode_l's alpha compare actually asks for. That is a
+ * standalone candidate for the HOLES in the mesh. 0 = disable the test.
+ *
+ * Both are applied per frame, so a poke takes effect on the next frame -- no
+ * rebuild, no scene reload. */
+int gDebugDepthMode = 0;
+int gDebugAlphaTest = 1;
+/* Flip ONLY the depth comparison (range and clear untouched) -> the far surface
+ * wins instead of the near one. This is the actual inversion test. */
+int gDebugDepthFuncFlip = 0;
+/* Force the depth test off entirely. If the picture does not change, depth
+ * testing was already having no effect, which would itself be the bug. */
+int gDebugDepthTestOff = 0;
+
 static void gfx_scegu_start_frame(void) {
     sceGuStart(GU_DIRECT, list);
     if (gPspGuClipPlanes) {
@@ -1052,10 +1087,39 @@ static void gfx_scegu_start_frame(void) {
     } else {
         sceGuDisable(GU_CLIP_PLANES);
     }
+
+    /* NOTE: gDebugDepthMode flips range, function AND clear together -- those
+     * three changes cancel out exactly (reversed range + GEQUAL is the SAME
+     * test as normal range + LEQUAL), so it can never change the picture. It is
+     * kept only so the two conventions stay switchable; it is NOT a test of
+     * depth ordering. Measured: no visual change, as the maths requires.
+     *
+     * gDebugDepthFuncFlip is the real test: flip ONLY the comparison and leave
+     * range and clear alone, which genuinely inverts which surface wins.
+     * gDebugDepthTestOff answers the prior question -- is the depth buffer
+     * doing anything at all? If disabling it changes nothing, depth testing is
+     * already inert and THAT is the bug. */
+    if (gDebugDepthMode) {
+        sceGuDepthRange(0, 0xffff);
+        sceGuDepthFunc(gDebugDepthFuncFlip ? GU_GEQUAL : GU_LEQUAL);
+    } else {
+        sceGuDepthRange(0xffff, 0);
+        sceGuDepthFunc(gDebugDepthFuncFlip ? GU_LEQUAL : GU_GEQUAL);
+    }
+    if (gDebugDepthTestOff) {
+        sceGuDisable(GU_DEPTH_TEST);
+    }
+    if (gDebugAlphaTest) {
+        sceGuEnable(GU_ALPHA_TEST);
+    } else {
+        sceGuDisable(GU_ALPHA_TEST);
+    }
+
     sceGuDisable(GU_SCISSOR_TEST);
     sceGuDepthMask(GU_TRUE); // Must be set to clear Z-buffer
     sceGuClearColor(0xFF000000);
-    sceGuClearDepth(0);
+    /* Must match the range above: clear to the FAR end, or nothing passes. */
+    sceGuClearDepth(gDebugDepthMode ? 0xffff : 0);
     sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT);
     sceGuEnable(GU_SCISSOR_TEST);
     sceGuDepthMask(GU_FALSE);
@@ -1063,7 +1127,10 @@ static void gfx_scegu_start_frame(void) {
     // Identity every frame? unsure.
     //sceGuSetMatrix(GU_PROJECTION, (const ScePspFMatrix4 *) identity_matrix);
     sceGuSetMatrix(GU_VIEW, (const ScePspFMatrix4 *) identity_matrix);
-    //sceGuSetMatrix(GU_MODEL, (const ScePspFMatrix4 *) identity_matrix);
+    /* MUST be identity and stay identity: gfx_pc.c's gfx_sp_vertex applies the
+     * modelview in software at vertex-load time (N64 G_VTX semantics), so the
+     * GE only ever applies the projection. */
+    sceGuSetMatrix(GU_MODEL, (const ScePspFMatrix4 *) identity_matrix);
 
 #if 0
     const int DitherMatrix[2][16] = { { 0, 8, 0, 8,
