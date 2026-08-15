@@ -51,7 +51,15 @@ void TitleSetup_SetupTitleScreen(TitleSetupState* this) {
      * (see psp/src/z_actor_dlftbls_psp.c), same as everywhere else --
      * only Player has a real profile compiled in. Switch back to
      * ENTR_LINKS_HOUSE_0 once image-room drawing is implemented. */
-    gSaveContext.save.entranceIndex = ENTR_REDEAD_GRAVE_0;
+    /* Test room: SCENE_GRAVE_WITH_FAIRYS_FOUNTAIN (hakaana2).
+     *
+     * IMPORTANT (2026-08-14): only **single-room** scenes render at all on this
+     * port right now. Confirmed 5/5: hakaana (1 room) and hakaana2 (1 room)
+     * both draw geometry, while takaraya (7 rooms), tokinoma (2 rooms) and
+     * spot04/Kokiri Forest (3 rooms) all come out black or hang. So pick a
+     * 1-room scene for any rendering test until multi-room support is fixed.
+     * Check `ls extracted/pal-1.0/baserom/ | grep '^<scene>_room_'` first. */
+    gSaveContext.save.entranceIndex = ENTR_GRAVE_WITH_FAIRYS_FOUNTAIN_0;
     /* Force a safe midday value -- Play_Init derives IS_DAY (and thus which
      * of SCENE_LAYER_CHILD_DAY/CHILD_NIGHT it picks) from this, and an
      * unset/zero dayTime would land before the 6:30 threshold, i.e. night,

@@ -1,3 +1,6 @@
+#if TARGET_PSP
+#include "psp_static_assets.h"
+#endif
 #include "libu64/debug.h"
 #include "ultra64/gs2dex.h"
 #include "array_count.h"
@@ -720,6 +723,27 @@ s32 Room_RequestNewRoom(PlayState* play, RoomContext* roomCtx, s32 roomNum) {
         osCreateMesgQueue(&roomCtx->loadQueue, &roomCtx->loadMsg, 1);
 
 #if TARGET_PSP
+        /* Compiled-in room: hand the engine the linked-in data directly.
+         * roomRequestAddr is overwritten (the buffer allocated above simply
+         * goes unused for this room), no DMA is issued, and the completion
+         * message is queued immediately so Room_ProcessRoomRequest proceeds on
+         * its very next call. See psp/include/psp_static_assets.h. */
+        {
+            void* staticRoom =
+                PspStaticAssetLookup((uintptr_t)play->roomList.romFiles[roomNum].vromStart);
+
+            if (staticRoom != NULL) {
+                roomCtx->roomRequestAddr = staticRoom;
+                osSendMesg(&roomCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+                /* Deliberately does NOT flip activeBufPage: that alternates
+                 * the two room buffers so a new room can stream in while the
+                 * old one is still being drawn, and this path consumed
+                 * neither buffer. */
+                return true;
+            }
+        }
+#endif
+#if TARGET_PSP
         /* Async DMA + later osRecvMesg poll races the main thread reading
          * roomCtx->roomRequestAddr before the background DMA thread's write
          * actually lands -- same bug class already fixed for object loads in
@@ -769,8 +793,10 @@ s32 Room_ProcessRoomRequest(PlayState* play, RoomContext* roomCtx) {
 #if TARGET_PSP
             /* Room command data is DMA'd raw from the big-endian .z64, same
              * as the scene file -- needs the same fixup Play_SpawnScene
-             * applies to scene->sceneFile. See z_endian_fixup_psp.c. */
-            {
+             * applies to scene->sceneFile. See z_endian_fixup_psp.c.
+             * Compiled-in rooms are already native-endian and must be left
+             * alone; a fixup pass over them would corrupt correct data. */
+            if (!PspStaticAssetIsStatic(roomCtx->curRoom.segment)) {
                 extern void PspFixupCommandStreamEndian(void* data, unsigned int size);
                 u32 roomSize = play->roomList.romFiles[roomCtx->curRoom.num].vromEnd -
                                play->roomList.romFiles[roomCtx->curRoom.num].vromStart;

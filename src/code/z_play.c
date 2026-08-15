@@ -1,3 +1,6 @@
+#if TARGET_PSP
+#include "psp_static_assets.h"
+#endif
 #include "libc64/malloc.h"
 #include "libc64/qrand.h"
 #include "libu64/debug.h"
@@ -120,6 +123,27 @@ void Play_SetShopBrowsingViewpoint(PlayState* this) {
     }
 }
 
+#if TARGET_PSP
+/* Set when Play_SetupTransition is handed a transition type the switch below
+ * does not know. On N64 that is a debug assert (HUNGUP_AND_CRASH) -- a
+ * deliberate infinite loop, which on this port looks exactly like a mysterious
+ * "the game just froze after a while". Recorded here rather than logged: read
+ * with the WebSocket debugger, same rule as the gfx counters (no file I/O). */
+s32 gPspUnknownTransitionType = -1;
+s32 gPspUnknownTransitionCount = 0;
+/* Inputs that produced the type, to tell a garbage table read apart from a
+ * genuinely unimplemented transition. */
+s32 gPspTransEntranceIndex = -1;
+u16 gPspTransRawField = 0;
+
+/* Player position / ground state, sampled once per drawn frame in Play_Draw. */
+Vec3f gPspPlayerPos;
+f32 gPspPlayerVelY;
+f32 gPspPlayerFloorHeight;
+u16 gPspPlayerBgFlags;
+u32 gPspPlayerSampleCount;
+#endif
+
 void Play_SetupTransition(PlayState* this, s32 transitionType) {
     TransitionContext* transitionCtx = &this->transitionCtx;
 
@@ -212,7 +236,27 @@ void Play_SetupTransition(PlayState* this, s32 transitionType) {
                 break;
 
             default:
+#if TARGET_PSP
+                /* Don't hang the whole console over a transition style. The
+                 * N64 assert here is a development aid; on this port it is
+                 * the difference between "walking into an exit freezes the
+                 * game" and "walking into an exit fades to black". Record it
+                 * and fall back to the plainest transition that exists. */
+                gPspUnknownTransitionType = transitionCtx->transitionType;
+                gPspUnknownTransitionCount++;
+                transitionCtx->transitionType = TRANS_TYPE_FADE_BLACK;
+                transitionCtx->init = TransitionFade_Init;
+                transitionCtx->destroy = TransitionFade_Destroy;
+                transitionCtx->start = TransitionFade_Start;
+                transitionCtx->isDone = TransitionFade_IsDone;
+                transitionCtx->draw = TransitionFade_Draw;
+                transitionCtx->update = TransitionFade_Update;
+                transitionCtx->setType = TransitionFade_SetType;
+                transitionCtx->setColor = TransitionFade_SetColor;
+                transitionCtx->setUnkColor = NULL;
+#else
                 HUNGUP_AND_CRASH("../z_play.c", LN5(2263, 2266, 2269, 2272, 2282, 2287, 2290, 2293));
+#endif
                 break;
         }
     }
@@ -530,6 +574,10 @@ void Play_Init(GameState* thisx) {
         if (gSaveContext.nextTransitionType == TRANS_NEXT_TYPE_DEFAULT) {
             this->transitionType = ENTRANCE_INFO_END_TRANS_TYPE(
                 gEntranceTable[((void)0, gSaveContext.save.entranceIndex) + baseSceneLayer].field);
+#if TARGET_PSP
+            gPspTransEntranceIndex = ((void)0, gSaveContext.save.entranceIndex) + baseSceneLayer;
+            gPspTransRawField = gEntranceTable[gPspTransEntranceIndex].field;
+#endif
         } else {
             this->transitionType = gSaveContext.nextTransitionType;
             gSaveContext.nextTransitionType = TRANS_NEXT_TYPE_DEFAULT;
@@ -1232,6 +1280,30 @@ void Play_Draw(PlayState* this) {
     Vec3f sp21C;
 
 #if TARGET_PSP
+    /* Player position/ground state, sampled once per drawn frame.
+     *
+     * Reported symptom is Link "bouncing through the picture", and the frame
+     * stats show the triangle count flipping between two values whose
+     * difference is about the size of Link's model. Both point at Player's
+     * transform rather than the renderer. If floorHeight is garbage or
+     * BGCHECKFLAG_GROUND never sets, this is collision, not graphics -- and
+     * would also explain the emulator dying when walking forward (falling out
+     * of the world produces absurd coordinates and matrices).
+     *
+     * Read with the WebSocket debugger; no file I/O, same rule as the gfx
+     * counters. */
+    {
+        Player* pspPlayer = GET_PLAYER(this);
+
+        gPspPlayerPos = pspPlayer->actor.world.pos;
+        gPspPlayerVelY = pspPlayer->actor.velocity.y;
+        gPspPlayerFloorHeight = pspPlayer->actor.floorHeight;
+        gPspPlayerBgFlags = pspPlayer->actor.bgCheckFlags;
+        gPspPlayerSampleCount++;
+    }
+#endif
+
+#if TARGET_PSP
     {
         static int c = 0;
         extern void PspDebugLogCheckpoint(const char* name);
@@ -1762,6 +1834,19 @@ void* Play_LoadFile(PlayState* this, RomFile* file) {
     u32 size;
     void* allocp;
 
+#if TARGET_PSP
+    /* Compiled-in assets bypass the ROM entirely: no DMA, no allocation, and
+     * critically no endian fixup (the caller checks PspStaticAssetIsStatic
+     * before applying one). See psp/include/psp_static_assets.h. */
+    {
+        void* staticData = PspStaticAssetLookup((uintptr_t)file->vromStart);
+
+        if (staticData != NULL) {
+            return staticData;
+        }
+    }
+#endif
+
     size = file->vromEnd - file->vromStart;
     allocp = GAME_STATE_ALLOC(&this->state, size, "../z_play.c", 4692);
 #if TARGET_PSP
@@ -1866,7 +1951,10 @@ void Play_SpawnScene(PlayState* this, s32 sceneId, s32 spawn) {
     scene->unk_13 = 0;
 #endif
 #if TARGET_PSP
-    {
+    /* Only raw ROM data needs the fixup. Compiled-in scene data is already
+     * native-endian; running the pass over it would byte-reverse correct
+     * fields and corrupt the scene. */
+    if (!PspStaticAssetIsStatic(this->sceneSegment)) {
         extern void PspFixupCommandStreamEndian(void* data, unsigned int size);
         PspFixupCommandStreamEndian(this->sceneSegment,
                                      (unsigned int)(scene->sceneFile.vromEnd - scene->sceneFile.vromStart));

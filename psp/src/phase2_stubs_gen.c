@@ -9,7 +9,12 @@
  * paths that call them are not exercised by a static Link's-House room
  * render. Promote any of these to a real source file in Makefile.psp when
  * its subsystem comes into scope. Regenerate via the same script if the
- * linked file set changes. */
+ * linked file set changes.
+ *
+ * WHEN REGENERATING: every stub that is used as a display list must keep its
+ * PSP_STUB_ENDDL initialiser (see the note above the data section). A plain
+ * zeroed stub is not an empty display list, it is a non-terminating one, and
+ * it crashes the game. */
 
 /* --- functions: 166 --- */
 void Audio_QueueSeqCmd(void) {}
@@ -175,10 +180,24 @@ void func_801C7C1C(void) {}
 void gspS2DEX2d_fifoTextStart(void) {}
 void guS2DInitBg(void) {}
 
+/* A stubbed display list must still be a VALID display list. A zeroed buffer
+ * decodes as an endless run of G_NOOP (opcode 0x00) with no
+ * gsSPEndDisplayList() anywhere, so the interpreter never returns from it: it
+ * walks off the end into neighbouring memory and keeps going. Measured live
+ * (2026-08-15): gGlowCircleTextureLoadDL, which z_lights.c:375 submits every
+ * single frame, drove the display-list interpreter 47 levels deep and took
+ * the game down with it.
+ *
+ * Byte 3 = 0xDF makes w0 read as 0xDF000000 (G_ENDDL) when loaded as a
+ * little-endian u32, which is how the interpreter reads compiled-in lists.
+ * So each of these now draws nothing and returns immediately -- the same
+ * intent the zeroed stub had, but actually expressed. */
+#define PSP_STUB_ENDDL { [3] = (char)0xDF }
+
 /* --- data: 66 --- */
-char gBossDoorChainDL[64];
-char gBossDoorLockDL[64];
-char gCircleShadowDL[64];
+char gBossDoorChainDL[64] = PSP_STUB_ENDDL;
+char gBossDoorLockDL[64] = PSP_STUB_ENDDL;
+char gCircleShadowDL[64] = PSP_STUB_ENDDL;
 char gCustomLensFlareOn[64];
 char gCustomLensFlarePos[64];
 char gDCDayEntranceTex[64];
@@ -193,26 +212,26 @@ char gDCLavaFloor8Tex[64];
 char gDCNightEntranceTex[64];
 char gDekuTreeDayEntranceTex[64];
 char gDekuTreeNightEntranceTex[64];
-char gDoorChainDL[64];
-char gDoorLockDL[64];
-char gEffFlash1DL[64];
+char gDoorChainDL[64] = PSP_STUB_ENDDL;
+char gDoorLockDL[64] = PSP_STUB_ENDDL;
+char gEffFlash1DL[64] = PSP_STUB_ENDDL;
 char gEffectSsOverlayTable[64];
-char gFootShadowDL[64];
+char gFootShadowDL[64] = PSP_STUB_ENDDL;
 char gForestTempleDayEntranceTex[64];
 char gForestTempleNightEntranceTex[64];
 char gGTGDayEntranceTex[64];
 char gGTGNightEntranceTex[64];
 char gGerudoFortressDayWallTex[64];
 char gGerudoFortressNightWallTex[64];
-char gGlowCircleDL[64];
-char gGlowCircleTextureLoadDL[64];
+char gGlowCircleDL[64] = PSP_STUB_ENDDL;
+char gGlowCircleTextureLoadDL[64] = PSP_STUB_ENDDL;
 char gGoronCityDayEntranceTex[64];
 char gGoronCityNightEntranceTex[64];
 char gGuardHouseOutSideView1DayTex[64];
 char gGuardHouseOutSideView1NightTex[64];
 char gGuardHouseOutSideView2DayTex[64];
 char gGuardHouseOutSideView2NightTex[64];
-char gHorseShadowDL[64];
+char gHorseShadowDL[64] = PSP_STUB_ENDDL;
 char gIceCavernDayEntranceTex[64];
 char gIceCavernNightEntranceTex[64];
 char gKakarikoVillageDayWindowTex[64];
@@ -221,8 +240,8 @@ char gLensFlareColorIntensity[64];
 char gLensFlareGlareStrength[64];
 char gLensFlareScale[64];
 char gLensOfTruthMaskTex[64];
-char gLockOnArrowDL[64];
-char gLockOnReticleTriangleDL[64];
+char gLockOnArrowDL[64] = PSP_STUB_ENDDL;
+char gLockOnReticleTriangleDL[64] = PSP_STUB_ENDDL;
 char gLonLonHouseDayEntranceTex[64];
 char gLonLonHouseNightEntranceTex[64];
 char gLonLonRanchDayWindowTex[64];
@@ -240,5 +259,5 @@ char gWeatherMode[64];
 char gZorasDomainDayEntranceTex[64];
 char gZorasDomainNightEntranceTex[64];
 char gspS2DEX2d_fifoDataStart[64];
-char spot00_room_0DL_012B20[64];
-char spot16_room_0DL_00AA48[64];
+char spot00_room_0DL_012B20[64] = PSP_STUB_ENDDL;
+char spot16_room_0DL_00AA48[64] = PSP_STUB_ENDDL;

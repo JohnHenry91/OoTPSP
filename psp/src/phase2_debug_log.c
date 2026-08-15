@@ -7,11 +7,46 @@
 #include <pspiofilemgr.h>
 #include <stdio.h>
 
+/* Master switch for every diagnostic in this file (2026-08-02).
+ *
+ * All of these do synchronous sceIoOpen/sceIoWrite/sceIoClose file I/O, from
+ * ~82 call sites scattered through the game code. Two independent reasons to
+ * keep this off by default now:
+ *
+ * 1. A hard crash was traced directly into this file. PPSSPP reported
+ *    "Jump to invalid address: 0d9370e8  PC 08a598bc  LR 0886573c"; LR
+ *    resolves to the instruction immediately after `jal sceIoOpen` inside
+ *    PspDebugLogBgCheck, and the words the JIT then choked on ("Invalid
+ *    instruction 7478742e/72726520" = ".txt"/" err") are this file's own
+ *    filename/error string constants (module offsets 0xc304a/0xc3800/0xc3834)
+ *    being executed as code -- i.e. control flow went through this logging
+ *    path and off the rails, rather than any game data being corrupted (the
+ *    animation-data bytes at the faulting PC were verified byte-for-byte
+ *    against the built ELF and are intact).
+ * 2. Since DmaMgr_RequestAsync was made synchronous on TARGET_PSP
+ *    (psp/src/boot/z_std_dma.c), the game's own asset streaming issues sceIo
+ *    reads on the *same* thread that these log calls run on, so the two can
+ *    now interleave/re-enter in ways they never did when DMA had its own
+ *    thread.
+ *
+ * Set to 1 to re-enable when a specific diagnostic is actually needed; the
+ * `fd < 0` path every function already has makes them clean no-ops when off. */
+#define PSP_DEBUG_LOG_ENABLED 0
+
+static SceUID PspDebugLogOpen(const char* path) {
+#if PSP_DEBUG_LOG_ENABLED
+    return sceIoOpen(path, PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+#else
+    (void)path;
+    return -1;
+#endif
+}
+
 void PspDebugLogPlaySpawn(int sceneId, int spawn, void* sceneSegment, unsigned int checkVal) {
     char msg[96];
     int len = sprintf(msg, "check=%08x sceneId=%d spawn=%d sceneSegment=%p\n", checkVal, sceneId, spawn,
                        sceneSegment);
-    SceUID fd = sceIoOpen("ms0:/play_spawn.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/play_spawn.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -22,7 +57,7 @@ void PspDebugLogKeepObject(unsigned int vromStart, unsigned int vromEnd, void* s
     char msg[128];
     int len = sprintf(msg, "keepObj vromStart=%08x vromEnd=%08x slot0Segment=%p spaceEnd=%p\n", vromStart, vromEnd,
                        slot0Segment, spaceEnd);
-    SceUID fd = sceIoOpen("ms0:/keep_obj.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/keep_obj.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -32,7 +67,7 @@ void PspDebugLogKeepObject(unsigned int vromStart, unsigned int vromEnd, void* s
 void PspDebugLogKeepObject2(void* mainKeepSegment, unsigned int gSegments4) {
     char msg[96];
     int len = sprintf(msg, "keepObj2 mainKeepSegment=%p gSegments4=%08x\n", mainKeepSegment, gSegments4);
-    SceUID fd = sceIoOpen("ms0:/keep_obj.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/keep_obj.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -45,7 +80,7 @@ void PspDebugLogColHeader(void* cmd, int stage, void* colHeader, void* vtxList, 
     int len = sprintf(msg,
                        "stage=%d cmd=%p colHeader=%p vtx=%p poly=%p surf=%p bgCam=%p wbox=%p\n", stage, cmd,
                        colHeader, vtxList, polyList, surfaceTypeList, bgCamList, waterBoxes);
-    SceUID fd = sceIoOpen("ms0:/col_header.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/col_header.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -57,7 +92,7 @@ void PspDebugLogGSceneTable(void* gSceneTableAddr, void* sceneAddr, int sceneId,
     char msg[128];
     int len = sprintf(msg, "gSceneTable=%p scene=%p sceneId=%d vromStart=%08x vromEnd=%08x structSize=%u\n",
                        gSceneTableAddr, sceneAddr, sceneId, vromStart, vromEnd, structSize);
-    SceUID fd = sceIoOpen("ms0:/scene_table.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/scene_table.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -69,7 +104,7 @@ void PspDebugLogFileLoad(void* allocp, unsigned int vromStart, unsigned int size
     char msg[128];
     int len = sprintf(msg, "stage=%d allocp=%p vromStart=%08x size=%u bytes=%02x %02x %02x %02x\n", stage, allocp,
                        vromStart, size, b0, b1, b2, b3);
-    SceUID fd = sceIoOpen("ms0:/file_load.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/file_load.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -79,7 +114,7 @@ void PspDebugLogFileLoad(void* allocp, unsigned int vromStart, unsigned int size
 void PspDebugLogDmaTest(int ret, unsigned int checksum, int passed) {
     char msg[96];
     int len = sprintf(msg, "dmaTestRet=%d checksum=%08x passed=%d\n", ret, checksum, passed);
-    SceUID fd = sceIoOpen("ms0:/dma_test.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/dma_test.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -89,7 +124,7 @@ void PspDebugLogDmaTest(int ret, unsigned int checksum, int passed) {
 void PspDebugLogSceneCmd(void* addr, unsigned int code, unsigned int data1, unsigned int data2) {
     char msg[96];
     int len = sprintf(msg, "addr=%p code=%u data1=%02x data2=%04x\n", addr, code, data1, data2);
-    SceUID fd = sceIoOpen("ms0:/scene_cmd.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/scene_cmd.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -99,7 +134,7 @@ void PspDebugLogSceneCmd(void* addr, unsigned int code, unsigned int data1, unsi
 void PspDebugLogDmaCaller(void* retAddr) {
     char msg[48];
     int len = sprintf(msg, "  called from %p\n", retAddr);
-    SceUID fd = sceIoOpen("ms0:/dma_requests.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/dma_requests.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -125,7 +160,7 @@ void PspDebugLogDmaCaller(void* retAddr) {
 void PspDebugLogQueueEvict(void* evictedMq, void* newMq) {
     char msg[64];
     int len = sprintf(msg, "EVICT evicted=%p new=%p\n", evictedMq, newMq);
-    SceUID fd = sceIoOpen("ms0:/queue_evict.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/queue_evict.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -135,7 +170,7 @@ void PspDebugLogQueueEvict(void* evictedMq, void* newMq) {
 void PspDebugLogDmaSyncCaller(unsigned int vrom, unsigned int size, void* retAddr) {
     char msg[80];
     int len = sprintf(msg, "sync vrom=%08x size=%u called from %p\n", vrom, size, retAddr);
-    SceUID fd = sceIoOpen("ms0:/dma_sync_callers.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/dma_sync_callers.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -151,7 +186,7 @@ void PspDebugLogDmaRequest(unsigned int vrom, unsigned int size, void* ram) {
 
     sDmaReqCounter++;
     len = sprintf(msg, "#%u vrom=%08x size=%u ram=%p\n", sDmaReqCounter, vrom, size, ram);
-    fd = sceIoOpen("ms0:/dma_requests.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    fd = PspDebugLogOpen("ms0:/dma_requests.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -161,7 +196,7 @@ void PspDebugLogDmaRequest(unsigned int vrom, unsigned int size, void* ram) {
 void PspDebugLogCheckpoint(const char* name) {
     char msg[96];
     int len = sprintf(msg, "%s dmaReqCount=%u\n", name, sDmaReqCounter);
-    SceUID fd = sceIoOpen("ms0:/checkpoints.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/checkpoints.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -173,7 +208,7 @@ void PspDebugLogDmaAlignErr(unsigned int vrom, unsigned int size, unsigned int i
     char msg[128];
     int len = sprintf(msg, "vrom=%08x size=%u vrom+size=%08x iterStart=%08x iterEnd=%08x\n", vrom, size,
                        vrom + size, iterVromStart, iterVromEnd);
-    SceUID fd = sceIoOpen("ms0:/dma_align_err.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/dma_align_err.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -183,7 +218,7 @@ void PspDebugLogDmaAlignErr(unsigned int vrom, unsigned int size, unsigned int i
 void PspDebugLogVtxFixup(unsigned int marker, unsigned int numv, unsigned int vbidx, unsigned int vp) {
     char msg[128];
     int len = sprintf(msg, "marker=%08x numv=%u vbidx=%u vp=%08x\n", marker, numv, vbidx, vp);
-    SceUID fd = sceIoOpen("ms0:/vtx_fixup.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/vtx_fixup.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -193,7 +228,7 @@ void PspDebugLogVtxFixup(unsigned int marker, unsigned int numv, unsigned int vb
 void PspDebugLogBgCheck(int stage, unsigned int a, unsigned int b, unsigned int c, unsigned int d) {
     char msg[96];
     int len = sprintf(msg, "stage=%d a=%u b=%u c=%u d=%u\n", stage, a, b, c, d);
-    SceUID fd = sceIoOpen("ms0:/bgcheck.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/bgcheck.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
@@ -201,7 +236,7 @@ void PspDebugLogBgCheck(int stage, unsigned int a, unsigned int b, unsigned int 
 }
 
 void PspDebugLogRaw(const char* msg, int len) {
-    SceUID fd = sceIoOpen("ms0:/raw_log.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
+    SceUID fd = PspDebugLogOpen("ms0:/raw_log.txt");
     if (fd >= 0) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);

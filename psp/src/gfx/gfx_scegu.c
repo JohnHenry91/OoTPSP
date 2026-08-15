@@ -247,6 +247,13 @@ static void LogUnknownShaderId(uint32_t id) {
         sLoggedShaderIds[sNumLoggedShaderIds++] = id;
     }
 
+    /* Off by default, same reasoning as phase2_debug_log.c's
+     * PSP_DEBUG_LOG_ENABLED switch. Note this one had a latent trap: the
+     * de-dupe array above stops *recording* once it is full, but the write
+     * below is not inside that `if`, so past 256 distinct combiner IDs every
+     * single call would hit the filesystem again -- a per-draw-call I/O storm
+     * in a busy scene. Set to 1 only when collecting IDs on purpose. */
+#if 0
     char msg[32];
     int len = sprintf(msg, "%u\n", id);
     SceUID fd = sceIoOpen("ms0:/shader_log.txt", PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);
@@ -254,6 +261,7 @@ static void LogUnknownShaderId(uint32_t id) {
         sceIoWrite(fd, msg, len);
         sceIoClose(fd);
     }
+#endif
 }
 
 static inline uint32_t get_shader_index(uint32_t id) {
@@ -384,7 +392,26 @@ static inline int texenv_set_texture_texture(struct ShaderProgram *prg) {
     return GU_TFX_DECAL;
 }
 
+/* TEMPORARY DIAGNOSTIC (2026-08-14). Set to 1 to render every material with
+ * texturing switched off, so geometry comes out in pure vertex/shade colour.
+ * This splits the remaining "everything is white with diagonal hatching"
+ * problem cleanly in two, in a single test run:
+ *   - if the room then shows plausible, solid, *coloured* shaded geometry, the
+ *     vertex/lighting/combiner path is fine and the fault is entirely in the
+ *     texture stage (upload -> texman binding -> GU_TFX mode);
+ *   - if it still comes out white/hatched, texturing is NOT the culprit and the
+ *     problem is upstream in vertex colours, lighting or the combiner.
+ * Texture *decoding* itself has already been verified correct offline (room
+ * hakaana2's RGBA16 tiles decode byte-for-byte to the reference PNGs, modulo
+ * +-1 rounding in the 5->8 bit scale), so this is the right next split.
+ * Set back to 0 once the answer is known. */
+#define PSP_DIAG_DISABLE_TEXTURING 0
+
 static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
+#if PSP_DIAG_DISABLE_TEXTURING
+    sceGuDisable(GU_TEXTURE_2D);
+    return;
+#endif
     // If we have textures, Enable otherwise Disable
     if (prg->texture_used[0] || prg->texture_used[1]) {
         sceGuEnable(GU_TEXTURE_2D);
@@ -682,7 +709,16 @@ static void gfx_scegu_resample_8bit(const unsigned char *in, int inwidth, int in
  * to the plain (non-swizzled, already fully supported via texman_upload/
  * sceGuTexMode's own swizzle flag) upload path for anything shorter. */
 static inline void texman_upload_swizzle_or_plain(int width, int height, unsigned int type, void *buf) {
-    if (height < 8) {
+    /* swizzle_fast() works in 16-byte x 8-row blocks and computes
+     * width_blocks = width_bytes/16, height_blocks = height/8 -- for anything
+     * smaller than one full block in either axis that count is 0, so it writes
+     * *nothing at all* and the texture keeps whatever stale bytes the previous
+     * texture left in that buffer. The height<8 half of this guard was already
+     * here; the width side was missing, which matters for OoT specifically
+     * (lots of tiny 1-2 texel wide gradient/ramp textures that SM64, whose
+     * renderer this is derived from, never had). Fall back to a plain
+     * (unswizzled) upload in both cases. */
+    if (height < 8 || getMemorySize(width, 1, type) < 16) { /* getMemorySize(w,1,psm) == bytes per row */
         texman_upload(width, height, type, buf);
     } else {
         texman_upload_swizzle(width, height, type, buf);

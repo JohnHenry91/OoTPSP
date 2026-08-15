@@ -32,6 +32,31 @@ MtxF* sCurrentMatrix; // "Matrix_now"
 void Matrix_Init(GameState* gameState) {
     sCurrentMatrix = GAME_STATE_ALLOC(gameState, 20 * sizeof(MtxF), "../sys_matrix.c", 153);
     sMatrixStack = sCurrentMatrix;
+
+#if TARGET_PSP
+    /* Rebuild gIdentityMtx in the layout this port actually reads.
+     *
+     * Its static initialiser is gdSPDefMtx(), which uses the real N64 packing:
+     * two adjacent matrix elements share one s32 word,
+     * `(IPART(xx) << 16) | IPART(yx)`. That is a big-endian-shaped layout --
+     * on a big-endian machine the u16 halves land in element order, so
+     * reading the Mtx as a flat u16 array yields the matrix. PSP is
+     * little-endian, so the low half (yx) lands at the LOWER address and
+     * every adjacent pair of elements comes out swapped.
+     *
+     * Measured live: the first modelview matrix of each frame read back as
+     *   0 1 0 0 / 1 0 0 0 / 0 0 0 1 / 0 0 1 0
+     * i.e. a pairwise-swapped identity. z_room.c loads gIdentityMtx as the
+     * room mesh's modelview in eight places, so the whole room was being
+     * drawn through a permutation matrix.
+     *
+     * Everything else in the engine (guMtxF2L in libultra/gu/mtxutil.c,
+     * Matrix_MtxFToMtx below) writes the plain row-major u16 layout that
+     * gfx_pc.c's gfx_sp_matrix reads. Deriving the identity from
+     * gIdentityMtxF through that same path keeps exactly one Mtx layout in
+     * the build, instead of hand-packing a second one here. */
+    Matrix_MtxFToMtx(&gIdentityMtxF, &gIdentityMtx);
+#endif
 }
 
 void Matrix_Push(void) {

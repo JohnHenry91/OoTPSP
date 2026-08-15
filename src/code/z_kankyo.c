@@ -759,9 +759,21 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
             size = gNormalSkyFiles[newSkybox1Index].file.vromEnd - gNormalSkyFiles[newSkybox1Index].file.vromStart;
 
             osCreateMesgQueue(&envCtx->loadQueue, &envCtx->loadMsg, 1);
+#if TARGET_PSP
+            /* Same async-DMA/background-thread race already fixed for room
+             * loads (z_room.c), object loads (z_scene.c), and animation
+             * frames (z_skelanime.c) -- see z_room.c's Room_RequestNewRoom
+             * comment for the full explanation. Applies here too: skybox
+             * textures loaded async could be read by Skybox_Draw before the
+             * background DMA thread's write actually lands. */
+            DMA_REQUEST_SYNC(skyboxCtx->staticSegments[0], gNormalSkyFiles[newSkybox1Index].file.vromStart, size,
+                             "../z_kankyo.c", 1264);
+            osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+#else
             DMA_REQUEST_ASYNC(&envCtx->dmaRequest, skyboxCtx->staticSegments[0],
                               gNormalSkyFiles[newSkybox1Index].file.vromStart, size, 0, &envCtx->loadQueue, NULL,
                               "../z_kankyo.c", 1264);
+#endif
             envCtx->skybox1Index = newSkybox1Index;
         }
 
@@ -770,9 +782,15 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
             size = gNormalSkyFiles[newSkybox2Index].file.vromEnd - gNormalSkyFiles[newSkybox2Index].file.vromStart;
 
             osCreateMesgQueue(&envCtx->loadQueue, &envCtx->loadMsg, 1);
+#if TARGET_PSP
+            DMA_REQUEST_SYNC(skyboxCtx->staticSegments[1], gNormalSkyFiles[newSkybox2Index].file.vromStart, size,
+                             "../z_kankyo.c", 1281);
+            osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+#else
             DMA_REQUEST_ASYNC(&envCtx->dmaRequest, skyboxCtx->staticSegments[1],
                               gNormalSkyFiles[newSkybox2Index].file.vromStart, size, 0, &envCtx->loadQueue, NULL,
                               "../z_kankyo.c", 1281);
+#endif
             envCtx->skybox2Index = newSkybox2Index;
         }
 
@@ -784,16 +802,28 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
                        gNormalSkyFiles[newSkybox1Index].palette.vromStart;
 
                 osCreateMesgQueue(&envCtx->loadQueue, &envCtx->loadMsg, 1);
+#if TARGET_PSP
+                DMA_REQUEST_SYNC(skyboxCtx->palettes, gNormalSkyFiles[newSkybox1Index].palette.vromStart, size,
+                                 "../z_kankyo.c", 1307);
+                osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+#else
                 DMA_REQUEST_ASYNC(&envCtx->dmaRequest, skyboxCtx->palettes,
                                   gNormalSkyFiles[newSkybox1Index].palette.vromStart, size, 0, &envCtx->loadQueue, NULL,
                                   "../z_kankyo.c", 1307);
+#endif
             } else {
                 size = gNormalSkyFiles[newSkybox1Index].palette.vromEnd -
                        gNormalSkyFiles[newSkybox1Index].palette.vromStart;
                 osCreateMesgQueue(&envCtx->loadQueue, &envCtx->loadMsg, 1);
+#if TARGET_PSP
+                DMA_REQUEST_SYNC((u8*)skyboxCtx->palettes + size, gNormalSkyFiles[newSkybox1Index].palette.vromStart,
+                                 size, "../z_kankyo.c", 1320);
+                osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+#else
                 DMA_REQUEST_ASYNC(&envCtx->dmaRequest, (u8*)skyboxCtx->palettes + size,
                                   gNormalSkyFiles[newSkybox1Index].palette.vromStart, size, 0, &envCtx->loadQueue, NULL,
                                   "../z_kankyo.c", 1320);
+#endif
             }
         }
 
@@ -805,16 +835,28 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
                        gNormalSkyFiles[newSkybox2Index].palette.vromStart;
 
                 osCreateMesgQueue(&envCtx->loadQueue, &envCtx->loadMsg, 1);
+#if TARGET_PSP
+                DMA_REQUEST_SYNC(skyboxCtx->palettes, gNormalSkyFiles[newSkybox2Index].palette.vromStart, size,
+                                 "../z_kankyo.c", 1342);
+                osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+#else
                 DMA_REQUEST_ASYNC(&envCtx->dmaRequest, skyboxCtx->palettes,
                                   gNormalSkyFiles[newSkybox2Index].palette.vromStart, size, 0, &envCtx->loadQueue, NULL,
                                   "../z_kankyo.c", 1342);
+#endif
             } else {
                 size = gNormalSkyFiles[newSkybox2Index].palette.vromEnd -
                        gNormalSkyFiles[newSkybox2Index].palette.vromStart;
                 osCreateMesgQueue(&envCtx->loadQueue, &envCtx->loadMsg, 1);
+#if TARGET_PSP
+                DMA_REQUEST_SYNC((u8*)skyboxCtx->palettes + size, gNormalSkyFiles[newSkybox2Index].palette.vromStart,
+                                 size, "../z_kankyo.c", 1355);
+                osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+#else
                 DMA_REQUEST_ASYNC(&envCtx->dmaRequest, (u8*)skyboxCtx->palettes + size,
                                   gNormalSkyFiles[newSkybox2Index].palette.vromStart, size, 0, &envCtx->loadQueue, NULL,
                                   "../z_kankyo.c", 1355);
+#endif
             }
         }
 

@@ -150,8 +150,27 @@ void Graph_UCodeFaultClient(Gfx* workBuf) {
 }
 #endif
 
+/* TEMPORARY DIAGNOSTIC (2026-08-14): set to 1 to pin the engine to a single
+ * graphics pool instead of alternating between gGfxPools[0] and [1] each
+ * frame. The remaining symptom is a hard every-other-frame flicker, and the
+ * two pools are the main thing in the pipeline that alternates at exactly that
+ * rate. Safe to force on this port specifically: unlike real N64 hardware, the
+ * display list here is interpreted synchronously inside Graph_ExecuteAndDraw
+ * (see the TARGET_PSP block below), so the previous frame's list is fully
+ * consumed before this one is built -- the double-buffering the two pools
+ * exist for is unnecessary.
+ *   - flicker gone   => the fault is pool-related (memory layout/overlap or
+ *                       something not re-initialised per pool)
+ *   - flicker stays  => pools are innocent, look elsewhere
+ * Set back to 0 once the answer is known. */
+#define PSP_DIAG_SINGLE_GFX_POOL 0
+
 void Graph_InitTHGA(GraphicsContext* gfxCtx) {
+#if PSP_DIAG_SINGLE_GFX_POOL && TARGET_PSP
+    GfxPool* pool = &gGfxPools[0];
+#else
     GfxPool* pool = &gGfxPools[gfxCtx->gfxPoolIdx & 1];
+#endif
 
     pool->headMagic = GFXPOOL_HEAD_MAGIC;
     pool->tailMagic = GFXPOOL_TAIL_MAGIC;

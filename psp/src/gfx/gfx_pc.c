@@ -94,7 +94,16 @@ struct TextureHashmapNode {
     
     const uint8_t *texture_addr;
     uint8_t fmt, siz;
-    
+    /* TLUT the entry was decoded with. CI4/CI8 texels are palette indices, so
+     * the very same texture data yields completely different RGBA depending on
+     * which palette was loaded (G_LOADTLUT) at decode time. Keying only on
+     * addr/fmt/siz made the first-decoded palette stick for every later draw of
+     * that texture -- libultraship hit and documents this exact issue in
+     * Interpreter::ImportTexture ("so the same texture drawn with different
+     * palettes gets distinct cache entries"). Only compared for G_IM_FMT_CI, so
+     * non-paletted formats don't get spurious misses when the TLUT changes. */
+    const uint8_t *palette;
+
     uint32_t texture_id;
     uint8_t cms, cmt;
     bool linear_filter;
@@ -216,6 +225,118 @@ static float buf_vbo[MAX_BUFFERED * (26 * 3)] // 3 vertices in a triangle and 26
 static size_t buf_vbo_len;
 static size_t buf_num_vert;
 static size_t buf_vbo_num_tris;
+
+#if TARGET_PSP
+/* ---------------------------------------------------------------------------
+ * Per-frame rendering statistics.
+ *
+ * Deliberately plain globals and NOTHING else: this port's own sceIo debug
+ * logging turned out to be a crash cause once already, and any file I/O
+ * perturbs exactly the frame-timing-sensitive bugs we are trying to measure.
+ * These are meant to be read out of the running game's memory with PPSSPP's
+ * WebSocket debugger instead (link-time address from `psp-nm ootpsp.elf`,
+ * plus the runtime module base from `hle.module.list`).
+ *
+ * Three generations are kept because the open bug is an *every other frame*
+ * flicker: prev/prev2 hold the two last completed frames, so a single memory
+ * read shows the odd and the even frame side by side. `cur` is live and will
+ * be mid-update when read.
+ * ------------------------------------------------------------------------- */
+typedef struct {
+    uint32_t magic;         /* 'PGFX', so the block is findable in a raw dump */
+    uint32_t frame;         /* monotonic frame index                          */
+    uint32_t dl_cmds;       /* display list commands interpreted              */
+    uint32_t verts_loaded;  /* vertices through gfx_sp_vertex                 */
+    uint32_t tri_calls;     /* gfx_sp_tri1 entered                            */
+    uint32_t tri_rej_clip;  /* rejected: fully outside the view volume        */
+    uint32_t tri_rej_cull;  /* rejected: backface/frontface culling           */
+    uint32_t tris_buffered; /* triangles written into buf_vbo                 */
+    uint32_t tris_drawn;    /* triangles actually handed to the GE            */
+    uint32_t flushes;       /* gfx_flush() calls that really drew something   */
+    uint32_t tex_imports;   /* import_texture() -> real decode+upload         */
+    uint32_t tex_hits;      /* import_texture() -> served from the cache      */
+    uint32_t dropped;       /* 1 if gfx_wapi->start_frame() refused the frame */
+} PspGfxFrameStats;
+
+PspGfxFrameStats gPspGfxStats;      /* live, currently being built */
+PspGfxFrameStats gPspGfxStatsPrev;  /* last completed frame        */
+PspGfxFrameStats gPspGfxStatsPrev2; /* the one before that         */
+
+/* First projection and modelview matrix of the frame, three generations like
+ * everything else here so the two alternating frame types can be compared in
+ * one read. */
+#define PSP_MTX_PROJ_SLOTS 4
+/* A frame does ~45 modelview loads; 64 leaves headroom without making the
+ * block too large to read in a single debugger request. */
+#define PSP_MTX_MV_SLOTS 64
+
+typedef struct {
+    uint32_t magic;      /* 'PMTX' */
+    uint32_t frame;
+    uint32_t proj_loads; /* G_MTX loads with G_MTX_PROJECTION this frame */
+    uint32_t mv_loads;
+    /* Every projection load, not just the first: a frame does 4 of them, and
+     * the room's actual view matrix is one of the later ones. */
+    float proj[PSP_MTX_PROJ_SLOTS][16];
+    float mv_first[16];
+    /* The combined modelview-projection actually in force when the frame's
+     * first triangle was rejected as outside the view volume. The two
+     * bistable frame types submit identical geometry but reject wildly
+     * different amounts of it, so this is the value that has to differ. */
+    float mp_at_reject[16];
+    uint32_t reject_captured;
+    /* Per-modelview-load breakdown.
+     *
+     * Measured: identical geometry (dl_cmds, verts_loaded, tri_calls all
+     * constant), identical projection (all four loads), identical mv_first,
+     * and an identical MVP at the first rejected triangle -- yet tri_rej_clip
+     * swings between ~10 and ~1464 from frame to frame. Since a frame does 45
+     * modelview loads and only the first was ever captured, the divergence
+     * has to be in one of the other 44, i.e. in a per-object transform rather
+     * than the camera.
+     *
+     * So record, per load index: a hash of the matrix that load produced, and
+     * how many triangles were submitted and clip-rejected while it was the
+     * one in force. Diffing two consecutive frames by index names the object
+     * whose transform is unstable. Hashes rather than the matrices themselves
+     * so all 64 slots fit in a block small enough to read in one go. */
+    uint32_t mv_hash[PSP_MTX_MV_SLOTS];
+    uint32_t mv_tris[PSP_MTX_MV_SLOTS];
+    uint32_t mv_rej[PSP_MTX_MV_SLOTS];
+} PspGfxMtxTrace;
+
+PspGfxMtxTrace gPspGfxMtx;
+PspGfxMtxTrace gPspGfxMtxPrev;
+PspGfxMtxTrace gPspGfxMtxPrev2;
+
+/* Which modelview-load slot is currently in force, so triangle submissions
+ * and clip rejections can be attributed to the transform that produced them.
+ * Reset per frame alongside the trace block. */
+static uint32_t sPspMtxCurSlot;
+
+/* FNV-1a over the matrix's raw bit patterns. Exact-equality only -- the
+ * question is "is this transform identical between the two frame types",
+ * which is a bitwise question, so no float tolerance is wanted here. */
+static uint32_t psp_mtx_hash(const float m[4][4]) {
+    const unsigned char *p = (const unsigned char *)m;
+    uint32_t h = 2166136261u;
+    unsigned int i;
+
+    for (i = 0; i < sizeof(float) * 16; i++) {
+        h ^= p[i];
+        h *= 16777619u;
+    }
+    return h;
+}
+
+#define PSP_GFX_MTX_MAGIC 0x504D5458u /* 'PMTX' */
+
+#define PSP_GFX_STATS_MAGIC 0x50474658u /* 'PGFX' */
+#define GFXSTAT_ADD(field, n) (gPspGfxStats.field += (uint32_t)(n))
+#else
+#define GFXSTAT_ADD(field, n) ((void)0)
+#endif
+#define GFXSTAT_INC(field) GFXSTAT_ADD(field, 1)
 
 static struct GfxWindowManagerAPI *gfx_wapi;
 static struct GfxRenderingAPI *gfx_rapi;
@@ -436,6 +557,8 @@ static void gfx_flush(void) {
     if (buf_vbo_len > 0) {
         //int num = buf_vbo_num_tris;
         //unsigned long t0 = get_time();
+        GFXSTAT_INC(flushes);
+        GFXSTAT_ADD(tris_drawn, buf_vbo_num_tris);
         gfx_rapi->draw_triangles((float *)buf_vbo, buf_vbo_len, buf_vbo_num_tris);
         buf_vbo_len = 0;
         buf_num_vert = 0;
@@ -529,7 +652,8 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
     hash = (hash >> 5) & 0x3ff;
     struct TextureHashmapNode **node = &gfx_texture_cache.hashmap[hash];
     while (*node != NULL && *node - gfx_texture_cache.pool < (int)gfx_texture_cache.pool_pos) {
-        if ((*node)->texture_addr == orig_addr && (*node)->fmt == fmt && (*node)->siz == siz) {
+        if ((*node)->texture_addr == orig_addr && (*node)->fmt == fmt && (*node)->siz == siz &&
+            (fmt != G_IM_FMT_CI || (*node)->palette == rdp.palette)) {
             gfx_rapi->select_texture(tile, (*node)->texture_id);
             gfx_rapi->set_sampler_parameters(0, (*node)->linear_filter, (*node)->cms, (*node)->cmt);
             *n = *node;
@@ -579,14 +703,64 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
     (*node)->texture_addr = orig_addr;
     (*node)->fmt = fmt;
     (*node)->siz = siz;
+    (*node)->palette = rdp.palette;
     *n = *node;
     return false;
 }
 
+/* ---------------------------------------------------------------------------
+ * Texture source byte order (PSP)
+ *
+ * Texture pixel data reaches us through two paths with DIFFERENT byte orders,
+ * and every per-format hack this file used to carry was really an attempt to
+ * paper over that:
+ *
+ *  1. Compiled-in assets. The extracted assets declare texture data as
+ *     `u64 name[TEX_LEN(u64, W, H, siz)] = { 0x..., ... }` (see e.g.
+ *     assets/objects/gameplay_keep/link_textures.c). Those are 64-bit
+ *     *literals*: on a little-endian target the compiler stores each one with
+ *     its 8 bytes reversed relative to the N64's big-endian byte stream. Read
+ *     byte-wise (which is what every importer below does) they come out
+ *     reversed in 8-byte groups.
+ *  2. ROM/DMA-loaded assets. Scene/room/object files are copied verbatim out
+ *     of the big-endian .z64 by PspRom_Read; z_endian_fixup_psp.c only ever
+ *     swaps *struct fields* (pointers, counts, s16 arrays, display-list
+ *     commands), never raw pixel data. Byte-wise reads are already correct.
+ *
+ * Structured compiled-in data (Vtx, Gfx, s16 tables) is unaffected: it is
+ * emitted as native-endian fields and read back as such.
+ *
+ * The two cases are distinguishable at runtime by address: anything with an
+ * initializer lives in the module's initialized-data range [_ftext,
+ * __bss_start), while DMA targets are .bss/arena/heap, i.e. at or above
+ * __bss_start. So we decide once per texture (and once per TLUT) and index
+ * through tex_src_index() everywhere, instead of hardcoding an assumption per
+ * pixel format. */
+extern char _ftext[];
+extern char __bss_start[];
+
+static inline bool tex_needs_u64_unswap(const void *addr) {
+    const char *p = (const char *)addr;
+    return p >= _ftext && p < __bss_start;
+}
+
+/* Undo the compiler's little-endian storage of a u64 literal: byte i of the
+ * intended big-endian stream lives at (i & ~7) + (7 - (i & 7)). */
+static inline uint32_t tex_src_index(uint32_t i, bool unswap) {
+    return unswap ? ((i & ~7u) | (7u - (i & 7u))) : i;
+}
+
+/* Read helpers used by every importer below. TEXSRC needs `tile` and
+ * `tex_unswap` in scope, PALSRC needs `pal_unswap`. */
+#define TEXSRC(i) (rdp.loaded_texture[tile].addr[tex_src_index((i), tex_unswap)])
+#define PALSRC(i) (rdp.palette[tex_src_index((i), pal_unswap)])
+/* ------------------------------------------------------------------------ */
+
 static void import_texture_rgba16(int tile) {
+    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
     uint16_t rgba16_buf[4096] __attribute__ ((aligned(4)));    
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes / 2; i++) {
-        uint16_t col16 = (rdp.loaded_texture[tile].addr[2 * i] << 8) | rdp.loaded_texture[tile].addr[2 * i + 1];
+        uint16_t col16 = (TEXSRC(2 * i) << 8) | TEXSRC(2 * i + 1);
         const uint8_t a = col16 & 1;
         const uint8_t r = (col16 >> 11) & 0x1f;
         const uint8_t g = (col16 >> 6) & 0x1f;
@@ -601,16 +775,37 @@ static void import_texture_rgba16(int tile) {
 }
 
 static void import_texture_rgba32(int tile) {
+    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
     uint32_t width = rdp.texture_tile[tile].line_size_bytes / 2;
     uint32_t height = (rdp.loaded_texture[tile].size_bytes / 2) / rdp.texture_tile[tile].line_size_bytes;
-    gfx_rapi->upload_texture(rdp.loaded_texture[tile].addr, width, height, GU_PSM_8888);
+
+    /* The DMA'd case (by far the common one) still uploads straight from the
+     * source with no copy; only compiled-in u64-literal data needs the
+     * unswap pass, and then we have to stage it. */
+    if (!tex_unswap) {
+        gfx_rapi->upload_texture(rdp.loaded_texture[tile].addr, width, height, GU_PSM_8888);
+        return;
+    }
+
+    {
+        static uint8_t rgba32_buf[16384];
+        uint32_t n = rdp.loaded_texture[tile].size_bytes;
+        if (n > sizeof(rgba32_buf)) {
+            n = sizeof(rgba32_buf);
+        }
+        for (uint32_t i = 0; i < n; i++) {
+            rgba32_buf[i] = TEXSRC(i);
+        }
+        gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+    }
 }
 
 static void import_texture_ia4(int tile) {
+    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
     uint8_t rgba32_buf[32768] __attribute__ ((aligned(4)));
     
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
-        uint8_t byte = rdp.loaded_texture[tile].addr[i / 2];
+        uint8_t byte = TEXSRC(i / 2);
         uint8_t part = (byte >> (4 - (i % 2) * 4)) & 0xf;
         uint8_t intensity = part >> 1;
         uint8_t alpha = part & 1;
@@ -630,11 +825,12 @@ static void import_texture_ia4(int tile) {
 }
 
 static void import_texture_ia8(int tile) {
+    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
     uint8_t rgba32_buf[16384]__attribute__ ((aligned(4)));
     
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
-        uint8_t intensity = rdp.loaded_texture[tile].addr[i] >> 4;
-        uint8_t alpha = rdp.loaded_texture[tile].addr[i] & 0xf;
+        uint8_t intensity = TEXSRC(i) >> 4;
+        uint8_t alpha = TEXSRC(i) & 0xf;
         uint8_t r = intensity;
         uint8_t g = intensity;
         uint8_t b = intensity;
@@ -651,11 +847,12 @@ static void import_texture_ia8(int tile) {
 }
 
 static void import_texture_ia16(int tile) {
+    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
     uint8_t rgba32_buf[8192];
     
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes / 2; i++) {
-        uint8_t intensity = rdp.loaded_texture[tile].addr[2 * i];
-        uint8_t alpha = rdp.loaded_texture[tile].addr[2 * i + 1];
+        uint8_t intensity = TEXSRC(2 * i);
+        uint8_t alpha = TEXSRC(2 * i + 1);
         uint8_t r = intensity;
         uint8_t g = intensity;
         uint8_t b = intensity;
@@ -672,10 +869,11 @@ static void import_texture_ia16(int tile) {
 }
 
 static void import_texture_i4(int tile) {
+    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
     uint8_t rgba32_buf[32768];
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
-        uint8_t byte = rdp.loaded_texture[tile].addr[i / 2];
+        uint8_t byte = TEXSRC(i / 2);
         uint8_t part = (byte >> (4 - (i % 2) * 4)) & 0xf;
         uint8_t intensity = part;
         uint8_t r = intensity;
@@ -699,29 +897,11 @@ static void import_texture_i4(int tile) {
 }
 
 static void import_texture_i8(int tile) {
+    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
     uint8_t rgba32_buf[16384];
 
-    /* Real N64 RDP hardware stores/loads <=8bpp texel formats (I4/I8/CI4/
-     * CI8) into TMEM with the bytes of every 8-byte (64-bit) word reversed
-     * -- a real, documented TMEM addressing quirk, invisible on real
-     * hardware because the RDP's own texture-fetch stage reads TMEM with a
-     * matching addressing scheme that cancels it back out. Our pipeline
-     * treats "loaded texture bytes" as directly-consumable linear source
-     * data with no separate fetch-stage un-swizzle, so it needs to be
-     * undone once, here. Confirmed empirically (not just from hardware
-     * docs) via a byte-for-byte diff of two different rows of OoT's boot-
-     * logo "NINTENDO 64" text glyph texture (192x2, G_IM_FMT_I/G_IM_SIZ_8b)
-     * against its known-correct extracted source PNG: every single 8-byte
-     * chunk of both tested rows matched EXACTLY when reversed (48/48 chunks
-     * across the two rows) -- this is what was causing the text to render
-     * as legible-but-horizontally-mirrored letters after the swizzle fix.
-     * Not yet verified for I4/CI4/CI8 (this project's other <=8bpp import
-     * functions) -- likely affected by the same real hardware behavior, but
-     * left alone until confirmed rather than assumed. */
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
-        uint32_t chunk_base = i & ~7u;
-        uint32_t src_i = chunk_base + (7 - (i - chunk_base));
-        uint8_t intensity = rdp.loaded_texture[tile].addr[src_i];
+        uint8_t intensity = TEXSRC(i);
         uint8_t r = intensity;
         uint8_t g = intensity;
         uint8_t b = intensity;
@@ -741,12 +921,14 @@ static void import_texture_i8(int tile) {
 
 
 static void import_texture_ci4(int tile) {
+    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool pal_unswap = tex_needs_u64_unswap(rdp.palette);
     uint8_t rgba32_buf[32768];
-    
+
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
-        uint8_t byte = rdp.loaded_texture[tile].addr[i / 2];
+        uint8_t byte = TEXSRC(i / 2);
         uint8_t idx = (byte >> (4 - (i % 2) * 4)) & 0xf;
-        uint16_t col16 = (rdp.palette[idx * 2] << 8) | rdp.palette[idx * 2 + 1]; // Big endian load
+        uint16_t col16 = (PALSRC(idx * 2) << 8) | PALSRC(idx * 2 + 1); // Big endian load
         uint8_t a = col16 & 1;
         uint8_t r = col16 >> 11;
         uint8_t g = (col16 >> 6) & 0x1f;
@@ -764,11 +946,13 @@ static void import_texture_ci4(int tile) {
 }
 
 static void import_texture_ci8(int tile) {
+    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool pal_unswap = tex_needs_u64_unswap(rdp.palette);
     uint8_t rgba32_buf[16384];
-    
+
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
-        uint8_t idx = rdp.loaded_texture[tile].addr[i];
-        uint16_t col16 = (rdp.palette[idx * 2] << 8) | rdp.palette[idx * 2 + 1]; // Big endian load
+        uint8_t idx = TEXSRC(i);
+        uint16_t col16 = (PALSRC(idx * 2) << 8) | PALSRC(idx * 2 + 1); // Big endian load
         uint8_t a = col16 & 1;
         uint8_t r = col16 >> 11;
         uint8_t g = (col16 >> 6) & 0x1f;
@@ -790,8 +974,10 @@ static void import_texture(int tile) {
     uint8_t siz = rdp.texture_tile[tile].siz;
 
     if (gfx_texture_cache_lookup(tile, &rendering_state.textures[tile], rdp.loaded_texture[tile].addr, fmt, siz)) {
+        GFXSTAT_INC(tex_hits);
         return;
     }
+    GFXSTAT_INC(tex_imports);
 
     //int t0 = get_time();
     if (fmt == G_IM_FMT_RGBA) {
@@ -949,6 +1135,18 @@ static void gfx_sp_matrix(uint8_t parameters, const int32_t *addr) {
         } else {
             gfx_matrix_mul(rsp.P_matrix, matrix, rsp.P_matrix);
         }
+#if TARGET_PSP
+        /* Capture the frame's first projection matrix. The frame stats showed
+         * identical geometry (same dl_cmds/verts/tri_calls) producing wildly
+         * different clip-rejection counts on alternating frames, which can
+         * only be the transform -- so compare the actual matrix across the two
+         * frame types instead of reasoning about it. */
+        if (gPspGfxMtx.proj_loads < PSP_MTX_PROJ_SLOTS) {
+            memcpy(gPspGfxMtx.proj[gPspGfxMtx.proj_loads], rsp.P_matrix,
+                   sizeof(gPspGfxMtx.proj[0]));
+        }
+        ++gPspGfxMtx.proj_loads;
+#endif
         /* Allocate space in DL for current proj matrix */
         void *matrix_inline = (void *)ALIGN((unsigned int)sceGuGetMemory(sizeof(rsp.P_matrix)+15), 16);
         memcpy(matrix_inline, rsp.P_matrix, sizeof(rsp.P_matrix));
@@ -963,6 +1161,21 @@ static void gfx_sp_matrix(uint8_t parameters, const int32_t *addr) {
         } else {
             gfx_matrix_mul(rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1], matrix, rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1]);
         }
+#if TARGET_PSP
+        ++gPspGfxMtx.mv_loads;
+        if (gPspGfxMtx.mv_loads == 1) {
+            memcpy(gPspGfxMtx.mv_first,
+                   rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1],
+                   sizeof(gPspGfxMtx.mv_first));
+        }
+        /* Attribute everything drawn from here on to this load, and record
+         * what transform it actually produced. */
+        sPspMtxCurSlot = gPspGfxMtx.mv_loads - 1;
+        if (sPspMtxCurSlot < PSP_MTX_MV_SLOTS) {
+            gPspGfxMtx.mv_hash[sPspMtxCurSlot] =
+                psp_mtx_hash(rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1]);
+        }
+#endif
         /* Allocate space in DL for current model matrix */
         void *matrix_inline = (void *)ALIGN((unsigned int)sceGuGetMemory(sizeof(rsp.P_matrix)+15), 16);
         memcpy(matrix_inline, rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1], sizeof(rsp.P_matrix));
@@ -1000,6 +1213,7 @@ struct ShaderProgram {
 static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *vertices) {
     float temp_vec[4] __attribute__((aligned(16)));
     float proj_vec[4] __attribute__((aligned(16)));
+    GFXSTAT_ADD(verts_loaded, n_vertices);
     for (size_t i = 0; i < n_vertices; i++, dest_index++) {
         const Vtx_t *v = &vertices[i].v;
         const Vtx_tn *vn = &vertices[i].n;
@@ -1156,8 +1370,26 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     struct LoadedVertex *v3 = &rsp.loaded_vertices[vtx3_idx];
     struct LoadedVertex *v_arr[3] = {v1, v2, v3};
 
+    GFXSTAT_INC(tri_calls);
+#if TARGET_PSP
+    if (sPspMtxCurSlot < PSP_MTX_MV_SLOTS) {
+        ++gPspGfxMtx.mv_tris[sPspMtxCurSlot];
+    }
+#endif
+
     if (v1->clip_rej & v2->clip_rej & v3->clip_rej) {
         // The whole triangle lies outside the visible area
+        GFXSTAT_INC(tri_rej_clip);
+#if TARGET_PSP
+        if (sPspMtxCurSlot < PSP_MTX_MV_SLOTS) {
+            ++gPspGfxMtx.mv_rej[sPspMtxCurSlot];
+        }
+        if (!gPspGfxMtx.reject_captured) {
+            gPspGfxMtx.reject_captured = 1;
+            memcpy(gPspGfxMtx.mp_at_reject, rsp.MP_matrix,
+                   sizeof(gPspGfxMtx.mp_at_reject));
+        }
+#endif
         return;
     }
 #if TARGET_PSP
@@ -1182,13 +1414,14 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
 
         switch (rsp.geometry_mode & G_CULL_BOTH) {
             case G_CULL_FRONT:
-                if (cross <= 0) return;
+                if (cross <= 0) { GFXSTAT_INC(tri_rej_cull); return; }
                 break;
             case G_CULL_BACK:
-                if (cross >= 0) return;
+                if (cross >= 0) { GFXSTAT_INC(tri_rej_cull); return; }
                 break;
             case G_CULL_BOTH:
                 // Why is this even an option?
+                GFXSTAT_INC(tri_rej_cull);
                 return;
         }
     }
@@ -1306,7 +1539,15 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     bool use_texture = used_textures[0] || used_textures[1];
     uint32_t tex_width = (rdp.texture_tile[0].lrs - rdp.texture_tile[0].uls + 4) / 4;
     uint32_t tex_height = (rdp.texture_tile[0].lrt - rdp.texture_tile[0].ult + 4) / 4;
-    
+
+    /* Make room for the *whole* primitive before writing any of it. Clipping
+     * expands one triangle into up to 6 (_clipped_vertices[18]), so checking
+     * only after the fact (see the flush at the end of this function) still
+     * lets a single call run off the end of buf_vbo[MAX_BUFFERED * 3]. */
+    if (buf_vbo_num_tris + (clipped_vertices_num / 3) > MAX_BUFFERED) {
+        gfx_flush();
+    }
+
     size_t i;
     for (i = 0; i < clipped_vertices_num; i++) {
         buf_vbo[buf_num_vert].x = clipped_vertices[i]->x;
@@ -1402,7 +1643,18 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         buf_vbo_len += sizeof(psp_fast_t);
     }
     buf_vbo_num_tris += clipped_vertices_num/3;
-    if (buf_vbo_num_tris == MAX_BUFFERED) {
+    GFXSTAT_ADD(tris_buffered, clipped_vertices_num / 3);
+    /* MUST be >=, not ==. Clipping turns one input triangle into a fan of up to
+     * ~7, so this counter grows in steps of 1..7 and can step straight *over*
+     * MAX_BUFFERED (e.g. 1023 -> 1026) without ever being equal to it. When
+     * that happens the flush below never runs and the loop above keeps writing
+     * past the end of buf_vbo[MAX_BUFFERED * 3] into whatever static data
+     * follows it -- a real out-of-bounds write, which matches this port's
+     * long-standing "renders for a while, then geometry degrades and it
+     * eventually dies on a wild jump" behaviour. Inherited as `==` from
+     * sm64-port-psp (gfx_pc.c:1308 there); SM64 evidently never hit the skip,
+     * OoT's much heavier, camera-inside-the-room clipping load does. */
+    if (buf_vbo_num_tris >= MAX_BUFFERED) {
         gfx_flush();
     }
 }
@@ -2144,9 +2396,98 @@ static void gfx_sp_set_other_mode(uint32_t shift, uint32_t num_bits, uint64_t mo
  * libultraship's low-bit marker convention, SegAddr() in
  * reference/libultraship/src/fast/interpreter.cpp, for a collision-proof
  * alternative discriminator if this becomes a real problem). */
+#if TARGET_PSP
+/* PSP user RAM is 0x08800000..0x09FFFFFF -- that window is why segments 8 and
+ * 9 collide with native pointers at all; see the long note in seg_addr(). */
+
+/* Genuine segment-8/9 references carry a tiny offset -- they name one small
+ * texture or one runtime-built display list, in practice at offset 0 and
+ * measured never above a few tens of KB. Native pointers that merely start
+ * with 0x08/0x09 sit far higher: the graphics pools are at offset ~0x189000
+ * and everything reached through the 0x08 page is at offset >= 0x800000. */
+/* PSP_SEG89_NATIVE_MIN / PSP_SEG89_AMBIGUOUS_MIN come from
+ * include/segmented_address.h (included above). They are deliberately shared
+ * with SEGMENTED_TO_VIRTUAL's C-side resolver rather than duplicated here:
+ * the two resolvers must classify the same value the same way, and this
+ * threshold was previously defined twice, which is exactly how they drifted
+ * apart in the first place (the interpreter got the offset-magnitude fix, the
+ * C side was left on the weaker "is the slot populated" test). */
+
+/* How often a value that looked like a segment-8/9 reference was passed
+ * through as a native pointer instead, split by segment number. */
+unsigned int gPspSegAddrNative8 = 0;
+unsigned int gPspSegAddrNative9 = 0;
+/* Values landing in the unproven middle band, so the threshold above can be
+ * checked against reality instead of trusted. Should stay at 0. */
+unsigned int gPspSegAmbiguous8 = 0;
+unsigned int gPspSegAmbiguous9 = 0;
+unsigned int gPspSegAmbiguousLast = 0;
+#endif
+
 static inline void *seg_addr(uintptr_t w1) {
     uint32_t segNum = SEGMENT_NUMBER(w1);
     if (segNum < NUM_SEGMENTS && gSegments[segNum] != 0) {
+#if TARGET_PSP
+        /* THE segment/pointer collision on this platform.
+         *
+         * PSP user RAM is 0x08800000..0x09FFFFFF, so *every* native pointer
+         * here carries 0x08 or 0x09 in its top byte -- which is exactly the
+         * bit pattern an N64 segmented address uses for segments 8 and 9, and
+         * OoT genuinely uses both (Player's eye and mouth textures).
+         *
+         * On real hardware there is no ambiguity: a native N64 pointer is
+         * KSEG0 (0x80......), whose segment nibble reads as 0, and
+         * gSegments[0] is 0, so the check above lets it fall through
+         * untouched. On PSP that discriminator does not exist. The moment a
+         * frame's display list executes gSPSegment(8, ...), every subsequent
+         * native pointer beginning 0x08 gets "resolved" into garbage --
+         * measured live: gLinkChildWaistNearDL (0x088e5fa8) was rewritten to
+         * 0x091ebc40, inside gZBuffer, and the interpreter then walked
+         * linearly through ~1.6MB of zeroes until the runaway guard stopped
+         * it, every single frame.
+         *
+         * A genuine segment-8/9 reference is a small offset into one small
+         * texture and therefore sits below the start of RAM; a native
+         * pointer's low 24 bits are its offset inside the RAM window. So
+         * anything landing inside the RAM window is a pointer, not a
+         * reference.
+         *
+         * Only segments 8 and 9 can collide -- every other segment's
+         * reference range (0x00xxxxxx-0x07xxxxxx, 0x0Axxxxxx+) lies outside
+         * the RAM window entirely. For those two, offset magnitude is the
+         * discriminator, and it separates cleanly in measured traffic:
+         * genuine references sit at offset 0 (e.g. the segment-9 reference
+         * 0x09000000 that a room display list really does make), while native
+         * pointers are megabytes up.
+         *
+         * An earlier version of this check used "inside the RAM window" as
+         * the test. That is exact for segment 8, whose references stay below
+         * the start of RAM, but it silently misread every segment-9 reference
+         * as a pointer -- which is what sent the interpreter wandering
+         * through 0x0900xxxx once the segment-8 half was fixed. */
+        if ((segNum == 8 || segNum == 9)
+            && SEGMENT_OFFSET(w1) >= PSP_SEG89_NATIVE_MIN) {
+            if (segNum == 8) {
+                ++gPspSegAddrNative8;
+            } else {
+                ++gPspSegAddrNative9;
+            }
+            return (void *)w1;
+        }
+        if ((segNum == 8 || segNum == 9)
+            && SEGMENT_OFFSET(w1) >= PSP_SEG89_AMBIGUOUS_MIN) {
+            /* Neither interpretation is proven here. Resolve as segmented
+             * (the conservative choice -- it matches real hardware) but
+             * record it, because a non-zero count means this threshold needs
+             * revisiting rather than trusting. */
+            if (segNum == 8) {
+                ++gPspSegAmbiguous8;
+            } else {
+                ++gPspSegAmbiguous9;
+            }
+            gPspSegAmbiguousLast = (uint32_t)w1;
+        }
+#endif
         return (void *)(gSegments[segNum] + SEGMENT_OFFSET(w1));
     }
     return (void *) w1;
@@ -2167,15 +2508,130 @@ static inline void *seg_addr(uintptr_t w1) {
  * each individual recursive call could stay under the cap while the total
  * work across all of them never terminates. */
 unsigned int gPspGfxOpcodeGuardCount = 0;
+
+/* ---------------------------------------------------------------------------
+ * Display-list walk trace.
+ *
+ * The frame statistics showed dl_cmds pinned at exactly the guard limit on
+ * EVERY frame while only ~650 triangles were ever submitted -- i.e. the
+ * interpreter is not drawing 200k commands, it is *wandering* through
+ * something that is not a display list and never yields a G_ENDDL. This
+ * records where that happens so it can be identified from the address alone.
+ *
+ * Same three-generation layout and the same no-file-I/O rule as
+ * PspGfxFrameStats above.
+ * ------------------------------------------------------------------------- */
+#define PSP_DL_PROBES 4
+#define PSP_DL_PROBE_EVERY 25000
+#define PSP_DL_JUMPS 16
+/* A healthy room frame measured max_depth 4; the crashing one hit 47. */
+#define PSP_DL_SNAP_LEVELS 24
+#define PSP_DL_SNAP_DEPTH  PSP_DL_SNAP_LEVELS
+
+typedef struct {
+    uint32_t magic;      /* 'PDLT'                                            */
+    uint32_t frame;
+    uint32_t guard_hit;  /* 1 if the runaway guard tripped this frame         */
+    uint32_t guard_cmd;  /* address of the command it tripped on              */
+    uint32_t guard_w0;   /* that command's words, to see what it thinks it is */
+    uint32_t guard_w1;
+    uint32_t guard_depth;/* gfx_run_dl recursion depth at the trip            */
+    uint32_t dl_calls;   /* G_DL, push variant (recurses)                     */
+    uint32_t dl_branches;/* G_DL, branch variant (gSPBranchList)              */
+    uint32_t max_depth;
+    uint32_t dl_top;     /* the Gfx* gfx_run() itself was handed              */
+    uint32_t njumps;     /* jumps recorded (may exceed PSP_DL_JUMPS)          */
+    /* cmd address sampled every PSP_DL_PROBE_EVERY commands: if the walk is
+     * stuck in a small region these cluster, if it is marching linearly
+     * through memory they climb by a steady ~200KB per probe. */
+    uint32_t probe[PSP_DL_PROBES];
+    /* G_DL jumps as a RING of the most recent PSP_DL_JUMPS: the command's own
+     * address, the raw w1 before segment resolution, the address actually
+     * jumped to, and the recursion depth. A healthy frame now makes ~400
+     * jumps, so the interesting ones are at the end, not the start -- and a
+     * cycle shows up immediately as repeating addresses. Slot for jump i is
+     * i % PSP_DL_JUMPS; the reader reorders using njumps. */
+    uint32_t jump_from[PSP_DL_JUMPS];
+    uint32_t jump_w1[PSP_DL_JUMPS];
+    uint32_t jump_to[PSP_DL_JUMPS];
+    uint32_t jump_depth[PSP_DL_JUMPS];
+    /* Snapshot of the whole display-list call stack (the cmd address each
+     * level was entered at) taken the first time the recursion depth reaches
+     * PSP_DL_SNAP_DEPTH. A runaway nesting shows up here directly: a cycle
+     * repeats the same few addresses down the levels, whereas a legitimately
+     * deep scene shows all-different ones. */
+    uint32_t snap_taken;
+    uint32_t depth_aborts; /* recursions refused by PSP_DL_MAX_DEPTH */
+    uint32_t snap[PSP_DL_SNAP_LEVELS];
+} PspGfxDlTrace;
+
+PspGfxDlTrace gPspGfxDlTrace;
+PspGfxDlTrace gPspGfxDlTracePrev;
+PspGfxDlTrace gPspGfxDlTracePrev2;
+
+#define PSP_DL_TRACE_MAGIC 0x50444C54u /* 'PDLT' */
+
+static unsigned int sPspGfxDlDepth = 0;
+/* cmd address each recursion level was entered at, for the snapshot above. */
+static uint32_t sPspDlEntry[PSP_DL_SNAP_LEVELS];
+
+static void PspGfxDlRecordJump(const void *from, uint32_t w1, const void *to) {
+    unsigned int i = gPspGfxDlTrace.njumps++ % PSP_DL_JUMPS;
+    gPspGfxDlTrace.jump_from[i] = (uint32_t)(uintptr_t)from;
+    gPspGfxDlTrace.jump_w1[i] = w1;
+    gPspGfxDlTrace.jump_to[i] = (uint32_t)(uintptr_t)to;
+    gPspGfxDlTrace.jump_depth[i] = sPspGfxDlDepth;
+}
 #endif
 
+/* Companion to the command-count guard below: cap nesting too. A display list
+ * that never yields a G_ENDDL makes the interpreter recurse without ever
+ * unwinding, which blows the real PSP thread stack long before the command
+ * counter runs out -- that is a hard crash rather than a bounded slow frame.
+ * Measured healthy room frames peak at depth 4, so 64 is far above anything
+ * legitimate. */
+#define PSP_DL_MAX_DEPTH 64
+
 static void gfx_run_dl(Gfx* cmd) {
+#if TARGET_PSP
+    if (sPspGfxDlDepth >= PSP_DL_MAX_DEPTH) {
+        ++gPspGfxDlTrace.depth_aborts;
+        return; /* nothing pushed yet, so nothing to unwind */
+    }
+    if (++sPspGfxDlDepth > gPspGfxDlTrace.max_depth) {
+        gPspGfxDlTrace.max_depth = sPspGfxDlDepth;
+    }
+    if (sPspGfxDlDepth <= PSP_DL_SNAP_LEVELS) {
+        sPspDlEntry[sPspGfxDlDepth - 1] = (uint32_t)(uintptr_t)cmd;
+        if (sPspGfxDlDepth == PSP_DL_SNAP_DEPTH && !gPspGfxDlTrace.snap_taken) {
+            gPspGfxDlTrace.snap_taken = 1;
+            memcpy(gPspGfxDlTrace.snap, sPspDlEntry, sizeof(sPspDlEntry));
+        }
+    }
+#define PSP_DL_RETURN() do { --sPspGfxDlDepth; return; } while (0)
+#else
+#define PSP_DL_RETURN() return
+#endif
     for (;;) {
         uint32_t opcode = cmd->words.w0 >> 24;
 
 #if TARGET_PSP
-        if (++gPspGfxOpcodeGuardCount > 200000) {
-            return;
+        ++gPspGfxOpcodeGuardCount;
+        if (gPspGfxOpcodeGuardCount % PSP_DL_PROBE_EVERY == 0) {
+            unsigned int slot = gPspGfxOpcodeGuardCount / PSP_DL_PROBE_EVERY - 1;
+            if (slot < PSP_DL_PROBES) {
+                gPspGfxDlTrace.probe[slot] = (uint32_t)(uintptr_t)cmd;
+            }
+        }
+        if (gPspGfxOpcodeGuardCount > 200000) {
+            if (!gPspGfxDlTrace.guard_hit) {
+                gPspGfxDlTrace.guard_hit = 1;
+                gPspGfxDlTrace.guard_cmd = (uint32_t)(uintptr_t)cmd;
+                gPspGfxDlTrace.guard_w0 = cmd->words.w0;
+                gPspGfxDlTrace.guard_w1 = cmd->words.w1;
+                gPspGfxDlTrace.guard_depth = sPspGfxDlDepth;
+            }
+            PSP_DL_RETURN();
         }
 #endif
         switch (opcode) {
@@ -2228,14 +2684,22 @@ static void gfx_run_dl(Gfx* cmd) {
             case G_DL:
                 if (C0(16, 1) == 0) {
                     // Push return address
+#if TARGET_PSP
+                    ++gPspGfxDlTrace.dl_calls;
+                    PspGfxDlRecordJump(cmd, cmd->words.w1, seg_addr(cmd->words.w1));
+#endif
                     gfx_run_dl((Gfx *)seg_addr(cmd->words.w1));
                 } else {
+#if TARGET_PSP
+                    ++gPspGfxDlTrace.dl_branches;
+                    PspGfxDlRecordJump(cmd, cmd->words.w1, seg_addr(cmd->words.w1));
+#endif
                     cmd = (Gfx *)seg_addr(cmd->words.w1);
                     --cmd; // increase after break
                 }
                 break;
             case (uint8_t)G_ENDDL:
-                return;
+                PSP_DL_RETURN();
 #ifdef F3DEX_GBI_2
             case G_GEOMETRYMODE:
                 gfx_sp_geometry_mode(~C0(0, 24), cmd->words.w1);
@@ -2379,6 +2843,7 @@ static void gfx_run_dl(Gfx* cmd) {
         ++cmd;
     }
 }
+#undef PSP_DL_RETURN
 
 static void gfx_sp_reset() {
     rsp.modelview_matrix_stack_size = 1;
@@ -2445,6 +2910,36 @@ void gfx_start_frame(void) {
 void gfx_run(Gfx *commands) {
     gfx_sp_reset();
 #if TARGET_PSP
+    /* Rotate the stat generations *before* building this frame, so prev/prev2
+     * always describe two fully completed, consecutive frames while the game
+     * keeps running -- that is what makes an every-other-frame difference
+     * readable from a single debugger memory read. */
+    {
+        uint32_t next_frame = gPspGfxStats.frame + 1;
+        gPspGfxStatsPrev2 = gPspGfxStatsPrev;
+        gPspGfxStatsPrev = gPspGfxStats;
+        memset(&gPspGfxStats, 0, sizeof(gPspGfxStats));
+        gPspGfxStats.magic = PSP_GFX_STATS_MAGIC;
+        gPspGfxStats.frame = next_frame;
+
+        gPspGfxDlTracePrev2 = gPspGfxDlTracePrev;
+        gPspGfxDlTracePrev = gPspGfxDlTrace;
+        memset(&gPspGfxDlTrace, 0, sizeof(gPspGfxDlTrace));
+        gPspGfxDlTrace.magic = PSP_DL_TRACE_MAGIC;
+        gPspGfxDlTrace.frame = next_frame;
+        gPspGfxDlTrace.dl_top = (uint32_t)(uintptr_t)commands;
+
+        gPspGfxMtxPrev2 = gPspGfxMtxPrev;
+        gPspGfxMtxPrev = gPspGfxMtx;
+        memset(&gPspGfxMtx, 0, sizeof(gPspGfxMtx));
+        gPspGfxMtx.magic = PSP_GFX_MTX_MAGIC;
+        gPspGfxMtx.frame = next_frame;
+        /* Out of range until the frame's first modelview load, so anything
+         * drawn before it is attributed to no slot rather than to slot 0. */
+        sPspMtxCurSlot = PSP_MTX_MV_SLOTS;
+    }
+
+    sPspGfxDlDepth = 0;
     gPspGfxOpcodeGuardCount = 0;
     /* Same fix as Play_Draw's gSegments[8]/[9] reset (see project memory),
      * but for the INTERPRETER's own view of gSegments[], not the C-side
@@ -2471,6 +2966,7 @@ void gfx_run(Gfx *commands) {
     
     if (!gfx_wapi->start_frame()) {
         dropped_frame = true;
+        GFXSTAT_INC(dropped);
         return;
     }
     dropped_frame = false;
@@ -2479,6 +2975,10 @@ void gfx_run(Gfx *commands) {
     gfx_rapi->start_frame();
     gfx_run_dl(commands);
     gfx_flush();
+#if TARGET_PSP
+    /* gfx_run_dl's runaway guard already counts every interpreted command. */
+    gPspGfxStats.dl_cmds = gPspGfxOpcodeGuardCount;
+#endif
     gfx_rapi->end_frame();
     gfx_wapi->swap_buffers_begin();
     //double t1 = gfx_wapi->get_time();

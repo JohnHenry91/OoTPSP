@@ -91,6 +91,19 @@ PSP_C_FILES += src/code/z_inventory.c
 PSP_C_FILES += src/code/z_play.c
 PSP_C_FILES += psp/src/z_actor_dlftbls_psp.c
 PSP_C_FILES += psp/src/z_endian_fixup_psp.c
+
+# --- Compiled-in ("static") scene assets ---
+# The decomp's own asset C source for the standing test scene, linked into the
+# binary instead of being streamed out of the .z64. The compiler produces
+# native-endian data and the linker resolves every internal reference to a real
+# pointer, so neither the PspFixup*Endian passes nor segmented-address
+# resolution apply to this scene at all. This is the "Option A vs Option B"
+# fork from reference/libultraship/docs/PORTING.md -- see the long rationale in
+# psp/include/psp_static_assets.h. Development mode only: PSP RAM cannot hold
+# every scene, so this list stays deliberately short.
+PSP_C_FILES += psp/src/psp_static_assets.c
+PSP_C_FILES += extracted/pal-1.0/assets/scenes/misc/hakaana2/hakaana2_scene.c
+PSP_C_FILES += extracted/pal-1.0/assets/scenes/misc/hakaana2/hakaana2_room_0.c
 # --- Phase 2: real gameplay-engine core (scene/room/camera/collision/actor) ---
 PSP_C_FILES += src/code/z_scene.c
 PSP_C_FILES += src/code/z_scene_table.c

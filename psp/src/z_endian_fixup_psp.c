@@ -14,6 +14,17 @@
  * those are also single-byte reads and must NOT be swapped. See
  * project_oot_psp_port_v2_phase2 memory for the full diagnosis. */
 #include "z_endian_fixup_psp.h"
+#include "psp_static_assets.h"
+
+/* Counters for SEGMENTED_TO_VIRTUAL's segment-8/9 native-pointer
+ * discriminator (include/segmented_address.h). Defined here rather than in a
+ * header so the inline resolver stays header-only; read them out of the
+ * running game with PPSSPP's debugger, never via file I/O. */
+unsigned int gPspSegVirtNative8;
+unsigned int gPspSegVirtNative9;
+unsigned int gPspSegVirtAmbiguous8;
+unsigned int gPspSegVirtAmbiguous9;
+unsigned int gPspSegVirtAmbiguousLast;
 
 static void PspSwapU16At(unsigned char* p, unsigned int off) {
     unsigned char t = p[off];
@@ -38,6 +49,12 @@ static void PspSwapU32At(unsigned char* p, unsigned int off) {
  *   0x20 BgCamInfo* bgCamList       0x24 u16 numWaterBoxes 0x26 pad
  *   0x28 WaterBox* waterBoxes */
 void PspFixupCollisionHeaderEndian(void* colHeader) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(colHeader)) {
+        return;
+    }
+
     unsigned char* p = (unsigned char*)colHeader;
 
     PspSwapU16At(p, 0x00);
@@ -57,6 +74,12 @@ void PspFixupCollisionHeaderEndian(void* colHeader) {
 }
 
 void PspFixupVtxListEndian(void* vtxList, unsigned int count) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(vtxList)) {
+        return;
+    }
+
     unsigned char* p = (unsigned char*)vtxList;
     unsigned int i;
 
@@ -69,6 +92,12 @@ void PspFixupVtxListEndian(void* vtxList, unsigned int count) {
 }
 
 void PspFixupPolyListEndian(void* polyList, unsigned int count) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(polyList)) {
+        return;
+    }
+
     unsigned char* p = (unsigned char*)polyList;
     unsigned int i;
 
@@ -86,6 +115,12 @@ void PspFixupPolyListEndian(void* polyList, unsigned int count) {
 }
 
 void PspFixupActorEntryListEndian(void* actorEntryList, unsigned int count) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(actorEntryList)) {
+        return;
+    }
+
     unsigned char* p = (unsigned char*)actorEntryList;
     unsigned int i;
     unsigned int j;
@@ -99,6 +134,12 @@ void PspFixupActorEntryListEndian(void* actorEntryList, unsigned int count) {
 }
 
 void PspFixupTransitionActorEntryListEndian(void* transitionActorList, unsigned int count) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(transitionActorList)) {
+        return;
+    }
+
     unsigned char* p = (unsigned char*)transitionActorList;
     unsigned int i;
 
@@ -115,6 +156,12 @@ void PspFixupTransitionActorEntryListEndian(void* transitionActorList, unsigned 
 }
 
 void PspFixupRomFileListEndian(void* romFileList, unsigned int count) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(romFileList)) {
+        return;
+    }
+
     unsigned char* p = (unsigned char*)romFileList;
     unsigned int i;
 
@@ -126,6 +173,12 @@ void PspFixupRomFileListEndian(void* romFileList, unsigned int count) {
 }
 
 void PspFixupS16ArrayEndian(void* data, unsigned int count) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(data)) {
+        return;
+    }
+
     unsigned char* p = (unsigned char*)data;
     unsigned int i;
 
@@ -232,6 +285,12 @@ static void PspFixupEntryDisplayLists(unsigned int opaRaw, unsigned int xluRaw) 
 /* include/room.h's RoomShapeBase/Normal/Cullable, ROOM_SHAPE_TYPE_NORMAL=0,
  * ROOM_SHAPE_TYPE_CULLABLE=2. See that header for exact field offsets. */
 void PspFixupRoomShapeEndian(void* roomShape) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(roomShape)) {
+        return;
+    }
+
     unsigned char* p = (unsigned char*)roomShape;
     unsigned char type = p[0];
 
@@ -426,6 +485,12 @@ static void PspFixupDisplayListEndianImpl(unsigned char* p, int depth) {
 /* See header comment. `dl` must already be a resolved (non-segmented)
  * pointer to raw-DMA'd display list data. */
 void PspFixupDisplayListEndian(void* dl) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(dl)) {
+        return;
+    }
+
     if (dl == 0) {
         return;
     }
@@ -454,6 +519,12 @@ static int PspSceneCmdWord1IsPackedBytes(unsigned int code) {
  * found (corrupt/unexpected data) -- normal termination is via the END
  * command itself. */
 void PspFixupCommandStreamEndian(void* data, unsigned int size) {
+    /* Compiled-in asset: already native-endian, must not be touched.
+     * See psp/include/psp_static_assets.h. */
+    if (PspStaticAssetIsStatic(data)) {
+        return;
+    }
+
     unsigned char* base = (unsigned char*)data;
     unsigned int maxCmds = size / 8;
     unsigned int i;

@@ -551,6 +551,33 @@ s32 DmaMgr_RequestAsync(DmaRequest* req, void* ram, uintptr_t vrom, size_t size,
     req->notifyQueue = queue;
     req->notifyMsg = msg;
 
+#if TARGET_PSP
+    /* Centralized fix, replacing the per-call-site workarounds previously
+     * scattered across z_room.c/z_scene.c/z_skelanime.c/z_kankyo.c (each
+     * hand-converted from DMA_REQUEST_ASYNC to DMA_REQUEST_SYNC at its call
+     * site): real N64 code assumes a request handed to the background
+     * DmaMgr thread will have its data land in `ram` and its completion
+     * message posted in program order relative to everything else that
+     * thread does -- a guarantee real single-core N64 PI-bus DMA gives for
+     * free, but that this port's real preemptive PSP DmaMgr thread
+     * (os_thread.c) does not: the caller can observe the completion message
+     * (via osRecvMesg) before the transfer's writes are visible, or (per
+     * DmaMgr_ThreadEntry's notify-queue comment above) the completion
+     * message can be dropped entirely if its target queue's backing
+     * semaphore loses a race, hanging a synchronous waiter forever with no
+     * fault -- this port's still-unresolved "low-CPU hang, no crash"
+     * heisenbug. Doing the transfer synchronously on the caller's own
+     * thread, right here, sidesteps the background thread and its
+     * notify-queue handoff entirely for every caller (present and future),
+     * rather than requiring each new DMA_REQUEST_ASYNC call site to be
+     * individually discovered and special-cased. */
+    DmaMgr_ProcessRequest(req);
+    if (queue != NULL) {
+        osSendMesg(queue, msg, OS_MESG_NOBLOCK);
+    }
+    return 0;
+#endif
+
 #if DEBUG_FEATURES
     if (1 && (sDmaMgrQueueFullLogged == 0) && MQ_IS_FULL(&sDmaMgrMsgQueue)) {
         sDmaMgrQueueFullLogged++;
