@@ -304,6 +304,37 @@ static bool gfx_scegu_z_is_from_0_to_1(void) {
     return true;
 }
 
+/* Does this combine's ALPHA actually come from the texture?
+ *
+ * cc.c[0] is the RGB row and cc.c[1] the ALPHA row of the reduced combine.
+ * sceGuTexFunc's second argument decides whether the texture's alpha channel
+ * participates at all, and we were passing GU_TCC_RGBA unconditionally -- i.e.
+ * every draw multiplied by the texture's alpha whether its combine asked for
+ * it or not.
+ *
+ * That is what made the walls half-transparent. hakaana2's walls are i4/i8
+ * intensity textures, and real RDP I-format hardware outputs A = I (alpha
+ * equals intensity, which import_texture_i4/i8 correctly reproduce). Their
+ * combine's alpha row is the constant 1, so on N64 the wall is opaque and the
+ * intensity only ever drives colour. Here the intensity was leaking into alpha,
+ * so every dark masonry texel became see-through -- darker stone, more
+ * transparent, which is exactly the observed look.
+ *
+ * GU_TCC_RGB takes RGB from the texture and alpha from the vertex alone, which
+ * is what a constant alpha row means. */
+static inline int tcc_for_alpha(const struct ShaderProgram *prg) {
+    if (prg->cc.opt_alpha) {
+        for (int i = 0; i < 4; i++) {
+            uint8_t v = prg->cc.c[1][i];
+
+            if (v == SHADER_TEXEL0 || v == SHADER_TEXEL0A || v == SHADER_TEXEL1) {
+                return GU_TCC_RGBA;
+            }
+        }
+    }
+    return GU_TCC_RGB;
+}
+
 static inline int texenv_set_color(UNUSED struct ShaderProgram *prg) {
     return GU_TFX_MODULATE;
 }
@@ -475,7 +506,7 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
         if (prg->shader_id == 0x01A00045) {
             mode = GU_TFX_REPLACE;
         }
-        sceGuTexFunc(mode, GU_TCC_RGBA);
+        sceGuTexFunc(mode, tcc_for_alpha(prg));
     }
 }
 

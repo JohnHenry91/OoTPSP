@@ -1478,6 +1478,21 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
     }
 }
 
+/* The colour register a CC_* operand names, or NULL if it is not a register
+ * (a texel, or the constant 0). Used by the two-input product below. */
+static inline const struct RGBA *cc_operand_color(uint8_t cc, const struct LoadedVertex *v) {
+    switch (cc) {
+        case CC_PRIM:
+            return &rdp.prim_color;
+        case CC_SHADE:
+            return &v->color;
+        case CC_ENV:
+            return &rdp.env_color;
+        default:
+            return NULL;
+    }
+}
+
 static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     struct LoadedVertex *v1 = &rsp.loaded_vertices[vtx1_idx];
     struct LoadedVertex *v2 = &rsp.loaded_vertices[vtx2_idx];
@@ -1768,6 +1783,42 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
 
             }
         }
+        /* "Last matched input wins" is only right when there IS one input. A
+         * combine of the form (X - 0) * Y + 0 where BOTH X and Y are colour
+         * registers is a product of two of them, and picking one silently drops
+         * the other.
+         *
+         * hakaana2's ceiling is exactly this: (SHADE - 0) * PRIMITIVE + 0,
+         * untextured, with prim = 255,255,255. PRIM is the later input, so it
+         * won and the surface rendered pure white -- the same shade loss as the
+         * alpha-row clobber above, by a different route.
+         *
+         * Only the both-registers case is folded here. When one operand is a
+         * texel the GE already multiplies the texture in for us, so leaving the
+         * remaining register in the vertex colour is correct as it stands.
+         * Operands are decoded straight out of cc_id the same way
+         * gfx_generate_cc does it (3 bits each, a/b/c/d). */
+        struct RGBA prod;
+        if (num_inputs >= 2) {
+            uint8_t cc_a = (comb->cc_id >> 0) & 7;
+            uint8_t cc_b = (comb->cc_id >> 3) & 7;
+            uint8_t cc_c = (comb->cc_id >> 6) & 7;
+            uint8_t cc_d = (comb->cc_id >> 9) & 7;
+
+            if (cc_b == CC_0 && cc_d == CC_0) {
+                const struct RGBA *xa = cc_operand_color(cc_a, clipped_vertices[i]);
+                const struct RGBA *xc = cc_operand_color(cc_c, clipped_vertices[i]);
+
+                if (xa != NULL && xc != NULL) {
+                    prod.r = (uint8_t)((xa->r * xc->r) / 255);
+                    prod.g = (uint8_t)((xa->g * xc->g) / 255);
+                    prod.b = (uint8_t)((xa->b * xc->b) / 255);
+                    prod.a = color->a;
+                    color = &prod;
+                }
+            }
+        }
+
         buf_vbo[buf_num_vert].color.r = color->r;
         buf_vbo[buf_num_vert].color.g = color->g;
         buf_vbo[buf_num_vert].color.b = color->b;
