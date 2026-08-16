@@ -218,10 +218,29 @@ static unsigned short PspReadU16(unsigned char* p) {
 
 /* BgCamInfo (include/bgcheck.h): 0x0 u16 setting, 0x2 s16 count, 0x4 Vec3s*
  * bgCamFuncData -- see header comment for why these read on demand instead
- * of doing a bulk in-place swap like the other fixups. */
+ * of doing a bulk in-place swap like the other fixups.
+ *
+ * Reading on demand is why these need the PspStaticAssetIsStatic guard spelled
+ * out four times below instead of once at the top of a bulk pass: they are the
+ * only "fixups" that are a READ rather than a rewrite, so they were the only
+ * ones the guard was never added to. Cost, measured 2026-08-16: every
+ * pre-rendered-background room (28 scenes -- houses, shops, market) drew
+ * nothing at all. Their camera setting comes exclusively from
+ * bgCamList[startBgCamIndex].setting, and once the scene came from a native
+ * blob these readers turned link_home's CAM_SET_PREREND_FIXED (0x0019) into
+ * 0x1900, so Camera_RequestBgCam refused it, the camera stayed in the
+ * CAM_SET_FREE0 that func_80057FC4 parks prerender rooms in, and
+ * Room_DrawImageSingle's isFixedCamera test was false forever.
+ *
+ * Note bgCamFuncData still needs segment resolution in BOTH cases: a blob is
+ * linked at the segment base (0x02xxxxxx), so its pointers are genuine segment
+ * addresses too -- native byte order does not mean already-resolved. */
 unsigned short PspReadBgCamSettingRaw(void* bgCamInfoEntry) {
     if (bgCamInfoEntry == 0) {
         return 0;
+    }
+    if (PspStaticAssetIsStatic(bgCamInfoEntry)) {
+        return *(unsigned short*)((unsigned char*)bgCamInfoEntry + 0x0);
     }
     return PspReadU16((unsigned char*)bgCamInfoEntry + 0x0);
 }
@@ -230,12 +249,18 @@ void* PspReadBgCamFuncDataRaw(void* bgCamInfoEntry) {
     if (bgCamInfoEntry == 0) {
         return 0;
     }
+    if (PspStaticAssetIsStatic(bgCamInfoEntry)) {
+        return PspSegmentedToVirtual(*(unsigned int*)((unsigned char*)bgCamInfoEntry + 0x4));
+    }
     return PspSegmentedToVirtual(PspReadU32((unsigned char*)bgCamInfoEntry + 0x4));
 }
 
 short PspReadBgCamCountRaw(void* bgCamInfoEntry) {
     if (bgCamInfoEntry == 0) {
         return 0;
+    }
+    if (PspStaticAssetIsStatic(bgCamInfoEntry)) {
+        return *(short*)((unsigned char*)bgCamInfoEntry + 0x2);
     }
     return (short)PspReadU16((unsigned char*)bgCamInfoEntry + 0x2);
 }
@@ -259,6 +284,16 @@ void PspReadBgCamFuncDataStruct(void* raw, void* out) {
     int i;
 
     if (raw == 0) {
+        return;
+    }
+    /* Same guard as the three readers above: native data is copied through
+     * unchanged. This one carries the fixed camera's actual position, rotation
+     * and fov, so getting it wrong points the camera somewhere arbitrary --
+     * which is a much quieter failure than not drawing at all. */
+    if (PspStaticAssetIsStatic(raw)) {
+        for (i = 0; i < 0x12; i++) {
+            o[i] = p[i];
+        }
         return;
     }
     for (i = 0; i < 0x12; i += 2) {
