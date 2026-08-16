@@ -239,6 +239,10 @@ PSP_C_FILES += extracted/pal-1.0/assets/textures/parameter_static/parameter_stat
 PSP_C_FILES += psp/src/psp_blob_assets.c
 PSP_C_FILES += psp/src/psp_frame_pace.c
 
+# Development aid: L + D-Pad steps through the pre-rendered-background test
+# scenes without a rebuild. See the file header.
+PSP_C_FILES += psp/src/psp_test_scenes.c
+
 OBJS := $(PSP_C_FILES:.c=.o)
 
 # --- Native-endian asset blobs -----------------------------------------------
@@ -252,7 +256,35 @@ OBJS := $(PSP_C_FILES:.c=.o)
 BLOB_DIR = build/blobs
 BLOB_SCENES = \
 	misc/hakaana2:hakaana2:1 \
-	overworld/spot02:spot02:2
+	overworld/spot02:spot02:2 \
+	indoors/link_home:link_home:1 \
+	indoors/kokiri_home:kokiri_home:1 \
+	indoors/kokiri_home3:kokiri_home3:1 \
+	indoors/kokiri_home4:kokiri_home4:1 \
+	indoors/kokiri_home5:kokiri_home5:1 \
+	indoors/kakariko:kakariko:1 \
+	misc/kakariko3:kakariko3:1 \
+	indoors/labo:labo:1 \
+	indoors/impa:impa:1 \
+	indoors/hut:hut:1 \
+	indoors/malon_stable:malon_stable:1 \
+	indoors/tent:tent:1 \
+	shops/kokiri_shop:kokiri_shop:1 \
+	shops/shop1:shop1:1 \
+	shops/alley_shop:alley_shop:1 \
+	shops/drag:drag:1 \
+	shops/night_shop:night_shop:1 \
+	shops/face_shop:face_shop:1 \
+	shops/golon:golon:1 \
+	shops/zoora:zoora:1 \
+	misc/entra:entra:1 \
+	misc/entra_n:entra_n:1 \
+	misc/enrui:enrui:1 \
+	misc/market_alley:market_alley:1 \
+	misc/market_alley_n:market_alley_n:1 \
+	misc/shrine:shrine:1 \
+	misc/shrine_n:shrine_n:1 \
+	misc/shrine_r:shrine_r:1
 
 BLOB_REGISTRY = $(BLOB_DIR)/blobs_registry.inc
 
@@ -261,10 +293,13 @@ BLOB_REGISTRY = $(BLOB_DIR)/blobs_registry.inc
 # the first target in the file.
 .DEFAULT_GOAL := all
 
-# Regenerated whenever the tool changes. The generated registry maps each file's
-# vromStart to its blob path; psp_blob_assets.c #includes it, so no vrom hex is
-# ever written by hand.
-$(BLOB_REGISTRY): psp/tools/make_scene_blob.sh
+# Regenerated whenever the tool, the JFIF decoder or the scene list changes --
+# this file is a prerequisite precisely because BLOB_SCENES lives in it, and
+# without it adding a scene to that list silently produces no blob (the registry
+# is already up to date with respect to the script alone). The generated registry
+# maps each file's vromStart to its blob path; psp_blob_assets.c #includes it, so
+# no vrom hex is ever written by hand.
+$(BLOB_REGISTRY): psp/tools/make_scene_blob.sh psp/tools/jfif_to_psp.py Makefile.psp
 	@rm -f $(BLOB_DIR)/*.reg
 	@for s in $(BLOB_SCENES); do \
 		d=$${s%%:*}; r=$${s##*:}; n=$${s#*:}; n=$${n%:*}; \

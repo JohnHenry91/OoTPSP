@@ -1,5 +1,6 @@
 #if TARGET_PSP
 #include "psp_static_assets.h"
+#include "psp_bg_rect.h"
 #endif
 #include "libu64/debug.h"
 #include "ultra64/gs2dex.h"
@@ -314,6 +315,48 @@ s32 Room_DecodeJpeg(void* data) {
     return 0;
 }
 
+#if TARGET_PSP
+u32 gPspBgProbeCalls = 0;
+u32 gPspBgProbeCamSetting = 0;
+u32 gPspBgProbeFlags = 0;
+u32 gPspCamProbe[20] = { 0 };
+
+/**
+ * PSP replacement for Room_DrawBackground2D's S2DEX display list.
+ *
+ * Emits one port-private G_PSP_BGRECT command (see psp/include/gfx/psp_bg_rect.h)
+ * whose argument block is built in the display buffer and branched over, exactly
+ * as the original does with its uObjBg. No Room_DecodeJpeg call: the JPEG is
+ * decoded at build time by psp/tools/jfif_to_psp.py, straight into the GE's
+ * pixel format and in place, so by the time the data reaches the console it is
+ * already a finished image.
+ */
+void Room_DrawBackground2DPsp(Gfx** gfxP, void* tex, u16 width, u16 height, u8 fmt, u8 siz, f32 offsetX,
+                              f32 offsetY) {
+    Gfx* gfx = *gfxP;
+    PspBgRect* bg;
+
+    bg = (PspBgRect*)(gfx + 1);
+    gSPBranchList(gfx, (Gfx*)(bg + 1));
+    gfx = (Gfx*)(bg + 1);
+
+    bg->source = tex;
+    bg->width = width;
+    bg->height = height;
+    bg->offsetX = offsetX;
+    bg->offsetY = offsetY;
+    bg->fmt = fmt;
+    bg->siz = siz;
+    bg->pad = 0;
+
+    gfx->words.w0 = _SHIFTL(G_PSP_BGRECT, 24, 8);
+    gfx->words.w1 = (uintptr_t)bg;
+    gfx++;
+
+    *gfxP = gfx;
+}
+#endif
+
 void Room_DrawBackground2D(Gfx** gfxP, void* tex, void* tlut, u16 width, u16 height, u8 fmt, u8 siz, u16 tlutMode,
                            u16 tlutCount, f32 offsetX, f32 offsetY) {
     Gfx* gfx = *gfxP;
@@ -411,6 +454,48 @@ void Room_DrawImageSingle(PlayState* play, Room* room, u32 flags) {
     drawOpa = (flags & ROOM_DRAW_OPA) && (entry->opa != NULL) && !(R_ROOM_IMAGE_NODRAW_FLAGS & ROOM_IMAGE_NODRAW_OPA);
     drawXlu = (flags & ROOM_DRAW_XLU) && (entry->xlu != NULL) && !(R_ROOM_IMAGE_NODRAW_FLAGS & ROOM_IMAGE_NODRAW_XLU);
 
+#if TARGET_PSP
+    /* Probe: drawBackground is an AND of four independent conditions, and when
+     * it comes out false the renderer never sees anything at all, so its own
+     * counters cannot tell which one failed. Record each separately.
+     *
+     * Measured 2026-08-16: only isFixedCamera fails, with setting == 33
+     * (CAM_SET_FREE0), which is the value Camera_Init writes -- i.e. the camera
+     * never received ANY setting from the scene. The gPspCamProbe fields below
+     * follow the chain that is supposed to deliver it (Camera_Update ->
+     * Camera_GetBgCamIndex -> Camera_RequestBgCam), so the link that breaks can
+     * be read off directly instead of guessed at. */
+    ++gPspBgProbeCalls;
+    gPspBgProbeCamSetting = activeCam->setting;
+    gPspBgProbeFlags = ((flags & ROOM_DRAW_OPA) ? 1 : 0) | (isFixedCamera ? 2 : 0) |
+                       ((roomShape->source != NULL) ? 4 : 0) |
+                       (!(R_ROOM_IMAGE_NODRAW_FLAGS & ROOM_IMAGE_NODRAW_BACKGROUND) ? 8 : 0);
+    {
+        Player* probePlayer = GET_PLAYER(play);
+
+        gPspCamProbe[0] = activeCam->setting;
+        gPspCamProbe[1] = activeCam->status;
+        gPspCamProbe[2] = activeCam->stateFlags;
+        gPspCamProbe[3] = activeCam->behaviorFlags;
+        gPspCamProbe[4] = (u32)activeCam->bgCamIndex;
+        gPspCamProbe[5] = (u32)activeCam->nextBgCamIndex;
+        /* Is Player standing on collision at all, and does that floor carry a
+         * bgCam index? A prerender room's floors must, or nothing downstream
+         * can ever ask for CAM_SET_PREREND_FIXED. */
+        gPspCamProbe[6] = (probePlayer->actor.floorPoly != NULL);
+        gPspCamProbe[7] = (probePlayer->actor.floorPoly != NULL)
+                              ? (u32)SurfaceType_GetBgCamIndex(&play->colCtx, probePlayer->actor.floorPoly,
+                                                               probePlayer->actor.floorBgId)
+                              : 0xFFFFFFFF;
+        /* What the scene's collision header actually offers -- if the blob's
+         * bgCamList is empty or unresolved, the lookup above is moot. */
+        gPspCamProbe[8] = (u32)(uintptr_t)play->colCtx.colHeader;
+        gPspCamProbe[9] = (play->colCtx.colHeader != NULL) ? (u32)play->colCtx.colHeader->numPolygons : 0;
+        gPspCamProbe[10] = (play->colCtx.colHeader != NULL) ? (u32)(uintptr_t)play->colCtx.colHeader->bgCamList : 0;
+        gPspCamProbe[11] = (u32)activeCam->camId;
+    }
+#endif
+
     if (drawOpa || drawBackground) {
         gSPSegment(POLY_OPA_DISP++, 0x03, room->segment);
 
@@ -451,17 +536,20 @@ void Room_DrawImageSingle(PlayState* play, Room* room, u32 flags) {
             //!      does not manifest as a bug.
         }
 #else
-        /* drawBackground (the pre-rendered JPEG background image, S2DEX-microcode-based) is not
-         * implemented on this port yet: our single-microcode gfx_pc.c interpreter has no concept of
-         * "S2DEX is now the active ucode" the way real N64 hardware does, so S2DEX-only opcodes
-         * emitted by Room_DrawBackground2D (gSPBgRect1Cyc/gSPBgRectCopy/gSPObjRenderMode) collide
-         * with real F3DEX2 opcode numbers (e.g. G_BG_1CYC's 0x01 == G_VTX) and get misinterpreted,
-         * corrupting the shared POLY_OPA_DISP buffer -- observed as the interpreter wandering into
-         * an unrelated all-zero memory region hunting for a G_ENDDL that's no longer there, which
-         * silently discards every command written *after* this point (Player, room geometry, etc.)
-         * for the rest of the frame, not just the background. Skip entirely for now -- room geometry
-         * (drawOpa, unaffected) is more valuable to have visible than a background image would be.
-         * Revisit once gfx_pc.c gains real per-ucode opcode-table dispatch. */
+        /* No gSPLoadUcodeL/gSPLoadUcode pair around this: the S2DEX display list the N64 builds here
+         * cannot be interpreted by this port (S2DEX opcode numbers collide with F3DEX2's -- G_BG_1CYC
+         * is 0x01, i.e. G_VTX -- so it used to corrupt the rest of the frame, which is why the whole
+         * background was disabled). One port-private command replaces the lot; see
+         * Room_DrawBackground2DPsp above. */
+        if (drawBackground) {
+            Vec3f quakeOffset = Camera_GetQuakeOffset(activeCam);
+
+            gfx = POLY_OPA_DISP;
+            Room_DrawBackground2DPsp(&gfx, roomShape->source, roomShape->width, roomShape->height, roomShape->fmt,
+                                     roomShape->siz, (quakeOffset.x + quakeOffset.z) * 1.2f + quakeOffset.y * 0.6f,
+                                     quakeOffset.y * 2.4f + (quakeOffset.x + quakeOffset.z) * 0.3f);
+            POLY_OPA_DISP = gfx;
+        }
 #endif
     }
 
@@ -551,6 +639,9 @@ void Room_DrawImageMulti(PlayState* play, Room* room, u32 flags) {
         }
 
         if (drawBackground) {
+            Vec3f quakeOffset = Camera_GetQuakeOffset(activeCam);
+
+#if !TARGET_PSP
             gSPLoadUcodeL(POLY_OPA_DISP++, gspS2DEX2d_fifo);
 
             gfx = POLY_OPA_DISP;
@@ -559,9 +650,6 @@ void Room_DrawImageMulti(PlayState* play, Room* room, u32 flags) {
             if (1)
 #endif
             {
-                Vec3f quakeOffset;
-
-                quakeOffset = Camera_GetQuakeOffset(activeCam);
                 Room_DrawBackground2D(&gfx, bgEntry->source, bgEntry->tlut, bgEntry->width, bgEntry->height,
                                       bgEntry->fmt, bgEntry->siz, bgEntry->tlutMode, bgEntry->tlutCount,
                                       (quakeOffset.x + quakeOffset.z) * 1.2f + quakeOffset.y * 0.6f,
@@ -573,6 +661,17 @@ void Room_DrawImageMulti(PlayState* play, Room* room, u32 flags) {
             gSPLoadUcode(POLY_OPA_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
             //! @bug Fog factors are not restored. See related bug comment in Room_DrawImageSingle.
             //! @see Room_DrawImageSingle
+#else
+            /* Same substitution as in Room_DrawImageSingle -- and note this branch was NOT disabled
+             * on PSP before, so multi-background rooms (the ones with several fixed camera angles)
+             * were emitting raw S2DEX opcodes into POLY_OPA_DISP and taking the rest of the frame
+             * down with them. */
+            gfx = POLY_OPA_DISP;
+            Room_DrawBackground2DPsp(&gfx, bgEntry->source, bgEntry->width, bgEntry->height, bgEntry->fmt,
+                                     bgEntry->siz, (quakeOffset.x + quakeOffset.z) * 1.2f + quakeOffset.y * 0.6f,
+                                     quakeOffset.y * 2.4f + (quakeOffset.x + quakeOffset.z) * 0.3f);
+            POLY_OPA_DISP = gfx;
+#endif
         }
     }
 

@@ -75,6 +75,28 @@ mkdir -p "$OUT"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
+# Pre-rendered backgrounds ("image" rooms: houses, shops, the market).
+#
+# The N64 build turns each room's <...>_JFIF.jpg into a u64 array of the raw
+# JPEG bytes (Makefile's BUILD_JFIF rule) and the console decodes it at runtime
+# on the RSP. There is no RSP here, so decode it now instead -- straight into
+# the PSP GE's own 5551 pixel format, in place, at the same 153600-byte size the
+# array is declared with. See psp/tools/jfif_to_psp.py for the full rationale.
+#
+# The result is dropped into a shadow tree whose -I comes FIRST, so the room's
+# `#include "assets/scenes/.../<name>.jpg.inc.c"` resolves to our decoded
+# version instead of build/pal-1.0's JPEG bytes. Nothing in the N64 build
+# changes, and no extracted source is edited.
+JFIF_SHADOW="$TMP/jfif"
+for jpg in "$DIR"/*.jpg; do
+    [ -e "$jpg" ] || break
+    rel="assets/${DIR#*/assets/}"
+    mkdir -p "$JFIF_SHADOW/$rel"
+    python3 psp/tools/jfif_to_psp.py "$jpg" \
+        "$JFIF_SHADOW/$rel/$(basename "$jpg").inc.c"
+done
+INCS="-I$JFIF_SHADOW $INCS"
+
 # A scene's RoomList is built from ROM_FILE(<room>), which references the
 # _<room>SegmentRomStart/End linker symbols. Those describe where the room lives
 # in the *N64 ROM*, and the runtime blob registry keys on exactly that vromStart

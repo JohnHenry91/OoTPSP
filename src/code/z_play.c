@@ -50,6 +50,12 @@
 #include "save.h"
 #include "vis.h"
 
+#if TARGET_PSP
+/* Defined in z_room.c, next to the other background-path probes. */
+extern u32 gPspCamProbe[20];
+s16 Camera_GetBgCamSetting(Camera* camera, s32 bgCamIndex);
+#endif
+
 #pragma increment_block_number "gc-eu:224 gc-eu-mq:224 gc-jp:224 gc-jp-ce:224 gc-jp-mq:224 gc-us:224 gc-us-mq:224" \
                                "ique-cn:224 ntsc-1.0:240 ntsc-1.1:240 ntsc-1.2:240 pal-1.0:240 pal-1.1:240"
 
@@ -688,13 +694,65 @@ void Play_Init(GameState* thisx) {
 
     playerStartBgCamIndex = PLAYER_GET_START_BG_CAM_INDEX(&player->actor);
 
+#if TARGET_PSP
+    /* Probe: for a pre-rendered-background room this call is the ONLY thing
+     * that can ever produce CAM_SET_PREREND_FIXED. func_80057FC4 deliberately
+     * leaves such a room's camera in CAM_SET_FREE0 with CAM_STATE_CHECK_BG
+     * cleared (z_camera.c, vanilla), so the floor-poly path in Camera_Update is
+     * switched off by design -- and link_home's floor really does point at
+     * bgCamList[2], whose setting is CAM_SET_NONE. Everything hangs on the
+     * spawn entry's params (0x0D00 -> start bg cam index 0) reaching here. */
+    gPspCamProbe[12] = (u32)player->actor.params;
+    gPspCamProbe[13] = (u32)playerStartBgCamIndex;
+    gPspCamProbe[14] = (u32)Camera_GetBgCamSetting(&this->mainCamera, 0);
+#endif
+
     if (playerStartBgCamIndex != PLAYER_START_BG_CAM_DEFAULT) {
         PRINTF("player has start camera ID (" VT_FGCOL(BLUE) "%d" VT_RST ")\n", playerStartBgCamIndex);
         Camera_RequestBgCam(&this->mainCamera, playerStartBgCamIndex);
     }
 
+#if TARGET_PSP
+    gPspCamProbe[15] = (u32)this->mainCamera.setting;
+    gPspCamProbe[16] = (u32)this->mainCamera.bgCamIndex;
+    gPspCamProbe[17] = (u32)this->mainCamera.behaviorFlags;
+#endif
+
     if (R_SCENE_CAM_TYPE == SCENE_CAM_TYPE_FIXED_TOGGLE_VIEWPOINT) {
+#if TARGET_PSP
+        /* PORT DEVIATION, and a knowingly incomplete one -- see below.
+         *
+         * Vanilla sets VIEWPOINT_PIVOT here. Play_Update then re-requests that
+         * viewpoint's bgCam every frame (Play_RequestViewpointBgCam), which
+         * moves the camera off bgCam 0 (CAM_SET_PREREND_FIXED) onto bgCam 1
+         * (CAM_SET_PREREND_PIVOT) from the second frame onward -- and
+         * Room_DrawImageSingle only draws the pre-rendered background under
+         * PREREND_FIXED. Measured here: the background appeared for exactly one
+         * frame and never again.
+         *
+         * That cannot be what the console does, and the asset data proves it
+         * rather than any recollection of the game: link_home_room_0 is 162944
+         * bytes, of which 153600 are the background image slot -- the remaining
+         * 9344 hold the whole room, whose display lists contain ZERO texture
+         * commands and draw 209 flat-shaded triangles in two prim colours
+         * (blue, green). Every other pre-rendered scene checked (kokiri_home,
+         * kakariko, kokiri_shop, market_alley) is the same. That geometry exists
+         * to fill the depth buffer so actors occlude correctly behind furniture;
+         * the image is the only thing with any visual content. If PIVOT were the
+         * viewpoint one walks around in, every house and shop in the game would
+         * be untextured coloured blocks.
+         *
+         * So something in vanilla must refuse that per-frame request and keep
+         * the camera on bgCam 0. The likely candidate is CAM_BEHAVIOR_BG_PROCESSED
+         * (Camera_RequestBgCam drops the request when it is already set, and
+         * Camera_Update clears it at the top of each frame), but that has NOT
+         * been pinned down -- pinning the viewpoint here is a workaround at the
+         * symptom, not the fix. Revisit by measuring how often the request is
+         * issued and with which behaviorFlags. */
+        this->viewpoint = VIEWPOINT_LOCKED;
+#else
         this->viewpoint = VIEWPOINT_PIVOT;
+#endif
     } else if (R_SCENE_CAM_TYPE == SCENE_CAM_TYPE_FIXED_SHOP_VIEWPOINT) {
         this->viewpoint = VIEWPOINT_LOCKED;
     } else {
@@ -736,6 +794,12 @@ void Play_Update(PlayState* this) {
             PspDebugLogCheckpoint("Play_Update entry");
             sPlayUpdateCallCount++;
         }
+    }
+    {
+        /* Development aid: hold L + D-Pad Left/Right to step through the
+         * pre-rendered-background test scenes. See psp/src/psp_test_scenes.c. */
+        extern void PspTestSceneCycle(PlayState * play);
+        PspTestSceneCycle(this);
     }
 #endif
 

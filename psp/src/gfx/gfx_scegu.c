@@ -988,6 +988,124 @@ void gfx_scegu_draw_triangles_2d(float buf_vbo[], UNUSED size_t buf_vbo_len, UNU
     sceGuDrawArray(GU_SPRITES, GU_TEXTURE_16BIT | GU_COLOR_8888 | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 2, 0, quad_buf);
 }
 
+/* ---------------------------------------------------------------------------
+ * Pre-rendered room background (the "JPEG rooms": houses, shops, the market).
+ *
+ * On the N64 this is drawn by a SECOND microcode: Room_DrawBackground2D builds
+ * an S2DEX uObjBg and issues gSPBgRect1Cyc/gSPBgRectCopy, after a
+ * gSPLoadUcodeL swaps F3DZEX2 out for S2DEX2. This interpreter has a single
+ * opcode table, and S2DEX's opcode numbers collide with F3DEX2's (G_BG_1CYC is
+ * 0x01, which is G_VTX here), so those commands used to be misread as geometry
+ * and sent the walk into unrelated memory -- which is why the whole background
+ * path was disabled on this port (see z_room.c).
+ *
+ * Nothing about that display list is worth emulating, though: it draws ONE
+ * screen-sized, screen-aligned, opaque image with the combiner set to pass the
+ * texel straight through. That is a blit, and the GE does it in one sprite.
+ *
+ * The image comes out of the blob pipeline already in GU_PSM_5551 (see
+ * psp/tools/jfif_to_psp.py -- the JPEG is decoded at build time, in place), so
+ * there is no decode, no format conversion, no staging copy and no texture-cache
+ * entry: sceGuTexImage points the GE straight at the room asset in RAM.
+ *
+ * The 320-pixel-wide image is fed to the GE as a 512x256 texture with a texture
+ * BUFFER WIDTH of 320. The GE requires power-of-two texture dimensions but the
+ * buffer width is independent of them, and since the drawn u range stops at 320
+ * the out-of-image part of that 512 is never sampled.
+ * ------------------------------------------------------------------------- */
+typedef struct {
+    short u, v;
+    short x, y, z;
+} BgVertex;
+
+/* Set by gfx_pc.c after the blit so the next draw re-binds its own texture:
+ * sceGuTexImage above overwrites the GE's texture pointer behind the texture
+ * manager's back, and tmu_state[] would otherwise still claim that texture is
+ * bound and skip the re-bind. (This is the same class of staleness that the
+ * dual-texture attempt in gfx_scegu_select_texture tripped over.) */
+void gfx_scegu_invalidate_texture_binding(void) {
+    tmu_state[0].tex = (uint32_t)-1;
+    tmu_state[1].tex = (uint32_t)-1;
+}
+
+void gfx_scegu_draw_background(const void *img, int width, int height, int offset_x, int offset_y) {
+    static const void *last_img = NULL;
+
+    if (img == NULL || width <= 0 || height <= 0) {
+        return;
+    }
+
+    /* The GE reads main memory directly and is not coherent with the CPU's
+     * data cache. A blob is written by ordinary file I/O, so write it back
+     * once -- when the room changes, not per frame (150 KB of cache
+     * maintenance every frame would cost more than the draw). */
+    if (img != last_img) {
+        sceKernelDcacheWritebackRange(img, (unsigned int)(width * height * 2));
+        last_img = img;
+    }
+
+    const float sx = (float)SCR_WIDTH / (float)width;
+    const float sy = (float)SCR_HEIGHT / (float)height;
+
+    sceGuDisable(GU_DEPTH_TEST);
+    sceGuDepthMask(GU_TRUE); /* GU_TRUE == "don't write depth" here, see set_depth_mask */
+    /* This is meant to be an unconditional opaque paint, like the N64's COPY-mode
+     * combiner bypass -- but two pieces of GE state that gfx_scegu_init leaves
+     * enabled by default silently disagree with that unless told otherwise:
+     *  - GU_ALPHA_TEST (GU_GREATER, 0x55) discards any fragment whose alpha is
+     *    <= 0x55, and
+     *  - GU_TCC_RGB (see the shader-combiner comment elsewhere in this file)
+     *    takes alpha from the STICKY vertex-color register, not the texture, and
+     *    BgVertex carries no color at all, so that register holds whatever the
+     *    previous draw (e.g. the room's own opaque geometry) last left it at.
+     * Together, an unlucky leftover vertex alpha silently discarded the entire
+     * blit -- not a blend-transparency issue, an actual zero pixels drawn, which
+     * is indistinguishable from "nothing rendered" and was mistaken for exactly
+     * that. GU_TCC_RGBA sources alpha from the texture's own alpha bit (always
+     * set opaque by psp/tools/jfif_to_psp.py) instead, and alpha test is turned
+     * off outright since this draw has no use for it either way. */
+    sceGuDisable(GU_ALPHA_TEST);
+    sceGuEnable(GU_TEXTURE_2D);
+    sceGuTexMode(GU_PSM_5551, 0, 0, GU_FALSE);
+    sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
+    sceGuTexFilter(GU_LINEAR, GU_LINEAR);
+    sceGuTexWrap(GU_CLAMP, GU_CLAMP);
+    sceGuTexScale(1.0f, 1.0f);
+    sceGuTexOffset(0.0f, 0.0f);
+    sceGuTexImage(0, 512, 256, width, img);
+
+    BgVertex *v = (BgVertex *)sceGuGetMemory(sizeof(BgVertex) * 2);
+    v[0].u = 0;
+    v[0].v = 0;
+    v[0].x = (short)(offset_x * sx);
+    v[0].y = (short)(offset_y * sy);
+    v[0].z = 0;
+    v[1].u = (short)width;
+    v[1].v = (short)height;
+    v[1].x = (short)(SCR_WIDTH + offset_x * sx);
+    v[1].y = (short)(SCR_HEIGHT + offset_y * sy);
+    v[1].z = 0;
+
+    sceGuDrawArray(GU_SPRITES, GU_TEXTURE_16BIT | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 2, 0, v);
+
+    /* GU_ALPHA_TEST is not part of gfx_pc.c's rendering_state cache -- unlike
+     * depth test/mask, nothing re-applies it before the next triangle, so
+     * leaving it off here would silently disable alpha testing for the rest of
+     * the frame (it is normally set once per frame, in gfx_scegu_start_frame
+     * below, and never touched again until the next frame). gDebugAlphaTest is
+     * that function's own source of truth for what it should be. */
+    extern int gDebugAlphaTest;
+    if (gDebugAlphaTest) {
+        sceGuEnable(GU_ALPHA_TEST);
+    }
+
+    /* Leave the sampler the way the rest of the pipeline expects to find it.
+     * Everything else the blit touched (texture enable/mode/func, depth test,
+     * depth mask, texture binding) is restored by the caller in gfx_pc.c,
+     * which is the side that knows what the current state is supposed to be. */
+    gfx_scegu_apply_tmu_state(0);
+}
+
 static void gfx_scegu_init(void) {
     sceGuInit();
 

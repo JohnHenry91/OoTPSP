@@ -24,6 +24,7 @@
 #include "gfx_screen_config.h"
 #include "attributes.h"
 #include "segmented_address.h"
+#include "psp_bg_rect.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -3008,6 +3009,67 @@ static inline void *seg_addr(uintptr_t w1) {
     return (void *) w1;
 }
 
+#if TARGET_PSP
+/* Pre-rendered room background -- see psp/include/gfx/psp_bg_rect.h for why
+ * this is a port-private command instead of the S2DEX display list the N64
+ * uses, and gfx_scegu_draw_background() for how the blit itself works. */
+extern void gfx_scegu_draw_background(const void *img, int width, int height, int offset_x, int offset_y);
+extern void gfx_scegu_invalidate_texture_binding(void);
+
+uint32_t gPspBgDrawn = 0;
+uint32_t gPspBgSkipped = 0;
+uint32_t gPspBgLastSkipReason = 0;
+
+static void gfx_psp_bg_rect(const PspBgRect *bg) {
+    if (bg == NULL) {
+        return;
+    }
+
+    const uint8_t *img = seg_addr((uintptr_t)bg->source);
+
+    /* Vanilla only ever uses RGBA16 for these (every RoomShapeImage in the
+     * game sets fmt=G_IM_FMT_RGBA, siz=G_IM_SIZ_16b); the CI branch of
+     * Room_DrawBackground2D is dead code. Refuse anything else rather than
+     * blit it as 5551 garbage. */
+    if (img == NULL || bg->width <= 0 || bg->height <= 0 ||
+        bg->fmt != G_IM_FMT_RGBA || bg->siz != G_IM_SIZ_16b) {
+        gPspBgLastSkipReason = 1;
+        ++gPspBgSkipped;
+        return;
+    }
+
+    /* Still-undecoded JPEG data: this room's blob was not built by the PSP
+     * asset pipeline (psp/tools/jfif_to_psp.py decodes it at build time, in
+     * place). Drawing it would paint compressed bytes on the screen, so skip
+     * -- the counter says the pipeline, not the renderer, is what to fix.
+     * Tested in both byte orders because the check costs nothing and the two
+     * asset paths (compiled-in u64 literals vs. raw ROM bytes) differ. */
+    {
+        uint32_t magic = *(const uint32_t *)img;
+        if (magic == 0xFFD8FFE0 || magic == 0xE0FFD8FF) {
+            gPspBgLastSkipReason = 2;
+            ++gPspBgSkipped;
+            return;
+        }
+    }
+
+    gfx_flush();
+    gfx_scegu_draw_background(img, bg->width, bg->height, bg->offsetX, bg->offsetY);
+    ++gPspBgDrawn;
+
+    /* Put back everything the blit changed. Depth state is restored from what
+     * gfx_pc believes is current; the shader and the texture binding are
+     * invalidated instead, so the next draw re-applies them through the normal
+     * paths rather than trusting a cache the blit went behind the back of. */
+    gfx_rapi->set_depth_test(rendering_state.depth_test);
+    gfx_rapi->set_depth_mask(rendering_state.depth_mask);
+    rendering_state.shader_program = NULL;
+    gfx_scegu_invalidate_texture_binding();
+    rdp.textures_changed[0] = true;
+    rdp.textures_changed[1] = true;
+}
+#endif
+
 #define C0(pos, width) ((cmd->words.w0 >> (pos)) & ((1U << width) - 1))
 #define C1(pos, width) ((cmd->words.w1 >> (pos)) & ((1U << width) - 1))
 
@@ -3373,6 +3435,14 @@ static void gfx_run_dl(Gfx* cmd) {
             case G_SETSCISSOR:
                 gfx_dp_set_scissor(C1(24, 2), C0(12, 12), C0(0, 12), C1(12, 12), C1(0, 12));
                 break;
+#if TARGET_PSP
+            /* Port-private, not an F3DEX2 command. The argument block is a
+             * native pointer into the display buffer (like the S2DEX uObjBg it
+             * replaces), so it is deliberately NOT run through seg_addr. */
+            case G_PSP_BGRECT:
+                gfx_psp_bg_rect((const PspBgRect *)(uintptr_t)cmd->words.w1);
+                break;
+#endif
             case G_SETZIMG:
                 gfx_dp_set_z_image(seg_addr(cmd->words.w1));
                 break;

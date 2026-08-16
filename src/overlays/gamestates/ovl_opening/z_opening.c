@@ -38,28 +38,30 @@ void TitleSetup_SetupTitleScreen(TitleSetupState* this) {
     gSaveContext.gameMode = GAMEMODE_NORMAL;
     gSaveContext.save.linkAge = LINK_AGE_CHILD;
     Sram_InitDebugSave();
-    /* TEMPORARY (2026-07-26): SCENE_LINKS_HOUSE uses a prerendered JPEG
-     * background room shape (ROOM_SHAPE_TYPE_IMAGE), whose draw path
-     * (Room_DrawImageSingle) is disabled on this port (see z_room.c --
-     * its S2DEX opcodes collide with our F3DEX2-only interpreter). That
-     * means Link's House can never show any room geometry on this port
-     * yet, independent of any other fix. SCENE_REDEAD_GRAVE is a small
-     * grotto using a real 3D mesh (ROOM_SHAPE_TYPE_NORMAL) instead, to
-     * validate the room-mesh rendering path while image-room support
-     * isn't implemented. Its other actors (EN_BOX, EN_RD, OBJ_SYOKUDAI)
-     * all fall back to the shared no-op dummy ActorProfile on this port
-     * (see psp/src/z_actor_dlftbls_psp.c), same as everywhere else --
-     * only Player has a real profile compiled in. Switch back to
-     * ENTR_LINKS_HOUSE_0 once image-room drawing is implemented. */
-    /* Test room: SCENE_GRAVE_WITH_FAIRYS_FOUNTAIN (hakaana2).
+    /* Test room: SCENE_LINKS_HOUSE (link_home), a ROOM_SHAPE_TYPE_IMAGE room --
+     * i.e. one of the "JPEG rooms" whose pre-rendered background the N64 draws
+     * with the S2DEX microcode.
      *
-     * IMPORTANT (2026-08-14): only **single-room** scenes render at all on this
-     * port right now. Confirmed 5/5: hakaana (1 room) and hakaana2 (1 room)
-     * both draw geometry, while takaraya (7 rooms), tokinoma (2 rooms) and
-     * spot04/Kokiri Forest (3 rooms) all come out black or hang. So pick a
-     * 1-room scene for any rendering test until multi-room support is fixed.
-     * Check `ls extracted/pal-1.0/baserom/ | grep '^<scene>_room_'` first. */
-    gSaveContext.save.entranceIndex = ENTR_GRAVE_WITH_FAIRYS_FOUNTAIN_0;
+     * That path used to be disabled on this port (S2DEX opcode numbers collide
+     * with F3DEX2's), which is why the test scene was SCENE_GRAVE_WITH_FAIRYS_
+     * FOUNTAIN (hakaana2) instead. It is implemented now: the background is
+     * decoded to the GE's pixel format at build time (psp/tools/jfif_to_psp.py)
+     * and blitted by one port-private command (see psp/include/gfx/psp_bg_rect.h).
+     *
+     * Still true, and still what limits the choice of test scene: only
+     * **single-room** scenes render (confirmed 5/5 on 2026-08-14 -- hakaana,
+     * hakaana2 draw; takaraya, tokinoma, spot04 come out black or hang).
+     * link_home has exactly one room. Check
+     * `ls extracted/pal-1.0/baserom/ | grep '^<scene>_room_'` before picking
+     * another. The scene must also be listed in Makefile.psp's BLOB_SCENES.
+     *
+     * Its actors all fall back to the shared no-op dummy ActorProfile (see
+     * psp/src/z_actor_dlftbls_psp.c) -- only Player has a real profile. */
+    gSaveContext.save.entranceIndex = ENTR_LINKS_HOUSE_0;
+    /* No intro cutscene: link_home's alternate headers include the "Link asleep
+     * in bed" opening (gLinkHouseIntroSleepCs), and the alternate-header path is
+     * exactly what the gameMode fix above exists to stay out of. */
+    gSaveContext.save.cutsceneIndex = CS_INDEX_NONE;
     /* Force a safe midday value -- Play_Init derives IS_DAY (and thus which
      * of SCENE_LAYER_CHILD_DAY/CHILD_NIGHT it picks) from this, and an
      * unset/zero dayTime would land before the 6:30 threshold, i.e. night,
