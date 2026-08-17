@@ -58,8 +58,36 @@ extern uintptr_t gSegments[NUM_SEGMENTS];
  * carries its RAM offset in the low 24 bits (measured >= 1.6MB). Only
  * segments 8 and 9 can collide -- every other segment's reference range lies
  * outside the RAM window entirely, so they keep the plain behaviour. */
-#define PSP_SEG89_NATIVE_MIN    0x00100000u /* >= 1MB: certainly a pointer  */
-#define PSP_SEG89_AMBIGUOUS_MIN 0x00010000u /* 64KB..1MB: neither is proven */
+/* MEASURED 2026-08-17, and it moved the threshold: gPspSegAmbiguous9 came back
+ * as 6 -- the counter the comment above says "should stay at 0". One of those
+ * six was w1 = 0x09055D80 (offset 343KB), a display list living in the loaded
+ * ROOM blob, which the old band resolved AS SEGMENT 9 and sent gfx_run_dl into
+ * unrelated memory. That is the pivot-view crash: PPSSPP "Bad Execution
+ * Address" with a jump target that changed between runs.
+ *
+ * The two readings are not symmetric, and that is what fixes the default.
+ * A GENUINE segment-8/9 reference is OoT setting segments 8 and 9 to Link's
+ * current eye and mouth textures and then naming them -- so its offset is 0,
+ * or a few KB at most (measured 0..26KB). A NATIVE pointer that merely starts
+ * 0x08/0x09 carries a real RAM offset, and the smallest one seen is 343KB.
+ * So the middle band is not "neither is proven" in practice: anything past a
+ * few tens of KB is a pointer.
+ *
+ * Threshold now sits at 64KB, between a measured 26KB genuine maximum and a
+ * measured 343KB pointer minimum -- 2.5x margin below, 5x above -- and the
+ * band that remains resolves as a POINTER, which is the safe default here:
+ * mis-resolving a pointer corrupts the address and crashes, while mis-treating
+ * a genuine reference as native leaves it pointing at the segment base, which
+ * is where it already pointed.
+ *
+ * This is still a heuristic. The collision-proof fix is libultraship's marker
+ * convention (Interpreter::SegAddr, reference/libultraship/src/fast/
+ * interpreter.cpp:3166): it tags segmented addresses with bit 0, which real
+ * pointers can never have. Adopting it here means tagging at blob-build time
+ * in psp/tools/make_scene_blob.sh AND at every gSPSegment site -- worth doing
+ * if this bites again. */
+#define PSP_SEG89_NATIVE_MIN    0x00010000u /* >= 64KB: treat as a pointer   */
+#define PSP_SEG89_AMBIGUOUS_MIN 0x00004000u /* 16KB..64KB: still recorded    */
 
 /* Measurement hooks, same rationale as the interpreter's counters: plain
  * globals, no I/O, read out of the running game with PPSSPP's debugger. A
@@ -91,8 +119,11 @@ static inline void* PspSegmentedToVirtualDefensive(uintptr_t addr) {
             return (void*)addr;
         }
         if (off >= PSP_SEG89_AMBIGUOUS_MIN) {
-            /* Neither reading is proven here. Resolve as segmented (the
-             * conservative choice, matching real hardware) but record it. */
+            /* Recorded, and resolved as SEGMENTED -- below the native
+             * threshold this is still the likelier reading, and unlike the old
+             * band it is now narrow (16KB..64KB) and sits entirely inside the
+             * range genuine references were measured in. A non-zero count here
+             * means real traffic is landing in it; check what before trusting. */
             if (segNum == 8) {
                 ++gPspSegVirtAmbiguous8;
             } else {
