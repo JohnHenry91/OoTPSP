@@ -1,0 +1,513 @@
+{{object|name=gameplay_field_keep}}
+
+'''gameplay_field_keep''' is an [[object]] file that contains models and textures used globally in the game's overworld maps. Its contents are identical in both NTSC 1.0 and the Debug ROM.
+
+{| class="wikitable" style="text-align: center; font-family: monospace; margin: left;"
+! Start || End || Type || Identification || Used || Notes || Type || Size
+|-
+| 00000000
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Graveyard Flower - Petals I
+| 
+| 
+| 
+| 
+|-
+| 000000A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Graveyard Flower - Petals II
+| 
+| 
+| 
+| 
+|-
+| 00000140
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Graveyard Flower - Petals III
+| 
+| 
+| 
+| 
+|-
+| 000001E0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Graveyard Flower - Leaf I
+| 
+| 
+| 
+| 
+|-
+| 00000280
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Graveyard Flower - Leaf II
+| 
+| 
+| 
+| 
+|-
+| 00000320
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Graveyard Flower - Leaf III
+| 
+| 
+| 
+| 
+|-
+| 000003C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Graveyard Flower - Leaf IV
+| 
+| 
+| 
+| 
+|-
+| 00000460
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Graveyard Flower - Leaf V
+| 
+| 
+| 
+| 
+|-
+| 00000500
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Graveyard Flower - Full
+| 
+| 
+| 
+| 
+|-
+| 00000750
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Graveyard Flower - Petals
+| 
+| 
+| rgb5a1
+| 16x32
+|-
+| 00000B50
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Graveyard Flower - Leaf
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 00001390
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Grotto Hole [?]
+| 
+| 
+| 
+| 
+|-
+| 00001420
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Grotto Hole [?]
+| 
+| 
+| ia16
+| 32x64
+|-
+| 00002480
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Butterfly Wing - Right
+| 
+| 
+| 
+| 
+|-
+| 00002520
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Butterfly Wing - Right
+| 
+| 
+| 
+| 
+|-
+| 00002530
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Butterfly Wing - Right
+| 
+| 
+| 
+| 
+|-
+| 00002580
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Butterfly Wing - Left
+| 
+| 
+| 
+| 
+|-
+| 00002620
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Butterfly Wing - Left
+| 
+| 
+| 
+| 
+|-
+| 00002630
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Butterfly Wing - Left
+| 
+| 
+| 
+| 
+|-
+| 00002680
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Butterfly Wing
+| 
+| 
+| rgb5a1
+| 32x64
+|-
+| 00003700
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Palette I
+| 
+| 
+| rgb5a1
+| 16x16
+|-
+| 00003720
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Bombable Wall - Intact
+| 
+| 
+| ci4
+| 32x64
+|-
+| 00003B20
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Bombable Wall - Broken
+| 
+| 
+| ci4
+| 32x64
+|-
+| 00003FC0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Bombable Wall - Intact
+| 
+| 
+| 
+| 
+|-
+| 00004088
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Bombable Wall - Broken
+| 
+| 
+| 
+| 
+|-
+| 00004720
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Wooden Door - Frame [?]
+| 
+| 
+| 
+| 
+|-
+| 000047A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Wooden Door - Handle on Right
+| 
+| 
+| 
+| 
+|-
+| 00004980
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Wooden Door - Handle on Left
+| 
+| 
+| 
+| 
+|-
+| 00004B50
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Wooden Door - [?]
+| 
+| 
+| rgb5a1
+| 16x16
+|-
+| 00004D50
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Wooden Door - [?]
+| 
+| 
+| rgb5a1
+| 16x16
+|-
+| 00004F50
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Wooden Door - Face
+| 
+| 
+| i4
+| 64x128
+|-
+| 00006000
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Orange Fish - Body I
+| 
+| 
+| 
+| 
+|-
+| 000061E8
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Orange Fish - Body II
+| 
+| 
+| 
+| 
+|-
+| 000061F8
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Orange Fish - Body III
+| 
+| 
+| 
+| 
+|-
+| 000063A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Orange Fish - Tail I
+| 
+| 
+| 
+| 
+|-
+| 00006448
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Orange Fish - Tail II
+| 
+| 
+| 
+| 
+|-
+| 00006458
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Orange Fish - Tail III
+| 
+| 
+| 
+| 
+|-
+| 000064A8
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Orange Fish - Top Half
+| 
+| 
+| rgb5a1
+| 64x32
+|-
+| 000074A8
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Orange Fish - Bottom Half
+| 
+| 
+| rgb5a1
+| 64x32
+|-
+| 000084A8
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Orange Fish - Tail
+| 
+| 
+| rgb5a1
+| 32x16
+|-
+| 00008900
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Beehive - Intact
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 000095B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Beehive - Intact
+| 
+| 
+| 
+| 
+|-
+| 00009710
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Beehive - Fragment
+| 
+| 
+| rgb5a1
+| 16x16
+|-
+| 00009940
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Beehive - Fragment
+| 
+| 
+| 
+| 
+|-
+| 000099D0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Palette II
+| 
+| 
+| rgb5a1
+| 16x16
+|-
+| 000099F8
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Silver Boulder
+| 
+| 
+| ci4
+| 64x64
+|-
+| 0000A3C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Silver Boulder - Intact
+| 
+| 
+| 
+| 
+|-
+| 0000A5E8
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Silver Boulder - Fragment
+| 
+| 
+| 
+| 
+|-
+| 0000A880
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Small Rock
+| 
+| 
+| 
+| 
+|-
+| 0000A940
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Small Rock
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 0000B140
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Grass Clump
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 0000B9D0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Grass Clump
+| 
+| 
+| 
+| 
+|-
+| 0000BA70
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Sandstorm Layer I
+| 
+| 
+| i8
+| 64x32
+|-
+| 0000C270
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Sandstorm Layer II
+| 
+| 
+| ia8
+| 64x32
+|-
+| 0000CA70
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Sandstorm Effect
+| 
+| 
+| 
+| 
+|-
+| 0000CB30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| rgb5a1
+| 32x32
+|}
+
+[[Category: Display List Mappings]]

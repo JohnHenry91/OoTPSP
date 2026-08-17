@@ -1,0 +1,53 @@
+{{DISPLAYTITLE:En_Test}}
+{{Stub}}
+{{Actor|name=ovl_En_Test}}
+
+'''ovl_En_Test''' is the [[actor]] file for the [[Stalfos]] [[miniboss]].
+{{clear}}
+
+== Debug Rom ==
+
+===Functions===
+
+Credit to Lee.
+
+<pre>func_8085F650: most definitely used
+func_8085F938: crashes randomly (called twice)
+func_8085FAB0: AI for Z-targetted state (?)
+func_8085FDD0: called
+func_8085FF28: called
+func_80860068: movement (velocity) related, sort of? doesnt effect parrying around link
+func_80860438: more AI-related functionality, seems to only allow stalfos to use "jump attack"
+func_80860BDC: called
+func_80860EC0: no noticable side effects
+func_80861418: AI - related to being on sword side of stalfos, inbehind, will turn around and not attack
+func_808615A4: called
+func_8086181C: called
+func_8086194C: AI / Enemy - Link interaction (Stalfos can't be targeted or interacted with. Stands stationary, head following Link.)
+func_80861B94: related to func_8086194C
+func_80861D50: related to func_80862154
+func_80861EC0: i got a deku stick
+func_80862050: called
+func_80862154: called
+func_80862398: called
+func_80862578: called
+func_808627C4: no noticable side-effects
+func_80862DBC: no noticable side-effects (called twice)
+func_80862FA8: used randomly
+func_808630F0: called
+func_80863240: called
+func_80863460: called
+func_808634F8: called
+func_80864158: no noticable side-effects (called twice)
+func_808641E8: very important but when crippled doesnt crash game</pre>
+
+== OoT 1.0 (U) ==
+
+===Damage Values===
+<pre>BFCE4F - slash up
+BFCA6F - slash down
+BFD21F - jump attack</pre>
+
+{{clear}}
+
+[[Category:Stalfos]]

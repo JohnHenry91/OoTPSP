@@ -1,0 +1,49 @@
+{{actor|name=ovl_En_Vm|ispage=true}}
+
+<gallery>
+File:Beamos.png|Beamos - OOT
+</gallery>
+
+== Debug Rom Notes ==
+Virtual Address: '''80B2D460 - 80B2EDF0'''
+=== Overlay ===
+{| class="wikitable"
+|-
+! Offset !! Type !! Description/Info
+|-
+| 0x0000 || Function || Gets called to store current function Beamos uses to its instance variables, and read by another function during runtime. Used to determine Beamos's next action.
+
+AC850214 -> stored relative 0x214 of Beamos's actor instance variables in RAM
+|-
+| 0x061C || Function || Shoots lazer beam at Link
+|-
+| 0x0660 || Code || Loads unsigned byte from 0x2C4 of Beamos's actor instance in RAM to determine if lazer hits Link.
+
+Normally 0x11, checks for flag 0x02 where 0x13 ends firing phase
+|-
+| 0x688<br />and<br />0x69C || Code || recalculated RAM address used as a limit maximum to a counter stored at 0x254 of the Beamos's RAM instance. Second half at 0x69C determines the counter limit to end lazer firing.
+|-
+| 0x700 || JAL || Jumps to 0x1A0 after finished firing lazer to reset to rotating action.
+|}
+
+=== Instance ===
+{| class="wikitable"
+|-
+! Offset !! Type !! Description/Info
+|-
+| 0x214 || ptr || RAM address reference to current function being used
+|-
+| 0x220 || int || Actual timer used to determine Beamos charging and firing lazer duration
+|-
+| 0x248 || float || size/scale of lazer beam when fired
+|-
+| 0x254 || short || used as a form of counter, compared against the second half of some RAM address value? Times out lazer when counter decrements. Also used as an increment to attack with.<br />
+Possibly unique to the Beamos.
+|-
+| 0x260 || short || used to determine phase of lazer firing 
+stages: 0x0004 to commence firing beam
+|-
+| 0x2C4 || byte || Used to determine phase of Beamos
+|}
+
+[[Category:Beamos]]

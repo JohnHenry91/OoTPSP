@@ -1,0 +1,85 @@
+{{address3|
+|space=ram
+|name=Game Struct
+|ver1=Debug|ref1=ram|start1=80212020|size1=a4
+|ver2=NTSC 1.0|ref2=ram|start2=801C84A0|size2=a4
+|ver3=NTSC 1.1|ref3=ram|start3=801C8660|size3=a4
+|ver4=NTSC 1.2|ref4=ram|start4=801C8D60|size4=a4
+|ver5=PAL 1.0|ref5=ram|start5=801C64E0|size5=a4
+|ver6=PAL 1.1|ref6=ram|start6=801C6520|size6=a4
+}}
+{{See also|Ram Map}}
+{{for|documentation of the game_play [[Game State]], historically known as the Global Context|Game Play Struct}}
+The '''Game Struct''' is a shared struct used by the dynamically allocated [[Game State|Game States]]. It contains the barebones variables needed to make a custom game state; a reference to the Graphics Context, state variables for initializing/executing/swapping Game States, input, memory allocations, and provides access to number of update cycles. By chance, Game States happen to always be allocated to the same memory address. 
+{{clear}}
+
+== Addresses ==
+
+{|class="wikitable"
+! Offset || Type || Debug || NTSC 1.0 || NTSC 1.1 || NTSC 1.2 || PAL 1.0 || PAL 1.1 || Description
+|-
+| 00 || ptr || 80212020 || 801C84A0 || 801C8660 || 801C8D60 || 801C64E0 || 801C6520 || [[Graphics Context]]
+|-
+| 04 || ptr || 80212024 || 801C84A4 || 801C8664 || 801C8D64 || 801C64E4 || 801C6524 || Game State's "Update" function, called once every frame
+|-
+| 08 || ptr || 80212028 || 801C84A8 || 801C8668 || 801C8D68 || 801C64E8 || 801C6528 || Game State's "Deconstructor" function, called when the state should run clean-up code
+|-
+| 0C || ptr || 8021202C || 801C84AC || 801C866C || 801C8D6C || 801C64EC || 801C652C || Stores next Game State's "Constructor" when swapping Game States
+|-
+| 10 || ptr || 80212030 || 801C84B0 || 801C8670 || 801C8D70 || 801C64F0 || 801C6530 || [Game State] struct's size (never read, set to 0 after initialization is complete)
+|-
+| 14 || input_struct || 80212034 || 801C84B4 || 801C8674 || 801C8D74 || 801C64F4 || 801C6534 || Controller Port 1
+|-
+| 2C || input_struct || 8021204C || 801C84CC || 801C868C || 801C8D8C || 801C650C || 801C654C || Controller Port 2
+|-
+| 44 || input_struct || 80212064 || 801C84E4 || 801C86A4 || 801C8DA4 || 801C6524 || 801C6564 || Controller Port 3
+|-
+| 5C || input_struct || 8021207C || 801C84FC || 801C86BC || 801C8DBC || 801C653C || 801C657C || Controller Port 4
+|-
+| 74 || u32 || 80212094 || 801C8514 || 801C86D4 || 801C8DD4 || 801C6554 || 801C6594 || Size of Game State's heap
+|-
+| 78 || ptr || 80212098 || 801C8518 || 801C86D8 || 801C8DD8 || 801C6558 || 801C6598 || Game State's heap pointer
+|-
+| 7C || ptr || 8021209C || 801C851C || 801C86DC || 801C8DDC || 801C655C || 801C659C || Heap Append Start pointer
+|-
+| 80 || ptr || 802120A0 || 801C8520 || 801C86E0 || 801C8DE0 || 801C6560 || 801C65A0 || Heap Append End pointer
+|-
+| 84 || ptr || 802120A4 || 801C8524 || 801C86E4 || 801C8DE4 || 801C6564 || 801C65A4 || Pointer to Main Heap node storing the Game State's memory heap
+|-
+| 88 || ptr || 802120A8 || 801C8528 || 801C86E8 || 801C8DE8 || 801C6568 || 801C65A8 || Pointer to Main Heap node storing the Game State's memory heap
+|-
+| 94 || ptr || 802120B4 || 801C8534 || 801C86F4 || 801C8DF4 || 801C6574 || 801C65B4 || Pointer to Main Heap node storing the Game State's memory heap
+|-
+| 98 || s32 || 802120B8 || 801C8538 || 801C86F8 || 801C8DF8 || 801C6578 || 801C65B8 || Execute Game State. If zero, swaps game state based on "Constructor" pointer
+|-
+| 9C || s32 || 802120BC || 801C853C || 801C86FC || 801C8DFC || 801C657C || 801C65BC || Frames run while current Game State has been alive
+|-
+| A0 || s32 || 802120C0 || 801C8540 || 801C8700 || 801C8E00 || 801C6580 || 801C65C0 || Unknown
+|}
+
+== Input Struct ==
+<pre>
+  00: InputInfo InputCurrent;     //Joystick Input is less than InputReleaseEdge?
+  06: InputInfo InputLast;        //computed at 60 fps, thus can appear equal to Current
+  0C: InputInfo InputPressEdge;   //Joystick info is actually change in position
+  12: InputInfo InputReleaseEdge; //Joystick Info is real-time input
+
+InputInfo Struct (0x06 bytes) is as follows:
+  00: //short = Buttons
+    0001 = C-Right
+    0002 = C-Left
+    0004 = C-Down
+    0008 = C-Up
+    0010 = R Button
+    0020 = L Button
+    0800 = D-Up button
+    1000 = Start Button
+    2000 = Z Button
+    4000 = B Button
+    8000 = A Button
+  02: sbyte = X axis. right is positive, left is negative
+  03: sbyte = Y axis. up is positive, down is negative
+  04: ? //N64 Mouse?
+</pre>
+
+[[Category:Game State]][[Category: Ram]]

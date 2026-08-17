@@ -1,0 +1,7 @@
+{{actor|name=ovl_En_Viewer}}
+'''ovl_En_Viewer''' is the actor that manages various actors used in the "nightmare" cutscene, and the similar cutscene where [[Zelda]] escapes from [[Ganondorf]].
+{{clear}}
+[[Category:Princess Zelda]]
+[[Category:Impa]]
+[[Category:Ganondorf]]
+[[Category:Cutscene Actors]]

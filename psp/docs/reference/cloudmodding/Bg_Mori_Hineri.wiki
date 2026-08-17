@@ -1,0 +1,7 @@
+{{Actor|name=ovl_Bg_Mori_Hineri|ispage=true}}
+
+'''Bg_Mori_Hineri''' is the actor for the twisted corridor in the Forest Temple
+
+== Glitches ==
+
+Bg_Mori_Hineri appears to force the Camera S state to DUNGEON1. However, if you pull out a bow or c-up on a normal floor, you'll switch to that floor's normal Camera S state, causing a weird "zoom in" glitch

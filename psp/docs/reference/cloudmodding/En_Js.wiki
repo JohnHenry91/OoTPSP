@@ -1,0 +1,17 @@
+{{actor|name=ovl_En_Js}}
+'''ovl_En_Js''' is the [[actor]] file for the [[Carpet Salesman]].
+{{clear}}
+[[Category:Carpet Salesman]]
+
+== Debug Rom Notes ==
+0x398
+
+ROM: 0xE3FD78 - (24060003) Receive Bombchus<br>
+ROM: 0xE3FE00 - (29C100C8) Rupee Check to assure you have 200 Rupees in order to buy the Bombchus.<br>
+ROM: 0xE3FE28 - (2404FF38) Price of Bombchus (200 Rupees)
+
+== NTSC 1.0 Notes ==
+
+ROM: 0xE5B544 - (24060003) Receive Bombchus<br>
+ROM: 0xE5B5D0 - (29C100C8) Rupee Check to assure you have 200 Rupees in order to buy the Bombchus.<br>
+ROM: 0xE5B5F8 - (2404FF38) Price of Bombchus (200 Rupees)

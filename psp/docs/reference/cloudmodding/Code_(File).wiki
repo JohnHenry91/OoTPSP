@@ -1,0 +1,555 @@
+{{Address3|space=code|hideoff=true
+|ver1=Debug|ref1=rom|start1=A94000|size1=13AF30
+|ver2=NTSC 1.0|ref2=rom|start2=A87000|size2=103D30
+|ver3=NTSC 1.2|ref3=rom|start3=A87000|size3=103DA0}}
+
+
+== Intro ==
+'''code''' is a file that contains the majority of the code that drives Ocarina of Time.
+
+[[Code (File)/NTSC 1.0|NTSC 1.0]] Specific Notes
+
+== Tables ==
+code contains a large number of data tables
+
+* [[Overlay Tables]] - [[Overlays]] facilitate in run-time linking, allowing code files to be loaded arbitrary in ram. 
+** [[Game States]]
+** [[Actors#Actor Overlay Table|Actors]]
+** [[Particles#Particle Overlay Table|Particles]]
+* [[Object Table]]
+* [[Entrance Table]]
+* [[Scene Table]]
+* [[Text_Format#Message_Entry_Table|Textbox Message Table]]
+* [[Entrance Cutscenes]] - Lists cutscenes that trigger on entering the game using a specific [[entrance index]].
+* [[Audioseq#Sequence_Pointer_Table|Audio Sequence Pointer Table]]
+* [[Audiobank|Audiobank Pointer Table]]
+* [[Audiotable|Audiotable Pointer Table]]
+* [[Code (File)/Get Item Models|Get Item Models]]
+
+== Actors ==
+code contains the functions and data for a handful of actors.
+
+* Link's actor initialization variables are stored in code, as well as other things
+* {{actor ref|En_Item00}}
+* {{actor ref|En_A_Obj}}
+
+== Other ==
+* [[Memory]] - Memory allocation functions and structures
+
+==sakura89's Documentation==
+Offsets that follow are relative to start of the Debug ROM, NTSC 1.0, and NTSC 1.2 Decompressed Retail Roms
+
+{|class=wikitable
+|+ Interface (2 bytes each)
+! NTSC 1.0 || NTSC 1.2 || Debug ROM || Usage
+|-
+| ADA976 || ADA9F6 || AEFD42 || beating heart R
+|-
+| ADA99E || ADAA1E || AEFD6A || beating heart G
+|-
+| ADA9B6 || ADAA36 || AEFD82 || beating heart B
+|-
+| ADAA12 || ADAA92 || AEFDDE || beating heart outline R
+|-
+| ADAA3E || ADAABE || AEFE0A || beating heart outline G
+|-
+| ADAA5A || ADAADA || AEFE26 || beating heart outline B
+|-
+| ADA83E || ADA8BE || AEFC0A || normal heart R
+|-
+| ADA892 || ADA912 || AEFC5E || normal heart G
+|-
+| || || ||normal heart B
+|-
+| ADB912 || ADB992 || AF0CEE || hearts per line
+|}
+ 
+=== Values in code's .data section ===
+
+{|class="wikitable" 
+|+ Navi Colors (RGBA)
+! NTSC 1.0<br>NTSC 1.2 || Debug || Category || Color
+|-
+| B5E174 || B8D124 || Switches || Green
+|-
+| B5E17C || B8D12C || Prop (1) || Green
+|-
+| B5E184 || B8D134 || Player/Default || White
+|-
+| B5E18C || B8D13C || Explosives || Green
+|-
+| B5E194 || B8D144 || Friendly NPC || Blue
+|-
+| B5E19C || B8D14C || Enemy || Yellow
+|-
+| B5E1A4 || B8D154 || Prop || Green
+|-
+| B5E1AC || B8D15C || Item/Action || Green
+|-
+| B5E1B4 || B8D164 || Misc || Green
+|-
+| B5E1BC || B8D16C || Boss || Yellow
+|-
+| B5E1C4 || B8D174 || Door || Green
+|-
+| B5E1CC || B8D17C || Chests || Green
+|-
+| B5E1D4 || B8D184 || ? || Green
+|}
+
+
+{|class="wikitable"
+|+ Rupee values (2 bytes)
+! NTSC 1.0 || NTSC 1.2 || Debug ROM || Usage
+|-
+| B6D4DC || B6D4DC || B9CC3C || green rupee
+|-
+| B6D4DE || B6D4DE || B9CC3E || blue rupee
+|-
+| B6D4E0 || B6D4E0 || B9CC40 || red rupee
+|-
+| B6D4E2 || B6D4E2 || B9CC42 || purple rupee
+|-
+| B6D4E4 || B6D4E4 || B9CC44 || orange rupee
+|}
+
+{|class="wikitable"
+|+ Tunic Colors (3 bytes RGB)
+! NTSC 1.0 || NTSC 1.2 || Debug ROM || Usage
+|-
+| B6DA38 || B6DA48 || B9D1A8 || Kokiri Tunic color
+|-
+| B6DA3B || B6DA4B || B9D1AB || Goron Tunic color
+|-
+| B6DA3E || B6DA4E || B9D1AE || Zora Tunic color
+|}
+ 
+{|class="wikitable"
+|+ Gauntlet Colors (3 bytes RGB)
+! NTSC 1.0 || NTSC 1.2 || Debug ROM || Usage
+|-
+| B6DA44 || B6DA54 || B9D1B4 || Silver Gauntlets color
+|-
+| B6DA47 || B6DA57 || B9D1B7 || Golden Gauntlets color
+|-
+| B6DA4A || B6DA5A || B9D1BA || Black Gauntlets color
+|-
+| B6DA4D || B6DA5D || B9D1BD || Kokiri (Green) Gauntlets color
+|-
+| B6DA50 || B6DA60 || B9D1C0 || Zora (Blue) Gauntlets color
+|-
+| B6DA53 || B6DA63 || B9D1C3 || Bronze (Red) Gauntlets color
+|}
+
+{|class="wikitable"
+|+ Item maximums ( 2 bytes first, second and third upgrade size ( 6 bytes total ) )
+! NTSC 1.0 || NTSC 1.2 || Debug ROM || Usage
+|-
+| B6EC2E || B6EC3E || B9E39E || Quivers
+|-
+| B6EC36 || B6EC46 || B9E3A6 || Bomb bags
+|-
+| B6EC4C || B6EC5C || B9E3BC || Wallet amounts
+|-
+| B6EC56 || B6EC66 || B9E3C6 || Deku Seed bags
+|-
+| B6EC5E || B6EC6E || B9E3CE || Deku Sticks
+|-
+| B6EC66 || B6EC76 || B9E3D6 || Deku Nuts
+|}
+
+===sakura89/Jisaan===
+
+{|class="wikitable"
+|+ Song activators
+| BA8DA0 || Minuet of Forest
+|-
+| BA8DA9 || Bolero of Fire 
+|-
+| BA8DB2 || Serenade of Water
+|-
+| BA8DBB || Requiem of Spirit
+|-
+| BA8DC4 || Nocturne of Shadow
+|-
+| BA8DCD || Prelude to Light
+|-
+| BA8DD6 || Saria's Song
+|-
+| BA8DDF || Epona's Song
+|-
+| BA8DE8 || Zelda's Lullaby
+|-
+| BA8DF1 || Sun's Song
+|-
+| BA8DFA || Song of Time
+|-
+| BA8E04 || Song of Storms
+|-
+| BA8E0C || Scarecrow's Song
+|}
+
+The first byte is the number of notes in the song, the rest are the notes, in the order they must be played, except the scarecrow's song, which is just the length. These are the valid values:
+ 
+{|class="wikitable"
+| A || 00
+|-
+|  Down || 01
+|-
+|  Right || 02
+|-
+|  Left || 03
+|-
+|  Up || 04
+|}
+
+==spinout's documentation==
+Offsets that follow are relative to start of code, not start of ROM
+
+ Debug Rom Offset:
+ F9440 - FCF20 [[Actor table]] ( D7490 in 1.0 )
+ 
+ 10A6C8 - 10B360 [[Object table]] (E7F58 in OoT 1.0)
+ 
+ 10B360 - 10CBB0 [[Entrance table]] (E8BF0-EA440 in 1.0)
+ 
+ 10CBB0 [[Scene table]] (EA440-EAC28 in 1.0 ROM)
+ 
+ 10D498 texture segment table whatever thingy (below) (ROM:BA1498)
+ 
+ 11A1E0-11B744 actor name table
+   [ascii text][null]: repeats for each entry
+
+=== Scene special texture segment table ===
+{|class="wikitable"
+! Offset || Scene || Texture Description
+|- 
+| 0200BA18 || Inside Deku Tree || Entrance DAY 08
+|-
+| 0200CA18 || Inside Deku Tree || Entrance NIGHT 08
+|-
+| 02012378 || Dodongo's Cavern || Entrance DAY 08
+|-
+| 02013378 || Dodongo's Cavern || Entrance NIGHT 08
+|-
+| 02011F78 || Dodongo's Cavern || Main Hall Lava 1 09
+|-
+| 02014778 || Dodongo's Cavern || Main Hall Lava 2 09
+|-
+| 02014378 || Dodongo's Cavern || Main Hall Lava 3 09
+|-
+| 02013F78 || Dodongo's Cavern || Main Hall Lava 4 09
+|-
+| 02014B78 || Dodongo's Cavern || Main Hall Lava 5 09
+|-
+| 02013B78 || Dodongo's Cavern || Main Hall Lava 6 09
+|-
+| 02012F78 || Dodongo's Cavern || Main Hall Lava 7 09
+|-
+| 02012B78 || Dodongo's Cavern || Main Hall Lava 8 09
+|-
+| 0200BD20 || Thieves' Hideout || Entrance DAY 08
+|-
+| 0200B920 || Thieves' Hideout || Entrance NIGHT 08
+|-
+| 02014C30 || Water Temple || Entrance DAY 06
+|-
+| 02015830 || Water Temple || Entrance NIGHT 06
+|-
+| 0200FAC0 || Ice Cavern || Entrance DAY 08
+|-
+| 0200F8C0 || Ice Cavern || Entrance NIGHT 08
+|-
+| 0200F8C0 || Gerudo Training || Entrance DAY 08
+|-
+| 020100C0 || Gerudo Training || Entrance NIGHT 08
+|-
+| 02005210 || Stables || Light DAY 08
+|-
+| 02005010 || Stables || Light NIGHT 08
+|-
+| 02006550 || Lots o' Pots || Left DAY 09
+|-
+| 02003550 || Lots o' Pots || Left NIGHT 09
+|-
+| 02002350 || Lots o' Pots || Right DAY 08
+|-
+| 02001350 || Lots o' Pots || Right NIGHT 08
+|-
+| 02014D90 || Forest Temple || Entrance DAY 08
+|-
+| 02014590 || Forest Temple || Entrance NIGHT 08
+|-
+| 02018920 || Spirit Temple || Entrance DAY 08
+|-
+| 02018020 || Spirit Temple || Entrance NIGHT 08
+|-
+| 02015B50 || Kakariko Village || Windows DAY 08
+|-
+| 02016B50 || Kakariko Village || Windows NIGHT 08
+|-
+| 02008F98 || Zora's Domain || Entrance DAY 08
+|-
+| 02008FD8 || Zora's Domain || Entrance NIGHT 08
+|-
+| 02009678 || Gerudo Fortress || Cell DAY 08
+|-
+| 0200DE78 || Gerudo Fortress || Cell NIGHT 08
+|-
+| 02009808 || Goron City || Entrance DAY 08
+|-
+| 02008FC8 || Goron City || Entrance NIGHT 08
+|-
+| 020081E0 || Lon Lon Ranch || Windows DAY 08
+|-
+| 0200FBE0 || Lon Lon Ranch || Windows NIGHT 08
+|}
+
+===RAM-oriented===
+ 801274A0[u32][0x1A]: jump table for map reading functions
+ 80127520[u16]: Adult link object number
+ 80127522[u16]: Child link object number
+ 80127524[u32]: Object table length (number of objects)
+ 80127528[u32][number of objects]: object table
+===Link stuff===
+<pre>
+What still isn't known/known for sure:
+hookshot tip (0x0602B288 ?)
+hookshot string
+deku stick
+bow string
+slingshot string
+
+0x108D10	Adult hierarchy pointer
+0x108D14	Child hierarchy pointer
+
+most items
+Format: AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD
+A - high polygon adult display list
+B - high polygon child display list
+C - low polygon adult display list
+D - low polygon child display list
+
+0x108E88	closed right hand
+0x108E98	deku shield & hand
+0x108EA8	hylian shield & hand
+0x108EB8	mirror shield & hand
+0x108EC8	kokiri sword in sheath
+0x108ED8	kokiri sword in sheath with deku shield
+0x108EE8	kokiri sword in sheath with hylian shield
+0x108EF8	kokiri sword in sheath with mirror shield
+0x108F08	unused slot
+0x108F10	unused slot
+0x108F18	? child link only: deku shield, matrix @ 0x06022648 pushed first ? (see dl @ 0x06022688)
+0x108F28	kokiri sword sheath
+0x108F38	kokiri sword sheath with deku shield
+0x108F48	kokiri sword sheath with hylian shield
+0x108F58	kokiri sword sheath with mirror shield
+0x108F68	unused slot
+0x108F78	? adult:sheath child: deku (see 0x108F20)
+0x108F88	hand holding biggoron sword
+0x108F98	broken giant's knife
+0x108FA8	open left hand
+0x108FB8	closed left hand
+0x108FC8	kokiri sword & hand
+0x108FD8	master sword & hand
+0x108FE8	open right hand
+0x108FF8	closed right hand
+0x109008	slingshot & hand
+0x109018	master sword in sheath
+0x109028	master sword sheath
+0x109038	? (guess: cloth at hips)
+0x109048	bow & hand
+0x109058	fairy ocarina & hand
+0x109068	ocarina of time & hand
+0x109078	hookshot
+0x109088	megaton hammer
+0x109098	boomerang & hand
+0x1090A8	left hand (?)
+0x1090B8	? Adult link only (0x06029918/0x06029F48)
+0x1090C8	? Adult link: 0x06036E58/0x06029FA0 Child link: 0x06021AE8/0x00000000
+0x1090D8	? slingshot/bow? (single size)
+
+eye textures
+0x109178	looking straight
+0x10917C	half closed
+0x109180	closed
+0x109184	looking right
+0x109188	looking left
+0x10918c	surprised
+0x109190	looking down
+0x109194	hurt
+
+mouth textures
+0x109198	closed
+0x10919C	open, teeth
+0x1091A0	open, shouting
+0x1091A4	open, got item
+
+boots (adult link only)
+0x1091BC	kokiri boots
+0x1091C0	iron boots
+0x1091C4	hover boots (1)
+0x1091C8	hover boots (2)
+
+? (adult link)
+0x1092D4	maybe has to do with hookshot? (0x0602B108)
+
+? (child link)
+0x1092E4	slingshot string? (0x060221A8)
+
+Bottles
+0x109298	Adult
+0x10929C	child
+
+0x10A6C0	Adult link object (default 0x0014)
+0x10A6C2	Child link object number (default 0x0015)
+
+0x10A768	Adult link object ROM pointer (default entry 0x0014)
+0x10A770	Child link object ROM pointer (default entry 0x0015)
+
+</pre>
+See [[object_link_child#Mask_Pointers|Mask Pointers]] for information on masks.
+
+===Other random crap===
+<pre>
+0x10A6B8	elf_message_field ROM pointer
+0x10A6A0	elf_message_ydan ROM pointer
+0x10A6C6	number of objects
+</pre>
+
+==PwnzLPs's Documentation==
+The stupid sword and shield write from pulling the Master Sword has officially been found.  [http://imgur.com/KLbEXs9 Pic here as proof.]
+<pre>
+80085080: A62E0070 35D80002
+</pre>
+
+Default Save Data Format ; Located at BA1693 in ROM, 10D693 in the file. The size is C1.
+
+<pre>The default save data location is in code.zasm
+
+Version       File           VRom         Size
+Debug         10D693         BA1693       C1
+NTSC 1.0      EAE73          B71E73       C1
+NTSC 1.2      EAE83          B71E83       C1
+
+Debug ROM
+
+0x10D6B3 - Biggoron's Sword Flag 1 (Set to 01 in conjunction with 10D6BA)
+0x10D6BA - Biggoron's Sword Flag 2 (Set to 01 in conjunction with 10D6B3)
+
+NTSC 1.0
+
+0xEAE93 - Biggoron's Sword Flag 1 (Set to 01 in conjunction with EAE9A)
+0xEAE9A - Biggoron's Sword Flag 2 (Set to 01 in conjunction with EAE93)
+
+NTSC 1.2
+
+0xEAEA3 - Biggoron's Sword Flag 1 (Set to 01 in conjunction with EAEAA)
+0xEAEAA - Biggoron's Sword Flag 2 (Set to 01 in conjunction with EAEA3)</pre>
+
+==Jisaan/BlooDMooN/Punk7890==
+{|class="wikitable"
+|+ Playback Song
+| BA8120 || Minuet of Forest
+|-
+| BA81C0 || Bolero of Fire
+|-
+| BA8260 || Serande of Water
+|-
+| BA8300 || Requiem of Spirit
+|-
+| BA83A0 || Nocturne of Shadow
+|-
+| BA8440 || Prelude to Light
+|-
+| BA84E0 || Saria's Song
+|-
+| BA8580 || Epona's Song
+|-
+| BA8620 || Zelda's Lullaby
+|-
+| BA86C0 || Sun's Song
+|-
+| BA8760 || Song of Time
+|-
+| BA8800 || Song of Storms
+|}
+ 
+Format:
+<tt>XX00 YYYY ZZZZ AABB</tt>
+
+* '''X''' - Determines the note (see below)
+* '''Y''' - Length of time the note is held
+* '''Z''' - Volume
+* '''A''' - Pitch (signed)
+* '''B''' - Vibrato (signed)
+
+{|class="wikitable"
+! Note || Value
+|-
+| A || 02
+|-
+|  Down || 05
+|-
+|  Right || 09
+|-
+|  Left || 0B
+|-
+|  Up || 0E
+|-
+|  End || 00
+|}
+
+Pitch and Vibrato are signed bytes because both are normally controlled by the control stick. That of course uses negative and positive values to represent Up / Down and Right / Left.
+
+== Generated Sound Table ==
+
+generated waves, 64 samples each, NTSC 1.0
+  instrument 0x80
+    800FF3A0  sawtooth 1x
+    800FF420  sawtooth 2x
+    800FF4A0  sawtooth 4x
+    800FF520  sawtooth 8x
+  instrument 0x81
+    800FF5A0  triangle 1x
+    800FF620  triangle 2x
+    800FF6A0  triangle 4x
+    800FF720  triangle 8x
+  instrument 0x82
+    800FF7A0  sine wave 1x
+    800FF820  sine wave 2x
+    800FF8A0  sine wave 4x
+    800FF920  sine wave 8x
+  instrument 0x83
+    800FF9A0  square wave 1x
+    800FFA20  square wave 2x
+    800FFAA0  square wave 4x
+    800FFB20  square wave 8x
+  instrument 0x84
+    800FFBA0  noise 1 1x
+    800FFC20  noise 1 2x
+    800FFCA0  noise 1 4x
+    800FFD20  noise 1 8x
+  instrument 0x85
+    800FFDA0  noise 2 1x
+    800FFE20  noise 2 2x
+    800FFEA0  noise 2 4x
+    800FFF20  noise 2 8x
+  instrument 0x86
+    800FFFA0  1/4 square wave 1x
+    80100020  1/4 square wave 2x
+    801000A0  1/4 square wave 4x
+    80100120  1/4 square wave 8x
+  instrument 0x87
+    801001A0  1/2 square wave 1x
+    80100220  1/2 square wave 2x
+    801002A0  1/2 square wave 4x
+    80100320  1/2 square wave 8x
+
+== Other ==
+
+ BD1537        start of level select
+ AA3EA0        Change 03E00008 to 00000000 to re-fight bosses //don't actually do this. This no-ops a JR RA. 
+
+[[Category:Code (File)]]

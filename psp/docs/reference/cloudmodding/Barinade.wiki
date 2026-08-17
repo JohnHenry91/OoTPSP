@@ -1,0 +1,7 @@
+== Actors ==
+* {{actor ref|00BA}}
+
+== Overlays ==
+* {{object ref|008C}}
+
+[[Category:Barinade| ]]

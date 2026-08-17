@@ -1,0 +1,11 @@
+== Actors ==
+* {{actor ref|ovl_Boss_Dodongo}}
+* {{actor ref|ovl_En_Bdfire}}
+* {{actor ref|ovl_En_Dodongo}}
+* {{actor ref|ovl_En_Dodojr}}
+== Objects ==
+* {{object ref|object_kingdodongo}}
+* {{object ref|object_dodongo}}
+* {{object ref|object_dodojr}}
+
+[[Category:Dodongos| ]]

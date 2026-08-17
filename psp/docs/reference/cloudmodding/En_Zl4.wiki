@@ -1,0 +1,86 @@
+{{actor|name=ovl_En_Zl4}}
+'''ovl_En_Zl4''' is the [[Princess Zelda|Child Zelda]] actor. This actor is used in the final game, whereas {{actor ref|ovl_En_Zl1}} is not intended to be used.
+{{clear}}
+[[Category:Princess Zelda]]
+
+== Meeting Zelda Cutscene Notes ==
+
+The entire sequence is broken down into 9 major steps, and subdivided into smaller minor steps. Both major and minor steps use their own jump tables, making documentation tricky.
+
+* 0 - Checks player input
+* 1 - Beginning of the cutscene
+* 4 - Last segment before leaving the scene to jump the the Triforce lore cutscene
+* 5 - First segment after returning from the Triforce lore cutscene 
+* 8 - Zelda's Letter is given
+
+Documenting the minor steps needs special care, because one time execution stuff occurs ''before'' the step counter is incremented. For example, if a bit of dialog appears during the majority of minor step 5, then the routine to display that text was executed at the end of step 4's routine.  
+
+== NTSC 1.0 Notes ==
+For this set of notes, the actor file is loaded at 801F0170. For the meeting Zelda cutscene, the notes on what minor cutscene segment id is what is far from perfect. 
+
+<pre>
+Actor File 801F0170, 80B80CF0
+
+1E58 LUI	V0, 0x0200
+1E5C ADDIU	V0, V0, 0x0104 //V0 = bank offset for Ganondorf walking to the king cs
+
+
+80B80DC8 (T:801F0248) //Sets camera tweens to follow
+//A0 = Game Play
+//A1 = Camera path id (801F4440, records 0xC big)
+
+801F27F4 //Handles cutscene state?
+
+801F03AC //Handles processing the meeting zelda cutscene
+? 4C10? //jump table for executing the different parts to the cutscene
+
+801F06A0 //Function, seems to check if zelda's current animation? (instance 0x144) for something?
+//V0 = matched one of the values checked
+
+
+801F0B38 //Function, Jumps to applicable routine for the Meeting Zelda cutscene (Section 02)
+//801F454C //jump table for executing the various stages of meeting zelda cs (Section 02)
+//04 //"Oh? What's that? Is that..."
+//05 //"a fairy?! Then, are you... Are you from the forest?"
+
+801F0E30 //Function, jumps to applicable routine for Meeting Zelda Cutscene (Section 03)
+// 801F4568 //jump table for executing 
+04 //Picked No on "Do you have it?"
+05 //Hmm? Sfx
+07 //Yes branch "Just as I thought!"
+08 //Yes branch, post laugh
+0C //"Do you have it?   Yes/No" text, from no branch
+0D //"Do you have it?   Yes/No", snapping from no branch animation
+
+=== Data block ===
+80B850B0 (T:801F4530) is jump table
+80B84FC0 (T:801F4440) is camera data for the meeting zelda cutscene. Each record is 0xC bytes long, and is of the following format
+struct 
+{
+    s32* cameraData1; //positions or focus points
+    s32* cameraData2; //positions or focus points
+	s32  unk;         //always 0?
+} struct_80B84FC0;
+
+=== Instance ===
+//0x0144 u32 = Segment offset to something, probably current animation?
+//0x0184  CollisionBody
+//0x01F8
+//0x01F8 u8 = Minor cutscene step. Determines what routine to use for the cutscene part.
+//0x01F9 u8 = Major cutscene step. 1-4 is first half of the cutscene, 5-8 is the second half
+//0x01FA u8 = Zelda's Right Eye texture id
+//0x01FB u8 = Zelda's Left Eye texture id
+//Meeting Zelda cs uses 801F0B38 function/jump table at 801F454C
+//0x01FD u8 = ? (Related to Zelda's Eyes)
+//0x0200 i16 = Frames until Zelda blinks (note: blink animation probably occurs at frames < 3)
+//0x0204 i16 = Frames passed during current cs segment
+</pre>
+
+
+
+Offset EFE9C3: normaly 0B, it is the item (from Get Item Table) that Zelda gives you in the courtyard as child.
+
+==Debug Rom Notes==
+
+ ROM: 0xF13A48 (2406000B) Letter from Zelda
+ ROM: 0xF13AE0 (2406000B) As above?

@@ -1,0 +1,4 @@
+{{actor|name=ovl_En_Dodongo}}
+'''ovl_En_Dodongo''' is the [[Dodongo]] actor. 
+{{clear}}
+[[Category:Dodongos]]

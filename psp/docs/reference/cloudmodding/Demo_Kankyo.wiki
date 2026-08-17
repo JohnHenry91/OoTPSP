@@ -1,0 +1,33 @@
+{{actor|name=ovl_Demo_Kankyo|ispage=true}}
+
+'''ovl_Demo_Kankyo''' is the [[actor]] used to become several different [[Temple of Time Objects|objects]] within the [[Temple of Time]].
+
+{{clear}}
+
+== Debug Rom Notes ==
+
+ 0x2A90 - Warp Away (Adult, Outside)
+ 0x2BA0 - Warp In (Adult, Outside)
+ 0x2D20 - Warp Away (Adult, Temple of Time?)
+ 0x2E30 - Warp Inside (Adult, Temple of Time?)
+ 0x2F50 - Warp Away (Child, Outside)
+ 0x3080 - Warp In (Child, Outside)
+ 0x3200 - Warp Away (Child, Temple of Time?)
+ 0x3340 - Warp In (Child, Temple of Time?)
+
+== NTSC 1.0 Notes ==
+ 0x28E0 - Warp Away (Adult, outside)
+ 0x29F0 - Warp In (adult, outside)
+ 0x2B70 - Warp Away (adult, temple of time?)
+ 0x2C80 - Warp in (adult, temple of time?)
+ 0x2DA0 - Warp Away (child, outside)
+ 0x2ED0 - Warp In (child, outside)
+ 0x3050 - Warp Away (child, temple of time?)
+ 0x3180 - Warp In (child, temple of time?)
+
+=== Actor Instance ===
+
+ 0x05F0 - Pointer to actor animation routine?
+
+[[Category: Cutscenes]]
+[[Category: Temple of Time Objects]]

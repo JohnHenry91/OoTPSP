@@ -1,0 +1,1211 @@
+{| class=wikitable sortable {{ts|ac|ml5|font-family: monospace}}
+! class="bg-info" | NPC
+! class="bg-info" | Keaton
+! class="bg-info" | Skull
+! class="bg-info" | Spooky
+! class="bg-info" | Bunny
+! class="bg-info" | Goron
+! class="bg-info" | Zora
+! class="bg-info" | Gerudo
+! class="bg-info" | Truth
+|-
+! 
+! 7124
+! 7127
+! 7126
+! 7125
+! 7127
+! 7124
+! 7125
+! 7127
+|-
+! Carpenter Boss
+| {{ts|al}} | What? If you want something,<br />just make it clear!
+| {{ts|al}} | Hrrrrm!<br />Get out of my face!<br />You good for nothin'...
+| {{ts|al}} | Hey, you have some good,<br />quality wood there, kid!
+| {{ts|al}} | I'm busy! Get out of my way,<br />you bum!
+| {{ts|al}} | Hrrrrm!<br />Get out of my face!<br />You good for nothin'...
+| {{ts|al}} | What? If you want something,<br />just make it clear!
+| {{ts|al}} | I'm busy! Get out of my way,<br />you bum!
+| {{ts|al}} | Hrrrrm!<br />Get out of my face!<br />You good for nothin'...
+|-
+! 
+! 7128
+! 7129
+! 7128
+! 7128
+! 7128
+! 7128
+! 712A
+! 712B
+|-
+! Carpenter
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | Oh, sorry boss! <br />I didn't mean to slack off!<br />I'll get busy!<br /><br />Oh, that's not you, boss?
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | Gerudos are beautiful and brave...<br />They are just so fascinating!
+| {{ts|al}} | Someday, when I have more skill,<br />I'll carve a mask like that one!
+|-
+! 
+! 7128
+! 712B
+! 7128
+! 7128
+! 7129
+! 7128
+! 712B
+! 7128
+|-
+! Carpenter
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | Someday, when I have more skill,<br />I'll carve a mask like that one!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | Oh, sorry boss! <br />I didn't mean to slack off!<br />I'll get busy!<br /><br />Oh, that's not you, boss?
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | Someday, when I have more skill,<br />I'll carve a mask like that one!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+|-
+! 
+! 7128
+! 7129
+! 7128
+! 7128
+! 7128
+! 7128
+! 712A
+! 712B
+|-
+! Carpenter
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | Oh, sorry boss! <br />I didn't mean to slack off!<br />I'll get busy!<br /><br />Oh, that's not you, boss?
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | Gerudos are beautiful and brave...<br />They are just so fascinating!
+| {{ts|al}} | Someday, when I have more skill,<br />I'll carve a mask like that one!
+|-
+! 
+! 7128
+! 7129
+! 712B
+! 7128
+! 7128
+! 7128
+! 7129
+! 7128
+|-
+! Carpenter
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | Oh, sorry boss! <br />I didn't mean to slack off!<br />I'll get busy!<br /><br />Oh, that's not you, boss?
+| {{ts|al}} | Someday, when I have more skill,<br />I'll carve a mask like that one!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+| {{ts|al}} | Oh, sorry boss! <br />I didn't mean to slack off!<br />I'll get busy!<br /><br />Oh, that's not you, boss?
+| {{ts|al}} | EEEEEEAAAAH!<br />Whoops, I shouldn't scream like<br />that or the boss will yell at me!
+|-
+! 
+! 712D
+! 712D
+! 712D
+! 712D
+! 712D
+! 712D
+! 712D
+! 712F
+|-
+! Mountain Gate Guard
+| {{ts|al}} | Wa-ha-hah!<br />How's business,<br />Mr. Hero?<br />Hah hah hah!
+| {{ts|al}} | Wa-ha-hah!<br />How's business,<br />Mr. Hero?<br />Hah hah hah!
+| {{ts|al}} | Wa-ha-hah!<br />How's business,<br />Mr. Hero?<br />Hah hah hah!
+| {{ts|al}} | Wa-ha-hah!<br />How's business,<br />Mr. Hero?<br />Hah hah hah!
+| {{ts|al}} | Wa-ha-hah!<br />How's business,<br />Mr. Hero?<br />Hah hah hah!
+| {{ts|al}} | Wa-ha-hah!<br />How's business,<br />Mr. Hero?<br />Hah hah hah!
+| {{ts|al}} | Wa-ha-hah!<br />How's business,<br />Mr. Hero?<br />Hah hah hah!
+| {{ts|al}} | Hmm, well, I don't really know<br />what to say about that one...
+|-
+! 
+! 712C
+! 712C
+! 712C
+! 712E
+! 712C
+! 712C
+! 712F
+! 712F
+|-
+! Generic Guard 1
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | I'm on duty.<br />Understand?<br />ON DUTY!
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | Hmm, well, I don't really know<br />what to say about that one...
+| {{ts|al}} | Hmm, well, I don't really know<br />what to say about that one...
+|-
+! 
+! 712C
+! 712C
+! 712C
+! 712F
+! 712C
+! 712C
+! 712F
+! 712F
+|-
+! Generic Guard 2
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | Hmm, well, I don't really know<br />what to say about that one...
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | Oh, that's the mask<br />everyone is talking about!<br />Looks kind of strange...
+| {{ts|al}} | Hmm, well, I don't really know<br />what to say about that one...
+| {{ts|al}} | Hmm, well, I don't really know<br />what to say about that one...
+|-
+! 
+! 7130
+! 7132
+! 7133
+! 7130
+! 7130
+! 7131
+! 7132
+! 7131
+|-
+! Cucco Lady
+| {{ts|al}} | Oh wow! Cute!<br />But Cuccos are much cuter!
+| {{ts|al}} | I'm sorry, I'm not really<br />interested in that.
+| {{ts|al}} | The little kid playing in the<br />graveyard was saying something<br />about his face...
+| {{ts|al}} | Oh wow! Cute!<br />But Cuccos are much cuter!
+| {{ts|al}} | Oh wow! Cute!<br />But Cuccos are much cuter!
+| {{ts|al}} | Eh, what?<br />Are you sad?<br />Happy?<br />I really can't tell...
+| {{ts|al}} | I'm sorry, I'm not really<br />interested in that.
+| {{ts|al}} | Eh, what?<br />Are you sad?<br />Happy?<br />I really can't tell...
+|-
+! 
+! 7134
+! 7137
+! 7135
+! 7134
+! 7136
+! 7135
+! 7134
+! 7135
+|-
+! Carpenter Boss's Son
+| {{ts|al}} | I really am a good man.<br />Don't you believe me?
+| {{ts|al}} | I'm not afraid of any forest <br />monsters! Are you trying to<br />make fun of me?
+| {{ts|al}} | WHAAAA--!<br />I thought you were that old hag!<br />Don't scare me like that!
+| {{ts|al}} | I really am a good man.<br />Don't you believe me?
+| {{ts|al}} | I remember my father talking<br />about a swordsmith...but that<br />doesn't really matter to me<br />anyway.
+| {{ts|al}} | WHAAAA--!<br />I thought you were that old hag!<br />Don't scare me like that!
+| {{ts|al}} | I really am a good man.<br />Don't you believe me?
+| {{ts|al}} | WHAAAA--!<br />I thought you were that old hag!<br />Don't scare me like that!
+|-
+! 
+! 7138
+! 713A
+! 7138
+! 7139
+! 713A
+! 7138
+! 7139
+! 713B
+|-
+! Rooftop Guy
+| {{ts|al}} | What is that? I can't see it<br />very well from here...
+| {{ts|al}} | Everything's fine today!
+| {{ts|al}} | What is that? I can't see it<br />very well from here...
+| {{ts|al}} | Hi again! How are you today?
+| {{ts|al}} | Everything's fine today!
+| {{ts|al}} | What is that? I can't see it<br />very well from here...
+| {{ts|al}} | Hi again! How are you today?
+| {{ts|al}} | Tired...I'm so tired...
+|-
+! 
+! 7144
+! 7146
+! 7144
+! 7146
+! 7147
+! 7145
+! 7145
+! 7147
+|-
+! Windmill Man
+| {{ts|al}} | Where did you get that?<br />What?<br />It's a mask?
+| {{ts|al}} | A mask is just like a musical <br />instrument--it reflects the<br />character of its owner. I like<br />your originality, kid!
+| {{ts|al}} | Where did you get that?<br />What?<br />It's a mask?
+| {{ts|al}} | A mask is just like a musical <br />instrument--it reflects the<br />character of its owner. I like<br />your originality, kid!
+| {{ts|al}} | What a big head!<br />How'd you fit through that door?!
+| {{ts|al}} | Uh, leave me alone...<br />Can't you see I'm in a groove<br />right now?
+| {{ts|al}} | Uh, leave me alone...<br />Can't you see I'm in a groove<br />right now?
+| {{ts|al}} | What a big head!<br />How'd you fit through that door?!
+|-
+! 
+! 7148
+! 7149
+! 7149
+! 714A
+! 714A
+! 714B
+! 7149
+! 714B
+|-
+! [?]
+| I HATE foxes, sonny!
+| {{ts|al}} | Now if that isn't the most<br />irritating face I've seen in<br />all my days, I don't know what<br />is!
+| {{ts|al}} | Now if that isn't the most<br />irritating face I've seen in<br />all my days, I don't know what<br />is!
+| {{ts|al}} | Hey, that's a fine face<br />you got there, sonny!
+| {{ts|al}} | Hey, that's a fine face<br />you got there, sonny!
+| {{ts|al}} | Have you got any complaints?<br />Speak up, then!
+| {{ts|al}} | Now if that isn't the most<br />irritating face I've seen in<br />all my days, I don't know what<br />is!
+| {{ts|al}} | Have you got any complaints?<br />Speak up, then!
+|-
+! 
+! 714C
+! 714D
+! 714C
+! 714C
+! 714E
+! 714C
+! 714E
+! 714F
+|-
+! Cursed Man
+| {{ts|al}} | Please quit playing around<br />and dispel our curse!
+| {{ts|al}} | If I wore something like that...<br />I'd be a real Skulltula...<br />AAAAAAAAAAH!
+| {{ts|al}} | Please quit playing around<br />and dispel our curse!
+| {{ts|al}} | Please quit playing around<br />and dispel our curse!
+| {{ts|al}} | Please understand if I don't<br />laugh... It's hard to be happy<br />in this condition... <br />Being cursed and all...
+| {{ts|al}} | Please quit playing around<br />and dispel our curse!
+| {{ts|al}} | Please understand if I don't<br />laugh... It's hard to be happy<br />in this condition... <br />Being cursed and all...
+| {{ts|al}} | [sound 6867]Hyaaaaah!<br />That's scary!<br />I know I'm scary, but...man!<br />That's really scary!
+|-
+! 
+! 7150
+! 7153
+! 7152
+! 7150
+! 7151
+! 7153
+! 7153
+! 7151
+|-
+! Dampé
+| {{ts|al}} | Huh?! Wha--!<br /><br />Oh, it's just a kid.<br />Don't scare me like that!<br />I may not look like it, but I'm a<br />very sensitive guy!
+| {{ts|al}} | I'm on duty now... <br />If you want me to dig, don't<br />bother me.
+| {{ts|al}} | Do you know what kind of<br />mask you're wearing...?<br />And you're still wearing it?
+| {{ts|al}} | Huh?! Wha--!<br /><br />Oh, it's just a kid.<br />Don't scare me like that!<br />I may not look like it, but I'm a<br />very sensitive guy!
+| {{ts|al}} | Well, will you lookit the noggin on <br />this kid! It's HUGE!<br />Mine is huge too, though...
+| {{ts|al}} | I'm on duty now... <br />If you want me to dig, don't<br />bother me.
+| {{ts|al}} | I'm on duty now... <br />If you want me to dig, don't<br />bother me.
+| {{ts|al}} | Well, will you lookit the noggin on <br />this kid! It's HUGE!<br />Mine is huge too, though...
+|-
+! 
+! 7155
+! 7156
+! 7157
+! 7154
+! 7156
+! 7156
+! 7156
+! 7156
+|-
+! Graveyard Kid
+| {{ts|al}} | Hey! It's a Keaton Mask!!<br />I asked my daddy to get me one,<br />too!
+| {{ts|al}} | That's not very different from<br />Mr. Dampé, is it?
+| {{ts|al}} | That doesn't look anything like<br />Mr. Dampé, huh?
+| {{ts|al}} | What is that? It's something<br />that hops around in a field...<br />I forgot what those things are<br />called...
+| {{ts|al}} | That's not very different from<br />Mr. Dampé, is it?
+| {{ts|al}} | That's not very different from<br />Mr. Dampé, is it?
+| {{ts|al}} | That's not very different from<br />Mr. Dampé, is it?
+| {{ts|al}} | That's not very different from<br />Mr. Dampé, is it?
+|-
+! 
+! 715A
+! 7159
+! 715B
+! 715A
+! 715A
+! 7158
+! 7158
+! 715B
+|-
+! Saria
+| [sound 6863]That makes me feel...happy...
+| {{ts|al}} | Hey! That looks familiar...<br />I think I saw something like it<br />in the Lost Woods, no?
+| {{ts|al}} | Oh...uh...sniff...<br />That mask...<br />It makes me feel...sad...
+| {{ts|al}} | [sound 6863]That makes me feel...happy...
+| {{ts|al}} | [sound 6863]That makes me feel...happy...
+| {{ts|al}} | [sound 6863]Hey, cool mask...but a little<br />scary, don't you think?
+| {{ts|al}} | [sound 6863]Hey, cool mask...but a little<br />scary, don't you think?
+| {{ts|al}} | Oh...uh...sniff...<br />That mask...<br />It makes me feel...sad...
+|-
+! 
+! 715E
+! 715D
+! 715D
+! 715F
+! 715E
+! 715C
+! 715C
+! 715D
+|-
+! Mido
+| {{ts|al}} | Hey, that's a cool mask.<br />I want it!<br />JUST KIDDING! Hah!<br />I don't want that stupid mask!
+| {{ts|al}} | Waaaaah! What?<br />Hey, I'm not scared of you!<br />Just don't come any closer,<br />understand?!
+| {{ts|al}} | Waaaaah! What?<br />Hey, I'm not scared of you!<br />Just don't come any closer,<br />understand?!
+| {{ts|al}} | Wah hah ha hah!<br />That really suits you!
+| {{ts|al}} | Hey, that's a cool mask.<br />I want it!<br />JUST KIDDING! Hah!<br />I don't want that stupid mask!
+| {{ts|al}} | Hah! That mask won't do you any<br />good! You're just afraid of me,<br />the great Mido...aren't you?!
+| {{ts|al}} | Hah! That mask won't do you any<br />good! You're just afraid of me,<br />the great Mido...aren't you?!
+| {{ts|al}} | Waaaaah! What?<br />Hey, I'm not scared of you!<br />Just don't come any closer,<br />understand?!
+|-
+! 
+! 7163
+! 7162
+! 7160
+! 7163
+! 7160
+! 7161
+! 7161
+! 7160
+|-
+! Fado
+| {{ts|al}} | That's so cool!<br />Uh...don't tell Mido I said that!
+| {{ts|al}} | Whooooah!<br />Are you some kind of forest<br />ghost?
+| {{ts|al}} | Waaaah!<br />I-I'm gonna tell Mido about <br />this!
+| {{ts|al}} | That's so cool!<br />Uh...don't tell Mido I said that!
+| {{ts|al}} | Waaaah!<br />I-I'm gonna tell Mido about <br />this!
+| {{ts|al}} | Yeeeeah!<br />I-I'm gonna tell Mido to beat<br />you up!
+| {{ts|al}} | Yeeeeah!<br />I-I'm gonna tell Mido to beat<br />you up!
+| {{ts|al}} | Waaaah!<br />I-I'm gonna tell Mido about <br />this!
+|-
+! 
+! 7164
+! 7166
+! 7164
+! 7167
+! 7164
+! 7164
+! 7164
+! 7167
+|-
+! Kokiri Boy
+| {{ts|al}} | What?!<br />You came back!<br />I can tell who you are, even<br />with that mask on!
+| {{ts|al}} | I see...<br />You're going to scare Mido with<br />that mask, aren't you?!
+| {{ts|al}} | What?!<br />You came back!<br />I can tell who you are, even<br />with that mask on!
+| {{ts|al}} | Hah hah hah!<br />What a funny face!<br />I bet Saria would think it's<br />pretty funny, too!
+| {{ts|al}} | What?!<br />You came back!<br />I can tell who you are, even<br />with that mask on!
+| {{ts|al}} | What?!<br />You came back!<br />I can tell who you are, even<br />with that mask on!
+| {{ts|al}} | What?!<br />You came back!<br />I can tell who you are, even<br />with that mask on!
+| {{ts|al}} | Hah hah hah!<br />What a funny face!<br />I bet Saria would think it's<br />pretty funny, too!
+|-
+! 
+! 716B
+! 7169
+! 7168
+! 716B
+! 716A
+! 716B
+! 716B
+! 716A
+|-
+! Kokiri Girl
+| {{ts|al}} | Tee hee!<br />Where did you get that?<br />Outside the forest?<br />No way! I don't believe it!
+| {{ts|al}} | What a weird face!<br /><br />Speaking of weird faces, one of<br />the forest kids was complaining<br />about his face...
+| {{ts|al}} | Tee hee hee!<br />A mask made of wood?<br />It looks like you're wearing<br />a shield on your face!
+| {{ts|al}} | Tee hee!<br />Where did you get that?<br />Outside the forest?<br />No way! I don't believe it!
+| {{ts|al}} | What an enormous head you have!
+| {{ts|al}} | Tee hee!<br />Where did you get that?<br />Outside the forest?<br />No way! I don't believe it!
+| {{ts|al}} | Tee hee!<br />Where did you get that?<br />Outside the forest?<br />No way! I don't believe it!
+| {{ts|al}} | What an enormous head you have!
+|-
+! 
+! 716C
+! 716D
+! 716F
+! 716C
+! 716E
+! 716E
+! 716E
+! 716F
+|-
+! Skull Kid
+| {{ts|al}} | Hee hee!<br />Kind of funny, but it's not<br />really my style...
+| {{ts|al}} | Right on! <br />Wearing this mask makes me feel<br />really tough and scary!<br />Hee hee!
+| {{ts|al}} | Hee hee!<br />I don't need a new one...<br />I like the one I have, thanks!
+| {{ts|al}} | Hee hee!<br />Kind of funny, but it's not<br />really my style...
+| {{ts|al}} | Hee hee!<br />There sure are a lot of different<br />people in the world!
+| {{ts|al}} | Hee hee!<br />There sure are a lot of different<br />people in the world!
+| {{ts|al}} | Hee hee!<br />There sure are a lot of different<br />people in the world!
+| {{ts|al}} | Hee hee!<br />I don't need a new one...<br />I like the one I have, thanks!
+|-
+! 
+! 7171
+! 7173
+! 7170
+! 7172
+! 0000
+! 0000
+! 0000
+! 0000
+|-
+! Zelda
+| {{ts|al}} | [sound 686B]What a cute little mouse!<br />What?<br />Oh, it's not a mouse?
+| {{ts|al}} | [sound 6869]It must be exciting to sneak<br />past the guards while wearing<br />that mask!
+| {{ts|al}} | [sound 686D]Wow, that makes your head<br />look huge!<br />Hee hee!
+| {{ts|al}} | [sound 686C]What are those floppy things<br />on your head?<br />Ears? That mask makes you look<br />like you have four ears!
+| {{ts|al}} | 
+| {{ts|al}} | 
+| {{ts|al}} | 
+| {{ts|al}} | 
+|-
+! 
+! 7176
+! 7177
+! 7174
+! 7174
+! 7175
+! 7174
+! 7174
+! 7177
+|-
+! Malon
+| {{ts|al}} | Oh, I know that character!<br />It's Keaton!<br />He's very hot in Hyrule Castle<br />Town right now!
+| {{ts|al}} | Oh, brother!<br />Boys will be boys!
+| {{ts|al}} | Hi, fairy boy!<br />What?<br />You think you're in disguise?<br />But it's so obvious who you are!
+| {{ts|al}} | Hi, fairy boy!<br />What?<br />You think you're in disguise?<br />But it's so obvious who you are!
+| {{ts|al}} | Wow!<br />What big eyes you have!<br />Gorons are so cute, aren't they!
+| {{ts|al}} | Hi, fairy boy!<br />What?<br />You think you're in disguise?<br />But it's so obvious who you are!
+| {{ts|al}} | Hi, fairy boy!<br />What?<br />You think you're in disguise?<br />But it's so obvious who you are!
+| {{ts|al}} | Oh, brother!<br />Boys will be boys!
+|-
+! 
+! 7178
+! 7179
+! 7179
+! 717B
+! 717A
+! 717B
+! 717A
+! 717B
+|-
+! Talon
+| {{ts|al}} | Wait...wait...<br />I know who ya are...<br />Yer... Kin-ton!<br />Ain't that right?!
+| {{ts|al}} | That's a scary one, ain't it?<br />Almost as scary as...Ingo!
+| {{ts|al}} | That's a scary one, ain't it?<br />Almost as scary as...Ingo!
+| {{ts|al}} | YAAAWWN...<br />I'm kinda tired right now...<br />Show it to me later...
+| {{ts|al}} | Hey, that reminds me of my wife...<br />On second thought, it doesn't...<br />It doesn't look like her at all!
+| {{ts|al}} | YAAAWWN...<br />I'm kinda tired right now...<br />Show it to me later...
+| {{ts|al}} | Hey, that reminds me of my wife...<br />On second thought, it doesn't...<br />It doesn't look like her at all!
+| {{ts|al}} | YAAAWWN...<br />I'm kinda tired right now...<br />Show it to me later...
+|-
+! 
+! 717D
+! 717C
+! 717C
+! 717D
+! 717F
+! 717C
+! 717E
+! 717D
+|-
+! Ingo
+| {{ts|al}} | Humph!<br />It's fine to play like that when <br />you're a kid, but just wait until<br />you grow up! Work, work, work!
+| {{ts|al}} | Scram, kid!<br />Can't you see I'm busy?!
+| {{ts|al}} | Scram, kid!<br />Can't you see I'm busy?!
+| {{ts|al}} | Humph!<br />It's fine to play like that when <br />you're a kid, but just wait until<br />you grow up! Work, work, work!
+| {{ts|al}} | Heh heh heh...<br />Well, that cheered me up a little,<br />kid.<br />Thanks!
+| {{ts|al}} | Scram, kid!<br />Can't you see I'm busy?!
+| {{ts|al}} | YEOW!<br />Humph. It's just a mask...<br />Scram, kid! Get out of here!
+| {{ts|al}} | Humph!<br />It's fine to play like that when <br />you're a kid, but just wait until<br />you grow up! Work, work, work!
+|-
+! 
+! 7183
+! 7181
+! 7180
+! 7183
+! 7182
+! 7183
+! 7181
+! 7183
+|-
+! Lake Scientist
+| {{ts|al}} | Very unusual construction...<br />I don't think it's water soluble,<br />so it wouldn't make a good <br />ingredient for my medicines...
+| {{ts|al}} | Ahhh...yes. Let's see...<br />Very fine craftsmanship.<br />But I don't think it would make<br />a good ingredient for my medicine.
+| {{ts|al}} | Hmmm... Let's see...<br />Yes, I'm quite sure of it...<br />That was manufactured from a <br />plank from a coffin. Yes, it was!
+| {{ts|al}} | Very unusual construction...<br />I don't think it's water soluble,<br />so it wouldn't make a good <br />ingredient for my medicines...
+| {{ts|al}} | Very interesting! A Goron!<br />Speaking of Gorons, I wonder<br />how my old friend, Biggoron of<br />Death Mountain, is doing?
+| {{ts|al}} | Very unusual construction...<br />I don't think it's water soluble,<br />so it wouldn't make a good <br />ingredient for my medicines...
+| {{ts|al}} | Ahhh...yes. Let's see...<br />Very fine craftsmanship.<br />But I don't think it would make<br />a good ingredient for my medicine.
+| {{ts|al}} | Very unusual construction...<br />I don't think it's water soluble,<br />so it wouldn't make a good <br />ingredient for my medicines...
+|-
+! 
+! 7184
+! 7186
+! 7185
+! 7186
+! 7184
+! 7187
+! 7186
+! 7184
+|-
+! Bean Seller
+| {{ts|al}} | Chomp chomp chomp...<br />OK, OK, a mask.<br />Do you want to buy some beans?
+| {{ts|al}} | Chomp chomp chomp...<br />Nope, it's not my style.
+| {{ts|al}} | Chomp chomp chomp...<br />Nope, I don't want to buy it.
+| {{ts|al}} | Chomp chomp chomp...<br />Nope, it's not my style.
+| {{ts|al}} | Chomp chomp chomp...<br />OK, OK, a mask.<br />Do you want to buy some beans?
+| {{ts|al}} | Chomp chomp chomp...<br />Well...no, I don't think I <br />want it.
+| {{ts|al}} | Chomp chomp chomp...<br />Nope, it's not my style.
+| {{ts|al}} | Chomp chomp chomp...<br />OK, OK, a mask.<br />Do you want to buy some beans?
+|-
+! 
+! 71A4
+! 71A6
+! 71A5
+! 0000
+! 71A6
+! 71A6
+! 71A6
+! 71A7
+|-
+! Running Man
+| {{ts|al}} | Hmm. No, no, no!<br />The ears aren't right at all!<br />They should be, you know, longer!
+| {{ts|al}} | Ha ha hah!<br />You really like those things,<br />don't you?!
+| {{ts|al}} | Aren't you kind of scared, <br />walking around in the middle of<br />the night looking like that?
+| {{ts|al}} | 
+| {{ts|al}} | Ha ha hah!<br />You really like those things,<br />don't you?!
+| {{ts|al}} | Ha ha hah!<br />You really like those things,<br />don't you?!
+| {{ts|al}} | Ha ha hah!<br />You really like those things,<br />don't you?!
+| {{ts|al}} | I think I've seen a stone that<br />looks like that somewhere...<br />Now where was that?<br />Hmmmm....
+|-
+! 
+! 7188
+! 7188
+! 7189
+! 7188
+! 7189
+! 718B
+! 718A
+! 7189
+|-
+! Zora
+| {{ts|al}} | What do you want?
+| {{ts|al}} | What do you want?
+| {{ts|al}} | You don't look like you can<br />swim very well...
+| {{ts|al}} | What do you want?
+| {{ts|al}} | You don't look like you can<br />swim very well...
+| {{ts|al}} | Yeah, right.<br />You look a little small for a<br />Zora...
+| {{ts|al}} | Red hair...tan skin...<br />I've seen people like that before...
+| {{ts|al}} | You don't look like you can<br />swim very well...
+|-
+! 
+! 718C
+! 718C
+! 718D
+! 718C
+! 718E
+! 718F
+! 718D
+! 718C
+|-
+! King Zora
+| {{ts|al}} | Ho ho ho!<br />You Hylians...you are such silly<br />creatures!
+| {{ts|al}} | Ho ho ho!<br />You Hylians...you are such silly<br />creatures!
+| {{ts|al}} | That face...it gives me the chills...
+| {{ts|al}} | Ho ho ho!<br />You Hylians...you are such silly<br />creatures!
+| {{ts|al}} | Talk about a nostalgia trip!<br />That reminds me of my childhood<br />friend, Biggoron!
+| {{ts|al}} | I don't think that's funny at all.<br />Are you mocking me?
+| {{ts|al}} | That face...it gives me the chills...
+| {{ts|al}} | Ho ho ho!<br />You Hylians...you are such silly<br />creatures!
+|-
+! 
+! 7190
+! 7190
+! 7191
+! 7192
+! 7191
+! 7193
+! 7190
+! 7191
+|-
+! Ruto
+| {{ts|al}} | You're a funny guy!
+| {{ts|al}} | You're a funny guy!
+| {{ts|al}} | Your head--it's gigantic!
+| {{ts|al}} | Don't do that...<br />It's embarrassing me!
+| {{ts|al}} | Your head--it's gigantic!
+| {{ts|al}} | All right! You actually decided<br />to become a Zora!<br />Are you actually ready to marry<br />me now?
+| {{ts|al}} | You're a funny guy!
+| {{ts|al}} | Your head--it's gigantic!
+|-
+! 
+! 7196
+! 7194
+! 7195
+! 7196
+! 7197
+! 7194
+! 7196
+! 7195
+|-
+! Goron
+| {{ts|al}} | Hrrrrm...<br />I don't know what to say.
+| {{ts|al}} | WHOA!<br />My heart...started to beat <br />so fast!
+| {{ts|al}} | That's an unpleasant mask...<br />Good-bye.
+| {{ts|al}} | Hrrrrm...<br />I don't know what to say.
+| {{ts|al}} | You shouldn't be so picky about<br />what you eat! Do you eat all your<br />green rocks? If you don't, you <br />won't grow up big and strong!
+| {{ts|al}} | WHOA!<br />My heart...started to beat <br />so fast!
+| {{ts|al}} | Hrrrrm...<br />I don't know what to say.
+| {{ts|al}} | That's an unpleasant mask...<br />Good-bye.
+|-
+! 
+! 7199
+! 719A
+! 7198
+! 7198
+! 719A
+! 719A
+! 719B
+! 7198
+|-
+! Darunia
+| {{ts|al}} | Are you trying to make me laugh?<br />Well, that's not that funny...
+| {{ts|al}} | You're making me mad!
+| {{ts|al}} | Leave me alone!
+| {{ts|al}} | Leave me alone!
+| {{ts|al}} | You're making me mad!
+| {{ts|al}} | You're making me mad!
+| {{ts|al}} | I hate Gerudos!!
+| {{ts|al}} | Leave me alone!
+|-
+! 
+! 719D
+! 719C
+! 719E
+! 719D
+! 719D
+! 719C
+! 719F
+! 719E
+|-
+! Gerudo
+| {{ts|al}} | Wah hah hah!<br />Do you think you're in disguise?<br />How funny!
+| {{ts|al}} | Quit pestering me!<br />Go away!
+| {{ts|al}} | Out of my way!<br />Get out of here!<br />You're asking for it, aren't you?
+| {{ts|al}} | Wah hah hah!<br />Do you think you're in disguise?<br />How funny!
+| {{ts|al}} | Wah hah hah!<br />Do you think you're in disguise?<br />How funny!
+| {{ts|al}} | Quit pestering me!<br />Go away!
+| {{ts|al}} | Hey, kid, you've got guts coming<br />around here wearing that!<br />Still, you can't fool us that<br />easily!
+| {{ts|al}} | Out of my way!<br />Get out of here!<br />You're asking for it, aren't you?
+|-
+! 
+! 71A1
+! 71A0
+! 71A1
+! 71A2
+! 71A1
+! 71A2
+! 71A3
+! 71A2
+|-
+! Nabooru
+| {{ts|al}} | Ha ha hah!<br />You've got guts to spare, don't<br />you kid? <br />I like you!
+| {{ts|al}} | What is that?<br />What does it have to do with<br />us?
+| {{ts|al}} | Ha ha hah!<br />You've got guts to spare, don't<br />you kid? <br />I like you!
+| {{ts|al}} | C'mon! It's time to get serious!
+| {{ts|al}} | Ha ha hah!<br />You've got guts to spare, don't<br />you kid? <br />I like you!
+| {{ts|al}} | C'mon! It's time to get serious!
+| {{ts|al}} | That's odd...it kind of looks like<br />me...<br />No...not really.  Not at all,<br />if you look at it closely.
+| {{ts|al}} | C'mon! It's time to get serious!
+|-
+! 
+! 711C
+! 711E
+! 711C
+! 711F
+! 711E
+! 711C
+! 711D
+! 711F
+|-
+! Honey & Darling
+| {{ts|al}} | Hey kid! Can't you see we're<br />busy?! Leave us alone!
+| {{ts|al}} | Hee hee.<br />Don't pay any attention to that<br />kid, my dear... Just pretend we're<br />in our own, private little world...
+| {{ts|al}} | Hey kid! Can't you see we're<br />busy?! Leave us alone!
+| {{ts|al}} | Oh, please!<br />Go bother someone <br />else!
+| {{ts|al}} | Hee hee.<br />Don't pay any attention to that<br />kid, my dear... Just pretend we're<br />in our own, private little world...
+| {{ts|al}} | Hey kid! Can't you see we're<br />busy?! Leave us alone!
+| {{ts|al}} | I'm sorry. I don't even want to<br />look at any other woman!
+| {{ts|al}} | Oh, please!<br />Go bother someone <br />else!
+|-
+! 
+! 7104
+! 7105
+! 7107
+! 7107
+! 7105
+! 7106
+! 7107
+! 7107
+|-
+! Dog Lady
+| {{ts|al}} | I hate foxes!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | Hey, you look good!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | YEEEAH! What's your problem?!
+|-
+! 
+! 7107
+! 7105
+! 7107
+! 7107
+! 7106
+! 7107
+! 7107
+! 7105
+|-
+! Fat Woman in Blue & Yellow
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | Hey, you look good!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | How irritating!
+|-
+! 
+! 7113
+! 7117
+! 7113
+! 7110
+! 7112
+! 7112
+! 7116
+! 7112
+|-
+! Bearded Man in Green Pants
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Oh! A rabbit!<br />Speaking of rabbits, I saw a <br />strange man chasing rabbits <br />around...
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | AAAAAAAAAAAH!<br />A GERUDO!!!!<br /><br />Wha-? A mask?<br />Why do you have a mask <br />like that?!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+|-
+! 
+! 7113
+! 7113
+! 7113
+! 7113
+! 7113
+! 7113
+! 7111
+! 7113
+|-
+! Man With Bag
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Oooh, what a pretty lady!<br />But you're kind of short,<br />aren't you?
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+|-
+! 
+! 7113
+! 7117
+! 7113
+! 7110
+! 7112
+! 7112
+! 7116
+! 7112
+|-
+! Thin Man in Green & Black
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Oh! A rabbit!<br />Speaking of rabbits, I saw a <br />strange man chasing rabbits <br />around...
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | AAAAAAAAAAAH!<br />A GERUDO!!!!<br /><br />Wha-? A mask?<br />Why do you have a mask <br />like that?!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+|-
+! 
+! 7117
+! 7117
+! 7117
+! 7117
+! 7117
+! 7117
+! 7117
+! 7113
+|-
+! Peddler in Green
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+|-
+! 
+! 7101
+! 7100
+! 7102
+! 7103
+! 7101
+! 7100
+! 7102
+! 7103
+|-
+! Old Woman in Red & White
+| {{ts|al}} | Awww... That's so cute!<br />Could you tell me where you<br />found it?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | Yeeeah!<br />Help me!
+| {{ts|al}} | Uh...yeah? So what?
+| {{ts|al}} | Awww... That's so cute!<br />Could you tell me where you<br />found it?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | Yeeeah!<br />Help me!
+| {{ts|al}} | Uh...yeah? So what?
+|-
+! 
+! 7100
+! 7102
+! 7100
+! 7100
+! 7100
+! 7100
+! 7100
+! 7102
+|-
+! Old Man in Blue (Market)
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | Yeeeah!<br />Help me!
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | Yeeeah!<br />Help me!
+|-
+! 
+! 710A
+! 7109
+! 7109
+! 710A
+! 710B
+! 7108
+! 7109
+! 710B
+|-
+! Thin Woman in Blue
+| {{ts|al}} | Wow...how nostalgic! That<br />reminds me of when I was a<br />little kid.
+| {{ts|al}} | Oh no! You're scary!<br />Don't come any closer!
+| {{ts|al}} | Oh no! You're scary!<br />Don't come any closer!
+| {{ts|al}} | Wow...how nostalgic! That<br />reminds me of when I was a<br />little kid.
+| {{ts|al}} | That's kind of funny...it<br />makes me laugh!<br />Hee hee!
+| {{ts|al}} | Oooh...is that a Zora?<br />Those cool eyes are really<br />fascinating...
+| {{ts|al}} | Oh no! You're scary!<br />Don't come any closer!
+| {{ts|al}} | That's kind of funny...it<br />makes me laugh!<br />Hee hee!
+|-
+! 
+! 7117
+! 7112
+! 7113
+! 7110
+! 710C
+! 7117
+! 710E
+! 7112
+|-
+! Red Twin
+| Sorry, I'm busy right now.
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Oh! A rabbit!<br />Speaking of rabbits, I saw a <br />strange man chasing rabbits <br />around...
+| {{ts|al}} | Uh-oh! I'm sorry, mom!<br />Oh...hey, it's you!<br />Don't scare me like<br />that!
+| {{ts|al}} | Sorry, I'm busy right now.
+| {{ts|al}} | Oh, don't do that!<br />I'm shy...
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+|-
+! 
+! 710D
+! 710F
+! 710C
+! 7112
+! 710D
+! 710C
+! 710C
+! 710F
+|-
+! Blue Twin
+| {{ts|al}} | What a big head you have!
+| {{ts|al}} | Is there a mask competition<br />going on? <br />I'm going to vote for you!
+| {{ts|al}} | Uh-oh! I'm sorry, mom!<br />Oh...hey, it's you!<br />Don't scare me like<br />that!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | What a big head you have!
+| {{ts|al}} | Uh-oh! I'm sorry, mom!<br />Oh...hey, it's you!<br />Don't scare me like<br />that!
+| {{ts|al}} | Uh-oh! I'm sorry, mom!<br />Oh...hey, it's you!<br />Don't scare me like<br />that!
+| {{ts|al}} | Is there a mask competition<br />going on? <br />I'm going to vote for you!
+|-
+! 
+! 710A
+! 7109
+! 711A
+! 710A
+! 7109
+! 7108
+! 710B
+! 7109
+|-
+! Thin Woman in Blue & Yellow
+| {{ts|al}} | Wow...how nostalgic! That<br />reminds me of when I was a<br />little kid.
+| {{ts|al}} | Oh no! You're scary!<br />Don't come any closer!
+| {{ts|al}} | Hmm...well...don't you have any<br />other masks?
+| {{ts|al}} | Wow...how nostalgic! That<br />reminds me of when I was a<br />little kid.
+| {{ts|al}} | Oh no! You're scary!<br />Don't come any closer!
+| {{ts|al}} | Oooh...is that a Zora?<br />Those cool eyes are really<br />fascinating...
+| {{ts|al}} | That's kind of funny...it<br />makes me laugh!<br />Hee hee!
+| {{ts|al}} | Oh no! You're scary!<br />Don't come any closer!
+|-
+! 
+! 710C
+! 710F
+! 7113
+! 7110
+! 710D
+! 7112
+! 7116
+! 710D
+|-
+! Lookout Man
+| {{ts|al}} | Uh-oh! I'm sorry, mom!<br />Oh...hey, it's you!<br />Don't scare me like<br />that!
+| {{ts|al}} | Is there a mask competition<br />going on? <br />I'm going to vote for you!
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Oh! A rabbit!<br />Speaking of rabbits, I saw a <br />strange man chasing rabbits <br />around...
+| {{ts|al}} | What a big head you have!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | AAAAAAAAAAAH!<br />A GERUDO!!!!<br /><br />Wha-? A mask?<br />Why do you have a mask <br />like that?!
+| {{ts|al}} | What a big head you have!
+|-
+! 
+! 7115
+! 7114
+! 7114
+! 7115
+! 7114
+! 7114
+! 7116
+! 7117
+|-
+! Youth in Green (Back Alley)
+| {{ts|al}} | Hey, kid, don't grow up to be<br />like me...
+| {{ts|al}} | Ohhhh...I see...<br />It's an illusion...
+| {{ts|al}} | Ohhhh...I see...<br />It's an illusion...
+| {{ts|al}} | Hey, kid, don't grow up to be<br />like me...
+| {{ts|al}} | Ohhhh...I see...<br />It's an illusion...
+| {{ts|al}} | Ohhhh...I see...<br />It's an illusion...
+| {{ts|al}} | AAAAAAAAAAAH!<br />A GERUDO!!!!<br /><br />Wha-? A mask?<br />Why do you have a mask <br />like that?!
+| {{ts|al}} | Sorry, I'm busy right now.
+|-
+! 
+! 7113
+! 710F
+! 7113
+! 7110
+! 710C
+! 711A
+! 710D
+! 7112
+|-
+! Thin Bearded Man
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Is there a mask competition<br />going on? <br />I'm going to vote for you!
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Oh! A rabbit!<br />Speaking of rabbits, I saw a <br />strange man chasing rabbits <br />around...
+| {{ts|al}} | Uh-oh! I'm sorry, mom!<br />Oh...hey, it's you!<br />Don't scare me like<br />that!
+| {{ts|al}} | Hmm...well...don't you have any<br />other masks?
+| {{ts|al}} | What a big head you have!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+|-
+! 
+! 7101
+! 7102
+! 7103
+! 7101
+! 7100
+! 7100
+! 7102
+! 7100
+|-
+! Old Man in Red (Back Alley)
+| {{ts|al}} | Awww... That's so cute!<br />Could you tell me where you<br />found it?
+| {{ts|al}} | Yeeeah!<br />Help me!
+| {{ts|al}} | Uh...yeah? So what?
+| {{ts|al}} | Awww... That's so cute!<br />Could you tell me where you<br />found it?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | Yeeeah!<br />Help me!
+| {{ts|al}} | What? Have we met before?
+|-
+! 
+! 7112
+! 710E
+! 7112
+! 710E
+! 710D
+! 7112
+! 710E
+! 710F
+|-
+! Man in Market Window
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | Oh, don't do that!<br />I'm shy...
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | Oh, don't do that!<br />I'm shy...
+| {{ts|al}} | What a big head you have!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | Oh, don't do that!<br />I'm shy...
+| {{ts|al}} | Is there a mask competition<br />going on? <br />I'm going to vote for you!
+|-
+! 
+! 7142
+! 7141
+! 7142
+! 7143
+! 7140
+! 7140
+! 7141
+! 7143
+|-
+! Man in Impa's House
+| {{ts|al}} | You idiot!<br />When you talk to someone, you<br />should take off your mask!
+| {{ts|al}} | You idiot!<br />When you talk to someone, you<br />shouldn't stare!
+| {{ts|al}} | You idiot!<br />When you talk to someone, you<br />should take off your mask!
+| {{ts|al}} | You idiot!<br />I don't know why I'm calling<br />you that, but...you are one!
+| {{ts|al}} | You idiot! <br />When you talk to someone, you<br />should make eye contact!
+| {{ts|al}} | You idiot! <br />When you talk to someone, you<br />should make eye contact!
+| {{ts|al}} | You idiot!<br />When you talk to someone, you<br />shouldn't stare!
+| {{ts|al}} | You idiot!<br />I don't know why I'm calling<br />you that, but...you are one!
+|-
+! 
+! 713C
+! 713D
+! 713D
+! 713E
+! 713E
+! 713F
+! 713D
+! 713F
+|-
+! Carpenter Boss's Wife
+| {{ts|al}} | I don't care about any<br />foxes!
+| {{ts|al}} | That's irritating!<br />It bothers my eyes!
+| {{ts|al}} | That's irritating!<br />It bothers my eyes!
+| {{ts|al}} | That looks quite handsome!
+| {{ts|al}} | That looks quite handsome!
+| {{ts|al}} | Waaaaaaah!<br />What is wrong with you?<br />Do you have a bad attitude?
+| {{ts|al}} | That's irritating!<br />It bothers my eyes!
+| {{ts|al}} | Waaaaaaah!<br />What is wrong with you?<br />Do you have a bad attitude?
+|-
+! 
+! 7101
+! 7102
+! 7103
+! 7101
+! 7100
+! 7100
+! 7102
+! 7100
+|-
+! Old Man in Red (Potion Shop)
+| {{ts|al}} | Awww... That's so cute!<br />Could you tell me where you<br />found it?
+| {{ts|al}} | Yeeeah!<br />Help me!
+| {{ts|al}} | Uh...yeah? So what?
+| {{ts|al}} | Awww... That's so cute!<br />Could you tell me where you<br />found it?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | What? Have we met before?
+| {{ts|al}} | Yeeeah!<br />Help me!
+| {{ts|al}} | What? Have we met before?
+|-
+! 
+! 7113
+! 7117
+! 7113
+! 7110
+! 7112
+! 7112
+! 7116
+! 7112
+|-
+! Youth in Green (Bazaar)
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| Sorry, I'm busy right now.
+| {{ts|al}} | A mask... When I was a little <br />kid, I also wore masks around...<br />What? You say you can't imagine<br />me doing that?
+| {{ts|al}} | Oh! A rabbit!<br />Speaking of rabbits, I saw a <br />strange man chasing rabbits <br />around...
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+| {{ts|al}} | AAAAAAAAAAAH!<br />A GERUDO!!!!<br /><br />Wha-? A mask?<br />Why do you have a mask <br />like that?!
+| {{ts|al}} | Well...I can't think of anything<br />funny to say...sorry, kid!
+|-
+! 
+! 7104
+! 7105
+! 7107
+! 7105
+! 7105
+! 7105
+! 7107
+! 7107
+|-
+! Market Crowd (Blue Stand)
+| {{ts|al}} | I hate foxes!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | YEEEAH! What's your problem?!
+|-
+! 
+! 7104
+! 7105
+! 7107
+! 7105
+! 710C
+! 7105
+! 7107
+! 7107
+|-
+! Market Crowd (Red Stand)
+| {{ts|al}} | I hate foxes!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | Uh-oh! I'm sorry, mom!<br />Oh...hey, it's you!<br />Don't scare me like<br />that!
+| {{ts|al}} | How irritating!
+| {{ts|al}} | YEEEAH! What's your problem?!
+| {{ts|al}} | YEEEAH! What's your problem?!
+|}

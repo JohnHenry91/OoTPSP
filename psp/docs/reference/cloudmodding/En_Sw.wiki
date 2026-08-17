@@ -1,0 +1,5 @@
+{{actor|name=ovl_En_Sw}}
+'''ovl_En_Sw''' is the [[Skulltula|Skullwalltula]] actor. This actor is also used for [[Gold Skulltulas]].
+{{clear}}
+[[Category:Skulltulas]]
+[[Category:Gold Skulltulas]]

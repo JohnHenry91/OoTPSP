@@ -1,0 +1,6 @@
+{{actor|name=ovl_Item_Ocarina}}
+'''ovl_Item_Ocarina''' is the [[Ocarina of Time (Item)|Ocarina of Time]] actor. Specifically, this actor represents the collectible Ocarina of Time, rather than the model that is pulled out during gameplay. 
+{{clear}}
+[[Category:Ocarina of Time (Item)]]
+== Debug Rom Notes ==	
+ ROM: 0xF35340 (2406000C) Ocarina of Time from River

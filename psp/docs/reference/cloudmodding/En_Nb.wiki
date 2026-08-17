@@ -1,0 +1,49 @@
+{{Actor|name=ovl_En_Nb}}
+
+'''ovl_En_Nb''' is the Nabooru [[actor]].
+
+{{clear}}
+
+== Debug Rom Notes ==
+ ROM: 0xE676A0 (24050069) Spirit Medallion (From Sage Nabooru)
+
+== NTSC 1.0 Notes ==
+ Rom Offset: 0x3488 = Spirit Medallion cutscene
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| En_Nb_Get_path_info レールデータをゲットだぜ = %d!!!!!!!!!!!!!!||En_Nb_Get_path_info RAIL DATA GET! = %d!!!!!!!!!!!!!!
+|-
+| En_Nb_Get_path_info レールデータが無い!!!!!!!!!!!!!!!!!!!!||En_Nb_Get_path_info RAIL DATA DOESN'T EXIST!!!!!!!!!!!!!!!!!!!!
+|-
+| ../z_en_nb_inKenjyanomaDemo02.c||../z_en_nb_inKenjyanomaDemo02.c
+|-
+| ../z_en_nb_inKenjyanomaDemo02.c||../z_en_nb_inKenjyanomaDemo02.c
+|-
+| En_Nb_Kidnap_Check_DemoMode:そんな動作は無い!!!!!!!!||En_Nb_Kidnap_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| En_Nb_Confrontion_Check_DemoMode:そんな動作は無い!!!!!!!!||En_Nb_Confrontion_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| ../z_en_nb_inConfrontion.c||../z_en_nb_inConfrontion.c
+|-
+| ../z_en_nb_inConfrontion.c||../z_en_nb_inConfrontion.c
+|-
+| ../z_en_nb_inConfrontion.c||../z_en_nb_inConfrontion.c
+|-
+| ../z_en_nb_inConfrontion.c||../z_en_nb_inConfrontion.c
+|-
+| En_Nb_inEnding_Check_DemoMode:そんな動作は無い!!!!!!!!||En_Nb_inEnding_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mMAIN MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|-
+| ../z_en_nb.c||../z_en_nb.c
+|-
+| ../z_en_nb.c||../z_en_nb.c
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mDRAW MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|}
+
+[[Category:Nabooru]][[Category:Cutscenes]]

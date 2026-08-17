@@ -1,0 +1,9 @@
+'''Medigoron''' is an unusually large [[Goron]] that lives within Goron City. Medigoron sells the fairly worthless Giant's Knife item for 200 rupees.
+
+== Actors ==
+* {{actor ref|ovl_En_Gm}}
+
+== Objects ==
+* [[object_oF1d_map]] - Gorons
+
+[[Category:Gorons]]

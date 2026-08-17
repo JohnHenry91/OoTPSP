@@ -1,0 +1,24 @@
+{{Actor|name=ovl_En_Gb}}
+'''ovl_En_Gb''' is the [[Poe Salesman]].
+[[Category:Poe Salesman]]
+{{clear}}
+== Debug Rom Notes ==
+<pre>
+0xA00 
+
+22D980
+
+22DA20
+
+ROM:0xDE6760 (2406000F) Receive Bottle for finding 10 Big Poes
+ROM:0xDE67CC - As above?
+
+ROM:0xDE660C - (2404000A) Amount of Rupees he will buy normal Poe for.
+ROM:0xDE66A4 - (24040032) Amount of Rupees he will buy Big Poe for.
+
+ROM:0xDE65F8 - (24060014) What Item (Refer to Event Items!) will be given when you sell him a Poe (Will Replace Bottle with Poe in it) 
+ROM:0xDE6694 - (24060014) What Item (Refer to Event Items!) Will be given when you sell him a Big Poe (Will Replace Bottle with Big Poe in it)
+
+ROM:0xDE66B4 - (240103E8) The point amount Required (Default 1000) to receive a Bottle from him.
+ROM:0xDE66BC - (24190064) The point amount (Default 100) that a Big Poe is worth.
+</pre>

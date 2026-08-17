@@ -1,0 +1,27 @@
+'''boot''' contains the core logic necessary to initialize the game, after pifrom and makerom have been executed. It contains some of the core "N64 OS" functions and variables that Ocarina of Time depends on.
+
+== Debug ROM Notes ==
+
+=== Functions ===
+
+{|class="wikitable"
+! Address || Purpose
+|-
+| 80000460 || Initializes memory from 0x80016DA0 - 0x80800000
+|-
+| 80000498 || The entry point of boot. Initializes memory, makes some function calls (needs investigation), and starts the idle thread.
+|-
+| 80000694 || Idle Thread Entry - Initializes the "Main" thread.
+|-
+| 800005A0 || Main Thread Entry - Calls functions to DMA main game code, initialize other threads, etc. Calls "mainproc()", which is located at 0x800C6E20.
+|}
+
+=== Startup Process ===
+1. The entry point, 0x80000498, is called. Memory beyond 0x80016DA0 is cleared to zero, some things are initialized, and the idle thread is created.
+
+2. In the idle thread, the main thread is created.
+
+3. In the main thread, the "code" file is DMA'd into memory. Some other threads are created, and then the entry point of "code" (mainproc) called.
+
+
+Documentation by Jack Walker.

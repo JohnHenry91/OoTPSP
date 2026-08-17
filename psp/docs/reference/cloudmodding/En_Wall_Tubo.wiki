@@ -1,0 +1,25 @@
+{{actor|name=ovl_En_Wall_Tubo}}
+
+'''ovl_En_Wall_Tubo''' is the [[actor]] that makes up the second of the two destructible walls in the [[Bombchu Bowling]] [[minigame]].
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [33m☆☆☆☆☆ 壁のツボ ☆☆☆☆☆ [m||[33m☆☆☆☆☆ WALL TARGET ☆☆☆☆☆ [m
+|-
+| [32m☆☆☆☆ やった原！ ☆☆☆☆☆ [m||[32m☆☆☆☆ YOU DID IT FIELD! ☆☆☆☆☆ [m
+|-
+| [33m☆☆☆☆ やった原！ ☆☆☆☆☆ [m||[33m☆☆☆☆ YOU DID IT FIELD! ☆☆☆☆☆ [m
+|-
+| [34m☆☆☆☆ やった原！ ☆☆☆☆☆ [m||[34m☆☆☆☆ YOU DID IT FIELD! ☆☆☆☆☆ [m
+|-
+| [35m☆☆☆☆ やった原！ ☆☆☆☆☆ [m||[35m☆☆☆☆ YOU DID IT FIELD! ☆☆☆☆☆ [m
+|-
+| [36m☆☆☆☆ やった原！ ☆☆☆☆☆ [m||[36m☆☆☆☆ YOU DID IT FIELD! ☆☆☆☆☆ [m
+|}
+
+[[Category:Bombchu Bowling]]

@@ -1,0 +1,49 @@
+Though each version of Zelda 64 is just one large ROM file, each has thousands of smaller files within, each which are deserving of a filetype classification. However for the purposes of this wiki, files should not be referred to using these file extensions. 
+
+==Scenes==
+{{main|Scenes and Rooms}}
+These files are what store the environment variables for different levels. Cinematics, collision data, skybox, room files etc.<br>
+Labeled by [[Zelda_Resource_Extractor|ZRE]] as "zscene".
+
+==Rooms==
+{{main|Scenes and Rooms}}
+Rooms (also known as Maps) contain geometry, textures, and actors for levels. They also contain brightness settings for individual rooms. If you have a room file without a scene file, they can be easily loaded with another scene file. The level, possibly missing a few textures & no collision, will almost always load.<br>
+Labeled by [[Zelda_Resource_Extractor|ZRE]] as "zmap".
+
+==Overlays==
+{{main|Overlays}}
+These files contain the code (ASM/machine code) and/or data which the engine can load to a dynamic location. Overlays are prefixed with the string "ovl_" within the game's file table. <br>
+Labeled by [[Zelda_Resource_Extractor|ZRE]] as "zactor", though some overlays are not actors.
+
+==Actors==
+{{main|Actors}}
+Actors are the interactive entities in the game. All actors are overlays, but not all overlays are actors.<br>
+Labeled by [[Zelda_Resource_Extractor|ZRE]] as "zactor".
+
+==Objects==
+{{main|Objects}}
+These files contain animation, geometry, and textures for actors. The game uses these files in conjunction with actors to work with NPCs. An extremely useful tool for viewing object files is cooliscool's [[Utility of Time]].<br>
+Labeled by [[Zelda_Resource_Extractor|ZRE]] as "zobj".
+
+==Text==
+{{main|Text Format}}
+These files contain text banks from the game. They are decompressed in the ROM for quick access. Generic text aside, there are also different text codes stored within this (color, pauses etc).<br>
+Labeled by [[Zelda_Resource_Extractor|ZRE]] as "ztxt".
+
+==Code==
+{{main|Code (File)}}
+Main code block. Due to the specific nature of "code", the checks search for a specific file rather than a file type.
+Within these blocks, there is usually debugging information and, most importantly, filenames. Majora's Mask and Ocarina of Time both contain filenames of objects and [http://en.wikipedia.org/wiki/Debug_symbol symbols] in their main data block.<br>
+Labeled by [[Zelda_Resource_Extractor|ZRE]] as "zasm".
+
+==Skyboxes==
+{{main|Skyboxes}}
+Skybox files begin with the "VR_" prefix. Each skybox consists of two files, a vr_*_static file which contains the skybox's textures, and aa vr_*_pal_static which contains the palette for the texture.<br>
+Labeled by [[Zelda_Resource_Extractor|ZRE]] as "zdata".
+
+==Others==
+"Unidentified" data. Animations, skyboxes, icons, textures or audio files.<br>
+Labeled by [[Zelda_Resource_Extractor|ZRE]] as "zdata".
+
+[[Category:File Formats]]
+[[Category:Documentation]]

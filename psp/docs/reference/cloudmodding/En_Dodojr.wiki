@@ -1,0 +1,5 @@
+{{actor|name=ovl_En_Dodojr}}
+'''ovl_En_Dodojr''' is the [[Dodongos|Baby Dodongo]] actor.
+
+{{clear}}
+[[Category:Dodongos]]

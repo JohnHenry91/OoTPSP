@@ -1,0 +1,8 @@
+'''Impa''' is one of the few remaining Sheikah who serve to protect the royal family, and one of the seven [[Sages]].
+== Actors ==
+* {{actor ref|ovl_Demo_Im}}
+* {{actor ref|ovl_En_Viewer}}, Impa actor for Intro Nightmare and Zelda Escape cutscenes
+
+== Objects ==
+* {{object ref|object_im}}
+[[Category:Impa| ]]

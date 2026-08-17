@@ -1,0 +1,11 @@
+'''Link''', the Hero of Time. Need I say more?
+== Actors ==
+* {{actor ref|0000}}
+
+== Objects ==
+* {{object ref|object_link_child}}
+* {{object ref|object_link_boy}}
+
+== Other ==
+* [[Link Animations]] - Table of animation references within [[gameplay_keep]]
+[[Category:Link| ]]

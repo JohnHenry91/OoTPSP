@@ -1,0 +1,15 @@
+{{DISPLAYTITLE:En_St}}
+{{Stub}}
+{{Actor|name=ovl_En_St}}
+
+'''ovl_En_St''' is the [[actor]] file for [[Skulltulas]].
+{{clear}}
+
+== OoT 1.0 (U) ==
+
+===Damage Values===
+<pre>C627FE - touch damage (s16)</pre>
+
+{{clear}}
+
+[[Category:Skulltulas]]

@@ -1,0 +1,27 @@
+{{Actor|name=ovl_En_Syateki_Niw|ispage=true}}
+
+'''ovl_En_Syateki_Niw''' is the [[actor]] for the [[Cucco]] that appears in the [[Bombchu Bowling]] [[minigame]]. This actor is likely to have appeared in the [[Shooting Gallery]] in prerelease screenshots.
+
+{{needsimages|Add the prerelease images.}}
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ 射的場鶏 ☆☆☆☆☆ [m||[32m☆☆☆☆☆ SHOOTING GALLERY CHICKEN ☆☆☆☆☆ [m
+|-
+| 　||　
+|-
+| [32m☆☆☆☆☆ ボムにわ！ ☆☆☆☆☆ [m||[32m☆☆☆☆☆ BOMB CHICKEN! ☆☆☆☆☆ [m
+|-
+| ../z_en_syateki_niw.c||../z_en_syateki_niw.c
+|-
+| ../z_en_syateki_niw.c||../z_en_syateki_niw.c
+|-
+| ../z_en_syateki_niw.c||../z_en_syateki_niw.c
+|}
+
+[[Category:Bombchu Bowling]] [[Category:Shooting Gallery]]  [[Category:Cuccos]]

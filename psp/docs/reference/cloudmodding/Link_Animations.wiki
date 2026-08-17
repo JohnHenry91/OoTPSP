@@ -1,0 +1,1190 @@
+Link has 572 animations in ''Ocarina of Time'', most of which are listed in alphabetical order. The number of animations exceeds the number of filenames by 13.
+
+The animation filenames were taken from ''[[3D:Main Page|Ocarina of Time 3D]]'', where they are stored as plaintext in '''zelda_link_child_ultra.zar''' and '''zelda_link_boy_ultra.zar'''. The two actor files are unused in OoT3D, and were likely utilized as a base with which to create '''zelda_link_child_new.zar''' and '''zelda_link_boy_new.zar''', the actor files that are used in the game.
+
+== How Link's Animations Work ==
+
+The translation data for Link's individual animations is stored within the '''link_animetion''' file. The [[gameplay_keep]] object file contains a table of records for every animation, where each record stores the number of frames that the animation will last for, and a [[bank offset]] pointing to the translation data for an individual animation. [[ovl_player_actor]] then combines these animations into different chains, referring to the individual [[gameplay_keep]] table records, rather than the link_animetion file directly. [[Ovl_player_actor/Animation_Map_(Debug_Rom)]] provides a more comprehensive explanation as to how individual animations are combined into sequences.
+
+Because of it's massive size, the '''link_animetion''' is not loaded into ram. Instead, individual animations are loaded on the fly when needed by converting the '''link_animetion''' bank offsets into a Rom address.
+
+== Legend ==
+
+{| class="wikitable"
+!Filename || Meaning
+|-
+|Long || Longsword
+|-
+|Normal || Kokiri or Master Sword
+|-
+|Free || Unarmed
+|-
+|L || Left
+|-
+|R || Right
+|-
+|Get || Get Item
+|-
+|Demo / D || Cutscene
+|}
+
+== gameplay_keep Animation Table ==
+
+The '''Offset''' column contains the animation's reference location, relative to the start of [[gameplay_keep]] in all versions.
+
+{| class="wikitable"
+! Offset||Filename||Translation||Used||Context||Description
+|-
+| 0x2300||Freeze||||||||
+|-
+| 0x2308||Freeze||||||||
+|-
+| 0x2310||boy/anim/clink_demo_DDbox_open.anb||||✘||||opening DD treasure chest
+|-
+| 0x2318||boy/anim/clink_demo_Tbox_open.anb||||✔||||opening treasure chest
+|-
+| 0x2320||boy/anim/clink_demo_atozusari.anb||step back||✔||Link falls off log at Zora's Fountain||
+|-
+| 0x2328||boy/anim/clink_demo_bashi.anb||||||||
+|-
+| 0x2330||boy/anim/clink_demo_doorA_link.anb||||✔||||Link going through a door (left side)
+|-
+| 0x2338||boy/anim/clink_demo_doorB_link.anb||||✔||||Link going through a door (right side)
+|-
+| 0x2340||boy/anim/clink_demo_futtobi.anb||blown back||✔||||
+|-
+| 0x2348||boy/anim/clink_demo_get1.anb||||✔||receiving item||
+|-
+| 0x2350||boy/anim/clink_demo_get2.anb||||||||
+|-
+| 0x2358||boy/anim/clink_demo_get3.anb||||||||
+|-
+| 0x2360||boy/anim/clink_demo_goto_future.anb||||✔||going forward in time||grasping Master Sword
+|-
+| 0x2368||boy/anim/clink_demo_koutai.anb||retreat||✔||confronting Ganondorf cutscene||
+|-
+| 0x2370||boy/anim/clink_demo_koutai_kennuki.anb||retreat - draw sword||✔||confronting Ganondorf cutscene||
+|-
+| 0x2378||boy/anim/clink_demo_koutai_wait.anb||retreat||✔||confronting Ganondorf cutscene||
+|-
+| 0x2380||boy/anim/clink_demo_mimawasi.anb||look around||||||
+|-
+| 0x2388||boy/anim/clink_demo_mimawasi_wait.anb||look around||||||
+|-
+| 0x2390||boy/anim/clink_demo_standup.anb||||||||
+|-
+| 0x2398||boy/anim/clink_demo_standup_wait.anb||||✔||||
+|-
+| 0x23A0||boy/anim/clink_demo_nozoki.anb||peer||✔||Castle Courtyard cutscene||peering at Ganondorf through window
+|-
+| 0x23A8||boy/anim/clink_demo_return_to_future.anb||||✔||returning from the future||
+|-
+| 0x23B0||boy/anim/clink_demo_miokuri.anb||see off||✔||Deku Tree story cutscene||dusting himself off
+|-
+| 0x23B8||boy/anim/clink_demo_miokuri_wait.anb||see off||✔||Deku Tree story cutscene||sitting on the ground
+|-
+| 0x23C0||boy/anim/clink_normal_climb_endAL.anb||||✔||||getting off ladder (left)
+|-
+| 0x23C8||boy/anim/clink_normal_climb_endAR.anb||||✔||||getting off ladder (right)
+|-
+| 0x23D0||boy/anim/clink_normal_climb_endBL.anb||||✔||||climbing to top of ladder (left)
+|-
+| 0x23D8||boy/anim/clink_normal_climb_endBR.anb||||✔||||climbing to top of ladder (right)
+|-
+| 0x23E0||boy/anim/clink_normal_climb_startA.anb||||✔||||starting to climb ladder
+|-
+| 0x23E8||boy/anim/clink_normal_climb_startB.anb||||✔||||starting to climb ladder
+|-
+| 0x23F0||boy/anim/clink_normal_climb_upL.anb||||✔||||climbing left, then right
+|-
+| 0x23F8||boy/anim/clink_normal_climb_upR.anb||||✔||||climbing right, then left
+|-
+| 0x2400||boy/anim/clink_normal_defense_ALL.anb||||✔||||defending with Hylian shield
+|-
+| 0x2408||boy/anim/clink_op3_negaeri.anb||toss and turn||✔||opening cutscene||
+|-
+| 0x2410||boy/anim/clink_op3_okiagari.anb||wake up||✔||opening cutscene||
+|-
+| 0x2418||boy/anim/clink_op3_tatiagari.anb||stand up||✔||opening cutscene||
+|-
+| 0x2420||boy/anim/clink_op3_wait1.anb||||||||
+|-
+| 0x2428||boy/anim/clink_op3_wait2.anb||||||||
+|-
+| 0x2430||boy/anim/clink_op3_wait3.anb||||||||
+|-
+| 0x2438||boy/anim/d_link_imanodare.anb||who's there?!||✔||||
+|-
+| 0x2440||boy/anim/d_link_orooro.anb||nervous||||||
+|-
+| 0x2448||boy/anim/d_link_orowait.anb||nervous||||||
+|-
+| 0x2450||boy/anim/demo_link_nwait.anb||||||||
+|-
+| 0x2458||boy/anim/demo_link_orosuu.anb||lower||✔||ending cutscene||
+|-
+| 0x2460||boy/anim/demo_link_tewatashi.anb||extend hand||✔||ending cutscene||
+|-
+| 0x2468||boy/anim/demo_link_twait.anb||extend hand||✔||ending cutscene||
+|-
+| 0x2470||boy/anim/kolink_odoroki_demo.anb||child link - surprised||||||
+|-
+| 0x2478||boy/anim/link_anchor_Lpierce_kiru_finsh_endR.anb||cut||||||longsword horizontal slashes (end)
+|-
+| 0x2480||boy/anim/link_anchor_LRside_kiru_endR.anb||cut||||||longsword 3rd horizontal slash (end)
+|-
+| 0x2488||boy/anim/link_anchor_LRside_kiru_finsh_endL.anb||cut||||||longsword diagonal slashes (end)
+|-
+| 0x2490||boy/anim/link_anchor_Lside_kiru_endR.anb||cut||||||longsword 3rd diagonal slash (end)
+|-
+| 0x2498||boy/anim/link_anchor_Lside_kiru_finsh_endR.anb||cut||||||longsword vertical slashes (end)
+|-
+| 0x24A0||boy/anim/link_anchor_normal_kiru_finsh_endR.anb||cut||||||longsword 3rd vertical slashes (end)
+|-
+| 0x24A8||boy/anim/link_anchor_pierce_kiru_endR.anb||cut||||||longsword stabbing (end)
+|-
+| 0x24B0||boy/anim/link_anchor_pierce_kiru_finsh_endR.anb||cut||||||longsword 3rd stabbing (end)
+|-
+| 0x24B8||boy/anim/link_anchor_power_kiru_wait_endR.anb||cut||||||2nd part of powered-up spin attack
+|-
+| 0x24C0|| ||||||||horizontal slashes (end), normal attack animation finishes
+|-
+| 0x24C8|| ||||||||3rd horizontal slash (end)
+|-
+| 0x24D0|| ||||||||diagonal slashes (end)
+|-
+| 0x24D8|| ||||||||3rd diagonal slash (end)
+|-
+| 0x24E0||boy/anim/link_anchor_anchor2fighter.anb||||||||
+|-
+| 0x24E8||boy/anim/link_anchor_back_brake.anb||||||||
+|-
+| 0x24F0||boy/anim/link_anchor_back_hitR.anb||||||||recoiling strongly
+|-
+| 0x24F8||boy/anim/link_anchor_back_walk.anb||||||||
+|-
+| 0x2500||boy/anim/link_anchor_bom_side_walkL.anb||||||||
+|-
+| 0x2508||boy/anim/link_anchor_bom_side_walkR.anb||||||||
+|-
+| 0x2510||boy/anim/link_anchor_defense_hit.anb||||||||blow deflected off shield while moving
+|-
+| 0x2518||boy/anim/link_anchor_defense_long_hitL.anb||||||blow is struck while moving longsword in defensive stance (up or down)||
+|-
+| 0x2520||boy/anim/link_anchor_defense_long_hitR.anb||||||blow is struck while moving longsword in defensive stance (left or right)||
+|-
+| 0x2528||boy/anim/link_anchor_front_hitR.anb||||||recoil||
+|-
+| 0x2530||boy/anim/link_anchor_jump_kiru_finsh_endR.anb||cut||||||
+|-
+| 0x2538||boy/anim/link_anchor_rolling_kiru_endR.anb||||||||
+|-
+| 0x2540||boy/anim/link_anchor_LLside_kiru_endL.anb||cut||||3rd vertical slash (end)||
+|-
+| 0x2548||boy/anim/link_anchor_LLside_kiru_finsh_endR.anb||cut||||stabbing (end)||
+|-
+| 0x2550||boy/anim/link_anchor_Lnormal_kiru_endR.anb||cut||||3rd stab (end)||
+|-
+| 0x2558||boy/anim/link_anchor_Lnormal_kiru_finsh_endR.anb||cut||||||
+|-
+| 0x2560||boy/anim/link_anchor_Lpierce_kiru_endL.anb||cut||||||spin attack (not powered up)
+|-
+| 0x2568||boy/anim/link_anchor_side_walkL.anb||||||||strafe sideways with weapon drawn (left)
+|-
+| 0x2570||boy/anim/link_anchor_side_walkR.anb||||||||strafe sideways with weapon drawn (right)
+|-
+| 0x2578||boy/anim/link_anchor_waitL.anb||||||||
+|-
+| 0x2580||boy/anim/link_anchor_waitR.anb||||||shield stance while moving forward/backward||
+|-
+| 0x2588||boy/anim/link_anchor_waitL2defense_long.anb||||||longsword defense stance while moving forward/backward||
+|-
+| 0x2590||boy/anim/link_anchor_waitL2defense.anb||||||z-targeting with weapon drawn||
+|-
+| 0x2598||boy/anim/link_anchor_waitL_defense.anb||||||||
+|-
+| 0x25A0||boy/anim/link_anchor_waitL_defense_wait.anb||||||||
+|-
+| 0x25A8||boy/anim/link_anchor_landingR.anb||||||||
+|-
+| 0x25B0||boy/anim/link_anchor_Rside_kiru_endR.anb||||||||
+|-
+| 0x25B8||boy/anim/link_anchor_waitL_pierce_kiru.anb||||||||
+|-
+| 0x25C0||boy/anim/link_anchor_waitR_pierce_kiru.anb||||||standing still while holding shield out||
+|-
+| 0x25C8||boy/anim/link_anchor_waitR2defense_long.anb||||||standing still while holding longsword out||
+|-
+| 0x25D0||boy/anim/link_anchor_waitR2defense.anb||||||z-targeting default with weapon drawn||
+|-
+| 0x25D8||boy/anim/link_anchor_waitR_defense.anb||||||||
+|-
+| 0x25E0||boy/anim/link_anchor_waitR_defense_wait.anb||||||||
+|-
+| 0x25E8|| ||||||||stand defense hop
+|-
+| 0x25F0||boy/anim/link_anchor_Rside_kiru_finsh_endR.anb||||||||
+|-
+| 0x25F8 || ||||||||
+|-
+| 0x2600||boy/anim/link_boom_catch.anb||||||||catching boomerang
+|-
+| 0x2608||boy/anim/link_boom_throwL.anb||||||||throwing boomerang (left)
+|-
+| 0x2610||boy/anim/link_boom_throwR.anb||||||||throwing boomerang (right)
+|-
+| 0x2618||boy/anim/link_boom_throw_side_walkL.anb||||||||
+|-
+| 0x2620||boy/anim/link_boom_throw_side_walkR.anb||||||||
+|-
+| 0x2628||boy/anim/link_boom_throw_wait2waitR.anb||||||||
+|-
+| 0x2630||boy/anim/link_boom_throw_waitL.anb||||||||
+|-
+| 0x2638||boy/anim/link_boom_throw_waitR.anb||||||||
+|-
+| 0x2640||boy/anim/link_bottle_bug_in.anb||||✔||||
+|-
+| 0x2648||boy/anim/link_bottle_bug_miss.anb||||✔||||
+|-
+| 0x2650||boy/anim/link_bottle_bug_out.anb||||✔||||
+|-
+| 0x2658||boy/anim/link_bottle_drink_demo.anb||||||||
+|-
+| 0x2660||boy/anim/link_bottle_drink_demo_end.anb||||||||
+|-
+| 0x2668||boy/anim/link_bottle_drink_demo_start.anb||||||||
+|-
+| 0x2670||boy/anim/link_bottle_drink_demo_wait.anb||||||||
+|-
+| 0x2678||boy/anim/link_bottle_fish_in.anb||||✔||||
+|-
+| 0x2680||boy/anim/link_bottle_fish_miss.anb||||✔||||
+|-
+| 0x2688||boy/anim/link_bottle_fish_out.anb||||✔||||
+|-
+| 0x2690||boy/anim/link_bottle_read.anb||||||||
+|-
+| 0x2698||boy/anim/link_bottle_read_end.anb||||||||
+|-
+| 0x26A0||boy/anim/link_bow_bow_ready.anb||||||||
+|-
+| 0x26A8||boy/anim/link_bow_bow_shoot.anb||||||||
+|-
+| 0x26B0||boy/anim/link_bow_bow_shoot_end.anb||||||||
+|-
+| 0x26B8||boy/anim/link_bow_bow_shoot_next.anb||||||||
+|-
+| 0x26C0||boy/anim/link_bow_bow_wait.anb||||||||aiming bow
+|-
+| 0x26C8||boy/anim/link_bow_defense.anb||||||||
+|-
+| 0x26D0||boy/anim/link_bow_defense_wait.anb||||||||
+|-
+| 0x26D8||boy/anim/link_bow_side_runL.anb||||||||
+|-
+| 0x26E0||boy/anim/link_bow_side_runR.anb||||||||
+|-
+| 0x26E8||boy/anim/link_bow_side_walk.anb||||||||
+|-
+| 0x26F0||boy/anim/link_bow_walk2ready.anb||||||||
+|-
+| 0x26F8||boy/anim/link_child_tunnel_door.anb||||||||
+|-
+| 0x2700||boy/anim/link_child_tunnel_end.anb||||||||
+|-
+| 0x2708||boy/anim/link_child_tunnel_start.anb||||||||
+|-
+| 0x2710||boy/anim/link_demo_DDbox_open.anb||||✘||||opening DD treasure chest
+|-
+| 0x2718||boy/anim/link_demo_Tbox_open.anb||||✔||||opening treasure chest
+|-
+| 0x2720||boy/anim/link_demo_back_to_past.anb||||||going back in time||plunging Master sword into pedestal
+|-
+| 0x2728||boy/anim/link_demo_baru_op1.anb||Volvagia||✔||Volvagia intro cutscene||
+|-
+| 0x2730||boy/anim/link_demo_baru_op2.anb||Volvagia||✔||Volvagia intro cutscene||
+|-
+| 0x2738||boy/anim/link_demo_baru_op3.anb||Volvagia||✔||Volvagia intro cutscene||
+|-
+| 0x2740||boy/anim/link_demo_bikkuri.anb||surprise||||||
+|-
+| 0x2748||boy/anim/link_demo_doorA_link.anb||||✘||||going through door with shield out (left)
+|-
+| 0x2750||boy/anim/link_demo_doorA_link_free.anb||||||||going through door (left)
+|-
+| 0x2758||boy/anim/link_demo_doorB_link.anb||||||||going through door with shield out (right)
+|-
+| 0x2760||boy/anim/link_demo_doorB_link_free.anb||||||||going through door (right)
+|-
+| 0x2768||boy/anim/link_demo_furimuki.anb||turn||||||
+|-
+| 0x2770||boy/anim/link_demo_furimuki2_wait.anb||turn||||||
+|-
+| 0x2778||boy/anim/link_demo_furimuki2.anb||turn||||Zelda's identity revealed cutscene||turning around to see Sheik at Temple of Time entrance
+|-
+| 0x2780||boy/anim/link_demo_get_itemA.anb||||||||receiving item from chest, holding it up
+|-
+| 0x2788||boy/anim/link_demo_get_itemB.anb||||||||
+|-
+| 0x2790||boy/anim/link_demo_goma_furimuki.anb||Gohma turn||✔||Gohma intro cutscene||
+|-
+| 0x2798||boy/anim/link_demo_gurad.anb||||||||
+|-
+| 0x27A0||boy/anim/link_demo_gurad_wait.anb||||||||
+|-
+| 0x27A8||boy/anim/link_demo_jibunmiru.anb||look at self||✔||Chamber of Sages cutscene||
+|-
+| 0x27B0||boy/anim/link_demo_kakeyori.anb||rush over||✔||Zelda captured in crystal cutscene||
+|-
+| 0x27B8||boy/anim/link_demo_kakeyori_mimawasi.anb||rush over - look around||✔||Zelda captured in crystal cutscene||
+|-
+| 0x27C0||boy/anim/link_demo_kakeyori_miokuri.anb||rush over - see off||✔||Zelda captured in crystal cutscene||
+|-
+| 0x27C8||boy/anim/link_demo_kakeyori_miokuri_wait.anb||rush over - see off||✔||Zelda captured in crystal cutscene||
+|-
+| 0x27D0||boy/anim/link_demo_kakeyori_wait.anb||rush over||✔||Zelda captured in crystal cutscene||
+|-
+| 0x27D8||boy/anim/link_demo_kaoage.anb||raise head||✔||Sheik transforms into Zelda cutscene||
+|-
+| 0x27E0||boy/anim/link_demo_kaoage_wait.anb||raise head||✔||Sheik transforms into Zelda cutscene||
+|-
+| 0x27E8||boy/anim/link_demo_kenmiru1.anb||look at sword||||||watching sword glow
+|-
+| 0x27F0||boy/anim/link_demo_kenmiru1_wait.anb||look at sword||||||
+|-
+| 0x27F8||boy/anim/link_demo_kenmiru2.anb||look at sword||||||watching sword glow
+|-
+| 0x2800||boy/anim/link_demo_kenmiru2_modori.anb||look at sword - return||||||watching sword glow (end)
+|-
+| 0x2808||boy/anim/link_demo_kenmiru2_wait.anb||look at sword||||||
+|-
+| 0x2810||boy/anim/link_demo_kousan.anb||surrender||✔||caught by Gerudo||raising hands in surrender
+|-
+| 0x2818||boy/anim/link_demo_look_hand.anb||||✔||looking at Triforce of Courage||looking at Triforce of Courage
+|-
+| 0x2820||boy/anim/link_demo_look_hand_wait.anb||||||||looking at Triforce of Courage
+|-
+| 0x2828||boy/anim/link_demo_nozokikomi.anb||peer in||✔||Ganon's Castle rainbow bridge cutscene||checking if rainbow bridge is real
+|-
+| 0x2830||boy/anim/link_demo_nozokikomi_wait.anb||peer in||✔||Ganon's Castle rainbow bridge cutscene||
+|-
+| 0x2838|| ||||||||unsheathing sword and swinging it
+|-
+| 0x2840||boy/anim/link_demo_return_to_past.anb||||||||
+|-
+| 0x2848||boy/anim/link_demo_sita_wait.anb||below||||||
+|-
+| 0x2850||boy/anim/link_demo_ue.anb||above||||||
+|-
+| 0x2858||boy/anim/link_demo_ue_wait.anb||above||||||
+|-
+| 0x2860||boy/anim/link_demo_warp.anb||||||||stepping into blue warp
+|-
+| 0x2868||boy/anim/link_demo_zeldamiru.anb||look at Zelda||||||watching Zelda use light beam on Ganon
+|-
+| 0x2870||boy/anim/link_demo_zeldamiru_wait.anb||look at Zelda||||||watching Zelda use light beam on Ganon
+|-
+| 0x2878||boy/anim/link_derth_rebirth.anb||death||||||
+|-
+| 0x2880||boy/anim/link_fighter_LLside_kiru.anb||cut||||||longsword horizontal slashes 
+|-
+| 0x2888||boy/anim/link_fighter_LLside_kiru_end.anb||cut||||||longsword horizontal slashes (2nd)
+|-
+| 0x2890||boy/anim/link_fighter_LRside_kiru.anb||cut||||||longsword 3rd horizontal slash
+|-
+| 0x2898||boy/anim/link_fighter_LRside_kiru_end.anb||cut||||||longsword 3rd horizontal slash (2nd)
+|-
+| 0x28A0||boy/anim/link_fighter_LLside_kiru_finsh.anb||cut||||||longsword diagonal slashes
+|-
+| 0x28A8||boy/anim/link_fighter_LLside_kiru_finsh_end.anb||cut||||||longsword diagonal slashes (2nd)
+|-
+| 0x28B0||boy/anim/link_fighter_LRside_kiru_finsh.anb||cut||||||longsword 3rd diagonal slash 
+|-
+| 0x28B8||boy/anim/link_fighter_LRside_kiru_finsh_end.anb||cut||||||longsword 3rd diagonal slash (2nd)
+|-
+| 0x28C0||boy/anim/link_fighter_Lnormal_kiru.anb||cut||||||longsword vertical slashes
+|-
+| 0x28C8||boy/anim/link_fighter_Lnormal_kiru_end.anb||cut||||||longsword vertical slashes (2nd)
+|-
+| 0x28D0||boy/anim/link_fighter_Lnormal_kiru_finsh.anb||cut||||||longsword 3rd vertical slash
+|-
+| 0x28D8||boy/anim/link_fighter_Lnormal_kiru_finsh_end.anb||cut||||||longsword 3rd vertical slash (2nd)
+|-
+| 0x28E0||boy/anim/link_fighter_Lpierce_kiru.anb||cut||||||longsword stabbing 
+|-
+| 0x28E8||boy/anim/link_fighter_Lpierce_kiru_end.anb||cut||||||longsword stabbing (2nd)
+|-
+| 0x28F0||boy/anim/link_fighter_Lpierce_kiru_finsh.anb||cut||||||longsword 3rd stabbing 
+|-
+| 0x28F8||boy/anim/link_fighter_Lpierce_kiru_finsh_end.anb||cut||||||longsword 3rd stabbing (2nd)
+|-
+| 0x2900||boy/anim/link_fighter_Lpower_jump_kiru.anb||cut||||||jump strike (1st)
+|-
+| 0x2908||boy/anim/link_fighter_Lpower_jump_kiru_end.anb||cut||||||jump strike (end)
+|-
+| 0x2910||boy/anim/link_fighter_Lpower_jump_kiru_hit.anb||cut||||||jump strike (end) (2nd)
+|-
+| 0x2918||boy/anim/link_fighter_Lpower_kiru_side_walk.anb||cut||||||
+|-
+| 0x2920||boy/anim/link_fighter_Lpower_kiru_start.anb||cut||||||longsword sword charging (1st)
+|-
+| 0x2928||boy/anim/link_fighter_Lpower_kiru_wait.anb||cut||||||longsword sword charging (2nd)
+|-
+| 0x2930||boy/anim/link_fighter_Lpower_kiru_wait_end.anb||cut||||||longsword cancelling sword spin
+|-
+| 0x2938||boy/anim/link_fighter_Lpower_kiru_walk.anb||cut||||||longsword moving while charging
+|-
+| 0x2940||boy/anim/link_fighter_Lrolling_kiru.anb||cut||||||2nd part of powered up spin attack
+|-
+| 0x2948||boy/anim/link_fighter_Lrolling_kiru_end.anb||cut||||||2nd part of powered up spin attack (end)
+|-
+| 0x2950||boy/anim/link_fighter_Lside_jump.anb||||||||
+|-
+| 0x2958||boy/anim/link_fighter_Lside_jump_end.anb||||||||
+|-
+| 0x2960||boy/anim/link_fighter_Lside_jump_endL.anb||||||||
+|-
+| 0x2968||boy/anim/link_fighter_Lside_kiru.anb||cut||||||horizontal slashes
+|-
+| 0x2970||boy/anim/link_fighter_Lside_kiru_end.anb||cut||||||horizontal slashes (2nd)
+|-
+| 0x2978||boy/anim/link_fighter_Lside_kiru_finsh.anb||cut||||||3rd horizontal slash
+|-
+| 0x2980||boy/anim/link_fighter_Lside_kiru_finsh_end.anb||cut||||||3rd horizontal slash (end)
+|-
+| 0x2988||boy/anim/link_fighter_Rside_jump.anb||||||||
+|-
+| 0x2990||boy/anim/link_fighter_Rside_jump_end.anb||||||||
+|-
+| 0x2998||boy/anim/link_fighter_Rside_jump_endR.anb||||||||
+|-
+| 0x29A0||boy/anim/link_fighter_pierce_kiru.anb||cut||||||diagonal slashes
+|-
+| 0x29A8||boy/anim/link_fighter_pierce_kiru_end.anb||cut||||||diagonal slashes (2nd)
+|-
+| 0x29B0||boy/anim/link_fighter_pierce_kiru_finsh.anb||cut||||||3rd diagonal slash
+|-
+| 0x29B8||boy/anim/link_fighter_pierce_kiru_finsh_end.anb||cut||||||3rd diagonal slash (end)
+|-
+| 0x29C0||boy/anim/link_fighter_Wrolling_kiru.anb||||||||charged spin attack
+|-
+| 0x29C8||boy/anim/link_fighter_Wrolling_kiru_end.anb||||||||charged spin attack (end)
+|-
+| 0x29D0||boy/anim/link_fighter_backturn_jump.anb||||||||backflip start
+|-
+| 0x29D8||boy/anim/link_fighter_backturn_jump_end.anb||||||||
+|-
+| 0x29E0||boy/anim/link_fighter_backturn_jump_endR.anb||||||||
+|-
+| 0x29E8||boy/anim/link_fighter_damage_run.anb||||||||running in pain with weapon drawn
+|-
+| 0x29F0||boy/anim/link_fighter_damage_run_long.anb||||||||running in pain with longsword
+|-
+| 0x29F8||boy/anim/link_fighter_defense.anb||||||||
+|-
+| 0x2A00||boy/anim/link_fighter_defense_long.anb||||||||
+|-
+| 0x2A08||boy/anim/link_fighter_defense_long_hit.anb||||✘||||longsword sword recoil
+|-
+| 0x2A10||boy/anim/link_fighter_defense_long_wait.anb||||✘||||
+|-
+| 0x2A18||boy/anim/link_fighter_defense_wait.anb||||||||
+|-
+| 0x2A20||boy/anim/link_fighter_fighter2long.anb||||||||
+|-
+| 0x2A28||boy/anim/link_fighter_front_jump.anb||||✘||||manual forward jump
+|-
+| 0x2A30||boy/anim/link_fighter_front_jump_end.anb||||✘||||
+|-
+| 0x2A38||boy/anim/link_fighter_front_jump_endR.anb||||✘||||
+|-
+| 0x2A40||boy/anim/link_fighter_heavy_run_long.anb||||||||walking with iron boots
+|-
+| 0x2A48||boy/anim/link_fighter_jump_kiru.anb||cut||✘||||jump strike
+|-
+| 0x2A50||boy/anim/link_fighter_jump_kiru_finsh.anb||cut||✘||||jump strike
+|-
+| 0x2A58||boy/anim/link_fighter_jump_kiru_finsh_end.anb||cut||✘||||jump strike
+|-
+| 0x2A60||boy/anim/link_fighter_jump_rollkiru.anb||cut||✘||||rolling jump strike
+|-
+| 0x2A68||boy/anim/link_fighter_landing_roll_long.anb||||||||longsword rolling animation
+|-
+| 0x2A70||boy/anim/link_fighter_normal2fighter.anb||||✘||||sword drawing animation
+|-
+| 0x2A78||boy/anim/link_normal_normal2fighter_free.anb||||||||
+|-
+| 0x2A80||boy/anim/link_fighter_normal_kiru.anb||cut||||||vertical slashes
+|-
+| 0x2A88||boy/anim/link_fighter_normal_kiru_end.anb||cut||||||vertical slashes (end)
+|-
+| 0x2A90||boy/anim/link_fighter_normal_kiru_endR.anb||cut||||||vertical slashes (2nd)
+|-
+| 0x2A98||boy/anim/link_fighter_normal_kiru_finsh.anb||cut||||||3rd vertical slash
+|-
+| 0x2AA0||boy/anim/link_fighter_normal_kiru_finsh_end.anb||cut||||||3rd vertical slash (end)
+|-
+| 0x2AA8||boy/anim/link_fighter_Rside_kiru.anb||cut||||||stabbing 
+|-
+| 0x2AB0||boy/anim/link_fighter_Rside_kiru_end.anb||cut||||||stabbing (end)
+|-
+| 0x2AB8||boy/anim/link_fighter_Rside_kiru_finsh.anb||cut||||||3rd stabbing 
+|-
+| 0x2AC0||boy/anim/link_fighter_Rside_kiru_finsh_end.anb||cut||||||3rd stabbing (end)
+|-
+| 0x2AC8||boy/anim/link_fighter_power_jump_kiru_end.anb||||||||
+|-
+| 0x2AD0||boy/anim/link_fighter_power_kiru_start.anb||cut||||||
+|-
+| 0x2AD8||boy/anim/link_fighter_power_kiru_side_walk.anb||cut||||||moving side to side while charging spin attack
+|-
+| 0x2AE0||boy/anim/link_fighter_power_kiru_startL.anb||cut||||||charging sword (1st)
+|-
+| 0x2AE8 || ||||||||
+|-
+| 0x2AF0||boy/anim/link_fighter_power_kiru_wait.anb||cut||||||charging spin attack (2nd)
+|-
+| 0x2AF8||boy/anim/link_fighter_power_kiru_wait_end.anb||cut||||||cancelling spin attack
+|-
+| 0x2B00||boy/anim/link_fighter_power_kiru_walk.anb||cut||||||moving while charging sword
+|-
+| 0x2B08||boy/anim/link_fighter_rebound.anb||||||||ricocheting off blade when z-targeting
+|-
+| 0x2B10||boy/anim/link_fighter_reboundR.anb||||||||ricocheting off blade when Not z-targeting
+|-
+| 0x2B18||boy/anim/link_fighter_rebound_long.anb||||||||longsword - ricocheting off blade when z-targeting
+|-
+| 0x2B20||boy/anim/link_fighter_rebound_longR.anb||||||||longsword - ricocheting off blade when Not z-targeting
+|-
+| 0x2B28||boy/anim/link_fighter_rolling_kiru.anb||cut||||||spin attack animation (not charged)
+|-
+| 0x2B30||boy/anim/link_fighter_rolling_kiru_end.anb||cut||||||spin attack animation (end)
+|-
+| 0x2B38||boy/anim/link_fighter_run.anb||||||||running with sword/shield drawn
+|-
+| 0x2B40||boy/anim/link_fighter_run_long.anb||||||||running with longsword sword out.
+|-
+| 0x2B48|| ||||||||
+|-
+| 0x2B50|| ||||||||
+|-
+| 0x2B58||boy/anim/link_fighter_side_walkL_long.anb||||||||longsword - moving while z-targeting (left)
+|-
+| 0x2B60||boy/anim/link_fighter_side_walkR_long.anb||||||||longsword - moving while z-targeting (right)
+|-
+| 0x2B68||boy/anim/link_fighter_side_walk_long.anb||||||||longsword - moving while z-targeting 
+|-
+| 0x2B70||boy/anim/link_fighter_turn_kiruL.anb||cut||✘||||back slice (left)
+|-
+| 0x2B78||boy/anim/link_fighter_turn_kiruL_end.anb||cut||✘||||back slice (left) (end)
+|-
+| 0x2B80||boy/anim/link_fighter_turn_kiruR.anb||cut||✘||||back slice (right)
+|-
+| 0x2B88||boy/anim/link_fighter_turn_kiruR_end.anb||cut||✘||||back slice (right) (end)
+|-
+| 0x2B90|| ||cut||||||
+|-
+| 0x2B98||boy/anim/link_fighter_upper_pierce_kiru.anb||cut||||||
+|-
+| 0x2BA0||boy/anim/link_fighter_upper_pierce_kiru_end.anb||cut||||||
+|-
+| 0x2BA8||boy/anim/link_fighter_waitL2wait_long.anb||||||||
+|-
+| 0x2BB0||boy/anim/link_fighter_waitR2wait_long.anb||||||||longsword - letting go of Z when targeting an object
+|-
+| 0x2BB8||boy/anim/link_fighter_walk_endR_long.anb||||||||
+|-
+| 0x2BC0||boy/anim/link_fighter_wait2waitR_long.anb||||||||longsword z-targeting (standing still) (right)
+|-
+| 0x2BC8||boy/anim/link_fighter_walk_endL_long.anb||||||||
+|-
+| 0x2BD0||boy/anim/link_fighter_wait2waitL_long.anb||||||||longsword z-targeting (standing still) (left)
+|-
+| 0x2BD8||boy/anim/link_fighter_upper_kiruR.anb||||||||
+|-
+| 0x2BE0||boy/anim/link_fighter_wait_long.anb||||||||longsword standing animation
+|-
+| 0x2BE8||boy/anim/link_fighter_waitL_long.anb||||||||longsword - coming to a sudden stop (walking)
+|-
+| 0x2BF0||boy/anim/link_fighter_waitR_long.anb||||||||longsword - coming to a sudden stop (running)
+|-
+| 0x2BF8||boy/anim/link_fighter_walk_long.anb||||||||longsword - walking position
+|-
+| 0x2C00||boy/anim/link_fishing_fish_catch.anb||||||||caught fish
+|-
+| 0x2C08||boy/anim/link_fishing_fish_catch_end.anb||||||||releasing caught fish
+|-
+| 0x2C10||boy/anim/link_fishing_reel_down.anb||||||||reeling downwards
+|-
+| 0x2C18||boy/anim/link_fishing_reel_left.anb||||||||reeling left
+|-
+| 0x2C20||boy/anim/link_fishing_reel_right.anb||||||||reeling right
+|-
+| 0x2C28||boy/anim/link_fishing_reel_up.anb||||||||reeling upwards
+|-
+| 0x2C30||boy/anim/link_fishing_throw.anb||||||||casting rod
+|-
+| 0x2C38||boy/anim/link_fishing_wait.anb||||||||holding cast rod
+|-
+| 0x2C40||boy/anim/link_hammer_hit.anb||||||||Megaton Hammer hit
+|-
+| 0x2C48||boy/anim/link_hammer_hit_endR.anb||||||||Megaton Hammer hit (3rd)
+|-
+| 0x2C50||boy/anim/link_hammer_hit_end.anb||||||||Megaton Hammer hit (end)
+|-
+| 0x2C58||boy/anim/link_hammer_long2free.anb||||||||pulling out Megaton Hammer
+|-
+| 0x2C60||boy/anim/link_hammer_long2long.anb||||||||
+|-
+| 0x2C68||boy/anim/link_hammer_normal2long.anb||||||||
+|-
+| 0x2C70||boy/anim/link_hammer_side_hit.anb||||||||Megaton Hammer sideslash
+|-
+| 0x2C78||boy/anim/link_hammer_side_hit_end.anb||||||||Megaton Hammer sideslash (end)
+|-
+| 0x2C80||boy/anim/link_hammer_side_hit_endR.anb||||||||Megaton Hammer sideslash (2nd)
+|-
+| 0x2C88||boy/anim/link_hatto_demo.anb||taken aback||||returning from Song of Time cutscene||
+|-
+| 0x2C90||boy/anim/link_hook_fly_start.anb||||||||
+|-
+| 0x2C98||boy/anim/link_hook_fly_wait.anb||||||||
+|-
+| 0x2CA0||boy/anim/link_hook_shot_ready.anb||||||||
+|-
+| 0x2CA8||boy/anim/link_hook_side_walk.anb||||||||
+|-
+| 0x2CB0||boy/anim/link_hook_side_runL.anb||||||||
+|-
+| 0x2CB8||boy/anim/link_hook_side_runR.anb||||||||
+|-
+| 0x2CC0||boy/anim/link_hook_wait.anb||||||||aiming hookshot (wait)
+|-
+| 0x2CC8||boy/anim/link_hook_walk2ready.anb||||||||
+|-
+| 0x2CD0||boy/anim/link_last_hit_motion1.anb||||✔||Ganon defeat cutscene||delivering final blows to Ganon
+|-
+| 0x2CD8||boy/anim/link_last_hit_motion2.anb||||✔||Ganon defeat cutscene||pulling sword back after delivering final blows to Ganon
+|-
+| 0x2CE0||[http://zippy.gfycat.com/PlumpUltimateBoutu.webm boy/anim/link_magic_tamashii1.anb]||spirit||✔||||casting Nayru's Love (start)
+|-
+| 0x2CE8||[http://zippy.gfycat.com/SaltyUniqueChanticleer.webm boy/anim/link_magic_tamashii2.anb]||spirit||✔||||casting Nayru's Love (middle)
+|-
+| 0x2CF0||[http://zippy.gfycat.com/AbleNeighboringIaerismetalmark.webm boy/anim/link_magic_tamashii3.anb]||spirit||✔||||casting Nayru's Love (end)
+|-
+| 0x2CF8||[http://zippy.gfycat.com/FoolishThirdKoodoo.webm boy/anim/link_magic_kaze1.anb]||wind||✔||||casting Farore's Wind (start)
+|-
+| 0x2D00||[http://zippy.gfycat.com/AlarmingShadowyGrayreefshark.webm boy/anim/link_magic_kaze2.anb]||wind||✔||||casting Farore's Wind (middle)
+|-
+| 0x2D08||[http://zippy.gfycat.com/UnkemptFeistyAtlanticridleyturtle.webm boy/anim/link_magic_kaze3.anb]||wind||✔||||casting Farore's Wind, end
+|-
+| 0x2D10||[http://zippy.gfycat.com/TerrificSharpIberianmidwifetoad.webm boy/anim/link_magic_honoo1.anb]||flame||✔||||casting Din's Fire (start)
+|-
+| 0x2D18||[http://zippy.gfycat.com/YellowishLiquidIceblueredtopzebra.webm boy/anim/link_magic_honoo2.anb]||flame||✔||||casting Din's Fire (middle)
+|-
+| 0x2D20||[http://zippy.gfycat.com/AshamedThreadbareGlobefish.webm boy/anim/link_magic_honoo3.anb]||flame||✔||||casting Din's Fire (end)
+|-
+| 0x2D28||[http://zippy.gfycat.com/JauntyJoyfulBlackmamba.webm boy/anim/link_magic_tame.anb]||charge||✔||||beginning to cast spells
+|-
+| 0x2D30||[http://zippy.gfycat.com/AngelicFirsthandCanary.webm boy/anim/link_magic_tame_kaijyo.anb]||charge - cancel||✘||||cancelling magic casting
+|-
+| 0x2D38||boy/anim/link_normal_climb_up.anb||||||||
+|-
+| 0x2D40||boy/anim/link_normal_100step_up.anb||||||||
+|-
+| 0x2D48||boy/anim/link_normal_150step_up.anb||||||||
+|-
+| 0x2D50||boy/anim/link_normal_250jump_start.anb||||||||
+|-
+| 0x2D58||boy/anim/link_normal_45_turn.anb||||||||
+|-
+| 0x2D60||boy/anim/link_normal_45_turn_free.anb||||||||
+|-
+| 0x2D68||boy/anim/link_normal_Fclimb_hold2upL.anb||||||||
+|-
+| 0x2D70||boy/anim/link_normal_Fclimb_sideL.anb||||||||
+|-
+| 0x2D78||boy/anim/link_normal_Fclimb_sideR.anb||||||||
+|-
+| 0x2D80||boy/anim/link_normal_Fclimb_startA.anb||||||||
+|-
+| 0x2D88||boy/anim/link_normal_Fclimb_upL.anb||||||||
+|-
+| 0x2D90||boy/anim/link_normal_Fclimb_startB.anb||||||||
+|-
+| 0x2D98||boy/anim/link_normal_Fclimb_upR.anb||||||||
+|-
+| 0x2DA0||boy/anim/link_normal_back_brake.anb||||||||
+|-
+| 0x2DA8||boy/anim/link_normal_back_brake_end.anb||||||||
+|-
+| 0x2DB0||boy/anim/link_normal_back_downA.anb||||||||
+|-
+| 0x2DB8||boy/anim/link_normal_back_downB.anb||||||||
+|-
+| 0x2DC0||boy/anim/link_normal_back_down_wake.anb||||||||
+|-
+| 0x2DC8||boy/anim/link_normal_back_hit.anb||||||||
+|-
+| 0x2DD0||boy/anim/link_normal_back_run.anb||||||||
+|-
+| 0x2DD8||boy/anim/link_normal_back_shitR.anb||||||||
+|-
+| 0x2DE0||boy/anim/link_normal_back_shit.anb||||||||
+|-
+| 0x2DE8||boy/anim/link_normal_back_walk.anb||||||||
+|-
+| 0x2DF0||boy/anim/link_normal_backspace.anb||||||||
+|-
+| 0x2DF8||boy/anim/link_normal_box_kick.anb||||||||
+|-
+| 0x2E00||boy/anim/link_normal_carryB_free.anb||||||||
+|-
+| 0x2E08||boy/anim/link_normal_carryB.anb||||||||
+|-
+| 0x2E10||boy/anim/link_normal_carryB_wait.anb||||||||
+|-
+| 0x2E18||boy/anim/link_normal_check.anb||||||||
+|-
+| 0x2E20||boy/anim/link_normal_check_end.anb||||||||
+|-
+| 0x2E28||boy/anim/link_normal_check_end_free.anb||||||||
+|-
+| 0x2E30||boy/anim/link_normal_check_free.anb||||||||
+|-
+| 0x2E38||boy/anim/link_normal_check_wait.anb||||||||
+|-
+| 0x2E40||boy/anim/link_normal_check_wait_free.anb||||||||
+|-
+| 0x2E48||boy/anim/link_normal_climb_down.anb||||||||
+|-
+| 0x2E50||boy/anim/link_normal_climb_endAL.anb||||||||
+|-
+| 0x2E58||boy/anim/link_normal_climb_endAR.anb||||||||
+|-
+| 0x2E60||boy/anim/link_normal_climb_upL.anb||||||||
+|-
+| 0x2E68||boy/anim/link_normal_climb_upR.anb||||||||
+|-
+| 0x2E70||boy/anim/link_normal_climb_startA.anb||||||||
+|-
+| 0x2E78||boy/anim/link_normal_climb_endBL.anb||||||||
+|-
+| 0x2E80||boy/anim/link_normal_climb_startB.anb||||||||
+|-
+| 0x2E88||boy/anim/link_normal_climb_endBR.anb||||||||
+|-
+| 0x2E90|| ||||||||trudging forward, unarmed
+|-
+| 0x2E98||boy/anim/link_normal_damage_run_free.anb||||||||
+|-
+| 0x2EA0||boy/anim/link_normal_defense.anb||||||||
+|-
+| 0x2EA8||boy/anim/link_normal_defense_end.anb||||||||
+|-
+| 0x2EB0||boy/anim/link_normal_defense_end_free.anb||||||||
+|-
+| 0x2EB8||boy/anim/link_normal_defense_free.anb||||||||
+|-
+| 0x2EC0||boy/anim/link_normal_defense_hit.anb||||||||
+|-
+| 0x2EC8||boy/anim/link_normal_defense_kiru.anb||||||||
+|-
+| 0x2ED0||boy/anim/link_normal_defense_wait.anb||||||||
+|-
+| 0x2ED8||boy/anim/link_normal_defense_wait_free.anb||||||||
+|-
+| 0x2EE0||boy/anim/link_normal_down_slope_slip.anb||||||||
+|-
+| 0x2EE8||boy/anim/link_normal_down_slope_slip_end.anb||||||||
+|-
+| 0x2EF0||boy/anim/link_normal_down_slope_slip_end_free.anb||||||||
+|-
+| 0x2EF8||boy/anim/link_normal_down_slope_slip_end_long.anb||||||||
+|-
+| 0x2F00||boy/anim/link_normal_electric_shock.anb||||||||
+|-
+| 0x2F08||boy/anim/link_normal_electric_shock_end.anb||||||||
+|-
+| 0x2F10||boy/anim/link_normal_fall.anb||||||||
+|-
+| 0x2F18||boy/anim/link_normal_fall_up.anb||||||||
+|-
+| 0x2F20||boy/anim/link_normal_fall_up_free.anb||||||||
+|-
+| 0x2F28||boy/anim/link_normal_fall_wait.anb||||||||
+|-
+| 0x2F30||boy/anim/link_normal_fighter2free.anb||||||||
+|-
+| 0x2F38||boy/anim/link_normal_free2bom.anb||||||||
+|-
+| 0x2F40||boy/anim/link_normal_free2fighter_free.anb||||||||
+|-
+| 0x2F48||boy/anim/link_normal_free2free.anb||||||||
+|-
+| 0x2F50||boy/anim/link_normal_free2freeB.anb||||||||
+|-
+| 0x2F58||boy/anim/link_normal_front_downA.anb||||||||
+|-
+| 0x2F60||boy/anim/link_normal_front_downB.anb||||||||
+|-
+| 0x2F68||boy/anim/link_normal_front_down_wake.anb||||||||
+|-
+| 0x2F70||boy/anim/link_normal_front_hit.anb||||||||
+|-
+| 0x2F78||boy/anim/link_normal_front_shit.anb||||||||
+|-
+| 0x2F80||boy/anim/link_normal_front_shitR.anb||||||||
+|-
+| 0x2F88||boy/anim/link_normal_give_other.anb||||||||
+|-
+| 0x2F90||boy/anim/link_normal_hang_up_down.anb||||||||
+|-
+| 0x2F98||boy/anim/link_normal_heavy_carry.anb||||||||
+|-
+| 0x2FA0||boy/anim/link_normal_heavy_carry_end.anb||||||||
+|-
+| 0x2FA8||boy/anim/link_normal_heavy_run.anb||||||||
+|-
+| 0x2FB0||boy/anim/link_normal_heavy_run_free.anb||||||||
+|-
+| 0x2FB8||boy/anim/link_normal_hip_down.anb||||||||
+|-
+| 0x2FC0||boy/anim/link_normal_hip_down_free.anb||||||||
+|-
+| 0x2FC8||boy/anim/link_normal_hip_down_long.anb||||||||
+|-
+| 0x2FD0||boy/anim/link_normal_ice_down.anb||||||||
+|-
+| 0x2FD8||boy/anim/link_normal_jump.anb||||||||
+|-
+| 0x2FE0||boy/anim/link_normal_jump2landing.anb||||||||
+|-
+| 0x2FE8||boy/anim/link_normal_jump_climb_hold.anb||||||||
+|-
+| 0x2FF0||boy/anim/link_normal_jump_climb_hold_free.anb||||||||
+|-
+| 0x2FF8||boy/anim/link_normal_jump_climb_up.anb||||||||
+|-
+| 0x3000||boy/anim/link_normal_jump_climb_up_free.anb||||||||
+|-
+| 0x3008||boy/anim/link_normal_jump_climb_wait.anb||||||||
+|-
+| 0x3010||boy/anim/link_normal_jump_climb_wait_free.anb||||||||
+|-
+| 0x3018||boy/anim/link_normal_jump_up.anb||||||||
+|-
+| 0x3020||boy/anim/link_normal_landing.anb||||||||
+|-
+| 0x3028||boy/anim/link_normal_landing_free.anb||||||||
+|-
+| 0x3030||boy/anim/link_normal_landing_roll.anb||||||||
+|-
+| 0x3038||boy/anim/link_normal_landing_roll_free.anb||||||||
+|-
+| 0x3040||boy/anim/link_normal_landing_wait.anb||||||||
+|-
+| 0x3048||boy/anim/link_normal_light_bom.anb||||||||Deku Nut throwing animation (start)
+|-
+| 0x3050||boy/anim/link_normal_light_bom_end.anb||||||||Deku Nut throwing animation (end)
+|-
+| 0x3058||boy/anim/link_normal_long2bom.anb||||||||
+|-
+| 0x3060||boy/anim/link_normal_nocarry_free.anb||||||||
+|-
+| 0x3068||boy/anim/link_normal_nocarry_free_end.anb||||||||
+|-
+| 0x3070||boy/anim/link_normal_nocarry_free_wait.anb||||||||
+|-
+| 0x3078||boy/anim/link_normal_normal2bom.anb||||||||
+|-
+| 0x3080||boy/anim/link_normal_normal2fighter.anb||||||||
+|-
+| 0x3088||boy/anim/link_normal_normal2fighter_free.anb||||||||
+|-
+| 0x3090||boy/anim/link_normal_normal2free.anb||||||||
+|-
+| 0x3098||boy/anim/link_normal_okarina_end.anb||||||||
+|-
+| 0x30A0||boy/anim/link_normal_okarina_start.anb||||||||
+|-
+| 0x30A8||boy/anim/link_normal_okarina_swing.anb||||||||
+|-
+| 0x30B0||boy/anim/link_normal_pulling.anb||||||||
+|-
+| 0x30B8||boy/anim/link_normal_pulling_free.anb||||||||
+|-
+| 0x30C0||boy/anim/link_normal_pull_end.anb||||||||
+|-
+| 0x30C8||boy/anim/link_normal_pull_end_free.anb||||||||
+|-
+| 0x30D0||boy/anim/link_normal_pull_start.anb||||||||
+|-
+| 0x30D8||boy/anim/link_normal_pull_start_free.anb||||||||
+|-
+| 0x30E0||boy/anim/link_normal_pushing.anb||||||||
+|-
+| 0x30E8||boy/anim/link_normal_push_end.anb||||||||
+|-
+| 0x30F0||boy/anim/link_normal_push_fall.anb||||||||
+|-
+| 0x30F8||boy/anim/link_normal_push_start.anb||||||||
+|-
+| 0x3100||boy/anim/link_normal_push_wait.anb||||||||
+|-
+| 0x3108||boy/anim/link_normal_push_wait_end.anb||||||||
+|-
+| 0x3110||boy/anim/link_normal_put.anb||||||||
+|-
+| 0x3118||boy/anim/link_normal_put_free.anb||||||||
+|-
+| 0x3120||boy/anim/link_normal_re_dead_attack.anb||||||||
+|-
+| 0x3128||boy/anim/link_normal_re_dead_attack_wait.anb||||||||
+|-
+| 0x3130||boy/anim/link_normal_rebound.anb||||||||
+|-
+| 0x3138||boy/anim/link_normal_run.anb||||||||
+|-
+| 0x3140||boy/anim/link_normal_run_free.anb||||||||
+|-
+| 0x3148||boy/anim/link_normal_run_jump.anb||||||||
+|-
+| 0x3150||boy/anim/link_normal_run_jump_end.anb||||||||
+|-
+| 0x3158||boy/anim/link_normal_run_jump_water_fall.anb||||||||
+|-
+| 0x3160||boy/anim/link_normal_run_jump_water_fall_wait.anb||||||||
+|-
+| 0x3168||boy/anim/link_normal_short_landing.anb||||||||
+|-
+| 0x3170||boy/anim/link_normal_short_landing_free.anb||||||||
+|-
+| 0x3178||boy/anim/link_normal_side_walkL_free.anb||||||||
+|-
+| 0x3180||boy/anim/link_normal_side_walkR_free.anb||||||||
+|-
+| 0x3188||boy/anim/link_normal_side_walk.anb||||||||
+|-
+| 0x3190||boy/anim/link_normal_side_walk_free.anb||||||||
+|-
+| 0x3198||boy/anim/link_normal_take_out.anb||||||||
+|-
+| 0x31A0||boy/anim/link_normal_talk_free.anb||||||||
+|-
+| 0x31A8||boy/anim/link_normal_talk_free_wait.anb||||||||
+|-
+| 0x31B0||boy/anim/link_normal_talk_navi.anb||||||||
+|-
+| 0x31B8||boy/anim/link_normal_talk_navi_wait.anb||||||||
+|-
+| 0x31C0||boy/anim/link_normal_throw.anb||||||||
+|-
+| 0x31C8||boy/anim/link_normal_throw_free.anb||||||||
+|-
+| 0x31D0||boy/anim/link_normal_up_slope_slip.anb||||||||
+|-
+| 0x31D8||boy/anim/link_normal_up_slope_slip_end.anb||||||||
+|-
+| 0x31E0||boy/anim/link_normal_up_slope_slip_end_free.anb||||||||
+|-
+| 0x31E8||boy/anim/link_normal_up_slope_slip_end_long.anb||||||||
+|-
+| 0x31F0||boy/anim/link_normal_wait2waitL.anb||||||||
+|-
+| 0x31F8||boy/anim/link_normal_wait2waitR.anb||||||||
+|-
+| 0x3200||boy/anim/link_normal_waitF_typeA_20f.anb||||||||
+|-
+| 0x3208||boy/anim/link_normal_waitF_typeB_20f.anb||||||||
+|-
+| 0x3210||boy/anim/link_normal_waitF_typeC_20f.anb||||||||
+|-
+| 0x3218||boy/anim/link_normal_waitL2wait.anb||||||||
+|-
+| 0x3220||boy/anim/link_normal_waitL_free.anb||||||||
+|-
+| 0x3228||boy/anim/link_normal_waitR2wait.anb||||||||
+|-
+| 0x3230||boy/anim/link_normal_waitR_free.anb||||||||
+|-
+| 0x3238||boy/anim/link_normal_wait.anb||||||||
+|-
+| 0x3240||boy/anim/link_normal_wait_free.anb||||||||
+|-
+| 0x3248||boy/anim/link_normal_wait_typeA_20f.anb||||||||
+|-
+| 0x3250||boy/anim/link_normal_wait_typeB_20f.anb||||||||
+|-
+| 0x3258||boy/anim/link_normal_wait_typeC_20f.anb||||||||
+|-
+| 0x3260||boy/anim/link_normal_wakeup.anb||||||||
+|-
+| 0x3268||boy/anim/link_normal_walk.anb||||||||
+|-
+| 0x3270||boy/anim/link_normal_walk_endL.anb||||||||
+|-
+| 0x3278||boy/anim/link_normal_walk_endL_free.anb||||||||
+|-
+| 0x3280||boy/anim/link_normal_walk_endR.anb||||||||
+|-
+| 0x3288||boy/anim/link_normal_walk_endR_free.anb||||||||
+|-
+| 0x3290||boy/anim/link_normal_walk_free.anb||||||||
+|-
+| 0x3298||boy/anim/link_okarina_warp_goal.anb||||||||
+|-
+| 0x32A0||boy/anim/link_okiru_demo.anb||wake up||||||
+|-
+| 0x32A8||boy/anim/link_shagamu_demo.anb||crouch||||||
+|-
+| 0x32B0||boy/anim/link_silver_carry.anb||||||||
+|-
+| 0x32B8||boy/anim/link_silver_throw.anb||||||||
+|-
+| 0x32C0||boy/anim/link_silver_wait.anb||||||||
+|-
+| 0x32C8||boy/anim/link_swimer_Lside_swim.anb||||||||
+|-
+| 0x32D0||boy/anim/link_swimer_Rside_swim.anb||||||||
+|-
+| 0x32D8||boy/anim/link_swimer_back_swim.anb||||||||
+|-
+| 0x32E0||boy/anim/link_swimer_land2swim_wait.anb||||||||
+|-
+| 0x32E8||boy/anim/link_swimer_swim_15step_up.anb||||||||
+|-
+| 0x32F0||boy/anim/link_swimer_swim.anb||||||||
+|-
+| 0x32F8||boy/anim/link_swimer_swim_down.anb||||||||
+|-
+| 0x3300||boy/anim/link_swimer_swim_deep_end.anb||||||||
+|-
+| 0x3308||boy/anim/link_swimer_swim_deep_start.anb||||||||
+|-
+| 0x3310||boy/anim/link_swimer_swim_dead.anb||||||||
+|-
+| 0x3318||boy/anim/link_swimer_swim_get.anb||||||||
+|-
+| 0x3320||boy/anim/link_swimer_swim_hit.anb||||||||
+|-
+| 0x3328||boy/anim/link_swimer_swim_wait.anb||||||||
+|-
+| 0x3330||boy/anim/link_swimer_wait2swim_wait.anb||||||||
+|-
+| 0x3338||boy/anim/link_uma_anim_fastrun.anb||horse||||||
+|-
+| 0x3340||boy/anim/link_uma_anim_fastrun_muti.anb||horse - whip||||||
+|-
+| 0x3348||boy/anim/link_uma_anim_jump100.anb||horse||||||
+|-
+| 0x3350||boy/anim/link_uma_anim_jump200.anb||horse||||||
+|-
+| 0x3358||boy/anim/link_uma_anim_slowrun.anb||horse||||||
+|-
+| 0x3360||boy/anim/link_uma_anim_slowrun_muti.anb||horse - whip||||||
+|-
+| 0x3368||boy/anim/link_uma_anim_stand.anb||horse||||||
+|-
+| 0x3370||boy/anim/link_uma_anim_stop.anb||horse||||||
+|-
+| 0x3378||boy/anim/link_uma_anim_walk.anb||horse||||||
+|-
+| 0x3380||boy/anim/link_uma_anim_walk2.anb||horse||||||
+|-
+| 0x3388||boy/anim/link_uma_anim_walk_muti.anb||horse - whip||||||
+|-
+| 0x3390||boy/anim/link_uma_left_down.anb||horse||||||
+|-
+| 0x3398||boy/anim/link_uma_left_up.anb||horse||||||
+|-
+| 0x33A0||boy/anim/link_uma_right_down.anb||horse||||||
+|-
+| 0x33A8||boy/anim/link_uma_right_up.anb||horse||||||
+|-
+| 0x33B0||boy/anim/link_uma_stop_muti.anb||horse||||||
+|-
+| 0x33B8||boy/anim/link_uma_wait_1.anb||horse||||||
+|-
+| 0x33C0||boy/anim/link_uma_wait_2.anb||horse||||||
+|-
+| 0x33C8||boy/anim/link_uma_wait_3.anb||horse||||||
+|-
+| 0x33D0||boy/anim/link_wait_heat1_20f.anb||||||||
+|-
+| 0x33D8||boy/anim/link_wait_heat2_20f.anb||||||||
+|-
+| 0x33E0||boy/anim/link_wait_itemA_20f.anb||||||||adjusting tunic
+|-
+| 0x33E8||boy/anim/link_wait_itemB_20f.anb||||||||tapping toes
+|-
+| 0x33F0||boy/anim/link_wait_itemC_20f.anb||||||||yawning
+|-
+| 0x33F8||boy/anim/link_waitF_heat1_20f.anb||||||||bending over and panting (wait)
+|-
+| 0x3400||boy/anim/link_waitF_heat2_20f.anb||||||low on hearts?||bending over and panting
+|-
+| 0x3408||boy/anim/link_waitF_itemA_20f.anb||||||||adjusting tunic (faster?)
+|-
+| 0x3410||boy/anim/link_waitF_itemB_20f.anb||||||||tapping toes
+|-
+| 0x3418||boy/anim/link_waitF_typeD_20f.anb||||||||toying with shield
+|-
+| 0x3420||boy/anim/link_wait_itemD1_20f.anb||||||||toying with sword
+|-
+| 0x3428||boy/anim/link_wait_itemD2_20f.anb||||✘||||toying with longsword
+|-
+| 0x3430||boy/anim/sude_nwait.anb||unarmed||||||yawning
+|-
+| 0x3438||boy/anim/Link_otituku_w.anb||relax||||||
+|-
+| 0x3440||boy/anim/om_get.anb||get mask||||||
+|-
+| 0x3448||boy/anim/om_get_mae.anb||before getting mask||||||
+|-
+| 0x3450||boy/anim/o_get_mae.anb||before getting ocarina||||||
+|-
+| 0x3458|| ||||||||
+|-
+| 0x3460||boy/anim/o_get_ato.anb||after getting ocarina||||||
+|-
+| 0x3468||boy/anim/lkt_nwait.anb||||||||
+|-
+| 0x3470||boy/anim/L_1kyoro.anb||look around||||||
+|-
+| 0x3478||boy/anim/L_2kyoro.anb||look around||||||
+|-
+| 0x3480||boy/anim/L_bouzen.anb||dumbfounded||||||
+|-
+| 0x3488||boy/anim/L_hajikareru.anb||repelled||||||
+|-
+| 0x3490|| ||||||||
+|-
+| 0x3498||boy/anim/L_ken_miru.anb||look at sword||||||
+|-
+| 0x34A0||boy/anim/L_kw.anb||||||||
+|-
+| 0x34A8||boy/anim/L_kennasi_w.anb||without sword||||||
+|-
+| 0x34B0||boy/anim/L_mukinaoru.anb||turn around||||||
+|-
+| 0x34B8||boy/anim/L_okarina_get.anb||||||||
+|-
+| 0x34C0||boy/anim/L_sagaru.anb||fall back||||||
+|-
+| 0x34C8||boy/anim/Link_ha.anb||gasp||||moving to guard Zelda when boom is heard in Ganon's Castle ruins||
+|-
+| 0x34D0||boy/anim/Link_m_wait.anb||||||||
+|-
+| 0x34D8||boy/anim/Link_miageru.anb||look up||||||
+|-
+| 0x34E0||boy/anim/Link_muku.anb||turn to face||||||
+|-
+| 0x34E8|| ||||||||
+|-
+| 0x34F0||boy/anim/Link_ue_wait.anb||above||||||
+|}
+
+[[Category:GameShark Codes]]
+[[Category:Ocarina of Time]]

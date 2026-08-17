@@ -1,0 +1,6 @@
+{{actor|name=ovl_En_Sa}}
+'''ovl_En_Sa''' is the [[Saria]] actor used while playing the game.
+{{clear}}
+[[Category:Saria]]
+== Debug Rom Notes ==
+ROM: 0xEACB24 (24050062) Saria's Song (Learned at initiation of Sacred Forest Meadow Scene)

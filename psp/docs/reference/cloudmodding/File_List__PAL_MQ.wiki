@@ -1,0 +1,3027 @@
+{{subpage}}
+[[Category: File Listings]]
+
+== Table ==
+{| class="wikitable"
+! Index||VRom Start||VRom End||Filename||Description
+|-
+| 0000||00000000||00001060||[[makerom]]||
+|-
+| 0001||00001060||00007170||[[boot]]||
+|-
+| 0002||00007170||0000D0D0||[[Filesystem|dmadata]]||File Table
+|-
+| 0003||0000D0D0||00038E90||[[Audiobank]]||
+|-
+| 0004||00038E90||00088910||[[Audioseq]]||
+|-
+| 0005||00088910||004D9CA0||[[Audiotable]]||
+|-
+| 0006||004D9CA0||0073F8D0||[[link_animetion]]||
+|-
+| 0007||00740000||007C9CA0||[[Texture_List_(Xml)|icon_item_static]]||
+|-
+| 0008||007CA000||007D5400||[[Texture_List_(Xml)|icon_item_24_static]]||
+|-
+| 0009||007D6000||007E1930||[[Texture_List_(Xml)|icon_item_field_static]]||
+|-
+| 0010||007E2000||007E3D80||[[Texture_List_(Xml)|icon_item_dungeon_static]]||
+|-
+| 0011||007E4000||007E7C80||[[Texture_List_(Xml)|icon_item_gameover_static]]||
+|-
+| 0012||007E8000||007F5C80||[[Texture_List_(Xml)|icon_item_nes_static]]||
+|-
+| 0013||007F6000||00804B80||[[Texture_List_(Xml)|icon_item_ger_static]]||
+|-
+| 0014||00805000||00814480||[[Texture_List_(Xml)|icon_item_fra_static]]||
+|-
+| 0015||00815000||00871400||[[Texture_List_(Xml)|item_name_static]]||Highlighted item name textures (Pause Menu)
+|-
+| 0016||00872000||008A4400||[[Texture_List_(Xml)|map_name_static]]||Current location name texture (Map Screen)
+|-
+| 0017||008A5000||008AD280||[[Texture_List_(Xml)|do_action_static]]||
+|-
+| 0018||008AE000||008B2180||[[Texture_List_(Xml)|message_static]]||
+|-
+| 0019||008B3000||008B4200||[[Texture_List_(Xml)|message_texture_static]]||
+|-
+| 0020||008B5000||008B9600||[[Texture_List_(Xml)|nes_font_static]]||
+|-
+| 0021||008BA000||008F2080||[[Text Format|nes_message_data_static]]||English Textbox Text
+|-
+| 0022||008F3000||0092E9D0||[[Text Format|ger_message_data_static]]||German Textbox Text (PAL)
+|-
+| 0023||0092F000||009661C0||[[Text Format|fra_message_data_static]]||French Textbox Text (PAL)
+|-
+| 0024||00967000||00967F50||[[staff_message_data_static]]||Credits Text
+|-
+| 0025||00968000||00976350||[[Texture_List_(Xml)|map_grand_static]]||
+|-
+| 0026||00977000||00998DE0||[[map_48x85_static]]||
+|-
+| 0027||00999000||00A87110||[[map_i_static]]||
+|-
+| 0028||00A88000||00B8A230||[[Code_(File)|code]]||Contains game's main codebase
+|-
+| 0029||00B8A230||00B8AA80||[[ovl_title]]||
+|-
+| 0030||00B8AA80||00B8D700||[[ovl_select]]||
+|-
+| 0031||00B8D700||00B8D860||[[ovl_opening]]||
+|-
+| 0032||00B8D860||00B9C470||[[ovl_file_choose]]||
+|-
+| 0033||00B9C470||00BB8E30||[[ovl_kaleido_scope]]||Pause screen code
+|-
+| 0034||00BB8E30||00BDF540||[[ovl_player_actor]]||Link
+|-
+| 0035||00BDF540||00BE6020||[[ovl_map_mark_data]]||Minimap Icon Data for dungeons 0-9
+|-
+| 0036||00BE6020||00BEB8D0||[[ovl_En_Test]]||Stalfos
+|-
+| 0037||00BEB8D0||00BEC640||[[ovl_Arms_Hook]]||Hookshot
+|-
+| 0038||00BEC640||00BEE520||[[ovl_Arrow_Fire]]||Fire Arrow
+|-
+| 0039||00BEE520||00BF0420||[[ovl_Arrow_Ice]]||Ice Arrow
+|-
+| 0040||00BF0420||00BF2330||[[ovl_Arrow_Light]]||Light Arrow
+|-
+| 0041||00BF2330||00BF3600||[[ovl_Bg_Bdan_Objects]]||Lord Jabu-Jabu objects 
+|-
+| 0042||00BF3600||00BF4A30||[[ovl_Bg_Bdan_Switch]]||Switch from inside Lord Jabu-Jabu
+|-
+| 0043||00BF4A30||00BF4C50||[[ovl_Bg_Bom_Guard]]||Bombchu Bowling Alley Game
+|-
+| 0044||00BF4C50||00BF5510||[[ovl_Bg_Bombwall]]||2D Bombable Wall
+|-
+| 0045||00BF5510||00BF5E90||[[ovl_Bg_Bowl_Wall]]||Bombchu Bowling alley wall 
+|-
+| 0046||00BF5E90||00BF6D00||[[ovl_Bg_Breakwall]]||Bombable Wall
+|-
+| 0047||00BF6D00||00BF7350||[[ovl_Bg_Ddan_Jd]]||Rising Stone Platform (Dodongo's Cavern)
+|-
+| 0048||00BF7350||00BF7C40||[[ovl_Bg_Ddan_Kd]]||Stone Stairs
+|-
+| 0049||00BF7C40||00BF8980||[[ovl_Bg_Dodoago]]||Dodongo's Cavern "Mega Dodongo"
+|-
+| 0050||00BF8980||00BFB770||[[ovl_Bg_Dy_Yoseizo]]||Great Fairy
+|-
+| 0051||00BFB770||00BFDDB0||[[ovl_Bg_Ganon_Otyuka]]||Falling Platform (Ganondorf Fight)
+|-
+| 0052||00BFDDB0||00BFE240||[[ovl_Bg_Gate_Shutter]]||Death Mountain Trail Gate
+|-
+| 0053||00BFE240||00BFE730||[[ovl_Bg_Gjyo_Bridge]]||Rainbow Bridge
+|-
+| 0054||00BFE730||00BFEEF0||[[ovl_Bg_Gnd_Darkmeiro]]||Clear block
+|-
+| 0055||00BFEEF0||00BFF440||[[ovl_Bg_Gnd_Firemeiro]]||Sinking lava platform (Ganon's Castle)
+|-
+| 0056||00BFF440||00C00530||[[ovl_Bg_Gnd_Iceblock]]||Pushable Large square ice block (Ganon's Castle)
+|-
+| 0057||00C00530||00C006A0||[[ovl_Bg_Gnd_Nisekabe]]||2D stone wall
+|-
+| 0058||00C006A0||00C00F00||[[ovl_Bg_Gnd_Soulmeiro]]||Web blocked light window
+|-
+| 0059||00C00F00||00C015C0||[[ovl_Bg_Haka]]||Gravestone
+|-
+| 0060||00C015C0||00C02650||[[ovl_Bg_Haka_Gate]]||Shadow Temple Truth Spinner
+|-
+| 0061||00C02650||00C030F0||[[ovl_Bg_Haka_Huta]]||Coffin lid
+|-
+| 0062||00C030F0||00C034F0||[[ovl_Bg_Haka_Megane]]||Shadow Temple Fake Walls
+|-
+| 0063||00C034F0||00C03BB0||[[ovl_Bg_Haka_MeganeBG]]||Platforms (Shadow Temple)
+|-
+| 0064||00C03BB0||00C047D0||[[ovl_Bg_Haka_Sgami]]||Spinning Scythe Trap
+|-
+| 0065||00C047D0||00C05220||[[ovl_Bg_Haka_Ship]]||Shadow Temple Ship
+|-
+| 0066||00C05220||00C067F0||[[ovl_Bg_Haka_Trap]]||Shadow Temple objects
+|-
+| 0067||00C067F0||00C07210||[[ovl_Bg_Haka_Tubo]]||Giant Skull Jar
+|-
+| 0068||00C07210||00C07A10||[[ovl_Bg_Haka_Water]]||Water Level Changer (Bottom of The Well)
+|-
+| 0069||00C07A10||00C08C00||[[ovl_Bg_Haka_Zou]]||Statue and Wall (Shadow Temple)
+|-
+| 0070||00C08C00||00C0A4F0||[[ovl_Bg_Heavy_Block]]||Golden Gauntlets Rock
+|-
+| 0071||00C0A4F0||00C0AF90||[[ovl_Bg_Hidan_Curtain]]||Flame Circle
+|-
+| 0072||00C0AF90||00C0B7E0||[[ovl_Bg_Hidan_Dalm]]||Megaton Statue
+|-
+| 0073||00C0B7E0||00C0BF40||[[ovl_Bg_Hidan_Firewall]]||Proximity Activated Fire Wall
+|-
+| 0074||00C0BF40||00C0C410||[[ovl_Bg_Hidan_Fslift]]||Hookshotable Elevator (Fire Temple)
+|-
+| 0075||00C0C410||00C0D0F0||[[ovl_Bg_Hidan_Fwbig]]||Large Flame Wall
+|-
+| 0076||00C0D0F0||00C0DFA0||[[ovl_Bg_Hidan_Hamstep]]||Stone Steps and Platforms (Fire Temple)
+|-
+| 0077||00C0DFA0||00C0E7D0||[[ovl_Bg_Hidan_Hrock]]||Huge Stone Spike Platform (Fire Temple)
+|-
+| 0078||00C0E7D0||00C0ED60||[[ovl_Bg_Hidan_Kousi]]||Metal Gate
+|-
+| 0079||00C0ED60||00C0FC40||[[ovl_Bg_Hidan_Kowarerukabe]]||Bombable walls (Fire Temple)
+|-
+| 0080||00C0FC40||00C10D40||[[ovl_Bg_Hidan_Rock]]||Stone Blocks (Fire Temple)
+|-
+| 0081||00C10D40||00C11920||[[ovl_Bg_Hidan_Rsekizou]]||Spinning Stone Flamethrower
+|-
+| 0082||00C11920||00C12D70||[[ovl_Bg_Hidan_Sekizou]]||Stationary Flamethrower Statue
+|-
+| 0083||00C12D70||00C13C70||[[ovl_Bg_Hidan_Sima]]||Stone Platform (Fire Temple)
+|-
+| 0084||00C13C70||00C140D0||[[ovl_Bg_Hidan_Syoku]]||Stone Elevator (Fire Temple)
+|-
+| 0085||00C140D0||00C15010||[[ovl_Bg_Ice_Objects]]||Movable ice block
+|-
+| 0086||00C15010||00C16250||[[ovl_Bg_Ice_Shelter]]||Red Ice
+|-
+| 0087||00C16250||00C166C0||[[ovl_Bg_Ice_Shutter]]||2D Ice bars (Ice Cavern)
+|-
+| 0088||00C166C0||00C16EF0||[[ovl_Bg_Ice_Turara]]||Icicles
+|-
+| 0089||00C16EF0||00C17280||[[ovl_Bg_Ingate]]||Ingo's Gates
+|-
+| 0090||00C17280||00C17910||[[ovl_Bg_Jya_1flift]]||Stone Elevator (Spirit Temple)
+|-
+| 0091||00C17910||00C17CA0||[[ovl_Bg_Jya_Amishutter]]||Circular metal grating (Spirit Temple)
+|-
+| 0092||00C17CA0||00C184F0||[[ovl_Bg_Jya_Bigmirror]]||Large Circular Mirror (Spirit Temple)
+|-
+| 0093||00C184F0||00C18760||[[ovl_Bg_Jya_Block]]||Big/Small Silver Block (Spirit Temple)
+|-
+| 0094||00C18760||00C192A0||[[ovl_Bg_Jya_Bombchuiwa]]||Light blocking rock (Bombchu; Spirit Temple)
+|-
+| 0095||00C192A0||00C19860||[[ovl_Bg_Jya_Bombiwa]]||Bombable rock wall (Spirit Temple)
+|-
+| 0096||00C19860||00C1B5A0||[[ovl_Bg_Jya_Cobra]]||Rotating Cobra mirror (Spirit Temple)
+|-
+| 0097||00C1B5A0||00C1BD20||[[ovl_Bg_Jya_Goroiwa]]||Giant Rolling Boulder
+|-
+| 0098||00C1BD20||00C1C510||[[ovl_Bg_Jya_Haheniron]]||Iron Knuckle Chair and Pillar Particles
+|-
+| 0099||00C1C510||00C1D2C0||[[ovl_Bg_Jya_Ironobj]]||Iron Knuckles Room Stuff (Spirit Temple)
+|-
+| 0100||00C1D2C0||00C1D670||[[ovl_Bg_Jya_Kanaami]]||Climbable Metal Grating (Fire Temple)
+|-
+| 0101||00C1D670||00C1DBC0||[[ovl_Bg_Jya_Lift]]||Chain Platform (Spirit Temple)
+|-
+| 0102||00C1DBC0||00C1EDB0||[[ovl_Bg_Jya_Megami]]||Large stone face (Spirit Temple)
+|-
+| 0103||00C1EDB0||00C1F460||[[ovl_Bg_Jya_Zurerukabe]]||Sliding, climbable brick wall (Spirit Temple)
+|-
+| 0104||00C1F460||00C1F8F0||[[ovl_Bg_Menkuri_Eye]]||Eye Statue Switch
+|-
+| 0105||00C1F8F0||00C1FA80||[[ovl_Bg_Menkuri_Kaiten]]||Large Rotating Stone Ring
+|-
+| 0106||00C1FA80||00C1FBD0||[[ovl_Bg_Menkuri_Nisekabe]]||Circular piece of stone wall
+|-
+| 0107||00C1FBD0||00C210A0||[[ovl_Bg_Mizu_Bwall]]||Bombable stone wall
+|-
+| 0108||00C210A0||00C22220||[[ovl_Bg_Mizu_Movebg]]||Water Temple Platforms / Dragonhead Statues
+|-
+| 0109||00C22220||00C22A20||[[ovl_Bg_Mizu_Shutter]]||Metal gate
+|-
+| 0110||00C22A20||00C22BF0||[[ovl_Bg_Mizu_Uzu]]||Water noise 
+|-
+| 0111||00C22BF0||00C238C0||[[ovl_Bg_Mizu_Water]]||Large Water Square (Water Temple)
+|-
+| 0112||00C238C0||00C23CB0||[[ovl_Bg_Mjin]]||Warp Pad
+|-
+| 0113||00C23CB0||00C245E0||[[ovl_Bg_Mori_Bigst]]||Large Round Platform (Forest Temple)
+|-
+| 0114||00C245E0||00C250D0||[[ovl_Bg_Mori_Elevator]]||Elevator (Forest Temple)
+|-
+| 0115||00C250D0||00C25990||[[ovl_Bg_Mori_Hashigo]]||Ladder (Forest Temple, with object 0073)
+|-
+| 0116||00C25990||00C25F10||[[ovl_Bg_Mori_Hashira4]]||Forest Temple objects (with object 0073)
+|-
+| 0117||00C25F10||00C26C60||[[ovl_Bg_Mori_Hineri]]||Twisted Hallway Room (Forest Temple)
+|-
+| 0118||00C26C60||00C272A0||[[ovl_Bg_Mori_Idomizu]]||Well Water (Forest Temple)
+|-
+| 0119||00C272A0||00C27910||[[ovl_Bg_Mori_Kaitenkabe]]||Rotating Walls (Forest Temple)
+|-
+| 0120||00C27910||00C28290||[[ovl_Bg_Mori_Rakkatenjo]]||Falling Ceiling (Forest Temple)
+|-
+| 0121||00C28290||00C2A0C0||[[ovl_Bg_Po_Event]]||Poe Puzzle Block (Forest Temple)
+|-
+| 0122||00C2A0C0||00C2AA30||[[ovl_Bg_Po_Syokudai]]||Golden torch stand (granite base)
+|-
+| 0123||00C2AA30||00C2AD30||[[ovl_Bg_Pushbox]]||Alpha Cube
+|-
+| 0124||00C2AD30||00C2B4E0||[[ovl_Bg_Relay_Objects]]||Rotating windmill mechanism
+|-
+| 0125||00C2B4E0||00C2B680||[[ovl_Bg_Spot00_Break]]||Drawbridge (Broken)
+|-
+| 0126||00C2B680||00C2C790||[[ovl_Bg_Spot00_Hanebasi]]||Drawbridge Objects
+|-
+| 0127||00C2C790||00C2CA30||[[ovl_Bg_Spot01_Fusya]]||Windmill sails
+|-
+| 0128||00C2CA30||00C2D630||[[ovl_Bg_Spot01_Idohashira]]||Kakariko Village well crossbeam
+|-
+| 0129||00C2D630||00C2D950||[[ovl_Bg_Spot01_Idomizu]]||Kakariko Village well water
+|-
+| 0130||00C2D950||00C2DB60||[[ovl_Bg_Spot01_Idosoko]]||Stone Blocking the Well Entrance
+|-
+| 0131||00C2DB60||00C2E020||[[ovl_Bg_Spot01_Objects2]]||Shooting Gallery Building (Kakariko Village)
+|-
+| 0132||00C2E020||00C2F380||[[ovl_Bg_Spot02_Objects]]||Graveyard Actors
+|-
+| 0133||00C2F380||00C2FCA0||[[ovl_Bg_Spot03_Taki]]||Waterfall (Zora's River)
+|-
+| 0134||00C2FCA0||00C2FFC0||[[ovl_Bg_Spot05_Soko]]||Sacred Forest Meadow objects (gate, 2D square texture)
+|-
+| 0135||00C2FFC0||00C313C0||[[ovl_Bg_Spot06_Objects]]||Lake Hylia Objects
+|-
+| 0136||00C313C0||00C319B0||[[ovl_Bg_Spot07_Taki]]||Waterfall (Zora's Domain)
+|-
+| 0137||00C319B0||00C32050||[[ovl_Bg_Spot08_Bakudankabe]]||Bombable wall (Zora's Fountain)
+|-
+| 0138||00C32050||00C33090||[[ovl_Bg_Spot08_Iceblock]]||Ice Blocks (Zora's Fountain)
+|-
+| 0139||00C33090||00C335B0||[[ovl_Bg_Spot09_Obj]]||Gerudo Valley Objects
+|-
+| 0140||00C335B0||00C33BF0||[[ovl_Bg_Spot11_Bakudankabe]]||Bombable Wall (Desert Colossus, Nayru's Love)
+|-
+| 0141||00C33BF0||00C34320||[[ovl_Bg_Spot11_Oasis]]||Oasis (Desert Colossus)
+|-
+| 0142||00C34320||00C34730||[[ovl_Bg_Spot12_Gate]]||Wooden gate (Gerudo Fortress)
+|-
+| 0143||00C34730||00C34BF0||[[ovl_Bg_Spot12_Saku]]||Training area gate (Gerudo Fortress)
+|-
+| 0144||00C34BF0||00C359D0||[[ovl_Bg_Spot15_Rrbox]]||Milk crate
+|-
+| 0145||00C359D0||00C35D10||[[ovl_Bg_Spot15_Saku]]||Hyrule Castle Fence (inside the castle; green)
+|-
+| 0146||00C35D10||00C37260||[[ovl_Bg_Spot16_Bombstone]]||Dodongo Cavern Entrance Rock
+|-
+| 0147||00C37260||00C37820||[[ovl_Bg_Spot16_Doughnut]]||Volcano cloud ring (Death Mountain)
+|-
+| 0148||00C37820||00C37F10||[[ovl_Bg_Spot17_Bakudankabe]]||Explodable Wall (Death Mountain Crater)
+|-
+| 0149||00C37F10||00C38160||[[ovl_Bg_Spot17_Funen]]||Smoke cone (Death Mountain Crater)
+|-
+| 0150||00C38160||00C39150||[[ovl_Bg_Spot18_Basket]]||Giant Goron Jar (Goron City)
+|-
+| 0151||00C39150||00C392F0||[[ovl_Bg_Spot18_Futa]]||Lid to Goron Jar (Goron City)
+|-
+| 0152||00C392F0||00C39BC0||[[ovl_Bg_Spot18_Obj]]||Statue from Darunia's room 
+|-
+| 0153||00C39BC0||00C3A110||[[ovl_Bg_Spot18_Shutter]]||Goron room door
+|-
+| 0154||00C3A110||00C3A670||[[ovl_Bg_Sst_Floor]]||Bongo Bongo's Drum
+|-
+| 0155||00C3A670||00C3B410||[[ovl_Bg_Toki_Hikari]]||Temple of Time Windows
+|-
+| 0156||00C3B410||00C3CA60||[[ovl_Bg_Toki_Swd]]||Master Sword
+|-
+| 0157||00C3CA60||00C3E0C0||[[ovl_Bg_Treemouth]]||Great Deku Tree's Jaw
+|-
+| 0158||00C3E0C0||00C3E250||[[ovl_Bg_Umajump]]||Lon Lon Ranch Obstacle Fence
+|-
+| 0159||00C3E250||00C3E970||[[ovl_Bg_Vb_Sima]]||Volvagia Platform
+|-
+| 0160||00C3E970||00C3F120||[[ovl_Bg_Ydan_Hasi]]||Deku Tree Puzzle Elements
+|-
+| 0161||00C3F120||00C3F800||[[ovl_Bg_Ydan_Maruta]]||Rotating Spike Cylinder (Deku Tree)
+|-
+| 0162||00C3F800||00C40F20||[[ovl_Bg_Ydan_Sp]]||Webs
+|-
+| 0163||00C40F20||00C41370||[[ovl_Bg_Zg]]||Metal bars (Ganon's Castle)
+|-
+| 0164||00C41370||00C4AE70||[[ovl_Boss_Dodongo]]||King Dodongo
+|-
+| 0165||00C4AE70||00C521D0||[[ovl_Boss_Fd]]||Flying Volvagia
+|-
+| 0166||00C521D0||00C55F00||[[ovl_Boss_Fd2]]||Hole Volvagia
+|-
+| 0167||00C55F00||00C781B0||[[ovl_Boss_Ganon]]||Ganondorf Boss (with objects 017C + 017D)
+|-
+| 0168||00C781B0||00C89500||[[ovl_Boss_Ganon2]]||Ganon
+|-
+| 0169||00C89500||00C8E290||[[ovl_Boss_Ganondrof]]||Phantom Ganon
+|-
+| 0170||00C8E290||00C94230||[[ovl_Boss_Goma]]||Gohma
+|-
+| 0171||00C94230||00C9FD00||[[ovl_Boss_Mo]]||Morpha 
+|-
+| 0172||00C9FD00||00CAC290||[[ovl_Boss_Sst]]||Bongo Bongo
+|-
+| 0173||00CAC290||00CBF3E0||[[ovl_Boss_Tw]]||Twinrova
+|-
+| 0174||00CBF3E0||00CCDC70||[[ovl_Boss_Va]]||Barinade
+|-
+| 0175||00CCDC70||00CD09D0||[[ovl_Demo_6K]]||Sages, Balls of Light (Cutscene)
+|-
+| 0176||00CD09D0||00CD41B0||[[ovl_Demo_Du]]||Sage Darunia (Cutscene)
+|-
+| 0177||00CD41B0||00CD7A10||[[ovl_Demo_Ec]]||Ranch Npcs (End Cutscene)
+|-
+| 0178||00CD7A10||00CDD5B0||[[ovl_Demo_Effect]]||Spiritual Stones
+|-
+| 0179||00CDD5B0||00CDDF00||[[ovl_Demo_Ext]]||Dark Vortex (Phantom Ganon, Koume/Kotake Kidnap Nabooru)
+|-
+| 0180||00CDDF00||00CDE720||[[ovl_Demo_Geff]]||Chunk of stone (Ganon's Tower Collapsing Cutscene)
+|-
+| 0181||00CDE720||00CE23D0||[[ovl_Demo_Gj]]||Ganon Battle rubble
+|-
+| 0182||00CE23D0||00CE3120||[[ovl_Demo_Go]]||Gorons (Cutscene)
+|-
+| 0183||00CE3120||00CE8730||[[ovl_Demo_Gt]]||Ganon's Tower (Collapsing)
+|-
+| 0184||00CE8730||00CE9C40||[[ovl_Demo_Ik]]||Iron Knuckle Armor Pieces
+|-
+| 0185||00CE9C40||00CEDBB0||[[ovl_Demo_Im]]||Impa
+|-
+| 0186||00CEDBB0||00CF1850||[[ovl_Demo_Kankyo]]||Temple of Time Objects
+|-
+| 0187||00CF1850||00CF2B40||[[ovl_Demo_Kekkai]]||Ganon's Tower magic barrier
+|-
+| 0188||00CF2B40||00CF5660||[[ovl_Demo_Sa]]||Saria (Cutscenes)
+|-
+| 0189||00CF5660||00CF7A70||[[ovl_Demo_Shd]]||Bongo Bongo's Shadow
+|-
+| 0190||00CF7A70||00CF8180||[[ovl_Demo_Tre_Lgt]]||Treasure Chest Light
+|-
+| 0191||00CF8180||00CF87F0||[[ovl_Door_Ana]]||Grotto
+|-
+| 0192||00CF87F0||00CF8DE0||[[ovl_Door_Gerudo]]||Metal grate door
+|-
+| 0193||00CF8DE0||00CFA350||[[ovl_Door_Killer]]||Fake door
+|-
+| 0194||00CFA350||00CFC610||[[ovl_Door_Shutter]]||Lifting Dungeon Door
+|-
+| 0195||00CFC610||00CFC770||[[ovl_Door_Toki]]||Invisible Wall
+|-
+| 0196||00CFC770||00D00A70||[[ovl_Door_Warp1]]||Warp Portals
+|-
+| 0197||00D00A70||00D01560||[[ovl_Efc_Erupc]]||Eruption Effect (Death Mountain panorama)
+|-
+| 0198||00D01560||00D02930||[[ovl_Eff_Dust]]||Sparklies gathering together
+|-
+| 0199||00D02930||00D02CC0||[[ovl_Effect_Ss_Blast]]||
+|-
+| 0200||00D02CC0||00D030F0||[[ovl_Effect_Ss_Bomb]]||
+|-
+| 0201||00D030F0||00D039F0||[[ovl_Effect_Ss_Bomb2]]||
+|-
+| 0202||00D039F0||00D03E70||[[ovl_Effect_Ss_Bubble]]||
+|-
+| 0203||00D03E70||00D04360||[[ovl_Effect_Ss_D_Fire]]||
+|-
+| 0204||00D04360||00D04840||||
+|-
+| 0205||00D04840||00D04DD0||||
+|-
+| 0206||00D04DD0||00D05250||||
+|-
+| 0207||00D05250||00D05390||||
+|-
+| 0208||00D05390||00D05920||[[ovl_Effect_Ss_Dt_Bubble]]||
+|-
+| 0209||00D05920||00D06160||[[ovl_Effect_Ss_Dust]]||
+|-
+| 0210||00D06160||00D068B0||||
+|-
+| 0211||00D068B0||00D07170||||
+|-
+| 0212||00D07170||00D07530||||
+|-
+| 0213||00D07530||00D079E0||||
+|-
+| 0214||00D079E0||00D08960||[[ovl_Effect_Ss_Fhg_Flash]]||
+|-
+| 0215||00D08960||00D09060||||
+|-
+| 0216||00D09060||00D092F0||[[ovl_Effect_Ss_G_Fire]]||
+|-
+| 0217||00D092F0||00D09550||[[ovl_Effect_Ss_G_Magma]]||
+|-
+| 0218||00D09550||00D09A60||[[ovl_Effect_Ss_G_Magma2]]||
+|-
+| 0219||00D09A60||00D09FC0||[[ovl_Effect_Ss_G_Ripple]]||
+|-
+| 0220||00D09FC0||00D0A570||[[ovl_Effect_Ss_G_Spk]]||
+|-
+| 0221||00D0A570||00D0AA20||[[ovl_Effect_Ss_G_Splash]]||
+|-
+| 0222||00D0AA20||00D0B060||[[ovl_Effect_Ss_Hahen]]||
+|-
+| 0223||00D0B060||00D0B5B0||[[ovl_Effect_Ss_HitMark]]||
+|-
+| 0224||00D0B5B0||00D0B9F0||||
+|-
+| 0225||00D0B9F0||00D0BED0||||
+|-
+| 0226||00D0BED0||00D0C310||[[ovl_Effect_Ss_K_Fire]]||
+|-
+| 0227||00D0C310||00D0D3A0||||
+|-
+| 0228||00D0D3A0||00D0DA10||[[ovl_Effect_Ss_KiraKira]]||
+|-
+| 0229||00D0DA10||00D0E0E0||[[ovl_Effect_Ss_Lightning]]||
+|-
+| 0230||00D0E0E0||00D0E7B0||[[ovl_Effect_Ss_Sibuki]]||
+|-
+| 0231||00D0E7B0||00D0EAE0||[[ovl_Effect_Ss_Sibuki2]]||
+|-
+| 0232||00D0EAE0||00D0EC90||[[ovl_Effect_Ss_Solder_Srch_Ball]]||
+|-
+| 0233||00D0EC90||00D0F030||[[ovl_Effect_Ss_Stick]]||
+|-
+| 0234||00D0F030||00D0F3B0||[[ovl_Effect_Ss_Stone1]]||
+|-
+| 0235||00D0F3B0||00D0F9A0||[[ovl_Elf_Msg]]||Navi Information Spot (see actor 0173)
+|-
+| 0236||00D0F9A0||00D0FE10||[[ovl_Elf_Msg2]]||Navi Information Spot (Targetable, see actor 011B)
+|-
+| 0237||00D0FE10||00D12210||[[ovl_En_Am]]||Armos Statue
+|-
+| 0238||00D12210||00D12F80||[[ovl_En_Ani]]||Rooftop Man (Kakariko Village)
+|-
+| 0239||00D12F80||00D14230||[[ovl_En_Anubice]]||Anubis Statue
+|-
+| 0240||00D14230||00D14FF0||[[ovl_En_Anubice_Fire]]||Fire Attack (Anubis)
+|-
+| 0241||00D14FF0||00D152C0||[[ovl_En_Anubice_Tag]]||Anubis
+|-
+| 0242||00D152C0||00D15410||[[ovl_En_Arow_Trap]]||Proximity Arrow Trap (incomplete)
+|-
+| 0243||00D15410||00D16B10||[[ovl_En_Arrow]]||Arrows
+|-
+| 0244||00D16B10||00D17D70||[[ovl_En_Attack_Niw]]||Attacking Cucco, not solid
+|-
+| 0245||00D17D70||00D19C40||[[ovl_En_Ba]]||Tentacle (Inside Jabu-Jabu's Belly)
+|-
+| 0246||00D19C40||00D1D920||[[ovl_En_Bb]]||Bubble (Flying Skull Enemy)
+|-
+| 0247||00D1D920||00D1E4C0||[[ovl_En_Bdfire]]||King Dodongo's Fire
+|-
+| 0248||00D1E4C0||00D20FC0||[[ovl_En_Bigokuta]]||Big Octo
+|-
+| 0249||00D20FC0||00D23290||[[ovl_En_Bili]]||Biri (Electrified Jellyfish)
+|-
+| 0250||00D23290||00D23750||[[ovl_En_Bird]]||Brown Bird
+|-
+| 0251||00D23750||00D23CB0||[[ovl_En_Blkobj]]||Dark Link's Illusion Room
+|-
+| 0252||00D23CB0||00D24B80||[[ovl_En_Bom]]||Bomb
+|-
+| 0253||00D24B80||00D260C0||[[ovl_En_Bom_Bowl_Man]]||Bombchu Bowling alley lady
+|-
+| 0254||00D260C0||00D26A30||[[ovl_En_Bom_Bowl_Pit]]||Bombchu Bowling Pit
+|-
+| 0255||00D26A30||00D280D0||[[ovl_En_Bom_Chu]]||Bombchu 
+|-
+| 0256||00D280D0||00D29560||[[ovl_En_Bombf]]||Bombflower
+|-
+| 0257||00D29560||00D29E30||[[ovl_En_Boom]]||Boomerang
+|-
+| 0258||00D29E30||00D2B980||[[ovl_En_Box]]||Chest
+|-
+| 0259||00D2B980||00D2CA70||[[ovl_En_Brob]]||Flobbery Muscle Block (Jabu-Jabu)
+|-
+| 0260||00D2CA70||00D2DE90||[[ovl_En_Bubble]]||Shabom (Bubble Enemy)
+|-
+| 0261||00D2DE90||00D2F460||[[ovl_En_Butte]]||Butterfly
+|-
+| 0262||00D2F460||00D327F0||[[ovl_En_Bw]]||Torch Slug
+|-
+| 0263||00D327F0||00D332F0||[[ovl_En_Bx]]||Blocking Tentacle (Inside Jabu-Jabu's Belly)
+|-
+| 0264||00D332F0||00D33CD0||[[ovl_En_Changer]]||Treasure Box Shop Chest
+|-
+| 0265||00D33CD0||00D3C840||[[ovl_En_Clear_Tag]]||Enemy Arwing (Alpha!)
+|-
+| 0266||00D3C840||00D3DCA0||[[ovl_En_Cow]]||Cow
+|-
+| 0267||00D3DCA0||00D3F340||[[ovl_En_Crow]]||Guay
+|-
+| 0268||00D3F340||00D40570||[[ovl_En_Cs]]||Graveyard Boy
+|-
+| 0269||00D40570||00D41CB0||[[ovl_En_Daiku]]||Carpenters (Gerudo Valley, Thieve's Hideout)
+|-
+| 0270||00D41CB0||00D43070||[[ovl_En_Daiku_Kakariko]]||Carpenters (Kakariko Village)
+|-
+| 0271||00D43070||00D46B20||[[ovl_En_Dekubaba]]||Deku Baba (Snapping)
+|-
+| 0272||00D46B20||00D48320||[[ovl_En_Dekunuts]]||Mad Scrub
+|-
+| 0273||00D48320||00D49E00||[[ovl_En_Dh]]||Dead Hand
+|-
+| 0274||00D49E00||00D4AE00||[[ovl_En_Dha]]||Dead Hand's Hand
+|-
+| 0275||00D4AE00||00D4C7B0||[[ovl_En_Diving_Game]]||Zora (diving minigame)
+|-
+| 0276||00D4C7B0||00D4DB40||[[ovl_En_Dns]]||Business Scrub (Npc)
+|-
+| 0277||00D4DB40||00D4E860||[[ovl_En_Dnt_Demo]]||Deku Mask Panel Trigger
+|-
+| 0278||00D4E860||00D4FD80||[[ovl_En_Dnt_Jiji]]||Deku Mask Panel Head Judge
+|-
+| 0279||00D4FD80||00D52B80||[[ovl_En_Dnt_Nomal]]||Deku Panel
+|-
+| 0280||00D52B80||00D54A20||[[ovl_En_Dodojr]]||Baby Dodongo
+|-
+| 0281||00D54A20||00D577C0||[[ovl_En_Dodongo]]||Dodongo
+|-
+| 0282||00D577C0||00D58970||[[ovl_En_Dog]]||Dog
+|-
+| 0283||00D58970||00D597B0||[[ovl_En_Door]]||Standard Door
+|-
+| 0284||00D597B0||00D5A3D0||[[ovl_En_Ds]]||Potion Shop hag
+|-
+| 0285||00D5A3D0||00D5BE60||[[ovl_En_Du]]||Darunia
+|-
+| 0286||00D5BE60||00D5C400||[[ovl_En_Dy_Extra]]||Spiral Beams (Great Fairy Fountains)
+|-
+| 0287||00D5C400||00D5C5B0||[[ovl_En_Eg]]||Zelda's Path in Tower Collapse Escape?
+|-
+| 0288||00D5C5B0||00D5E210||[[ovl_En_Eiyer]]||Stinger
+|-
+| 0289||00D5E210||00D62BD0||[[ovl_En_Elf]]||Fairies
+|-
+| 0290||00D62BD0||00D63730||[[ovl_En_Encount1]]||Enemy Spawner
+|-
+| 0291||00D63730||00D64960||[[ovl_En_Encount2]]||Falling Rock Spawner
+|-
+| 0292||00D64960||00D65AE0||[[ovl_En_Ex_Item]]||Lost Woods Slingshot Game
+|-
+| 0293||00D65AE0||00D66BA0||[[ovl_En_Ex_Ruppy]]||Sparkling Rupee
+|-
+| 0294||00D66BA0||00D69840||[[ovl_En_Fd]]||Flare Dancer
+|-
+| 0295||00D69840||00D6A550||[[ovl_En_Fd_Fire]]||Fireball
+|-
+| 0296||00D6A550||00D6CBF0||[[ovl_En_Fhg_Fire]]||Phantom Ganon's Lighting Attack
+|-
+| 0297||00D6CBF0||00D6DD00||[[ovl_En_Fire_Rock]]||Flying Rubble
+|-
+| 0298||00D6DD00||00D6FE70||[[ovl_En_Firefly]]||Keese
+|-
+| 0299||00D6FE70||00D71F80||[[ovl_En_Fish]]||Fish
+|-
+| 0300||00D71F80||00D75360||[[ovl_En_Floormas]]||Floormaster
+|-
+| 0301||00D75360||00D77DF0||[[ovl_En_Fr]]||Song Frogs
+|-
+| 0302||00D77DF0||00D78B30||[[ovl_En_Fu]]||Guru-Guru (Windmill Man)
+|-
+| 0303||00D78B30||00D7A2F0||[[ovl_En_Fw]]||Flare Dancer Core Creature
+|-
+| 0304||00D7A2F0||00D7C300||[[ovl_En_Fz]]||Freezard
+|-
+| 0305||00D7C300||00D7DB20||[[ovl_En_G_Switch]]||Silver Rupee/Large Rotating Pot
+|-
+| 0306||00D7DB20||00D81D50||[[ovl_En_Ganon_Mant]]||Ganondorf's Cape
+|-
+| 0307||00D81D50||00D88D90||[[ovl_En_Ganon_Organ]]||Ganon's Organ and surroundings
+|-
+| 0308||00D88D90||00D8A4C0||[[ovl_En_Gb]]||Poe Collector and surroundings
+|-
+| 0309||00D8A4C0||00D8C4F0||[[ovl_En_Ge1]]||White Clothed Gerudo
+|-
+| 0310||00D8C4F0||00D8DE90||[[ovl_En_Ge2]]||Patrolling Gerudo
+|-
+| 0311||00D8DE90||00D8EAD0||[[ovl_En_Ge3]]||Gerudo Fighter Leader (Gives Membership Card)
+|-
+| 0312||00D8EAD0||00D93E80||[[ovl_En_GeldB]]||Gerudo Fighter
+|-
+| 0313||00D93E80||00D967A0||[[ovl_En_GirlA]]||Shop Items
+|-
+| 0314||00D967A0||00D974D0||[[ovl_En_Gm]]||Medigoron
+|-
+| 0315||00D974D0||00D9BB10||[[ovl_En_Go]]||Goron (Cutscene)
+|-
+| 0316||00D9BB10||00DA1B50||[[ovl_En_Go2]]||Gorons
+|-
+| 0317||00DA1B50||00DA4800||[[ovl_En_Goma]]||Gohma Larva
+|-
+| 0318||00DA4800||00DA6BC0||[[ovl_En_Goroiwa]]||Rolling Boulder
+|-
+| 0319||00DA6BC0||00DA8A30||[[ovl_En_Gs]]||Gossip stone
+|-
+| 0320||00DA8A30||00DA93D0||[[ovl_En_Guest]]||Man (purple pants, white top)
+|-
+| 0321||00DA93D0||00DA9960||[[ovl_En_Hata]]||Wooden Post with Red Cloth
+|-
+| 0322||00DA9960||00DAAE70||[[ovl_En_Heishi1]]||Hylian Soldier (Castle Courtyard Patrol)
+|-
+| 0323||00DAAE70||00DAD070||[[ovl_En_Heishi2]]||Hylian Soldier (Kakariko, Hyrule Castle, Zelda's Courtyard)
+|-
+| 0324||00DAD070||00DADA40||[[ovl_En_Heishi3]]||Hylian Soldier (Hyrule Castle Patrol)
+|-
+| 0325||00DADA40||00DAE940||[[ovl_En_Heishi4]]||Hylian Soldier (Market Town, Impa's House)
+|-
+| 0326||00DAE940||00DB0370||[[ovl_En_Hintnuts]]||Hint Deku Scrub (Inside Deku Tree)
+|-
+| 0327||00DB0370||00DB1340||[[ovl_En_Holl]]||Room Change Plane
+|-
+| 0328||00DB1340||00DB28A0||[[ovl_En_Honotrap]]||Stone Eye Flamethrower
+|-
+| 0329||00DB28A0||00DBEB00||[[ovl_En_Horse]]||Epona
+|-
+| 0330||00DBEB00||00DBFBD0||[[ovl_En_Horse_Game_Check]]||Horseback Games
+|-
+| 0331||00DBFBD0||00DC0950||[[ovl_En_Horse_Ganon]]||Ganon's Horse
+|-
+| 0332||00DC0950||00DC2750||[[ovl_En_Horse_Link_Child]]||Child Epona
+|-
+| 0333||00DC2750||00DC4D70||[[ovl_En_Horse_Normal]]||Normal Horse
+|-
+| 0334||00DC4D70||00DC5860||[[ovl_En_Horse_Zelda]]||Zelda's Horse
+|-
+| 0335||00DC5860||00DC6400||[[ovl_En_Hs]]||Grog, Carpenter's Son (Lost Woods)
+|-
+| 0336||00DC6400||00DC69E0||[[ovl_En_Hs2]]||Grog, Carpenter's Son (Kakariko Village)
+|-
+| 0337||00DC69E0||00DCA320||[[ovl_En_Hy]]||Market NPCs
+|-
+| 0338||00DCA320||00DCB510||[[ovl_En_Ice_Hono]]||Blue Flame
+|-
+| 0339||00DCB510||00DCFB60||[[ovl_En_Ik]]||Iron Knuckle
+|-
+| 0340||00DCFB60||00DD2900||[[ovl_En_In]]||Ingo
+|-
+| 0341||00DD2900||00DD4E20||[[ovl_En_Insect]]||Bugs
+|-
+| 0342||00DD4E20||00DDDF70||[[ovl_En_Ishi]]||Small rock
+|-
+| 0343||00DDDF70||00DDE100||[[ovl_En_It]]||Dampe Game Collectables
+|-
+| 0344||00DDE100||00DDF6D0||[[ovl_En_Jj]]||Lord Jabu-Jabu
+|-
+| 0345||00DDF6D0||00DE00A0||[[ovl_En_Js]]||Carpet Merchant
+|-
+| 0346||00DE00A0||00DE4E70||[[ovl_En_Jsjutan]]||Flying Carpet
+|-
+| 0347||00DE4E70||00DE5BB0||[[ovl_En_Kakasi]]||Pierre the Scarecrow
+|-
+| 0348||00DE5BB0||00DE62D0||[[ovl_En_Kakasi2]]||Pierre the Scarecrow (Scarecrow Song Spawn)
+|-
+| 0349||00DE62D0||00DE73B0||[[ovl_En_Kakasi3]]||Bonooru the Scarecrow
+|-
+| 0350||00DE73B0||00DEA500||[[ovl_En_Kanban]]||Square Signpost (Cuttable)
+|-
+| 0351||00DEA500||00DEBDF0||[[ovl_En_Karebaba]]||Withered Deku Baba
+|-
+| 0352||00DEBDF0||00DEFF30||[[ovl_En_Ko]]||Kokiri
+|-
+| 0353||00DEFF30||00DF1410||[[ovl_En_Kusa]]||Liftable & cutable, respawning grass clump
+|-
+| 0354||00DF1410||00DF29B0||[[ovl_En_Kz]]||King Zora
+|-
+| 0355||00DF29B0||00DF37B0||[[ovl_En_Light]]||Decorative Flames
+|-
+| 0356||00DF37B0||00DF3C30||[[ovl_En_Lightbox]]||Large Noisy Stone
+|-
+| 0357||00DF3C30||00DF3DD0||[[ovl_En_M_Fire1]]||Deku Nuts (Link)
+|-
+| 0358||00DF3DD0||00DF53D0||[[ovl_En_M_Thunder]]||Spin Attack
+|-
+| 0359||00DF53D0||00DF66B0||[[ovl_En_Ma1]]||Child Malon
+|-
+| 0360||00DF66B0||00DF7710||[[ovl_En_Ma2]]||Adult Malon
+|-
+| 0361||00DF7710||00DF86C0||[[ovl_En_Ma3]]||Adult Malon (Ranch)
+|-
+| 0362||00DF86C0||00DFABE0||[[ovl_En_Mag]]||Title Screen Actor
+|-
+| 0363||00DFABE0||00DFEE10||[[ovl_En_Mb]]||Moblins
+|-
+| 0364||00DFEE10||00E01480||[[ovl_En_Md]]||Mido
+|-
+| 0365||00E01480||00E02310||[[ovl_En_Mk]]||Lake Scientist
+|-
+| 0366||00E02310||00E03970||[[ovl_En_Mm]]||Running Man (Child Link)
+|-
+| 0367||00E03970||00E04730||[[ovl_En_Mm2]]||Running Man (Adult)
+|-
+| 0368||00E04730||00E04E20||[[ovl_En_Ms]]||Bean Seller
+|-
+| 0369||00E04E20||00E05740||[[ovl_En_Mu]]||Haggling townspeople
+|-
+| 0370||00E05740||00E09D10||[[ovl_En_Nb]]||Nabooru
+|-
+| 0371||00E09D10||00E0D040||[[ovl_En_Niw]]||Cucco
+|-
+| 0372||00E0D040||00E0DB10||[[ovl_En_Niw_Girl]]||Girl chasing Cucco
+|-
+| 0373||00E0DB10||00E0F410||[[ovl_En_Niw_Lady]]||Anju (Cucco Lady)
+|-
+| 0374||00E0F410||00E0FA30||[[ovl_En_Nutsball]]||Deku Scrub's Nut Attack
+|-
+| 0375||00E0FA30||00E10450||[[ovl_En_Nwc]]||Non-solid round creatures (Unused)
+|-
+| 0376||00E10450||00E11D90||[[ovl_En_Ny]]||Spike enemy
+|-
+| 0377||00E11D90||00E11E70||[[ovl_En_OE2]]||Targetable Blue Spot
+|-
+| 0378||00E11E70||00E12230||[[ovl_En_Okarina_Effect]]||Rain and lightning
+|-
+| 0379||00E12230||00E13730||[[ovl_En_Okarina_Tag]]||Play Ocarina here spot
+|-
+| 0380||00E13730||00E15D10||[[ovl_En_Okuta]]||Octorok
+|-
+| 0381||00E15D10||00E1C2F0||[[ovl_En_Ossan]]||Shopkeeper
+|-
+| 0382||00E1C2F0||00E1FE90||[[ovl_En_Owl]]||Kaepora Gaebora
+|-
+| 0383||00E1FE90||00E214F0||[[ovl_En_Part]]||Dissipating Flames
+|-
+| 0384||00E214F0||00E24BF0||[[ovl_En_Peehat]]||Peahat
+|-
+| 0385||00E24BF0||00E259B0||[[ovl_En_Po_Desert]]||Desert Wasteland Poe Guide
+|-
+| 0386||00E259B0||00E293B0||[[ovl_En_Po_Field]]||Big Poe
+|-
+| 0387||00E293B0||00E2AAC0||[[ovl_En_Po_Relay]]||Dampé's Ghost
+|-
+| 0388||00E2AAC0||00E2F7B0||[[ovl_En_Po_Sisters]]||Meg (Poe Sister)
+|-
+| 0389||00E2F7B0||00E339A0||[[ovl_En_Poh]]||Poe
+|-
+| 0390||00E339A0||00E33CE0||[[ovl_En_Pu_box]]||Stone Cube
+|-
+| 0391||00E33CE0||00E365A0||[[ovl_En_Rd]]||Redead
+|-
+| 0392||00E365A0||00E38010||[[ovl_En_Reeba]]||Leever
+|-
+| 0393||00E38010||00E389A0||[[ovl_En_River_Sound]]||Ambient Sound Effects
+|-
+| 0394||00E389A0||00E39880||[[ovl_En_Rl]]||Rauru
+|-
+| 0395||00E39880||00E3BDB0||[[ovl_En_Rr]]||Like-Like
+|-
+| 0396||00E3BDB0||00E43450||[[ovl_En_Ru1]]||Child Princess Ruto
+|-
+| 0397||00E43450||00E461D0||[[ovl_En_Ru2]]||Adult Ruto
+|-
+| 0398||00E461D0||00E48440||[[ovl_En_Sa]]||Saria
+|-
+| 0399||00E48440||00E49880||[[ovl_En_Sb]]||Shell Blade 
+|-
+| 0400||00E49880||00E499B0||[[ovl_En_Scene_Change]]||(unknown actor)
+|-
+| 0401||00E499B0||00E4AFE0||[[ovl_En_Sda]]||Dynamic Shadow for Link
+|-
+| 0402||00E4AFE0||00E4BEF0||[[ovl_En_Shopnuts]]||Business Scrub (Enemy)
+|-
+| 0403||00E4BEF0||00E4C3F0||[[ovl_En_Si]]||Golden Skulltula token
+|-
+| 0404||00E4C3F0||00E4D1A0||[[ovl_En_Siofuki]]||Water Spout
+|-
+| 0405||00E4D1A0||00E4EA90||[[ovl_En_Skb]]||Stalchild
+|-
+| 0406||00E4EA90||00E523D0||[[ovl_En_Skj]]||Skullkid
+|-
+| 0407||00E523D0||00E526E0||[[ovl_En_Skjneedle]]||Skullkid Needle Attack?
+|-
+| 0408||00E526E0||00E54CD0||[[ovl_En_Ssh]]||Skulltula Family (Skulltula form)
+|-
+| 0409||00E54CD0||00E57940||[[ovl_En_St]]||Skulltula
+|-
+| 0410||00E57940||00E5BA00||[[ovl_En_Sth]]||Uncursed Skulltula People
+|-
+| 0411||00E5BA00||00E5BF90||[[ovl_En_Stream]]||Whirlpool effect
+|-
+| 0412||00E5BF90||00E5F700||[[ovl_En_Sw]]||Skullwalltula
+|-
+| 0413||00E5F700||00E604A0||[[ovl_En_Syateki_Itm]]||Shooting Gallery Game
+|-
+| 0414||00E604A0||00E61260||[[ovl_En_Syateki_Man]]||Shooting Gallery man 
+|-
+| 0415||00E61260||00E632F0||[[ovl_En_Syateki_Niw]]||Hopping Cucco, not solid
+|-
+| 0416||00E632F0||00E66CB0||[[ovl_En_Ta]]||Talon
+|-
+| 0417||00E66CB0||00E67570||[[ovl_En_Takara_Man]]||Treasure Chest Shop Man
+|-
+| 0418||00E67570||00E67820||[[ovl_En_Tana]]||Shop shelves
+|-
+| 0419||00E67820||00E67F00||[[ovl_En_Tg]]||Honey & Darling (Entwined lovers)
+|-
+| 0420||00E67F00||00E6ACA0||[[ovl_En_Tite]]||Tektite
+|-
+| 0421||00E6ACA0||00E6CAD0||[[ovl_En_Tk]]||Dampé (Gravedigging Tour)
+|-
+| 0422||00E6CAD0||00E6CBC0||[[ovl_En_Torch]]||Grotto Treasure Chest
+|-
+| 0423||00E6CBC0||00E6F320||[[ovl_En_Torch2]]||Dark Link
+|-
+| 0424||00E6F320||00E6FFB0||[[ovl_En_Toryo]]||Mutoh (Head Carpenter)
+|-
+| 0425||00E6FFB0||00E71E20||[[ovl_En_Tp]]||Electric Tailparisans
+|-
+| 0426||00E71E20||00E73720||[[ovl_En_Tr]]||Koume and Kotake
+|-
+| 0427||00E73720||00E749C0||[[ovl_En_Trap]]||Sliding Metal Spike Trap
+|-
+| 0428||00E749C0||00E75660||[[ovl_En_Tubo_Trap]]||Flying Pot
+|-
+| 0429||00E75660||00E77D20||[[ovl_En_Vali]]||Bari (Big Jellyfish)
+|-
+| 0430||00E77D20||00E77E20||[[ovl_En_Vase]]||Orange Pot (Alpha)
+|-
+| 0431||00E77E20||00E78FD0||[[ovl_En_Vb_Ball]]||Volvagia Rocks
+|-
+| 0432||00E78FD0||00E7BE70||[[ovl_En_Viewer]]||Nightmare Cutscene Actors
+|-
+| 0433||00E7BE70||00E7D730||[[ovl_En_Vm]]||Beamos
+|-
+| 0434||00E7D730||00E7DC20||[[ovl_En_Wall_Tubo]]||Bombchu Bowling Alley Wall 2
+|-
+| 0435||00E7DC20||00E7F630||[[ovl_En_Wallmas]]||Wall Master
+|-
+| 0436||00E7F630||00E80520||[[ovl_En_Weather_Tag]]||Proximity Rain/Weather Effects
+|-
+| 0437||00E80520||00E81F20||[[ovl_En_Weiyer]]||Stinger
+|-
+| 0438||00E81F20||00E86230||[[ovl_En_Wf]]||Wolfos
+|-
+| 0439||00E86230||00E86E80||[[ovl_En_Wonder_Item]]||Invisible collectible 
+|-
+| 0440||00E86E80||00E87510||[[ovl_En_Wonder_Talk]]||Checkable spot, Navi hovers green
+|-
+| 0441||00E87510||00E87BB0||[[ovl_En_Wonder_Talk2]]||Checkable spot, disappears after use
+|-
+| 0442||00E87BB0||00E88D80||[[ovl_En_Wood02]]||Greenery
+|-
+| 0443||00E88D80||00E8F4E0||[[ovl_En_Xc]]||Sheik
+|-
+| 0444||00E8F4E0||00E8FBB0||[[ovl_En_Yabusame_Mark]]||Horseback Archery target (hitbox)
+|-
+| 0445||00E8FBB0||00E901C0||[[ovl_En_Yukabyun]]||Flying Floor Tile
+|-
+| 0446||00E901C0||00E96CA0||[[ovl_En_Zf]]||Lizalfos and Dinolfos
+|-
+| 0447||00E96CA0||00E9AAB0||[[ovl_En_Zl1]]||Child Zelda (at window)
+|-
+| 0448||00E9AAB0||00E9F1B0||[[ovl_En_Zl2]]||Adult Zelda (Cutscene)
+|-
+| 0449||00E9F1B0||00EA7000||[[ovl_En_Zl3]]||Adult Zelda (Non-Cutscene)
+|-
+| 0450||00EA7000||00EABA30||[[ovl_En_Zl4]]||Child Zelda
+|-
+| 0451||00EABA30||00EADFF0||[[ovl_En_Zo]]||Zora
+|-
+| 0452||00EADFF0||00EB0920||[[ovl_En_fHG]]||Phantom Ganon's Horse
+|-
+| 0453||00EB0920||00EB4A40||[[ovl_End_Title]]||The End message
+|-
+| 0454||00EB4A40||00EC84E0||[[ovl_Fishing]]||Fishing Pond Minigame (Both Man and Fish)
+|-
+| 0455||00EC84E0||00EC88F0||[[ovl_Item_B_Heart]]||Heart Container
+|-
+| 0456||00EC88F0||00EC91C0||[[ovl_Item_Etcetera]]||GI Collectables (Shields, Bottles)
+|-
+| 0457||00EC91C0||00EC9320||[[ovl_Item_Inbox]]||Zelda's Magic to Open Gates
+|-
+| 0458||00EC9320||00EC9AF0||[[ovl_Item_Ocarina]]||Ocarina of Time
+|-
+| 0459||00EC9AF0||00ECA500||[[ovl_Item_Shield]]||Deku shield
+|-
+| 0460||00ECA500||00ECBD50||[[ovl_Magic_Dark]]||Nayru's Love 
+|-
+| 0461||00ECBD50||00ECE050||[[ovl_Magic_Fire]]||Din's Fire
+|-
+| 0462||00ECE050||00ECFD50||[[ovl_Magic_Wind]]||Farore's Wind
+|-
+| 0463||00ECFD50||00ED1600||[[ovl_Mir_Ray]]||Sun Block Switch
+|-
+| 0464||00ED1600||00ED3D90||[[ovl_Obj_Bean]]||Bean planting spot
+|-
+| 0465||00ED3D90||00ED3F30||[[ovl_Obj_Blockstop]]||Block Checkpoint
+|-
+| 0466||00ED3F30||00ED44A0||[[ovl_Obj_Bombiwa]]||Brown boulder
+|-
+| 0467||00ED44A0||00ED4D00||[[ovl_Obj_Comb]]||Beehive
+|-
+| 0468||00ED4D00||00ED5340||[[ovl_Obj_Dekujr]]||Deku Tree Sprout
+|-
+| 0469||00ED5340||00ED5700||[[ovl_Obj_Elevator]]||Huge stone elevator
+|-
+| 0470||00ED5700||00ED5F50||[[ovl_Obj_Hamishi]]||Bronze boulder
+|-
+| 0471||00ED5F50||00ED6260||[[ovl_Obj_Hana]]||Grave flower
+|-
+| 0472||00ED6260||00ED6830||[[ovl_Obj_Hsblock]]||Stone Hookshot target
+|-
+| 0473||00ED6830||00ED71E0||[[ovl_Obj_Ice_Poly]]||Switch Covering Ice
+|-
+| 0474||00ED71E0||00ED7EE0||[[ovl_Obj_Kibako]]||Small Wooden Crate (Alpha giant, liftable fish)
+|-
+| 0475||00ED7EE0||00ED85A0||[[ovl_Obj_Kibako2]]||Large Crate
+|-
+| 0476||00ED85A0||00ED8FC0||[[ovl_Obj_Lift]]||Square, collapsing platform
+|-
+| 0477||00ED8FC0||00EDA3F0||[[ovl_Obj_Lightswitch]]||Sun Switch (Spirit Temple)
+|-
+| 0478||00EDA3F0||00EDA540||[[ovl_Obj_Makekinsuta]]||Gold Skulltula (Sprouting from Bean Plant)
+|-
+| 0479||00EDA540||00EDA9D0||[[ovl_Obj_Makeoshihiki]]||Push Block (Has Savepoint?)
+|-
+| 0480||00EDA9D0||00EDB9E0||[[ovl_Obj_Mure]]||Fish, Bugs, Butterflies
+|-
+| 0481||00EDB9E0||00EDC400||[[ovl_Obj_Mure2]]||Rock/Bush Groups
+|-
+| 0482||00EDC400||00EDCBD0||[[ovl_Obj_Mure3]]||Tower of Rupees
+|-
+| 0483||00EDCBD0||00EDE680||[[ovl_Obj_Oshihiki]]||Movable Block
+|-
+| 0484||00EDE680||00EDE8D0||[[ovl_Obj_Roomtimer]]||Timer
+|-
+| 0485||00EDE8D0||00EE06B0||[[ovl_Obj_Switch]]||Switches
+|-
+| 0486||00EE06B0||00EE12F0||[[ovl_Obj_Syokudai]]||Torch
+|-
+| 0487||00EE12F0||00EE1F40||[[ovl_Obj_Timeblock]]||Time Block
+|-
+| 0488||00EE1F40||00EE2F30||[[ovl_Obj_Tsubo]]||Breakable pot
+|-
+| 0489||00EE2F30||00EE3A60||[[ovl_Obj_Warp2block]]||Time Block, Spawning Spot (Navi Target)
+|-
+| 0490||00EE3A60||00EE6CE0||[[ovl_Object_Kankyo]]||Environmental Effects (Fairy Sprites, Snow, Proximity Rain, Ganon's Castle Beams)
+|-
+| 0491||00EE6CE0||00EE7C10||[[ovl_Oceff_Spot]]||Sun's Song effect
+|-
+| 0492||00EE7C10||00EE97C0||[[ovl_Oceff_Storm]]||Song of Storm's effect
+|-
+| 0493||00EE97C0||00EEA540||[[ovl_Oceff_Wipe]]||Zelda's Lullaby effect
+|-
+| 0494||00EEA540||00EEBCB0||[[ovl_Oceff_Wipe2]]||Epona's Song effect
+|-
+| 0495||00EEBCB0||00EED400||[[ovl_Oceff_Wipe3]]||Saria's Song effect 
+|-
+| 0496||00EED400||00EEE3E0||[[ovl_Oceff_Wipe4]]||Song of Time effect
+|-
+| 0497||00EEE3E0||00EEEAA0||[[ovl_Shot_Sun]]||Song of Storms Fairy
+|-
+| 0498||00EEF000||00F457B0||[[gameplay_keep]]||Shared assets for actors (always loaded)
+|-
+| 0499||00F46000||00F53330||[[gameplay_field_keep]]||Shared assets for actors (Overworld)
+|-
+| 0500||00F54000||00F6BAF0||[[gameplay_dangeon_keep]]||Shared assets for actors (Dungeons)
+|-
+| 0501||00F6C000||00F6C010||[[gameplay_object_exchange_static]]||
+|-
+| 0502||00F6D000||00FA4800||[[object_link_boy]]||Adult Link
+|-
+| 0503||00FA5000||00FD1F80||[[object_link_child]]||Child Link
+|-
+| 0504||00FD2000||00FD8000||[[object_box]]||Treasure Chest
+|-
+| 0505||00FD8000||00FEB180||[[object_human]]||Test Npc
+|-
+| 0506||00FEC000||00FEFC80||[[object_okuta]]||Octorok
+|-
+| 0507||00FF0000||00FF50E0||[[object_poh]]||Poe
+|-
+| 0508||00FF6000||01000070||[[object_wallmaster]]||Wallmaster/Floormaster
+|-
+| 0509||01001000||0101E530||[[object_dy_obj]]||Great Fairy + Beta Blue Fairy
+|-
+| 0510||0101F000||010208C0||[[object_firefly]]||Keese
+|-
+| 0511||01021000||0102A940||[[object_dodongo]]||Dodongo
+|-
+| 0512||0102B000||0102F0A0||[[object_fire]]||White Square (fire effect animation?)
+|-
+| 0513||01030000||01032540||[[object_niw]]||Cucco
+|-
+| 0514||01033000||01036A30||[[object_tite]]||Tektite
+|-
+| 0515||01037000||01038EF0||[[object_reeba]]||Leever
+|-
+| 0516||01039000||0103AC90||[[object_peehat]]||Peahat
+|-
+| 0517||0103B000||0106BCE0||[[object_kingdodongo]]||King Dodongo
+|-
+| 0518||0106C000||01079F10||[[object_horse]]||Epona
+|-
+| 0519||0107A000||010903A0||[[object_zf]]||Lizalfols and Dinolfols
+|-
+| 0520||01091000||010B0600||[[object_goma]]||Ghoma
+|-
+| 0521||010B1000||010C53C0||[[object_zl1]]||Child Zelda (version 1)
+|-
+| 0522||010C6000||010CA220||[[object_gol]]||Ghoma Larva
+|-
+| 0523||010CB000||010CC0C0||[[object_bubble]]||Shabom (Bubble Enemy)
+|-
+| 0524||010CD000||010CF0F0||[[object_dodojr]]||Baby Dodongo
+|-
+| 0525||010D0000||010D4770||[[object_torch2]]||Dark Link
+|-
+| 0526||010D5000||010DA850||[[object_bl]]||Biri
+|-
+| 0527||010DB000||010DCCF0||[[object_tp]]||Tailpasaran
+|-
+| 0528||010DD000||010E1710||[[object_oA1]]||Beta Man on Roof
+|-
+| 0529||010E2000||010E7BB0||[[object_st]]||Skulltula
+|-
+| 0530||010E8000||010EA260||[[object_bw]]||Fireslug
+|-
+| 0531||010EB000||010EE420||[[object_ei]]||Stinger
+|-
+| 0532||010EF000||010F8FC0||[[object_horse_normal]]||Generic Horses
+|-
+| 0533||010F9000||010FF6B0||[[object_oB1]]||Beta Bazaar Shopkeeper
+|-
+| 0534||01100000||01102150||[[object_o_anime]]||Animation File
+|-
+| 0535||01103000||011046C0||[[object_spot04_objects]]||Kokiri Forest Actor Models
+|-
+| 0536||01105000||0110D760||[[object_ddan_objects]]||Dodongo's Cavern Actor Models
+|-
+| 0537||0110E000||01125D20||[[object_hidan_objects]]||Fire Temple Actor Models
+|-
+| 0538||01126000||01132090||[[object_horse_ganon]]||Ganondorf's Horse
+|-
+| 0539||01133000||011386D0||[[object_oA2]]||Beta Zora
+|-
+| 0540||01139000||0113AC10||[[object_spot00_objects]]||Some Hyrule Field Actor Models
+|-
+| 0541||0113B000||0114F1A0||[[object_mb]]||Moblin
+|-
+| 0542||01150000||01151A00||[[object_bombf]]||Bomb Flower
+|-
+| 0543||01152000||01160800||[[object_sk2]]||Stalfos
+|-
+| 0544||01161000||01167810||[[object_oE1]]||Beta Mido v1
+|-
+| 0545||01168000||0116D060||[[object_oE_anime]]||Animation File
+|-
+| 0546||0116E000||01173A70||[[object_oE2]]||Beta Kokiri Girl v1
+|-
+| 0547||01174000||0117D080||[[object_ydan_objects]]||Deku Tree Actor Models
+|-
+| 0548||0117E000||01191000||[[object_gnd]]||Phantom Ganon
+|-
+| 0549||01191000||01196B50||[[object_am]]||Armos Statue
+|-
+| 0550||01197000||0119A9C0||[[object_dekubaba]]||Deku Baba
+|-
+| 0551||0119B000||0119D130||[[object_oA3]]||Prerelease Impa's Head
+|-
+| 0552||0119E000||0119F730||[[object_oA4]]||Beta Laughing Man (resembles object_boj)
+|-
+| 0553||011A0000||011A16B0||[[object_oA5]]||Beta Npc Woman (resembles object_cne)
+|-
+| 0554||011A2000||011A3A00||[[object_oA6]]||Beta Npc (Blue Shirt with Orange Shoes)
+|-
+| 0555||011A4000||011A5550||[[object_oA7]]||Beta Npc (Female?) (Dressed funky)
+|-
+| 0556||011A6000||011B1AC0||[[object_jj]]||Jabu Jabu
+|-
+| 0557||011B2000||011B37B0||[[object_oA8]]||Beta Old Man (resembles object_bji)
+|-
+| 0558||011B4000||011B4520||[[object_oA9]]||Beta Man Head in Hood
+|-
+| 0559||011B5000||011B90E0||[[object_oB2]]||Beta Bearded Man
+|-
+| 0560||011BA000||011BE490||[[object_oB3]]||Beta NPC Woman
+|-
+| 0561||011BF000||011C0870||[[object_oB4]]||Beta NPC (resembles object_cob)
+|-
+| 0562||011C1000||011C8160||[[object_horse_zelda]]||Zelda's White Horse
+|-
+| 0563||011C9000||011CE060||[[object_opening_demo1]]||Blank (Intro Data?)
+|-
+| 0564||011CF000||011D1CB0||[[object_warp1]]||Warping Link Effect
+|-
+| 0565||011D2000||011D2640||[[object_b_heart]]||GI Heart Piece
+|-
+| 0566||011D3000||011D6660||[[object_dekunuts]]||Mad Scrub (Deku Scrub)
+|-
+| 0567||011D7000||011DE120||[[object_oE3]]||Beta Saria
+|-
+| 0568||011DF000||011E3FD0||[[object_oE4]]||Beta Kokiri Boy v1
+|-
+| 0569||011E4000||011ECB10||[[object_menkuri_objects]]||Gerudo Training Center Actor Models
+|-
+| 0570||011ED000||011F25C0||[[object_oE5]]||Beta Fado
+|-
+| 0571||011F3000||011F5E50||[[object_oE6]]||Beta Kokiri Girl Head (Shorter Hair)
+|-
+| 0572||011F6000||011F8A60||[[object_oE7]]||Beta Kokiri Guy Head (Shocked Face)
+|-
+| 0573||011F9000||011FC3D0||[[object_oE8]]||Beta Kokiri Girl Head (Orange Hair)
+|-
+| 0574||011FD000||011FFF10||[[object_oE9]]||Beta Kokiri Guy Head (Longer Hair)
+|-
+| 0575||01200000||012029D0||[[object_oE10]]||Beta Kokiri Guy Head (Fatter)
+|-
+| 0576||01203000||012061F0||[[object_oE11]]||Beta Kokiri Guy Head (Slimmer)
+|-
+| 0577||01207000||0120A7C0||[[object_oE12]]||Fado's Head (more prerelease)
+|-
+| 0578||0120B000||0120F850||[[object_vali]]||Bari (Big Jellyfish)
+|-
+| 0579||01210000||01212EB0||[[object_oA10]]||Beta Hylian Guard
+|-
+| 0580||01213000||012145C0||[[object_oA11]]||Beta Hylian Guard (corrupt version of above)
+|-
+| 0581||01215000||01220320||[[object_mizu_objects]]||Water Temple Actor Models
+|-
+| 0582||01221000||012331E0||[[object_fhg]]||Phantom Ganon
+|-
+| 0583||01234000||0123DB50||[[object_ossan]]||Bazaar Man
+|-
+| 0584||0123E000||012434F0||[[object_mori_hineri1]]||Twisted Corridor in Forest Temple (1)
+|-
+| 0585||01244000||01245A40||[[object_Bb]]||Bubble (Flying Skull Enemy)
+|-
+| 0586||01246000||0124E450||[[object_toki_objects]]||Temple of Time Actor Models
+|-
+| 0587||0124F000||012504F0||[[object_yukabyun]]||Placeholder Pot/Vase (?)
+|-
+| 0588||01251000||01261D80||[[object_zl2]]||Adult Zelda
+|-
+| 0589||01262000||01263290||[[object_mjin]]||Warp Platforms
+|-
+| 0590||01264000||01265000||[[object_mjin_flash]]||Light Medallion Warp Platform Texture
+|-
+| 0591||01265000||01266000||[[object_mjin_dark]]||Shadow Medallion Warp Platform Texture
+|-
+| 0592||01266000||01267000||[[object_mjin_flame]]||Fire Medallion Warp Platform Texture
+|-
+| 0593||01267000||01268000||[[object_mjin_ice]]||Water Medallion Warp Platform Texture
+|-
+| 0594||01268000||01269000||[[object_mjin_soul]]||Spirit Medallion Warp Platform Texture
+|-
+| 0595||01269000||0126A000||[[object_mjin_wind]]||Forest Medallion Warp Platform Texture
+|-
+| 0596||0126A000||0126BB60||[[object_mjin_oka]]||Beta Ocarina Pedestal
+|-
+| 0597||0126C000||012896B0||[[object_haka_objects]]||Shadow Temple Actor Models
+|-
+| 0598||0128A000||0128CDA0||[[object_spot06_objects]]||Lake Hylia Actor Models
+|-
+| 0599||0128D000||01295D50||[[object_ice_objects]]||Ice Cavern Actor Models
+|-
+| 0600||01296000||01299630||[[object_relay_objects]]||Dampé Race + Windmill Hut Actor Models
+|-
+| 0601||0129A000||0129D4C0||[[object_mori_hineri1a]]||Untwisted Version of Below
+|-
+| 0602||0129E000||012A2400||[[object_mori_hineri2]]||Untwisted Version of Below
+|-
+| 0603||012A3000||012A90B0||[[object_mori_hineri2a]]||Twisted Corridor in Forest Temple (2)
+|-
+| 0604||012AA000||012B2A10||[[object_mori_objects]]||Spinning Room in Forest Temple
+|-
+| 0605||012B3000||012BCE00||[[object_mori_tex]]||Blank?
+|-
+| 0606||012BD000||012C2600||[[object_spot08_obj]]||Zora's Fountain Actor Models (Glaciers)
+|-
+| 0607||012C3000||012C3010||[[object_warp2]]||Blank? (Warping Effect?)
+|-
+| 0608||012C4000||012C6FE0||[[object_hata]]||Wooden Post with Red Flag
+|-
+| 0609||012C7000||012C91A0||[[object_bird]]||Beta Brown Bird
+|-
+| 0610||012CA000||012D27D0||[[object_wood02]]||Greenery (Trees, Bushes, etc.)
+|-
+| 0611||012D3000||012D4F40||[[object_lightbox]]||Large Noisy Stone (White Textures, Unused)
+|-
+| 0612||012D5000||012D6600||[[object_pu_box]]||Stone Cube (Stone Textures, Unused)
+|-
+| 0613||012D7000||012D93E0||[[object_trap]]||Sliding Metal Spike Trap
+|-
+| 0614||012DA000||012DB590||[[object_vase]]||Orange Pot (Alpha)
+|-
+| 0615||012DC000||012EE230||[[object_im]]||Impa
+|-
+| 0616||012EF000||012FD3F0||[[object_ta]]||Talon
+|-
+| 0617||012FE000||01309E50||[[object_tk]]||Dampé
+|-
+| 0618||0130A000||01326100||[[object_xc]]||Sheik
+|-
+| 0619||01327000||0132AF70||[[object_vm]]||Beamos
+|-
+| 0620||0132B000||0134A1B0||[[object_bv]]||Barinade
+|-
+| 0621||0134B000||01351AF0||[[object_hakach_objects]]||Bottom of the Well Actor Models
+|-
+| 0622||01352000||01352AA0||[[object_efc_crystal_light]]||Triforce Spot Light Effect (?)
+|-
+| 0623||01353000||01353D00||[[object_efc_fire_ball]]||Square
+|-
+| 0624||01354000||01354010||[[object_efc_flash]]||Blank (Screen Effect?)
+|-
+| 0625||01355000||013562D0||[[object_efc_lgt_shower]]||Goddess Effect: Light Shower
+|-
+| 0626||01357000||013587D0||[[object_efc_star_field]]||Goddess Effect: Boulder
+|-
+| 0627||01359000||0135D350||[[object_god_lgt]]||Goddesses + Goddess Flying Effect
+|-
+| 0628||0135E000||0135F280||[[object_light_ring]]||Spot of Light
+|-
+| 0629||01360000||01362910||[[object_triforce_spot]]||Triforce Spot
+|-
+| 0630||01363000||01368140||[[object_medal]]||GI Beta Medallions
+|-
+| 0631||01369000||01375D10||[[object_bdan_objects]]||Jabu Jabu's Belly Actor Models
+|-
+| 0632||01376000||013826E0||[[object_sd]]||Hylian Soldier
+|-
+| 0633||01383000||01391FF0||[[object_rd]]||Redead + Gibdo
+|-
+| 0634||01392000||013A03C0||[[object_po_sisters]]||Poe Sisters
+|-
+| 0635||013A1000||013A2AE0||[[object_heavy_object]]||Black Rock (Golden Gauntlets allow move)
+|-
+| 0636||013A3000||013B4A00||[[object_gndd]]||Ganondorf
+|-
+| 0637||013B5000||013C6670||[[object_fd]]||Volvagia Room Parts, Flying Volvagia?
+|-
+| 0638||013C7000||013D9030||[[object_du]]||Darunia
+|-
+| 0639||013DA000||013E1DE0||[[object_fw]]||Flare Dancer
+|-
+| 0640||013E2000||013EAB20||[[object_horse_link_child]]||Child Epona
+|-
+| 0641||013EB000||01401620||[[object_spot02_objects]]||Graveyard Actor Models
+|-
+| 0642||01402000||01403460||[[object_haka]]||Gravestone
+|-
+| 0643||01404000||01417A80||[[object_ru1]]||Child Ruto
+|-
+| 0644||01418000||0141BC90||[[object_syokudai]]||Torches
+|-
+| 0645||0141C000||0142DA90||[[object_fd2]]||Volvagia
+|-
+| 0646||0142E000||014370C0||[[object_dh]]||Dead Hand
+|-
+| 0647||01438000||0143FB50||[[object_rl]]||Rauru
+|-
+| 0648||01440000||014412F0||[[object_efc_tw]]||Light from Platforms in Chamber of Sages (?)
+|-
+| 0649||01442000||01442010||[[object_demo_tre_lgt]]||Blank (nulled Deku Tree lighting?)
+|-
+| 0650||01443000||01443A20||[[object_gi_key]]||GI Small Key
+|-
+| 0651||01444000||01445D00||[[object_mir_ray]]||Light Reflecting from Mirror Shield
+|-
+| 0652||01446000||01447AA0||[[object_brob]]||Jiggly Platforms inside Jabu Jabu's Belly
+|-
+| 0653||01448000||0144B680||[[object_gi_jewel]]||GI Spiritual Stones
+|-
+| 0654||0144C000||01464890||[[object_spot09_obj]]||Gerudo Valley Actor Models
+|-
+| 0655||01465000||01471A10||[[object_spot18_obj]]||Goron City Actor Models
+|-
+| 0656||01472000||014795C0||[[object_bdoor]]||Boss Door
+|-
+| 0657||0147A000||0147B830||[[object_spot17_obj]]||Death Mountain Crater Actor Models
+|-
+| 0658||0147C000||0147FA20||[[object_shop_dungen]]||Shop Actor Models
+|-
+| 0659||01480000||014981E0||[[object_nb]]||Nabooru
+|-
+| 0660||01499000||014A2070||[[object_mo]]||Morpha
+|-
+| 0661||014A3000||014A5CA0||[[object_sb]]||ShellBlade (Clam)
+|-
+| 0662||014A6000||014A6D20||[[object_gi_melody]]||GI Music Note
+|-
+| 0663||014A7000||014A71F0||[[object_gi_heart]]||GI Recovery Heart (restores a full heart)
+|-
+| 0664||014A8000||014A8D10||[[object_gi_compass]]||GI Compass
+|-
+| 0665||014A9000||014AA010||[[object_gi_bosskey]]||GI Boss Key
+|-
+| 0666||014AB000||014B0370||[[object_gi_medal]]||GI Medallions
+|-
+| 0667||014B1000||014B21C0||[[object_gi_nuts]]||GI Deku Nut
+|-
+| 0668||014B3000||014C8230||[[object_sa]]||Saria
+|-
+| 0669||014C9000||014CA7B0||[[object_gi_hearts]]||GI Heart Container
+|-
+| 0670||014CB000||014CBCB0||[[object_gi_arrowcase]]||GI Quiver
+|-
+| 0671||014CC000||014CCE60||[[object_gi_bombpouch]]||GI Bomb Bag
+|-
+| 0672||014CD000||014E5C50||[[object_in]]||Ingo
+|-
+| 0673||014E6000||014F8E30||[[object_tr]]||Kotake and Koume
+|-
+| 0674||014F9000||014FA500||[[object_spot16_obj]]||Death Mountain Trail Actor Models
+|-
+| 0675||014FB000||01501560||[[object_oE1s]]||Beta Mido v2
+|-
+| 0676||01502000||01506E00||[[object_oE4s]]||Beta Kokiri Boy v2
+|-
+| 0677||01507000||01511640||[[object_os_anime]]||Animation File
+|-
+| 0678||01512000||015128F0||[[object_gi_bottle]]||GI Bottle
+|-
+| 0679||01513000||015136C0||[[object_gi_stick]]||GI Deku Stick
+|-
+| 0680||01514000||01515160||[[object_gi_map]]||GI Stone of Agony + GI Dungeon Map
+|-
+| 0681||01516000||015265A0||[[object_oF1d_map]]||Goron
+|-
+| 0682||01527000||015368D0||[[object_ru2]]||Adult Ruto
+|-
+| 0683||01537000||01537D50||[[object_gi_shield_1]]||GI Deku Shield
+|-
+| 0684||01538000||0153B510||[[object_dekujr]]||Deku Tree Sprout
+|-
+| 0685||0153C000||0153D1D0||[[object_gi_magicpot]]||GI Magic Pot/Vase
+|-
+| 0686||0153E000||0153ECB0||[[object_gi_bomb_1]]||GI Bomb
+|-
+| 0687||0153F000||015478A0||[[object_oF1s]]||Prerelease/Beta Goron
+|-
+| 0688||01548000||01551EF0||[[object_ma2]]||Adult Malon
+|-
+| 0689||01552000||01553B70||[[object_gi_purse]]||GI Rupee Bags
+|-
+| 0690||01554000||0155EF70||[[object_hni]]||Ingo's Horse
+|-
+| 0691||0155F000||01599FB0||[[object_tw]]||Twinrova
+|-
+| 0692||0159A000||0159AE00||[[object_rr]]||Like-Like
+|-
+| 0693||0159B000||0159DBF0||[[object_bxa]]||Tentacles (Inside Jabu-Jabu's Belly)
+|-
+| 0694||0159E000||015A19A0||[[object_anubice]]||Anubis
+|-
+| 0695||015A2000||015A3340||[[object_gi_gerudo]]||GI Gerudo's Card
+|-
+| 0696||015A4000||015A5B10||[[object_gi_arrow]]||GI Arrows
+|-
+| 0697||015A6000||015A66A0||[[object_gi_bomb_2]]||GI Bombchu
+|-
+| 0698||015A7000||015A8320||[[object_gi_egg]]||GI Egg
+|-
+| 0699||015A9000||015A9DF0||[[object_gi_scale]]||GI Golden/Silver Scale
+|-
+| 0700||015AA000||015AB070||[[object_gi_shield_2]]||GI Hylian Shield
+|-
+| 0701||015AC000||015AD560||[[object_gi_hookshot]]||GI Hookshot + GI Longshot
+|-
+| 0702||015AE000||015AEBB0||[[object_gi_ocarina]]||GI Ocarina of Time
+|-
+| 0703||015AF000||015B0470||[[object_gi_milk]]||GI Lon Lon Milk
+|-
+| 0704||015B1000||015B9D80||[[object_ma1]]||Child Malon
+|-
+| 0705||015BA000||015CB500||[[object_ganon]]||Transforming Ganondorf
+|-
+| 0706||015CC000||015E6BB0||[[object_sst]]||Bongo Bongo
+|-
+| 0707||015E7000||015E9170||[[object_ny]]||Spiky Ball (Spike)
+|-
+| 0708||015EA000||015F54B0||[[object_fr]]||Singing Frogs
+|-
+| 0709||015F6000||015F6C60||[[object_gi_pachinko]]||GI Fairy Slingshot
+|-
+| 0710||015F7000||015F7DA0||[[object_gi_boomerang]]||GI Boomerang
+|-
+| 0711||015F8000||015F8D30||[[object_gi_bow]]||GI Fairy Bow
+|-
+| 0712||015F9000||015FA180||[[object_gi_glasses]]||GI Lens of Truth
+|-
+| 0713||015FB000||015FC8D0||[[object_gi_liquid]]||GI Potions
+|-
+| 0714||015FD000||01604700||[[object_ani]]||Rooftop Man (Kakariko Village)
+|-
+| 0715||01605000||01608BA0||[[object_demo_6k]]||Sages Combining cutscene Actor Models
+|-
+| 0716||01609000||0160A2C0||[[object_gi_shield_3]]||GI Mirror Shield
+|-
+| 0717||0160B000||0160BE00||[[object_gi_letter]]||GI Zelda's Letter
+|-
+| 0718||0160C000||0160DD00||[[object_spot15_obj]]||Outside Hyrule Castle Actor Models
+|-
+| 0719||0160E000||0162A140||[[object_jya_obj]]||Spirit Temple Actor Models
+|-
+| 0720||0162B000||0162C860||[[object_gi_clothes]]||GI Tunics
+|-
+| 0721||0162D000||0162D8C0||[[object_gi_bean]]||GI Magic Beans
+|-
+| 0722||0162E000||0162E950||[[object_gi_fish]]||GI Fish
+|-
+| 0723||0162F000||0162FB80||[[object_gi_saw]]||GI Carpenter's Saw
+|-
+| 0724||01630000||01630CC0||[[object_gi_hammer]]||GI Megaton Hammer
+|-
+| 0725||01631000||01631C10||[[object_gi_grass]]||GI Beta Reed Whistle
+|-
+| 0726||01632000||016328C0||[[object_gi_longsword]]||GI Biggoron's Sword/Giant's Knife
+|-
+| 0727||01633000||01635490||[[object_spot01_objects]]||Kakariko Village Actor Models
+|-
+| 0728||01636000||01640150||[[object_md]]||Mido
+|-
+| 0729||01641000||016469C0||[[object_km1]]||Kokiri Guys
+|-
+| 0730||01647000||0164D8E0||[[object_kw1]]||Kokiri Twins
+|-
+| 0731||0164E000||0165A040||[[object_zo]]||Zora
+|-
+| 0732||0165B000||016636E0||[[object_kz]]||King Zora
+|-
+| 0733||01664000||01665470||[[object_umajump]]||Jumpable Epona Fence
+|-
+| 0734||01666000||016664C0||[[object_masterkokiri]]||Kokiri Animation File?
+|-
+| 0735||01667000||01669CA0||[[object_masterkokirihead]]||Kokiri Shopkeeper Head
+|-
+| 0736||0166A000||0166A110||[[object_mastergolon]]||Goron Animation File?
+|-
+| 0737||0166B000||0166B7A0||[[object_masterzoora]]||Zora Animation File?
+|-
+| 0738||0166C000||016716B0||[[object_aob]]||Puppy Woman
+|-
+| 0739||01672000||016925D0||[[object_ik]]||Iron Knuckle
+|-
+| 0740||01693000||016989B0||[[object_ahg]]||Bearded Man in White Shirt
+|-
+| 0741||01699000||0169B9D0||[[object_cne]]||Blue-Dress Woman in Market
+|-
+| 0742||0169C000||0169D9F0||[[object_gi_niwatori]]||GI Cucco
+|-
+| 0743||0169E000||016A6E30||[[object_skj]]||Skull Kid
+|-
+| 0744||016A7000||016A7C80||[[object_gi_bottle_letter]]||GI Bottled Letter
+|-
+| 0745||016A8000||016AC190||[[object_bji]]||Old Man in Hyrule Market
+|-
+| 0746||016AD000||016B1290||[[object_bba]]||Old Lady in Hyrule Market
+|-
+| 0747||016B2000||016B2C10||[[object_gi_ocarina_0]]||GI Fairy Ocarina
+|-
+| 0748||016B3000||016B7780||[[object_ds]]||Witch with Tiger
+|-
+| 0749||016B8000||016BEFB0||[[object_ane]]||Anju (Cucco Lady)
+|-
+| 0750||016BF000||016C4CC0||[[object_boj]]||Laughing Men/Sakon/Beggar
+|-
+| 0751||016C5000||016C6660||[[object_spot03_object]]||Frozen Waterfall Bit (Zora's River)
+|-
+| 0752||016C7000||016CDD30||[[object_spot07_object]]||Zora's Domain Actor Models
+|-
+| 0753||016CE000||016D14D0||[[object_fz]]||Freezard
+|-
+| 0754||016D2000||016D6F20||[[object_bob]]||HIDEOUS Female NPC (Beta?)
+|-
+| 0755||016D7000||016E14B0||[[object_ge1]]||Gerudo Guard (at gates)
+|-
+| 0756||016E2000||016E2E50||[[object_yabusame_point]]||White Square (Horse Race Something?)
+|-
+| 0757||016E3000||016E4BC0||[[object_gi_boots_2]]||GI Iron Boots
+|-
+| 0758||016E5000||016E5AC0||[[object_gi_seed]]||GI Deku Seeds
+|-
+| 0759||016E6000||016E7280||[[object_gnd_magic]]||Ganondorf Magic
+|-
+| 0760||016E8000||016E9390||[[object_d_elevator]]||Elevator
+|-
+| 0761||016EA000||016EB760||[[object_d_hsblock]]||Hookshot Target Actor Models
+|-
+| 0762||016EC000||016ED800||[[object_d_lift]]||Platform used in Spirit Temple
+|-
+| 0763||016EE000||016F06E0||[[object_mamenoki]]||Magic Bean Plant
+|-
+| 0764||016F1000||016F28A0||[[object_goroiwa]]||Rolling Boulder
+|-
+| 0765||016F3000||016FA160||[[object_toryo]]||Carpenter Boss
+|-
+| 0766||016FB000||01703870||[[object_daiku]]||Carpenters
+|-
+| 0767||01704000||01704DA0||[[object_nwc]]||Baby Cucco (unused)
+|-
+| 0768||01705000||01718890||[[object_blkobj]]||Dark Link's Illusion Room
+|-
+| 0769||01719000||017192D0||[[object_gm]]||Blank (?)
+|-
+| 0770||0171A000||0171DDD0||[[object_ms]]||Bean Seller
+|-
+| 0771||0171E000||01724270||[[object_hs]]||Grog (Carpenter's Son)
+|-
+| 0772||01725000||017261F0||[[object_ingate]]||Ingo Gate
+|-
+| 0773||01727000||01729420||[[object_lightswitch]]||Sun Switch
+|-
+| 0774||0172A000||0172A380||[[object_kusa]]||Regrowable Grass Clump
+|-
+| 0775||0172B000||0172C9F0||[[object_tsubo]]||Pot/Vase
+|-
+| 0776||0172D000||0172E960||[[object_gi_gloves]]||GI Gauntlets
+|-
+| 0777||0172F000||0172F850||[[object_gi_coin]]||GI N Coin
+|-
+| 0778||01730000||017317B0||[[object_kanban]]||Square Signpost (Cuttable)
+|-
+| 0779||01732000||017335F0||[[object_gjyo_objects]]||
+|-
+| 0780||01734000||017440C0||[[object_owl]]||Kaepora Gaebora
+|-
+| 0781||01745000||0174AE00||[[object_mk]]||Lake Scientist
+|-
+| 0782||0174B000||01751CA0||[[object_fu]]||Guru-Guru (Windmill Man)
+|-
+| 0783||01752000||01752DF0||[[object_gi_ki_tan_mask]]||GI Keaton Mask
+|-
+| 0784||01753000||01753A90||[[object_gi_redead_mask]]||GI Redead Mask
+|-
+| 0785||01754000||01754CE0||[[object_gi_skj_mask]]||GI Skull Mask
+|-
+| 0786||01755000||01755F00||[[object_gi_rabit_mask]]||GI Bunny Hood
+|-
+| 0787||01756000||01757860||[[object_gi_truth_mask]]||GI Mask of Truth
+|-
+| 0788||01758000||01759170||[[object_ganon_objects]]||Doors in Ganon's Castle
+|-
+| 0789||0175A000||0175ADB0||[[object_siofuki]]||Water Spout
+|-
+| 0790||0175B000||0175BA80||[[object_stream]]||Bigger Water Blast
+|-
+| 0791||0175C000||01764070||[[object_mm]]||Running Man
+|-
+| 0792||01765000||01768B90||[[object_fa]]||Fado's Head
+|-
+| 0793||01769000||0176D670||[[object_os]]||Happy Mask Salesman
+|-
+| 0794||0176E000||0176E970||[[object_gi_eye_lotion]]||GI Eye Drops
+|-
+| 0795||0176F000||0176FB80||[[object_gi_powder]]||GI Magic Powder
+|-
+| 0796||01770000||01770CD0||[[object_gi_mushroom]]||GI Magic Mushroom
+|-
+| 0797||01771000||017722A0||[[object_gi_ticketstone]]||GI Biggoron Sword Deed
+|-
+| 0798||01773000||01773990||[[object_gi_brokensword]]||GI Broken Giant's Knife
+|-
+| 0799||01774000||01779F30||[[object_js]]||Carpet Merchant
+|-
+| 0800||0177A000||01782550||[[object_cs]]||Graveyard Boy
+|-
+| 0801||01783000||01783C20||[[object_gi_prescription]]||GI Eye Drops Prescription
+|-
+| 0802||01784000||01784BF0||[[object_gi_bracelet]]||GI Goron Bracelet
+|-
+| 0803||01785000||017854D0||[[object_gi_soldout]]||Sold Out Icon/Texture
+|-
+| 0804||01786000||01787110||[[object_gi_frog]]||GI Eyeball Frog
+|-
+| 0805||01788000||017AD940||[[object_mag]]||Title Screen Data
+|-
+| 0806||017AE000||017AE9A0||[[object_door_gerudo]]||Crossing Bars (over Gerudo doors)
+|-
+| 0807||017AF000||017C25F0||[[object_gt]]||Ganon's Tower (Collapsing)
+|-
+| 0808||017C3000||017C58F0||[[object_efc_erupc]]||Eruption Effect
+|-
+| 0809||017C6000||017D1610||[[object_zl2_anime1]]||Zelda Animation File 1
+|-
+| 0810||017D2000||017DCAE0||[[object_zl2_anime2]]||Zelda Animation File 2
+|-
+| 0811||017DD000||017DE7B0||[[object_gi_golonmask]]||GI Goron Mask
+|-
+| 0812||017DF000||017E0630||[[object_gi_zoramask]]||GI Zora Mask
+|-
+| 0813||017E1000||017E2400||[[object_gi_gerudomask]]||GI Gerudo Mask
+|-
+| 0814||017E3000||01818BF0||[[object_ganon2]]||Ganon
+|-
+| 0815||01819000||0181F7C0||[[object_ka]]||Scarecrows
+|-
+| 0816||01820000||01824FF0||[[object_ts]]||Treasure Chest Shop Man
+|-
+| 0817||01825000||01826200||[[object_zg]]||Metal Bars over Doors
+|-
+| 0818||01827000||01828E70||[[object_gi_hoverboots]]||GI Hover Boots
+|-
+| 0819||01829000||01829E80||[[object_gi_m_arrow]]||GI Magic Arrow
+|-
+| 0820||0182A000||0182E270||[[object_ds2]]||Potion Shop Owner
+|-
+| 0821||0182F000||0183B930||[[object_ec]]||
+|-
+| 0822||0183C000||018515F0||[[object_fish]]||Fish
+|-
+| 0823||01852000||01852650||[[object_gi_sutaru]]||GI Golden Skulltula Medallion
+|-
+| 0824||01853000||01853C50||[[object_gi_goddess]]||GI Goddess Spell
+|-
+| 0825||01854000||01859C00||[[object_ssh]]||Skulltula Family (Skulltula form)
+|-
+| 0826||0185A000||01860BD0||[[object_bigokuta]]||Big Octo
+|-
+| 0827||01861000||018682C0||[[object_bg]]||Bombchu Bowling Alley Lady
+|-
+| 0828||01869000||0186A2F0||[[object_spot05_objects]]||Sacred Forest Meadow Actor Models
+|-
+| 0829||0186B000||0186D3C0||[[object_spot12_obj]]||Gerudo Fortress Actor Models
+|-
+| 0830||0186E000||0186EB00||[[object_bombiwa]]||Bombable Rock
+|-
+| 0831||0186F000||01872140||[[object_hintnuts]]||Hint Deku Scrub
+|-
+| 0832||01873000||01877880||[[object_rs]]||Bomb Shop Guy
+|-
+| 0833||01878000||01879E20||[[object_spot00_break]]||Hyrule Field Actor Models
+|-
+| 0834||0187A000||01883EF0||[[object_gla]]||Gerudo Fortress Guard
+|-
+| 0835||01884000||01888590||[[object_shopnuts]]||Business Scrub
+|-
+| 0836||01889000||018946F0||[[object_geldb]]||Gerudo Fighter
+|-
+| 0837||01895000||0189EC90||[[object_gr]]||Girl Chasing Cucco
+|-
+| 0838||0189F000||018A62A0||[[object_dog]]||Dog
+|-
+| 0839||018A7000||018A9660||[[object_jya_iron]]||Iron Knuckle Room Actor Models
+|-
+| 0840||018AA000||018AC280||[[object_jya_door]]||Spirit Temple Door
+|-
+| 0841||018AD000||018AD010||[[object_spot01_objects2]]||Nulled Kakariko Village Actor Models?
+|-
+| 0842||018AE000||018AFA90||[[object_spot11_obj]]||Desert Colossus
+|-
+| 0843||018B0000||018B10C0||[[object_kibako2]]||Crate
+|-
+| 0844||018B2000||018B57D0||[[object_dns]]||Deku Mask Competition Judge
+|-
+| 0845||018B6000||018B8E30||[[object_dnk]]||Deku Mask Competition Fan
+|-
+| 0846||018B9000||018B9FE0||[[object_gi_fire]]||GI Blue Fire
+|-
+| 0847||018BA000||018BABF0||[[object_gi_insect]]||GI Bug
+|-
+| 0848||018BB000||018BBBD0||[[object_gi_butterfly]]||GI Butterfly
+|-
+| 0849||018BC000||018BCDB0||[[object_gi_ghost]]||GI Poe
+|-
+| 0850||018BD000||018BDFB0||[[object_gi_soul]]||GI Fairy
+|-
+| 0851||018BE000||018C14F0||[[object_bowl]]||Bowling Alley Actors
+|-
+| 0852||018C2000||018C8A40||[[object_po_field]]||Field Poe
+|-
+| 0853||018C9000||018D7D10||[[object_demo_kekkai]]||Ganon's Castle Actor Models
+|-
+| 0854||018D8000||018D9050||[[object_efc_doughnut]]||Circular Clouds above Death Mountain
+|-
+| 0855||018DA000||018DB050||[[object_gi_dekupouch]]||GI Deku Pouch
+|-
+| 0856||018DC000||018E7C40||[[object_ganon_anime1]]||Ganon/Ganondorf Animation File 1
+|-
+| 0857||018E8000||018F8530||[[object_ganon_anime2]]||Ganon/Ganondorf Animation File 2
+|-
+| 0858||018F9000||0190D7F0||[[object_ganon_anime3]]||Ganon/Ganondorf Animation File 3
+|-
+| 0859||0190E000||0190E800||[[object_gi_rupy]]||GI Rupee
+|-
+| 0860||0190F000||01912C90||[[object_spot01_matoya]]||Some Kakariko Village Actor Models
+|-
+| 0861||01913000||019151E0||[[object_spot01_matoyab]]||Kakariko Village Actor Models
+|-
+| 0862||01916000||0191CFA0||[[object_po_composer]]||Poe Composer Brothers
+|-
+| 0863||0191D000||01927E50||[[object_mu]]||Shopping People in Market
+|-
+| 0864||01928000||01932500||[[object_wf]]||Wolfos
+|-
+| 0865||01933000||01937810||[[object_skb]]||Stalchild
+|-
+| 0866||01938000||01942720||[[object_gj]]||Rubble (Ganon's Tower, after collapse)
+|-
+| 0867||01943000||01943FB0||[[object_geff]]||Chunk of stone (Ganon's Tower Collapsing Cutscene)
+|-
+| 0868||01944000||01947970||[[object_haka_door]]||Beneath the Well/Shadow Temple Door
+|-
+| 0869||01948000||01948A80||[[object_gs]]||Gossip Stone
+|-
+| 0870||01949000||01955900||[[object_ps]]||Poe Collector
+|-
+| 0871||01956000||01957150||[[object_bwall]]||Bombable Wall
+|-
+| 0872||01958000||019590D0||[[object_crow]]||Guay
+|-
+| 0873||0195A000||0195EEB0||[[object_cow]]||Cow
+|-
+| 0874||0195F000||01961210||[[object_cob]]||Castle Town NPC Woman
+|-
+| 0875||01962000||01962D20||[[object_gi_sword_1]]||GI Kokiri Sword
+|-
+| 0876||01963000||01964BE0||[[object_door_killer]]||Fake door
+|-
+| 0877||01965000||01965970||[[object_ouke_haka]]||Wall Engravings (used in Royal Family Tomb)
+|-
+| 0878||01966000||01966B60||[[object_timeblock]]||Song of Time Block
+|-
+| 0879||01967000||01983E20||[[object_zl4]]||Child Zelda v2
+|-
+| 0880||01984000||01986880||g_pn_01||
+|-
+| 0881||01987000||01989880||g_pn_02||
+|-
+| 0882||0198A000||0198C880||g_pn_03||
+|-
+| 0883||0198D000||0198F880||g_pn_04||
+|-
+| 0884||01990000||01992880||g_pn_05||
+|-
+| 0885||01993000||01995880||g_pn_06||
+|-
+| 0886||01996000||01998880||g_pn_07||
+|-
+| 0887||01999000||0199B880||g_pn_08||
+|-
+| 0888||0199C000||0199E880||g_pn_09||
+|-
+| 0889||0199F000||019A1880||g_pn_10||
+|-
+| 0890||019A2000||019A4880||g_pn_11||
+|-
+| 0891||019A5000||019A7880||g_pn_12||
+|-
+| 0892||019A8000||019AA880||g_pn_13||
+|-
+| 0893||019AB000||019AD880||g_pn_14||
+|-
+| 0894||019AE000||019B0880||g_pn_15||
+|-
+| 0895||019B1000||019B3880||g_pn_16||
+|-
+| 0896||019B4000||019B6880||g_pn_17||
+|-
+| 0897||019B7000||019B9880||g_pn_18||
+|-
+| 0898||019BA000||019BC880||g_pn_19||
+|-
+| 0899||019BD000||019BF880||g_pn_20||
+|-
+| 0900||019C0000||019C2880||g_pn_21||
+|-
+| 0901||019C3000||019C5880||g_pn_22||
+|-
+| 0902||019C6000||019C8880||g_pn_23||
+|-
+| 0903||019C9000||019CB880||g_pn_24||
+|-
+| 0904||019CC000||019CE880||g_pn_25||
+|-
+| 0905||019CF000||019D1880||g_pn_26||
+|-
+| 0906||019D2000||019D4880||g_pn_27||
+|-
+| 0907||019D5000||019D7880||g_pn_28||
+|-
+| 0908||019D8000||019DA880||g_pn_29||
+|-
+| 0909||019DB000||019DD880||g_pn_30||
+|-
+| 0910||019DE000||019E0880||g_pn_31||
+|-
+| 0911||019E1000||019E3880||g_pn_32||
+|-
+| 0912||019E4000||019E6880||g_pn_33||
+|-
+| 0913||019E7000||019E9880||g_pn_34||
+|-
+| 0914||019EA000||019EC880||g_pn_35||
+|-
+| 0915||019ED000||019EF880||g_pn_36||
+|-
+| 0916||019F0000||019F2880||g_pn_37||
+|-
+| 0917||019F3000||019F5880||g_pn_38||
+|-
+| 0918||019F6000||019F8880||g_pn_39||
+|-
+| 0919||019F9000||019FB880||g_pn_40||
+|-
+| 0920||019FC000||019FE880||g_pn_41||
+|-
+| 0921||019FF000||01A01880||g_pn_42||
+|-
+| 0922||01A02000||01A04880||g_pn_43||
+|-
+| 0923||01A05000||01A07880||g_pn_44||
+|-
+| 0924||01A08000||01A0A880||g_pn_45||
+|-
+| 0925||01A0B000||01A0D880||g_pn_46||
+|-
+| 0926||01A0E000||01A10880||g_pn_47||
+|-
+| 0927||01A11000||01A13880||g_pn_48||
+|-
+| 0928||01A14000||01A16880||g_pn_49||
+|-
+| 0929||01A17000||01A19880||g_pn_50||
+|-
+| 0930||01A1A000||01A1C880||g_pn_51||
+|-
+| 0931||01A1D000||01A1F880||g_pn_52||
+|-
+| 0932||01A20000||01A22880||g_pn_53||
+|-
+| 0933||01A23000||01A25880||g_pn_54||
+|-
+| 0934||01A26000||01A28880||g_pn_55||
+|-
+| 0935||01A29000||01A2B880||g_pn_56||
+|-
+| 0936||01A2C000||01A2E880||g_pn_57||
+|-
+| 0937||01A2F000||01A31200||z_select_static||
+|-
+| 0938||01A32000||01A34DC0||nintendo_rogo_static||
+|-
+| 0939||01A35000||01A7C440||title_static||File Select textures
+|-
+| 0940||01A7D000||01A80B00||parameter_static||Static UI textures (hud hearts, c-buttons for songs)
+|-
+| 0941||01A81000||01A8D000||vr_fine0_static||Skybox at Sunrise
+|-
+| 0942||01A8D000||01A8D100||vr_fine0_pal_static||Color palette for skybox vr_fine0
+|-
+| 0943||01A8E000||01A9A000||vr_fine1_static||Skybox at Daytime
+|-
+| 0944||01A9A000||01A9A100||vr_fine1_pal_static||Color palette for skybox vr_fine1
+|-
+| 0945||01A9B000||01AA7000||vr_fine2_static||Skybox at Dusk
+|-
+| 0946||01AA7000||01AA7100||vr_fine2_pal_static||Color palette for skybox vr_fine2
+|-
+| 0947||01AA8000||01AB4000||vr_fine3_static||Skybox at Night
+|-
+| 0948||01AB4000||01AB4100||vr_fine3_pal_static||Color palette for skybox vr_fine3
+|-
+| 0949||01AB5000||01AC1000||vr_cloud0_static||
+|-
+| 0950||01AC1000||01AC1100||vr_cloud0_pal_static||
+|-
+| 0951||01AC2000||01ACE000||vr_cloud1_static||
+|-
+| 0952||01ACE000||01ACE100||vr_cloud1_pal_static||
+|-
+| 0953||01ACF000||01ADB000||vr_cloud2_static||
+|-
+| 0954||01ADB000||01ADB100||vr_cloud2_pal_static||
+|-
+| 0955||01ADC000||01AE8000||vr_cloud3_static||
+|-
+| 0956||01AE8000||01AE8100||vr_cloud3_pal_static||
+|-
+| 0957||01AE9000||01AF9000||vr_holy0_static||
+|-
+| 0958||01AF9000||01AF9100||vr_holy0_pal_static||
+|-
+| 0959||01AFA000||01B0A000||vr_holy1_static||
+|-
+| 0960||01B0A000||01B0A100||vr_holy1_pal_static||
+|-
+| 0961||01B0B000||01B4B000||vr_MDVR_static||
+|-
+| 0962||01B4B000||01B4B800||vr_MDVR_pal_static||
+|-
+| 0963||01B4C000||01B8C000||vr_MNVR_static||
+|-
+| 0964||01B8C000||01B8C800||vr_MNVR_pal_static||
+|-
+| 0965||01B8D000||01BCD000||vr_RUVR_static||
+|-
+| 0966||01BCD000||01BCD800||vr_RUVR_pal_static||
+|-
+| 0967||01BCE000||01C0E000||vr_LHVR_static||link_home (scene 52) background
+|-
+| 0968||01C0E000||01C0E800||vr_LHVR_pal_static||link_home (scene 52) palette
+|-
+| 0969||01C0F000||01C4F000||vr_KHVR_static||
+|-
+| 0970||01C4F000||01C4F800||vr_KHVR_pal_static||
+|-
+| 0971||01C50000||01C80000||vr_K3VR_static||
+|-
+| 0972||01C80000||01C80600||vr_K3VR_pal_static||
+|-
+| 0973||01C81000||01CB1000||vr_K4VR_static||
+|-
+| 0974||01CB1000||01CB1600||vr_K4VR_pal_static||
+|-
+| 0975||01CB2000||01CE2000||||
+|-
+| 0976||01CE2000||01CE2600||||
+|-
+| 0977||01CE3000||01D03000||||
+|-
+| 0978||01D03000||01D03400||||
+|-
+| 0979||01D04000||01D44000||||
+|-
+| 0980||01D44000||01D44800||||
+|-
+| 0981||01D45000||01D85000||||
+|-
+| 0982||01D85000||01D85800||||
+|-
+| 0983||01D86000||01DB6000||||
+|-
+| 0984||01DB6000||01DB6600||||
+|-
+| 0985||01DB7000||01DF7000||||
+|-
+| 0986||01DF7000||01DF7800||||
+|-
+| 0987||01DF8000||01E18000||||
+|-
+| 0988||01E18000||01E18400||||
+|-
+| 0989||01E19000||01E39000||||
+|-
+| 0990||01E39000||01E39400||||
+|-
+| 0991||01E3A000||01E5A000||||
+|-
+| 0992||01E5A000||01E5A400||||
+|-
+| 0993||01E5B000||01E7B000||||
+|-
+| 0994||01E7B000||01E7B400||||
+|-
+| 0995||01E7C000||01E9C000||||
+|-
+| 0996||01E9C000||01E9C400||||
+|-
+| 0997||01E9D000||01EBD000||||
+|-
+| 0998||01EBD000||01EBD400||||
+|-
+| 0999||01EBE000||01EFE000||||
+|-
+| 1000||01EFE000||01EFE800||||
+|-
+| 1001||01EFF000||01F2F000||||
+|-
+| 1002||01F2F000||01F2F600||||
+|-
+| 1003||01F30000||01F50000||||
+|-
+| 1004||01F50000||01F50400||||
+|-
+| 1005||01F51000||01F51070||||
+|-
+| 1006||01F52000||01F52010||||
+|-
+| 1007||01F53000||01F60A20||ydan_scene||Deku Tree
+|-
+| 1008||01F61000||01F76350||ydan_room_0||
+|-
+| 1009||01F77000||01F7B200||ydan_room_1||
+|-
+| 1010||01F7C000||01F81F30||ydan_room_2||
+|-
+| 1011||01F82000||01F961B0||ydan_room_3||
+|-
+| 1012||01F97000||01F9BC30||ydan_room_4||
+|-
+| 1013||01F9C000||01FA4390||ydan_room_5||
+|-
+| 1014||01FA5000||01FA9F00||ydan_room_6||
+|-
+| 1015||01FAA000||01FB2AA0||ydan_room_7||
+|-
+| 1016||01FB3000||01FB3D90||ydan_room_8||
+|-
+| 1017||01FB4000||01FBD8A0||ydan_room_9||
+|-
+| 1018||01FBE000||01FC2E00||ydan_room_10||
+|-
+| 1019||01FC3000||01FCA170||ydan_room_11||
+|-
+| 1020||01FCB000||01FE0140||ddan_scene||Dodongo's Cavern
+|-
+| 1021||01FE1000||01FFC8A0||ddan_room_0||
+|-
+| 1022||01FFD000||02006B70||ddan_room_1||
+|-
+| 1023||02007000||0200EEC0||ddan_room_2||
+|-
+| 1024||0200F000||0201CE70||ddan_room_3||
+|-
+| 1025||0201D000||02026960||ddan_room_4||
+|-
+| 1026||02027000||0202CEC0||ddan_room_5||
+|-
+| 1027||0202D000||0202F4B0||ddan_room_6||
+|-
+| 1028||02030000||02037700||ddan_room_7||
+|-
+| 1029||02038000||020415A0||ddan_room_8||
+|-
+| 1030||02042000||0204D530||ddan_room_9||
+|-
+| 1031||0204E000||02055F10||ddan_room_10||
+|-
+| 1032||02056000||02058030||ddan_room_11||
+|-
+| 1033||02059000||02061780||ddan_room_12||
+|-
+| 1034||02062000||020644D0||ddan_room_13||
+|-
+| 1035||02065000||020674D0||ddan_room_14||
+|-
+| 1036||02068000||0206A930||ddan_room_15||
+|-
+| 1037||0206B000||02070560||ddan_room_16||
+|-
+| 1038||02071000||020867E0||bdan_scene||Inside Jabu Jabu's Belly
+|-
+| 1039||02087000||0208B140||bdan_room_0||
+|-
+| 1040||0208C000||02091FC0||bdan_room_1||
+|-
+| 1041||02092000||0209B240||bdan_room_2||
+|-
+| 1042||0209C000||020A3260||bdan_room_3||
+|-
+| 1043||020A4000||020A8100||bdan_room_4||
+|-
+| 1044||020A9000||020AF090||bdan_room_5||
+|-
+| 1045||020B0000||020B4240||bdan_room_6||
+|-
+| 1046||020B5000||020B84D0||bdan_room_7||
+|-
+| 1047||020B9000||020BC840||bdan_room_8||
+|-
+| 1048||020BD000||020C0C30||bdan_room_9||
+|-
+| 1049||020C1000||020C4820||bdan_room_10||
+|-
+| 1050||020C5000||020C89F0||bdan_room_11||
+|-
+| 1051||020C9000||020CCCE0||bdan_room_12||
+|-
+| 1052||020CD000||020CFB80||bdan_room_13||
+|-
+| 1053||020D0000||020D61D0||bdan_room_14||
+|-
+| 1054||020D7000||020D96E0||bdan_room_15||
+|-
+| 1055||020DA000||020EFF90||Bmori1_scene||Forest Temple
+|-
+| 1056||020F0000||020FDB90||Bmori1_room_0||
+|-
+| 1057||020FE000||02103B70||Bmori1_room_1||
+|-
+| 1058||02104000||02113980||Bmori1_room_2||
+|-
+| 1059||02114000||021179E0||Bmori1_room_3||
+|-
+| 1060||02118000||0211B2C0||Bmori1_room_4||
+|-
+| 1061||0211C000||0211F5D0||Bmori1_room_5||
+|-
+| 1062||02120000||02129430||Bmori1_room_6||
+|-
+| 1063||0212A000||0213CFE0||Bmori1_room_7||
+|-
+| 1064||0213D000||02154AB0||Bmori1_room_8||
+|-
+| 1065||02155000||0215F160||Bmori1_room_9||
+|-
+| 1066||02160000||021653E0||Bmori1_room_10||
+|-
+| 1067||02166000||02170BE0||Bmori1_room_11||
+|-
+| 1068||02171000||021793E0||Bmori1_room_12||
+|-
+| 1069||0217A000||02182AB0||Bmori1_room_13||
+|-
+| 1070||02183000||02188B70||Bmori1_room_14||
+|-
+| 1071||02189000||0218B6E0||Bmori1_room_15||
+|-
+| 1072||0218C000||02190FA0||Bmori1_room_16||
+|-
+| 1073||02191000||0219A0F0||Bmori1_room_17||
+|-
+| 1074||0219B000||0219C330||Bmori1_room_18||
+|-
+| 1075||0219D000||0219D500||Bmori1_room_19||
+|-
+| 1076||0219E000||0219F300||Bmori1_room_20||
+|-
+| 1077||021A0000||021A1770||Bmori1_room_21||
+|-
+| 1078||021A2000||021A3DE0||Bmori1_room_22||
+|-
+| 1079||021A4000||021BE7D0||HIDAN_scene||Fire Temple
+|-
+| 1080||021BF000||021C62F0||HIDAN_room_0||
+|-
+| 1081||021C7000||021D3930||HIDAN_room_1||
+|-
+| 1082||021D4000||021E4030||HIDAN_room_2||
+|-
+| 1083||021E5000||021E74D0||HIDAN_room_3||
+|-
+| 1084||021E8000||021EF8F0||HIDAN_room_4||
+|-
+| 1085||021F0000||021FA2E0||HIDAN_room_5||
+|-
+| 1086||021FB000||02201F90||HIDAN_room_6||
+|-
+| 1087||02202000||02205A50||HIDAN_room_7||
+|-
+| 1088||02206000||0220FAE0||HIDAN_room_8||
+|-
+| 1089||02210000||02218770||HIDAN_room_9||
+|-
+| 1090||02219000||02231420||HIDAN_room_10||
+|-
+| 1091||02232000||022357E0||HIDAN_room_11||
+|-
+| 1092||02236000||02238B70||HIDAN_room_12||
+|-
+| 1093||02239000||02245B90||HIDAN_room_13||
+|-
+| 1094||02246000||02248200||HIDAN_room_14||
+|-
+| 1095||02249000||0224A190||HIDAN_room_15||
+|-
+| 1096||0224B000||022569E0||HIDAN_room_16||
+|-
+| 1097||02257000||02260170||HIDAN_room_17||
+|-
+| 1098||02261000||02264C00||HIDAN_room_18||
+|-
+| 1099||02265000||02269230||HIDAN_room_19||
+|-
+| 1100||0226A000||02270D10||HIDAN_room_20||
+|-
+| 1101||02271000||02279480||HIDAN_room_21||
+|-
+| 1102||0227A000||02280AF0||HIDAN_room_22||
+|-
+| 1103||02281000||02287D20||HIDAN_room_23||
+|-
+| 1104||02288000||0228D540||HIDAN_room_24||
+|-
+| 1105||0228E000||02294AE0||HIDAN_room_25||
+|-
+| 1106||02295000||0229B8A0||HIDAN_room_26||
+|-
+| 1107||0229C000||022B1C30||MIZUsin_scene||Water Temple
+|-
+| 1108||022B2000||022C7C30||MIZUsin_room_0||
+|-
+| 1109||022C8000||022D21D0||MIZUsin_room_1||
+|-
+| 1110||022D3000||022D8C90||MIZUsin_room_2||
+|-
+| 1111||022D9000||022DF7C0||MIZUsin_room_3||
+|-
+| 1112||022E0000||022E6020||MIZUsin_room_4||
+|-
+| 1113||022E7000||022F1640||MIZUsin_room_5||
+|-
+| 1114||022F2000||022FD300||MIZUsin_room_6||
+|-
+| 1115||022FE000||02303560||MIZUsin_room_7||
+|-
+| 1116||02304000||02311D80||MIZUsin_room_8||
+|-
+| 1117||02312000||0231A0B0||MIZUsin_room_9||
+|-
+| 1118||0231B000||02321070||MIZUsin_room_10||
+|-
+| 1119||02322000||02326A20||MIZUsin_room_11||
+|-
+| 1120||02327000||0232DE30||MIZUsin_room_12||
+|-
+| 1121||0232E000||0232EA00||MIZUsin_room_13||
+|-
+| 1122||0232F000||02335E80||MIZUsin_room_14||
+|-
+| 1123||02336000||0233D470||MIZUsin_room_15||
+|-
+| 1124||0233E000||02341B30||MIZUsin_room_16||
+|-
+| 1125||02342000||0234AAB0||MIZUsin_room_17||
+|-
+| 1126||0234B000||0234F100||MIZUsin_room_18||
+|-
+| 1127||02350000||02353930||MIZUsin_room_19||
+|-
+| 1128||02354000||0235A840||MIZUsin_room_20||
+|-
+| 1129||0235B000||023624A0||MIZUsin_room_21||
+|-
+| 1130||02363000||0236C0F0||MIZUsin_room_22||
+|-
+| 1131||0236D000||02386B20||jyasinzou_scene||Spirit Temple
+|-
+| 1132||02387000||02397FF0||jyasinzou_room_0||
+|-
+| 1133||02398000||023A1350||jyasinzou_room_1||
+|-
+| 1134||023A2000||023A7BB0||jyasinzou_room_2||
+|-
+| 1135||023A8000||023ABBD0||jyasinzou_room_3||
+|-
+| 1136||023AC000||023B3280||jyasinzou_room_4||
+|-
+| 1137||023B4000||023CC010||jyasinzou_room_5||
+|-
+| 1138||023CD000||023D17F0||jyasinzou_room_6||
+|-
+| 1139||023D2000||023D7510||jyasinzou_room_7||
+|-
+| 1140||023D8000||023E00B0||jyasinzou_room_8||
+|-
+| 1141||023E1000||023E6DD0||jyasinzou_room_9||
+|-
+| 1142||023E7000||023EF1A0||jyasinzou_room_10||
+|-
+| 1143||023F0000||023F1010||jyasinzou_room_11||
+|-
+| 1144||023F2000||023F40E0||jyasinzou_room_12||
+|-
+| 1145||023F5000||023FA8B0||jyasinzou_room_13||
+|-
+| 1146||023FB000||023FFCA0||jyasinzou_room_14||
+|-
+| 1147||02400000||024084A0||jyasinzou_room_15||
+|-
+| 1148||02409000||0240F1C0||jyasinzou_room_16||
+|-
+| 1149||02410000||02419650||jyasinzou_room_17||
+|-
+| 1150||0241A000||0241FCE0||jyasinzou_room_18||
+|-
+| 1151||02420000||02425DD0||jyasinzou_room_19||
+|-
+| 1152||02426000||0242E1C0||jyasinzou_room_20||
+|-
+| 1153||0242F000||02433660||jyasinzou_room_21||
+|-
+| 1154||02434000||02437070||jyasinzou_room_22||
+|-
+| 1155||02438000||02441210||jyasinzou_room_23||
+|-
+| 1156||02442000||024484D0||jyasinzou_room_24||
+|-
+| 1157||02449000||0245EBA0||jyasinzou_room_25||
+|-
+| 1158||0245F000||0246BB00||jyasinzou_room_26||
+|-
+| 1159||0246C000||02471710||jyasinzou_room_27||
+|-
+| 1160||02472000||0247AA30||jyasinzou_room_28||
+|-
+| 1161||0247B000||024933C0||HAKAdan_scene||Shadow Temple
+|-
+| 1162||02494000||0249F150||HAKAdan_room_0||
+|-
+| 1163||024A0000||024A1AF0||HAKAdan_room_1||
+|-
+| 1164||024A2000||024AC9E0||HAKAdan_room_2||
+|-
+| 1165||024AD000||024AF980||HAKAdan_room_3||
+|-
+| 1166||024B0000||024B1C60||HAKAdan_room_4||
+|-
+| 1167||024B2000||024B7AC0||HAKAdan_room_5||
+|-
+| 1168||024B8000||024BF5F0||HAKAdan_room_6||
+|-
+| 1169||024C0000||024C1AE0||HAKAdan_room_7||
+|-
+| 1170||024C2000||024C70A0||HAKAdan_room_8||
+|-
+| 1171||024C8000||024D4C90||HAKAdan_room_9||
+|-
+| 1172||024D5000||024DC7F0||HAKAdan_room_10||
+|-
+| 1173||024DD000||024E0E60||HAKAdan_room_11||
+|-
+| 1174||024E1000||024E6750||HAKAdan_room_12||
+|-
+| 1175||024E7000||024E8020||HAKAdan_room_13||
+|-
+| 1176||024E9000||024EE900||HAKAdan_room_14||
+|-
+| 1177||024EF000||024F62C0||HAKAdan_room_15||
+|-
+| 1178||024F7000||024F9930||HAKAdan_room_16||
+|-
+| 1179||024FA000||024FCDE0||HAKAdan_room_17||
+|-
+| 1180||024FD000||0250A310||HAKAdan_room_18||
+|-
+| 1181||0250B000||0250DD80||HAKAdan_room_19||
+|-
+| 1182||0250E000||0250FE40||HAKAdan_room_20||
+|-
+| 1183||02510000||0251B5B0||HAKAdan_room_21||
+|-
+| 1184||0251C000||0251E9B0||HAKAdan_room_22||
+|-
+| 1185||0251F000||0252B590||HAKAdanCH_scene||Bottom of the Well
+|-
+| 1186||0252C000||02541720||HAKAdanCH_room_0||
+|-
+| 1187||02542000||0254D130||HAKAdanCH_room_1||
+|-
+| 1188||0254E000||02551160||HAKAdanCH_room_2||
+|-
+| 1189||02552000||02553CC0||HAKAdanCH_room_3||
+|-
+| 1190||02554000||025564A0||HAKAdanCH_room_4||
+|-
+| 1191||02557000||02559990||HAKAdanCH_room_5||
+|-
+| 1192||0255A000||0255CEA0||HAKAdanCH_room_6||
+|-
+| 1193||0255D000||0256E6C0||ice_doukutu_scene||Ice Cavern
+|-
+| 1194||0256F000||02577680||ice_doukutu_room_0||
+|-
+| 1195||02578000||02584530||ice_doukutu_room_1||
+|-
+| 1196||02585000||0258AB00||ice_doukutu_room_2||
+|-
+| 1197||0258B000||02593090||ice_doukutu_room_3||
+|-
+| 1198||02594000||0259B650||ice_doukutu_room_4||
+|-
+| 1199||0259C000||025A4880||ice_doukutu_room_5||
+|-
+| 1200||025A5000||025A91B0||ice_doukutu_room_6||
+|-
+| 1201||025AA000||025AF8F0||ice_doukutu_room_7||
+|-
+| 1202||025B0000||025B1920||ice_doukutu_room_8||
+|-
+| 1203||025B2000||025BA690||ice_doukutu_room_9||
+|-
+| 1204||025BB000||025BF3E0||ice_doukutu_room_10||
+|-
+| 1205||025C0000||025C5850||ice_doukutu_room_11||
+|-
+| 1206||025C6000||025D74C0||men_scene||Gerudo Training Grounds
+|-
+| 1207||025D8000||025E7F90||men_room_0||
+|-
+| 1208||025E8000||025F1270||men_room_1||
+|-
+| 1209||025F2000||025F7050||men_room_2||
+|-
+| 1210||025F8000||025FFC50||men_room_3||
+|-
+| 1211||02600000||0260A1E0||men_room_4||
+|-
+| 1212||0260B000||02610020||men_room_5||
+|-
+| 1213||02611000||02618F80||men_room_6||
+|-
+| 1214||02619000||026212C0||men_room_7||
+|-
+| 1215||02622000||0262A230||men_room_8||
+|-
+| 1216||0262B000||0262E870||men_room_9||
+|-
+| 1217||0262F000||02634C50||men_room_10||
+|-
+| 1218||02635000||026567D0||ganontika_scene||Inside Ganon's Castle
+|-
+| 1219||02657000||02660210||ganontika_room_0||
+|-
+| 1220||02661000||0267D9D0||ganontika_room_1||
+|-
+| 1221||0267E000||026857E0||ganontika_room_2||
+|-
+| 1222||02686000||0268FA40||ganontika_room_3||
+|-
+| 1223||02690000||02697C90||ganontika_room_4||
+|-
+| 1224||02698000||0269F520||ganontika_room_5||
+|-
+| 1225||026A0000||026AFC60||ganontika_room_6||
+|-
+| 1226||026B0000||026B7C90||ganontika_room_7||
+|-
+| 1227||026B8000||026C1020||ganontika_room_8||
+|-
+| 1228||026C2000||026CD820||ganontika_room_9||
+|-
+| 1229||026CE000||026D4BC0||ganontika_room_10||
+|-
+| 1230||026D5000||026DB950||ganontika_room_11||
+|-
+| 1231||026DC000||026E7270||ganontika_room_12||
+|-
+| 1232||026E8000||026EFD40||ganontika_room_13||
+|-
+| 1233||026F0000||026FA1D0||ganontika_room_14||
+|-
+| 1234||026FB000||02702D40||ganontika_room_15||
+|-
+| 1235||02703000||02705E30||ganontika_room_16||
+|-
+| 1236||02706000||0270E620||ganontika_room_17||
+|-
+| 1237||0270F000||0271B6E0||ganontika_room_18||
+|-
+| 1238||0271C000||02723D40||ganontika_room_19||
+|-
+| 1239||02724000||0274E220||spot00_scene||Hyrule Field
+|-
+| 1240||0274F000||02764230||spot00_room_0||
+|-
+| 1241||02765000||02781150||spot01_scene||Kakariko Village
+|-
+| 1242||02782000||0278BEE0||spot01_room_0||
+|-
+| 1243||0278C000||02797C80||spot02_scene||Kakariko Graveyard
+|-
+| 1244||02798000||0279A6E0||spot02_room_0||
+|-
+| 1245||0279B000||027B8F90||spot02_room_1||
+|-
+| 1246||027B9000||027C4560||spot03_scene||Zora River
+|-
+| 1247||027C5000||027D2980||spot03_room_0||
+|-
+| 1248||027D3000||027DA500||spot03_room_1||
+|-
+| 1249||027DB000||027EC240||spot04_scene||Kokiri Forest
+|-
+| 1250||027ED000||02808490||spot04_room_0||
+|-
+| 1251||02809000||02811580||spot04_room_1||
+|-
+| 1252||02812000||02817070||spot04_room_2||
+|-
+| 1253||02818000||0282CD60||spot05_scene||Sacred Forest Meadow
+|-
+| 1254||0282D000||02836F00||spot05_room_0||
+|-
+| 1255||02837000||02852430||spot06_scene||Lake Hylia
+|-
+| 1256||02853000||0285D620||spot06_room_0||
+|-
+| 1257||0285E000||02867820||spot07_scene||Zora's Domain
+|-
+| 1258||02868000||0286E2F0||spot07_room_0||
+|-
+| 1259||0286F000||0287B9A0||spot07_room_1||
+|-
+| 1260||0287C000||0288D6A0||spot08_scene||Zora's Fountain
+|-
+| 1261||0288E000||02896160||spot08_room_0||
+|-
+| 1262||02897000||028A8160||spot09_scene||Gerudo Valley
+|-
+| 1263||028A9000||028B17C0||spot09_room_0||
+|-
+| 1264||028B2000||028C2430||spot10_scene||Lost Woods
+|-
+| 1265||028C3000||028C55F0||spot10_room_0||
+|-
+| 1266||028C6000||028CE430||spot10_room_1||
+|-
+| 1267||028CF000||028D3BF0||spot10_room_2||
+|-
+| 1268||028D4000||028D9AB0||spot10_room_3||
+|-
+| 1269||028DA000||028DC4D0||spot10_room_4||
+|-
+| 1270||028DD000||028E3FF0||spot10_room_5||
+|-
+| 1271||028E4000||028E7AF0||spot10_room_6||
+|-
+| 1272||028E8000||028EA5C0||spot10_room_7||
+|-
+| 1273||028EB000||028ED670||spot10_room_8||
+|-
+| 1274||028EE000||028F1BE0||spot10_room_9||
+|-
+| 1275||028F2000||0290B4E0||spot11_scene||Desert Colossus
+|-
+| 1276||0290C000||029187C0||spot11_room_0||
+|-
+| 1277||02919000||02928E80||spot12_scene||Gerudo Fortress
+|-
+| 1278||02929000||0293A5C0||spot12_room_0||
+|-
+| 1279||0293B000||029470A0||spot12_room_1||
+|-
+| 1280||02948000||0294DE30||spot13_scene||Haunted Wasteland
+|-
+| 1281||0294E000||0294E910||spot13_room_0||
+|-
+| 1282||0294F000||02961A40||spot13_room_1||
+|-
+| 1283||02962000||0297A500||spot15_scene||Hyrule Castle
+|-
+| 1284||0297B000||029881C0||spot15_room_0||
+|-
+| 1285||02989000||029A7A90||spot16_scene||Death Mountain Trail
+|-
+| 1286||029A8000||029B2D10||spot16_room_0||
+|-
+| 1287||029B3000||029C2EE0||spot17_scene||Death Mountain Crater
+|-
+| 1288||029C3000||029C9880||spot17_room_0||
+|-
+| 1289||029CA000||029DC360||spot17_room_1||
+|-
+| 1290||029DD000||029E7450||spot18_scene||Goron City
+|-
+| 1291||029E8000||029FA7D0||spot18_room_0||
+|-
+| 1292||029FB000||02A01200||spot18_room_1||
+|-
+| 1293||02A02000||02A139B0||spot18_room_2||
+|-
+| 1294||02A14000||02A31CF0||spot18_room_3||
+|-
+| 1295||02A32000||02A34670||market_day_scene||Market - Child Day
+|-
+| 1296||02A35000||02A3A870||market_day_room_0||
+|-
+| 1297||02A3B000||02A3D630||market_night_scene||Market - Child Night
+|-
+| 1298||02A3E000||02A437A0||market_night_room_0||
+|-
+| 1299||02A44000||02A478F0||kenjyanoma_scene||Chamber of Sages
+|-
+| 1300||02A48000||02A5B110||kenjyanoma_room_0||
+|-
+| 1301||02A5C000||02A6E7A0||tokinoma_scene||Temple of Time
+|-
+| 1302||02A6F000||02A861E0||tokinoma_room_0||
+|-
+| 1303||02A87000||02A8E0D0||tokinoma_room_1||
+|-
+| 1304||02A8F000||02A90B60||link_home_scene||Link's House
+|-
+| 1305||02A91000||02AB8C80||link_home_room_0||
+|-
+| 1306||02AB9000||02AB9980||kokiri_shop_scene||Kokiri Shop
+|-
+| 1307||02ABA000||02AEAC90||kokiri_shop_room_0||
+|-
+| 1308||02AEB000||02AEBCC0||kokiri_home_scene||Know-it-all Brothers
+|-
+| 1309||02AEC000||02B17C30||kokiri_home_room_0||
+|-
+| 1310||02B18000||02B25820||kakusiana_scene||Grottos
+|-
+| 1311||02B26000||02B2D2A0||kakusiana_room_0||
+|-
+| 1312||02B2E000||02B33190||kakusiana_room_1||
+|-
+| 1313||02B34000||02B368C0||kakusiana_room_2||
+|-
+| 1314||02B37000||02B3C130||kakusiana_room_3||
+|-
+| 1315||02B3D000||02B44960||kakusiana_room_4||
+|-
+| 1316||02B45000||02B496E0||kakusiana_room_5||
+|-
+| 1317||02B4A000||02B4FA70||kakusiana_room_6||
+|-
+| 1318||02B50000||02B53FD0||kakusiana_room_7||
+|-
+| 1319||02B54000||02B57630||kakusiana_room_8||
+|-
+| 1320||02B58000||02B5DAD0||kakusiana_room_9||
+|-
+| 1321||02B5E000||02B63A30||kakusiana_room_10||
+|-
+| 1322||02B64000||02B6C6B0||kakusiana_room_11||
+|-
+| 1323||02B6D000||02B74E50||kakusiana_room_12||
+|-
+| 1324||02B75000||02B7BED0||kakusiana_room_13||
+|-
+| 1325||02B7C000||02B7C3E0||entra_scene||Market Entrance - Child Day
+|-
+| 1326||02B7D000||02BA2B70||entra_room_0||
+|-
+| 1327||02BA3000||02BA4900||moribossroom_scene||Forest Temple Boss
+|-
+| 1328||02BA5000||02BAAEC0||moribossroom_room_0||
+|-
+| 1329||02BAB000||02BB8AB0||moribossroom_room_1||
+|-
+| 1330||02BB9000||02BC52C0||syatekijyou_scene||Shooting Gallery
+|-
+| 1331||02BC6000||02BCD6F0||syatekijyou_room_0||
+|-
+| 1332||02BCE000||02BCE2F0||shop1_scene||Bazaar
+|-
+| 1333||02BCF000||02BF87B0||shop1_room_0||
+|-
+| 1334||02BF9000||02C0A390||hairal_niwa_scene||Castle Courtyard - Day
+|-
+| 1335||02C0B000||02C158E0||hairal_niwa_room_0||
+|-
+| 1336||02C16000||02C1AB70||ganon_tou_scene||Ganon's Castle
+|-
+| 1337||02C1B000||02C2EAF0||ganon_tou_room_0||
+|-
+| 1338||02C2F000||02C30250||market_alley_scene||Back Alley - Day
+|-
+| 1339||02C31000||02CA6700||market_alley_room_0||
+|-
+| 1340||02CA7000||02CB8E20||spot20_scene||Lon Lon Ranch
+|-
+| 1341||02CB9000||02CBF6D0||spot20_room_0||
+|-
+| 1342||02CC0000||02CC1630||market_ruins_scene||Market - Adult
+|-
+| 1343||02CC2000||02CC4820||market_ruins_room_0||
+|-
+| 1344||02CC5000||02CC5430||entra_n_scene||Market Entrance - Child Night
+|-
+| 1345||02CC6000||02CEBB70||entra_n_room_0||
+|-
+| 1346||02CEC000||02CEC3E0||enrui_scene||Market Entrance - Adult
+|-
+| 1347||02CED000||02D12B60||enrui_room_0||
+|-
+| 1348||02D13000||02D142F0||market_alley_n_scene||Back Alley - Night
+|-
+| 1349||02D15000||02D8A6F0||market_alley_n_room_0||
+|-
+| 1350||02D8B000||02D8ED50||hiral_demo_scene||Cutscene Map
+|-
+| 1351||02D8F000||02D8F640||hiral_demo_room_0||
+|-
+| 1352||02D90000||02D917A0||kokiri_home3_scene||House of Twins
+|-
+| 1353||02D92000||02DC8610||kokiri_home3_room_0||
+|-
+| 1354||02DC9000||02DC9670||malon_stable_scene||Stables
+|-
+| 1355||02DCA000||02DF8250||malon_stable_room_0||
+|-
+| 1356||02DF9000||02DF9EA0||kakariko_scene||Kakariko Village House
+|-
+| 1357||02DFA000||02E24FC0||kakariko_room_0||
+|-
+| 1358||02E25000||02E25E40||bdan_boss_scene||Inside Jabu Jabu's Belly Boss
+|-
+| 1359||02E26000||02E29020||bdan_boss_room_0||
+|-
+| 1360||02E2A000||02E2F0C0||bdan_boss_room_1||
+|-
+| 1361||02E30000||02E34C00||FIRE_bs_scene||Fire Temple Boss
+|-
+| 1362||02E35000||02E39270||FIRE_bs_room_0||
+|-
+| 1363||02E3A000||02E40FE0||FIRE_bs_room_1||
+|-
+| 1364||02E41000||02E41510||hut_scene||Gravekeeper's Hut
+|-
+| 1365||02E42000||02E6B5A0||hut_room_0||
+|-
+| 1366||02E6C000||02E7A000||daiyousei_izumi_scene||Great Fairy's Fountain (Upgrades)
+|-
+| 1367||02E7A000||02E7D910||daiyousei_izumi_room_0||
+|-
+| 1368||02E7E000||02E7EA90||hakaana_scene||Grave with Redead
+|-
+| 1369||02E7F000||02E868D0||hakaana_room_0||
+|-
+| 1370||02E87000||02E8F810||yousei_izumi_tate_scene||Small Fairy's Fountain
+|-
+| 1371||02E90000||02E942D0||yousei_izumi_tate_room_0||
+|-
+| 1372||02E95000||02EA1DA0||yousei_izumi_yoko_scene||Great Fairy's Fountain (Spells)
+|-
+| 1373||02EA2000||02EA6010||yousei_izumi_yoko_room_0||
+|-
+| 1374||02EA7000||02EA73A0||golon_scene||Goron Shop
+|-
+| 1375||02EA8000||02ECE1D0||golon_room_0||
+|-
+| 1376||02ECF000||02ECF390||zoora_scene||Zora Shop
+|-
+| 1377||02ED0000||02EF61E0||zoora_room_0||
+|-
+| 1378||02EF7000||02EF73F0||drag_scene||Kakariko Potion Shop
+|-
+| 1379||02EF8000||02F23E60||drag_room_0||
+|-
+| 1380||02F24000||02F245B0||alley_shop_scene||Market Potion Shop
+|-
+| 1381||02F25000||02F4BC30||alley_shop_room_0||
+|-
+| 1382||02F4C000||02F4C670||night_shop_scene||Bombchu Shop
+|-
+| 1383||02F4D000||02F75960||night_shop_room_0||
+|-
+| 1384||02F76000||02F76D10||impa_scene||Puppy Woman's House
+|-
+| 1385||02F77000||02F9DFA0||impa_room_0||
+|-
+| 1386||02F9E000||02F9EEF0||labo_scene||Impa's House
+|-
+| 1387||02F9F000||02FCB6F0||labo_room_0||
+|-
+| 1388||02FCC000||02FCC680||tent_scene||Carpenter's Tent
+|-
+| 1389||02FCD000||030006A0||tent_room_0||
+|-
+| 1390||03001000||03004A20||nakaniwa_scene||Zelda's Courtyard
+|-
+| 1391||03005000||0301CEC0||nakaniwa_room_0||
+|-
+| 1392||0301D000||0301F860||ddan_boss_scene||Dodongo's Cavern Boss
+|-
+| 1393||03020000||03024E30||ddan_boss_room_0||
+|-
+| 1394||03025000||03028DE0||ddan_boss_room_1||
+|-
+| 1395||03029000||0302A740||ydan_boss_scene||Deku Tree Boss
+|-
+| 1396||0302B000||03031FF0||ydan_boss_room_0||
+|-
+| 1397||03032000||030387F0||ydan_boss_room_1||
+|-
+| 1398||03039000||0303B780||HAKAdan_bs_scene||Shadow Temple Boss
+|-
+| 1399||0303C000||0303E9E0||HAKAdan_bs_room_0||
+|-
+| 1400||0303F000||03044F50||HAKAdan_bs_room_1||
+|-
+| 1401||03045000||03046A60||MIZUsin_bs_scene||Water Temple Boss
+|-
+| 1402||03047000||0304B470||MIZUsin_bs_room_0||
+|-
+| 1403||0304C000||030572F0||MIZUsin_bs_room_1||
+|-
+| 1404||03058000||030687B0||ganon_scene||Ganon's Tower Climb
+|-
+| 1405||03069000||03070ED0||ganon_room_0||
+|-
+| 1406||03071000||03078770||ganon_room_1||
+|-
+| 1407||03079000||03080850||ganon_room_2||
+|-
+| 1408||03081000||03088730||ganon_room_3||
+|-
+| 1409||03089000||030920D0||ganon_room_4||
+|-
+| 1410||03093000||0309BB10||ganon_room_5||
+|-
+| 1411||0309C000||030A5BA0||ganon_room_6||
+|-
+| 1412||030A6000||030B07A0||ganon_room_7||
+|-
+| 1413||030B1000||030B7BE0||ganon_room_8||
+|-
+| 1414||030B8000||030BD920||ganon_room_9||
+|-
+| 1415||030BE000||030C5C20||ganon_boss_scene||Ganondorf Boss Room
+|-
+| 1416||030C6000||030CBE80||ganon_boss_room_0||
+|-
+| 1417||030CC000||030D4CF0||jyasinboss_scene||Spirit Temple Boss
+|-
+| 1418||030D5000||030D5FD0||jyasinboss_room_0||
+|-
+| 1419||030D6000||030DDE40||jyasinboss_room_1||
+|-
+| 1420||030DE000||030E1DC0||jyasinboss_room_2||
+|-
+| 1421||030E2000||030ED700||jyasinboss_room_3||
+|-
+| 1422||030EE000||030EFAB0||kokiri_home4_scene||Mido's House
+|-
+| 1423||030F0000||03128950||kokiri_home4_room_0||
+|-
+| 1424||03129000||0312A410||kokiri_home5_scene||Saria's House
+|-
+| 1425||0312B000||0315BF60||kokiri_home5_room_0||
+|-
+| 1426||0315C000||0316E180||ganon_final_scene||Tower Collapse Exterior
+|-
+| 1427||0316F000||0317BEB0||ganon_final_room_0||
+|-
+| 1428||0317C000||0317C840||kakariko3_scene||Back Alley Village House
+|-
+| 1429||0317D000||031A7580||kakariko3_room_0||
+|-
+| 1430||031A8000||031B6270||hakasitarelay_scene||? (Dampe's Grave / Windmill)
+|-
+| 1431||031B7000||031BE2C0||hakasitarelay_room_0||
+|-
+| 1432||031BF000||031C5720||hakasitarelay_room_1||
+|-
+| 1433||031C6000||031CE4B0||hakasitarelay_room_2||
+|-
+| 1434||031CF000||031D7CE0||hakasitarelay_room_3||
+|-
+| 1435||031D8000||031DC480||hakasitarelay_room_4||
+|-
+| 1436||031DD000||031E1450||hakasitarelay_room_5||
+|-
+| 1437||031E2000||031E9AB0||hakasitarelay_room_6||
+|-
+| 1438||031EA000||031EB4E0||shrine_scene||Outside Temple of Time - Child Day
+|-
+| 1439||031EC000||0323EAF0||shrine_room_0||
+|-
+| 1440||0323F000||032516E0||turibori_scene||Fishing Pond
+|-
+| 1441||03252000||03258760||turibori_room_0||
+|-
+| 1442||03259000||0325A500||shrine_n_scene||Outside Temple of Time - Child Night
+|-
+| 1443||0325B000||032ADB10||shrine_n_room_0||
+|-
+| 1444||032AE000||032AF490||shrine_r_scene||Outside Temple of Time - Adult
+|-
+| 1445||032B0000||03302AF0||shrine_r_room_0||
+|-
+| 1446||03303000||03310090||hakaana2_scene||Grave with Shield
+|-
+| 1447||03311000||03317810||hakaana2_room_0||
+|-
+| 1448||03318000||03325920||gerudoway_scene||Thieves' Hideout
+|-
+| 1449||03326000||0332AD40||gerudoway_room_0||
+|-
+| 1450||0332B000||033322B0||gerudoway_room_1||
+|-
+| 1451||03333000||03336E50||gerudoway_room_2||
+|-
+| 1452||03337000||03342310||gerudoway_room_3||
+|-
+| 1453||03343000||03346920||gerudoway_room_4||
+|-
+| 1454||03347000||0334BE40||gerudoway_room_5||
+|-
+| 1455||0334C000||033550F0||hairal_niwa_n_scene||Castle Courtyard - Night
+|-
+| 1456||03356000||03359620||hairal_niwa_n_room_0||
+|-
+| 1457||0335A000||03368B20||bowling_scene||Bombchu Bowling Alley
+|-
+| 1458||03369000||0336F1E0||bowling_room_0||
+|-
+| 1459||03370000||03374AE0||hakaana_ouke_scene||Royal Family's Tomb
+|-
+| 1460||03375000||0337F800||hakaana_ouke_room_0||
+|-
+| 1461||03380000||03384800||hakaana_ouke_room_1||
+|-
+| 1462||03385000||0338B110||hakaana_ouke_room_2||
+|-
+| 1463||0338C000||0339D090||hylia_labo_scene||Lakeside Laboratory
+|-
+| 1464||0339E000||033A55D0||hylia_labo_room_0||
+|-
+| 1465||033A6000||033ACC10||souko_scene||Lon Lon Ranch Buildings
+|-
+| 1466||033AD000||033B6540||souko_room_0||
+|-
+| 1467||033B7000||033C1430||souko_room_1||
+|-
+| 1468||033C2000||033CA180||souko_room_2||
+|-
+| 1469||033CB000||033D7550||miharigoya_scene||Lots 'o Pots
+|-
+| 1470||033D8000||033DBDB0||miharigoya_room_0||
+|-
+| 1471||033DC000||033E6A20||mahouya_scene||Granny's Potion Shop
+|-
+| 1472||033E7000||033EDA90||mahouya_room_0||
+|-
+| 1473||033EE000||033F51B0||takaraya_scene||Treasure Box Shop
+|-
+| 1474||033F6000||033FFDC0||takaraya_room_0||
+|-
+| 1475||03400000||03402000||takaraya_room_1||
+|-
+| 1476||03402000||03404030||takaraya_room_2||
+|-
+| 1477||03405000||03407820||takaraya_room_3||
+|-
+| 1478||03408000||0340B020||takaraya_room_4||
+|-
+| 1479||0340C000||0340F000||takaraya_room_5||
+|-
+| 1480||0340F000||03411B00||takaraya_room_6||
+|-
+| 1481||03412000||03419F10||ganon_sonogo_scene||Tower Collapse Interior
+|-
+| 1482||0341A000||03421E80||ganon_sonogo_room_0||
+|-
+| 1483||03422000||03429BB0||ganon_sonogo_room_1||
+|-
+| 1484||0342A000||03432CA0||ganon_sonogo_room_2||
+|-
+| 1485||03433000||03438640||ganon_sonogo_room_3||
+|-
+| 1486||03439000||03441CF0||ganon_sonogo_room_4||
+|-
+| 1487||03442000||0344B070||ganon_demo_scene||Ganon Battle
+|-
+| 1488||0344C000||03450150||ganon_demo_room_0||
+|-
+| 1489||03451000||03451370||face_shop_scene||Happy Mask Shop
+|-
+| 1490||03452000||03480640||face_shop_room_0||
+|-
+| 1491||03481000||03482610||kinsuta_scene||House of Skulltula
+|-
+| 1492||03483000||034910A0||kinsuta_room_0||
+|-
+| 1493||03492000||03496B00||ganontikasonogo_scene||Tower Collapse Interior Exit
+|-
+| 1494||03497000||034AEB80||ganontikasonogo_room_0||
+|-
+| 1495||034AF000||034B8F20||ganontikasonogo_room_1||
+|-
+| 1496||034B9000||034B9400||||
+|-
+| 1497||034BA000||034BA010||||
+|-
+| 1498||034BB000||034BB010||||
+|-
+| 1499||034BC000||034BC010||||
+|-
+| 1500||034BD000||034BD010||||
+|-
+| 1501||034BE000||034BE010||||
+|-
+| 1502||034BF000||034BF010||||
+|-
+| 1503||034C0000||034C0010||||
+|-
+| 1504||034C1000||034C1010||||
+|-
+| 1505||034C2000||034C2010||||
+|-
+| 1506||034C3000||034C3010||||
+|-
+| 1507||034C4000||034C4010||||
+|-
+| 1508||034C5000||034C5010||||
+|-
+| 1509||034C6000||034C6040||||
+|}

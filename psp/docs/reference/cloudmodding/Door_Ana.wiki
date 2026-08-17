@@ -1,0 +1,26 @@
+{{actor|name=ovl_Door_Ana|ispage=true}}
+
+'''ovl_Door_Ana''' is the [[actor]] used for the secret [[Grottos]] that can be found around Hyrule.
+{{clear}}
+
+== General Notes ==
+Grottos are not as straightforward as they appear. Whenever you touch a grotto, Link's x,y,z coordinates, the the current [[entrance index]], and the current room number are saved to a specific spot in ram. This makes it possible to reuse the same grotto in multiple scenes, and be able to return to the correct location.
+
+Additionally, there exists a "generic" grotto contains a single chest. The contents of this chest and the chest's bound switch flag can be set via the grotto's initialization variable. This part of the initialization variable is saved in a specific part of memory, which is then read by an instance of the {{actor ref|0181}} actor, which uses the data to spawn instance of {{actor ref|000A}}
+
+When you die in a grotto, you spawn somewhere weird, and i forget how this works.
+
+When you cast Farore's Wind in a grotto (probably checks scenes 60 and 62), the return point information is set based on Link's previous "checkpoint" before entering the grotto.
+== NTSC 1.0 notes ==
+
+9B code (file at 2690)
+<pre>
+2974 <- return point after storing grotto coords
+29A0 = Store lower byte of actor varible (11B967)
+29A4 = Load Z rotation v0
+29A8 = Increment 1
+29B4 = Load Entrance Index to t5
+29D0 = Store Entrance Index in next entrance (1DA2BA)
+</pre>
+
+[[Category:Grottos]]

@@ -1,0 +1,39 @@
+{{actor|name=ovl_En_Ru2}}
+'''ovl_En_Ru2''' is the [[Ruto|Adult Ruto]] actor.
+{{clear}}
+[[Category:Ruto]]
+
+== NTSC 1.0 Notes ==
+ 0xD59538 - Water Medallion Cutscene
+
+== Debug Rom Notes ==
+ ROM: 0xEA8A80 (24050068) Water Medallion (From Sage Ruto)
+ ROM: 0xEA8AE4 (24050068) ?Real? Water Medallion from Sage Ruto.
+
+== Console Output Strings ==
+
+{{translate}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| ../z_en_ru2_inKenjyanomaDemo02.c||
+|-
+| ../z_en_ru2_inKenjyanomaDemo02.c||
+|-
+| En_Ru2_inEnding_Check_DemoMode:そんな動作は無い!!!!!!!!||
+|-
+| おれが小松だ！ ||
+|-
+| うおりゃー！ ||
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| [m../z_en_ru2.c||
+|-
+| ../z_en_ru2.c||
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| [m||
+|}

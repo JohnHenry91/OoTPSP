@@ -1,0 +1,12 @@
+{{actor|name=ovl_En_Bom|ispage=true}}
+
+'''ovl_En_Bom''' is the [[actor]] for [[bombs]].
+
+{{clear}}
+
+== File ==
+
+=== N1.0 ===
+
+ 0DCC - Smoke color (RGBA)
+[[Category:Bombs]]

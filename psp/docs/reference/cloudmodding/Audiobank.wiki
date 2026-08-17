@@ -1,0 +1,814 @@
+'''Audiobank''' probably contains data related to playing sound effects, while [[Audiotable]] possibly contains the raw sound effects themselves.  This page contains some notes on the structure of the Audiobank file created when running [[Zelda Resource Extractor]] on the Debug ROM. Beginning with NTSC 1.2, an additional 0xF370 bytes of padding were added to the end of the Audiobank file.
+
+== Beginning of file ==
+
+The first 32-bit value is an offset of the list of '''drum-index pointers''', and the second 32-bit value is an offset of list of '''soundeffect indexes'''.
+After that there is a series of 32-bit offsets to '''instrument indexes'''. If a 32-bit instrument value is empty that instrument index will be empty.
+
+== Audiobank Pointer Table ==
+
+{{address3|space=code|name=Audiobank Pointer Table
+|ver1=Debug|ref1=rom|start1=BCC270|size1=420
+|ver2=NTSC 1.0|ref2=ram|start2=113740|size2=420
+|ver3=NTSC 1.1|ref3=rom|start3=B89860|size3=420
+|ver4=NTSC 1.2|ref4=rom|start4=B89710|size4=420
+|ver5=PAL 1.0|ref5=rom|start5=B88E60|size5=420
+|ver6=PAL 1.1|ref6=rom|start6=B88EA0|size6=420
+|ver7=JP GC|ref7=rom|start7=B87DC0|size7=420
+|ver8=JP MQ|ref8=rom|start8=B87DA0|size8=420
+|ver9=USA GC|ref9=rom|start9=B87DA0|size9=420
+|ver10=USA MQ|ref10=rom|start10=B87D80|size10=420
+|ver11=PAL GC|ref11=rom|start11=B87590|size11=420
+|ver12=PAL MQ|ref12=rom|start12=B87570|size12=420
+|ver13=JP Collection|ref13=rom|start13=B87DA0|size13=420}}
+
+The Audiobank pointer table begins with an 0x10 byte header:  
+
+<syntaxhighlight lang="c#">
+/* 0x00 */ short NumberOfInstrumentSets = 0x26;
+/* 0x04 */ int Audiobank_VRomStartAddress; //ram only
+/* 0x08-0x0F is padded to 0 */
+</syntaxhighlight>
+
+Following that is a record for each set:
+
+<tt>xxxxxxxx yyyyyyyy zzzzzzzz nn aa bb cc</tt>
+ 
+* '''x''' = Offset (ROM) or [[VRom]] Pointer (RAM) to the start of the instrument set within the Audiobank file.
+* '''y''' = Size of the instrument set in bytes.
+* '''z''' = Index for a list at 0xBCCD90(debug), or 0xB8A1B0(1.0) which gives the base address to load samples from.
+* '''n''' = Number of instruments to be read. Can be less than total but not greater, and does not include percussion.
+* '''a''', '''b''', '''c''' = Flags of some sort, setting '''a''' to 0x40 enables percussion, 0 disables it and '''c''' is the number of sound effects.
+
+== Unknown_1 structure ==
+
+{| border="1" cellpadding="3"
+! size !! example value !! meaning
+|-
+| 32 bits
+| 00 00 7F FB
+00 00 7F BC
+| possibly a bit-field with flags
+|-
+| 32 bits
+| 00 00 2A 30
+| offset to structure Unknown_2
+|-
+| 64 bits
+| 00 00 00 00 00 00 00 00
+| Unknown, possibly padding
+|-
+| 32 bits
+| 00 00 01 80
+| offset to structure Unknown_3
+|-
+| 32 bits
+| 3F 30 66 66
+| Unknown
+|-
+| 64 bits
+| 00 00 00 00 00 00 00 00
+| Unknown, possibly padding
+|}
+
+== Unknown_2 ==
+Size: 16 bytes (128 bits)
+Example value: 00 01 7F BC 00 01 7F BC 7F BC 7F BC FF FF 00 00
+
+== Unknown_3 ==
+Size: 16 bytes
+{| border="1" cellpadding="3"
+! size !! example value !! meaning
+|-
+| 32 bits
+| 00 00 0A 8C
+| Unknown
+|-
+| 32 bits
+| 00 03 EC E0
+| Unknown
+|-
+| 32 bits
+| 00 00 02 40
+| Offset to an Unknown_4 structure, which is usually (but not always) immediately after this Unknown_3.
+|-
+| 32 bits
+| 00 00 01 90
+| Offset to an Unknown_5 structure.
+|}
+
+== Unknown_4 ==
+{| border="1" cellpadding="3"
+! size !! example value !! meaning
+|-
+| 32 bits
+| 00 00 00 00
+| Unknown
+|-
+| 32 bits
+| 00 00 12 C0
+| Unknown. Not an offset.
+|-
+| 64 bits
+| 00 00 00 00 00 00 00 00
+| Unknown
+|}
+00 00 00 00 00 00 12 C0 00 00 00 00 00 00 00 00
+
+== Unknown_5 structure ==
+
+{| border="1" cellpadding="3"
+! size !! example value !! meaning
+|-
+| 32 bits
+| 00 00 00 02
+| a header of some sort, or maybe flags?
+|-
+| 32 bits
+| 00 00 00 02
+00 00 00 04
+| block size, adjusts how long the data block is
+|-
+| X bits
+| F8 72 F6 D0 FB F5 03 C3 08 64 06 A8 00 2C F9 EC
+09 BB 04 48 FC 05 F7 1D F8 F4 FF D2 06 6F 08 00
+F8 C0 F6 34 F9 53 FF DB 05 DB 08 0B 05 91 00 3D
+0A D0 07 5E 00 29 F9 8A F7 20 F9 DB FF BD 05 37
+| size is 32x the block size defined by the previous set
+|-
+| 64 bits
+| 00 00 00 00 00 00 00 00
+| Very likely to be padding.
+|}
+
+==Channel Head==
+
+<pre>// -*- mode: c;-*-
+typedef struct{
+    local ubyte op;
+    local int breakout = 0;
+    local string warn;
+    while ( breakout == 0 ){
+        op = ReadUByte(FTell());
+        switch( op ){
+            case 0xC1:
+                SHCommand C1(1);
+                // C1 xx
+                // Sets the instrument number, xx, to be used for the current channel.
+                break;
+            case 0xC2:
+                SHCommand C2(1);
+                // C2 xx
+                // Transposition, signed. xx is the number of semitones to transpose by.
+                break;
+            case 0xC4:
+                SHCommand C4(0);
+                // Initialises the channel for music playback.
+                break;
+            case 0xD3:
+                SHCommand D3(2);
+                // D3 xx (yy)
+                // Pitch bend amount, signed, value of xx. yy is a timestamp used between control changes.
+                break;
+            case 0xD4:
+                SHCommand D4(1);
+                // D4 xx
+                // Effects level (echo). xx is the effect amount.
+                break;
+            case 0xD8:
+                SHCommand D8(2);
+                // D8 xx (yy)
+                // Vibrato amount, value of xx. Higher values can produce odd sounds. yy is a timestamp used between control changes.
+                break;
+            case 0xDD:
+                SHCommand DD(2);
+                // DD xx
+                // Channel pan. xx is the pan amount, 00 = hard left, 3F = centre, 7F = hard right.
+                break;
+            case 0xDF:
+                SHCommand DF(2);
+                // xx (yy)
+                // Channel volume. xx is the volume value, yy is a timestamp used between control changes (when the volume is changing constantly).
+                break;
+            case 0xE9:
+                SHCommand E9(1);
+                // E9 xx
+                // Priority. Unknown how it is used, takes the value of xx.
+            case 0x80: // unused?
+            case 0x81: // unused?
+            case 0x82: // unused?
+            case 0x83: // unused?
+            case 0x84: // unused?
+            case 0x85: // unused?
+            case 0x86: // unused?
+            case 0x87: // unused?
+            case 0x88:
+            case 0x89:
+            case 0x8A:
+            case 0x8B:
+            case 0x8C: // unused?
+            case 0x8D: // unused?
+            case 0x8E: // unused?
+            case 0x8F: // unused?
+                SHCommand EIGHTX(2);
+                // 8x yyyy
+                // Points to music data to be played on the current channel. x is the 'note layer' to be used (8 - B), up to a maximum of four note layers can be loaded per channel. yyyy is the offset of the music data to be played, relative to the start of the sequence file.
+                break;
+            case 0xFB:
+                SHCommand FB(2);
+                // xxxx
+                // Offset to loop from, xxxx is the offset relative to the start of the sequence file.
+                break;
+            case 0xFD:
+                // *** slave copy from SeqHead ***
+                if( ReadUByte(FTell()+1) > 0x7F ){
+                    SHCommand FD(2);
+                } else {
+                    SHCommand FD(1);
+                }
+                // FD xx / FD yyyy
+                // Timestamp (number of 'ticks' to wait before the next command is read, relative to tempo), variable length. If xx goes above 7F, add 8000 to it to get yyyy.
+                break;
+            case 0xFF:
+                // FF
+                // Marks the end of the channel header. 
+                SHCommand FF(0);
+                //breakout = 1;
+                break;
+            default:
+                SHCommand IDK(1);
+                SPrintf(warn, "\nWARNING: Unknown ChanHead opcode (0x%02L)!", op);
+                EXWarning(warn);
+                break;
+        }
+    }
+} ChanHead;</pre>
+
+{{source|DerrikeG}}
+
+==Instrument==
+
+<pre>// -*- mode: c;-*-
+/*
+    COVERAGE (ITEMS DONE):
+    ITEMS NOT DONE:
+    TableSample
+    Unknown2
+    SampleBlock
+    SampleHead
+    InstrumentSample
+    ElusiveRecord2
+    ElusiveRecord1
+    InstProperties
+    PercussionInstrumentIndex;
+    PercussionInstrument;
+    OtherInstrument
+*/
+
+typedef struct(ubyte sampleBank){
+    SIBE;
+    SIT;
+    ubyte unknown1 : 8;
+    if( unknown1 != 0 ){
+        Printf("WARNING: The first byte of a TableSample wasn't 0 (was %d) @ 0x%Lx\n", unknown1, FTell()-8);
+    }
+    SIT;
+    uint sampleSize : 24;
+    SIT;
+    uint offset; // from the Audiotable
+    SAVE;
+    FSeek( AUDIOTABLE + sampleTable.mySampRecords[sampleBank].offset + offset );
+    SIT;
+    ubyte audioSample;
+    //ubyte audioSample[sampleSize];
+    REST;
+    SIEND;
+} TableSample;
+
+// deathbasket structure 1
+typedef struct(uint seekPos){
+    SIBE;
+    SIT;
+    uint unknown1;
+    SIT;
+    uint unknown2;
+    if( unknown1 == 0 ){
+        SIT;
+        uint zeroes[2];
+    } else {
+        SIT;
+        uint FFs;
+        SIT;
+        uint zeroes;
+        SIT;
+        uint unknown3[8];
+    }
+    SIEND;
+} Unknown2;
+
+// deathbasket structure 2
+typedef struct(uint seekPos){
+    SIBE;
+    SIT;
+    uint type;
+    SIT;
+    uint blockSize;
+    SIT;
+    ubyte dataBlock[32 * blockSize];
+    SIEND;
+} SampleBlock;
+
+typedef struct(uint seekPos, ubyte sampleBank){
+    SIBE;
+    TableSample sampleFromTable(sampleBank);
+    SIT;
+    uint unknownPointer; //chunkFooter?!
+    SIT;
+    uint chunkPointer;
+    SAVE;
+    FSeek( seekPos + chunkPointer);
+    SampleBlock sampleData(seekPos);
+    REST;
+
+    SAVE;
+    FSeek( seekPos + unknownPointer );
+    Unknown2 unknown2(seekPos);
+    REST;
+    SIEND;
+} SampleHead;
+
+typedef struct(uint seekPos, ubyte sampleBank){
+    SIBE;
+    SIT;
+    uint sampleHead;
+    SIT;
+    float pitch;
+    SIT;
+    if( sampleHead > 0 ){
+        SAVE;
+        FSeek( seekPos + sampleHead );
+        SampleHead headSample(seekPos, sampleBank);
+        REST;
+    }
+    SIEND;
+} InstrumentSample;
+
+// elusive record 2
+typedef struct(uint seekPos, ubyte sampleBank){
+    SIBE;
+    SIT;
+    ubyte unknown1 : 8;
+    SIT;
+    uint  unknown2 : 24;
+    InstrumentSample sample(seekPos, sampleBank);
+    SIT;
+    uint  unknown5; // if it's a set-local pointer,
+                    // it's an instrumentProperties pointer
+    SIEND;
+} ElusiveRecord2;
+
+// elusive record 1
+typedef struct(uint seekPos, ubyte sampleBank){
+    SIBE;
+    local uint64 sizeToRead = (parentof(this).seek2 - parentof(this).seek1) / 4;
+    SIT;
+    uint er2Pointers[sizeToRead];
+    //SIT; // flip it so we don't odd-man-out the next var
+    local uint64 i;
+    for( i = 0; i < sizeToRead; i++ ){
+        if( er2Pointers[i] > 0){
+            SAVE;
+            FSeek( seekPos + er2Pointers[i] );
+            ElusiveRecord2 er2(seekPos, sampleBank);
+            REST;
+        }
+    }
+    SIEND;
+} ElusiveRecord1;
+
+typedef struct{
+    SIBE;
+    SIT;
+    ushort props[8];
+    SIEND;
+} InstProperties;
+
+// everything below this definitely belongs in this file
+
+typedef struct(uint seekPos, ubyte sampleBank){
+    SIBE;
+    SIT;
+    ubyte unknown1[4];
+    InstrumentSample sample(seekPos, sampleBank);
+    SIT;
+    uint instPropertiesPointer;
+    /*
+        xxxxxxxx zzzzzzzz pppppppp yyyyyyyy
+         
+        x = Unknown.
+        zzzzzzzz = Pointer to unknown data structure.
+        pppppppp = Default sample pitch.
+        yyyyyyyy = Pointer to instrument properties.
+    */
+    /*
+    if( pointerToUnknown > 0 ){
+        SAVE;
+        FSeek( seekPos + pointerToUnknown );
+        SampleHead headSample(seekPos);
+        REST;
+    }
+    */
+    SAVE;
+    FSeek( seekPos + instPropertiesPointer );
+    InstProperties properties;
+    REST;
+    SIEND;
+} PercussionInstrumentIndex;
+
+typedef struct(uint seekPos, ubyte sampleBank){
+    SIBE;
+    SIT;
+    local uint64 numRecords = 64;
+    local uint64 j;
+    uint instrumentRecords[numRecords];
+    for( j = 0; j < numRecords; j++ ){
+        SAVE;
+        FSeek( seekPos + instrumentRecords[j] );
+        PercussionInstrumentIndex myInstruments(seekPos, sampleBank);
+        REST;
+    }
+    SIEND;
+} PercussionInstrument;
+
+typedef struct(uint seekPos, ubyte sampleBank){
+    SIBE;
+    SIT;
+    ubyte startNoteNumbers[3];
+    SIT;
+    ubyte maybeDecay;
+    SIT;
+    uint instPropertiesPointer;
+    SAVE;
+    FSeek( seekPos + instPropertiesPointer );
+    InstProperties properties;
+    REST;
+    InstrumentSample samples(seekPos, sampleBank)[3]<optimize=false>;
+    SIEND;
+} OtherInstrument;</pre>
+
+{{source|DerrikeG}}
+
+==Instrument Set==
+
+<pre>// -*- mode: c;-*-
+/*
+    COVERAGE (ITEMS DONE):
+    InstrumentSetTable
+    InstrumentSet
+    ITEMS NOT DONE:
+    InstrumentSetData
+*/
+
+typedef struct {
+    SIBE;
+    local uint64 i;
+    /* 
+    the value of Seek1 is valid relative to itself,
+    wherein it points to a list of relative pointers
+    */
+    SIT;
+    uint seek1;
+
+    SIT;
+    uint seek2;
+
+    if(parentof(this).unknown1.bit2 || parentof(this).unknown1.bit4 || parentof(this).unknown1.bit6 || parentof(this).unknown1.bit8){
+        AssertUIntGTZero(seek1, "InstrumentSetData->seek1");
+
+        SAVE;
+        FSeek( startof(this) + seek1 );
+        if(!parentof(this).unknown1.bit2){
+            ElusiveRecord1 er1(startof(this), parentof(this).sampleBank);
+        } else {
+            PercussionInstrument myInstruments(startof(this), parentof(this).sampleBank);
+        }
+        REST;
+    }
+
+
+    if(parentof(this).unknown1.bit4 || parentof(this).unknown1.bit6 || parentof(this).unknown1.bit8){
+        AssertUIntGTZero(seek2, "InstrumentSetData->seek2 [non-drums do not blank]");
+        SAVE;
+        FSeek( startof(this) + seek2 );
+        for( i = 0; i < numExtraInstrumentSamples; i++ ){
+            InstrumentSample extraInstrumentSamples(startof(this), parentof(this).sampleBank);
+        }
+        REST;
+    } else if(parentof(this).unknown1.bit2){
+        AssertNumberEquals(seek2, 0, "InstrumentSetData->seek2 [drums should be blank]");
+    }
+
+    SIT;
+    uint myInstrumentLocations[ parentof(this).numInstruments ];
+    
+    // iterate through all the instruments
+    for( i = 0; i < parentof(this).numInstruments; i++ ){
+        if( myInstrumentLocations[ i ] != 0 ){
+            SAVE;
+            FSeek( startof(this) + myInstrumentLocations[ i ] );
+            //FSeek( AUDIOBANK + aBankOffset + myInstrumentLocations[ i ] );
+            OtherInstrument myInstruments(startof(this), parentof(this).sampleBank);
+            REST;
+        } else {
+            //AssertUIntGTZero( myInstrumentLocations[ i ], "InstrumentSetData->myInstrumentLocations[]" );
+        }
+    }
+    SIEND;
+} InstrumentSetData;
+
+typedef struct {
+    SIBE;
+    SIT;
+    uint offset; // relative to AUDIOBANK
+    SIT;
+    uint size;
+    SIT;
+    ubyte majorVersion;
+    //AssertNumberEquals(majorVersion, 2, "InstrumentSet->majorVersion");
+    SIT;
+    ubyte minorVersion;
+    AssertNumberInBetween(minorVersion, 0, 2, "InstrumentSet->minorVersion");
+    SIT;
+    ubyte sampleBank<comment="This corresponds with SampleTable->mySampRecords[#]">;
+    AssertNumberInBetween(sampleBank, 0, sampleTable.numSamps, "InstrumentSet->sampleBank");
+    SIT;
+    ubyte unknown2;
+    AssertNumberEquals(unknown2, 0xFF, "InstrumentSet->unknown2 (NOT PADDING!!!)");
+    /*
+    The third byte is an index for a list at 
+    SAMPLES which gives the base address to load
+    samples from. What is the purpose of this? Well
+    apparently just to be a pain in the arse, 
+    because taking these numbers and adding them to sample 
+    pointers will load that sample perfectly if the index
+    is changed to 1, which has a base address of zero and 
+    is what most instrument sets use. Only four sets seem 
+    to actually do this though, namely the:
+    Deku Tree, Jabu-Jabu's belly, Goron City and the Spirit Temple.
+    Super Mario 64 does something similar but it affects every single instrument set in the game.
+    */
+    //Number of instruments to be read (can be less than total but 
+    // not greater, does not include percussion).
+    SIT;
+    ubyte numInstruments;
+    AssertUIntGTZero(numInstruments, "InstrumentSet->numInstruments");
+    SIT;
+    BitEight unknown1;         // aa
+    AssertNumberEquals(unknown1.bit1, 0, "InstrumentSet->unknown1->bit1");
+    // AssertNumberEquals(unknown1.bit2, 0, "InstrumentSet->unknown1->bit2");
+    AssertNumberEquals(unknown1.bit3, 0, "InstrumentSet->unknown1->bit3");
+    //AssertNumberEquals(unknown1.bit4, 0, "InstrumentSet->unknown1->bit4");
+    AssertNumberEquals(unknown1.bit5, 0, "InstrumentSet->unknown1->bit5");
+    //AssertNumberEquals(unknown1.bit6, 0, "InstrumentSet->unknown1->bit6");
+    AssertNumberEquals(unknown1.bit7, 0, "InstrumentSet->unknown1->bit7");
+    //AssertNumberEquals(unknown1.bit8, 0, "InstrumentSet->unknown1->bit8");
+    /*
+    aa = a bitrange
+    only bits 6 8 and 2 are used at any given time
+    bit 2 handles percussion
+        * dOoTMQ_E_debug
+        * dMM_E_debug
+    bit 4 is only ever set on the first record
+        * dMM_E_debug
+    bit 6 is only ever set on the first record
+        * dOoTMQ_E_debug
+    bit 8 is only ever set on the second record
+        * dOoTMQ_E_debug
+        * dMM_E_debug
+    */
+
+    SIT;
+    ushort numExtraInstrumentSamples;
+
+    /*
+    foreach on the number of instruments
+    */
+    SAVE;
+    FSeek( AUDIOBANK + offset );
+    InstrumentSetData myData;
+    REST;
+    SIEND;
+} InstrumentSet;
+
+typedef struct {
+    SIBE;
+    SIT;
+    ushort numInstrumentSets;
+    SIT;
+    ubyte  instrumentSetPadding[14];
+    AssertUBytesNull( instrumentSetPadding, "instrumentSetPadding" );
+
+    EXWarning("OPTIMIZE FIX: InstrumentSetTable->myInstrumentSets (InstrumentSet)");
+    InstrumentSet myInstrumentSets[numInstrumentSets]<optimize=false>;
+    SIEND;
+} InstrumentSetTable;</pre>
+
+{{source|DerrikeG}}
+
+==Sample==
+
+<pre>// -*- mode: c;-*-
+typedef struct {
+    SIBE;
+    SIT;
+    uint offset; // relative to AUDIOTABLE
+    SIT;
+    uint size;
+    SIT;
+    ubyte unk1;
+    AssertNumberEquals( unk1, 2, "SampRecord->unk1" );
+    SIT;
+    ubyte unk2;
+    AssertNumberEquals( unk2, 4, "SampRecord->unk2" );
+    SIT;
+    ubyte zeroes[6];
+    AssertUBytesNull( zeroes, "SampRecord->zeroes" ); 
+    SIEND;
+} SampRecord;
+
+typedef struct {
+    SIBE;
+    SIT;
+    ushort numSamps;
+    SIT;
+    ubyte  numSampsPadding[14];
+    AssertUBytesNull( numSampsPadding, "numSampsPadding" );
+
+    SIT;
+
+    EXWarning("OPTIMIZE FIX: SampleTable->mySampRecords (SampRecord)");
+    SampRecord mySampRecords[numSamps]<optimize=false>;
+    SIEND;
+} SampleTable;</pre>
+
+{{source|DerrikeG}}
+
+==Sequence==
+
+<pre>// -*- mode: c;-*-
+struct SeqHead;
+
+local uint doWalkThrough = 0;
+local ushort seqNo = 0;
+typedef struct {
+    SIT;
+    /* offset relative to start of audioseq file */
+    uint relative_offset;     
+    SIT;
+    /* length in bytes */
+    uint length;              
+    SIT;
+    /* 0x02000000, 0x02010000, 0x02020000 */
+    uint seq_type;            
+    SIT;
+    ubyte padding[4];             
+    AssertUBytesNull( padding, "SequenceRecord->padding" ); 
+
+    SAVE;
+    SetBackColor( cPurple );
+    FSeek(AUDIOSEQ + relative_offset);
+    SeqHead microcode;
+    REST;
+} SequenceRecord;
+
+typedef struct {
+    SIT;
+    ushort numSeqs;
+    SIT;
+    ubyte  numSeqsPadding[14];
+    AssertUBytesNull( numSeqsPadding, "numSeqsPadding" );
+
+    EXWarning("OPTIMIZE FIX: SequenceTable->mySequenceRecords (SequenceRecord)");
+    SequenceRecord mySequenceRecords[numSeqs]<optimize=false>;
+} SequenceTable;</pre>
+
+{{source|DerrikeG}}
+
+==Sequence Head==
+
+<pre>// -*- mode: c;-*-
+typedef struct (uint noArgs){
+    SIT;
+    ubyte command;
+    local uint64 i;
+    for( i = 0; i < noArgs; i++ ){
+        SIT;
+        ubyte arg;
+    }
+} SHCommand;
+
+typedef struct {
+    /*
+        Sequence Header Commands[edit]
+        
+        Note: some sequences have the following data after the first four bytes of their sequence header:
+        D7FFFF 8776CCFF7786F3 vv F2 ww C801F3 xx [C801FA yyyy] FB zzzz
+        v, w and x are unknowns, y and z seem to be pointers to 9x commands for different parts of the sequence within the sequence header. The part in square brackets is repeated in some sequences. Its purpose is currently unknown but it may be to do with continuing playback mid-sequence after returning to the area from a house/shop.
+        
+        https://github.com/sauraen/seq64/blob/master/romdesc/mm_info.xml
+        https://sites.google.com/site/messiaen64/toads-music-incomplete
+        https://sites.google.com/site/messiaen64/differences-between-sseq-nds-and-mario64-seq-format
+        https://sites.google.com/site/messiaen64/mario-64-sequenced-music-specification
+    */
+    local ubyte op;
+    local ubyte breakout = 0;
+    local string warn;
+    while ( breakout == 0 ){
+        op = ReadUByte(FTell());
+        switch( op ){
+            case 0xCC:
+                SHCommand CC(2);
+                // yyxx
+                // Unknown. yy starts at zero and increases each time the command appears, xx is (always?) 73.
+                break;
+            case 0xD3:
+                SHCommand D3(1);
+                // xx
+                //Seems to be something to do with the sequence type or format; for Super Mario 64, xx is usually 80, for Zelda 64, xx is usually 20.
+                break;
+            case 0xD5:
+                SHCommand D5(1);
+                // xx
+                // Unknown. xx usually takes the value of 32. For sequences that don't play any music xx is 46.
+                break;
+            case 0xD6:
+                SHCommand D6(2);
+                // xxxx
+                // Disables channels given by xxxx.
+                break;
+            case 0xD7:
+                SHCommand D7(2);
+                // xxxx
+                // Enables channels given by xxxx (boolean, each channel is one bit).
+                break;
+            case 0xDB:
+                SHCommand DB(1);
+                // xx
+                // Master volume control, xx is the volume.
+                break;
+            case 0xDD:
+                SHCommand DD(1);
+                // xx
+                // Tempo control, xx is the tempo value in beats per minute.
+                break;
+            case 0x90:
+            case 0x91:
+            case 0x92:
+            case 0x93:
+            case 0x94:
+            case 0x95:
+            case 0x96:
+            case 0x97:
+            case 0x98:
+            case 0x99:
+            case 0x9A:
+            case 0x9B:
+            case 0x9C:
+            case 0x9D:
+            case 0x9E:
+            case 0x9F:
+                SHCommand NINEX(2);
+                // yyyy
+                // Points to a channel header offset. 9X is the channel number (0 - F) and yyyy is the offset of that channel's header relative to the start of the sequence file.
+                break;
+            case 0xFB:
+                SHCommand FB(2);
+                // xxxx
+                // Offset to loop from, xxxx is the offset relative to the start of the sequence file.
+                break;
+            case 0xFD:
+                if( ReadUByte(FTell()+1) > 0x7F ){
+                    SHCommand FD(2);
+                } else {
+                    SHCommand FD(1);
+                }
+                // FD xx / FD yyyy
+                // Timestamp (number of 'ticks' to wait before the next command is read, relative to tempo), variable length. If xx goes above 7F, add 8000 to it to get yyyy.
+                break;
+            case 0xFF:
+                SHCommand FF(0);
+                breakout = 1;
+                break;
+            default:
+                SHCommand IDK(1);
+                SPrintf(warn, "WARNING: Unknown SeqHead opcode (0x%02LX)!", op);
+                EXWarning(warn);
+                break;
+        }
+    }
+} SeqHead;</pre>
+
+{{source|DerrikeG}}
+
+[[Category:Audio]]
+[[Category:File Formats]]

@@ -306,13 +306,27 @@ void EffectSs_Draw(PlayState* play, s32 index) {
     }
 }
 
+#if TARGET_PSP
+u32 gPspEffectProbe[8] = { 0 };
+#endif
+
 // original name: "EffectSoftSprite2_disp"
 void EffectSs_DrawAll(PlayState* play) {
-    Lights* lights = LightContext_NewLights(&play->lightCtx, play->state.gfxCtx);
+    Lights* lights;
     s32 i;
 
+    /* Fine markers: the pivot-view fault lands somewhere at or after this
+     * function, and its first three statements each touch memory that could be
+     * bad (a fresh Lights allocation, then a walk of lightCtx.listHead). */
+    gPspEffectProbe[0] = 1;
+    lights = LightContext_NewLights(&play->lightCtx, play->state.gfxCtx);
+    gPspEffectProbe[1] = (u32)(uintptr_t)lights;
+    gPspEffectProbe[0] = 2;
     Lights_BindAll(lights, play->lightCtx.listHead, NULL);
+    gPspEffectProbe[0] = 3;
     Lights_Draw(lights, play->state.gfxCtx);
+    gPspEffectProbe[0] = 4;
+    gPspEffectProbe[2] = (u32)sEffectSsInfo.tableSize;
 
     for (i = 0; i < sEffectSsInfo.tableSize; i++) {
         if (sEffectSsInfo.table[i].life > -1) {
@@ -335,7 +349,12 @@ void EffectSs_DrawAll(PlayState* play) {
 
                 EffectSs_Delete(&sEffectSsInfo.table[i]);
             } else {
+                gPspEffectProbe[3] = (u32)i;
+                gPspEffectProbe[4] = (u32)sEffectSsInfo.table[i].type;
+                gPspEffectProbe[5] = (u32)(uintptr_t)sEffectSsInfo.table[i].draw;
+                gPspEffectProbe[6]++;
                 EffectSs_Draw(play, i);
+                gPspEffectProbe[7]++;
             }
         }
     }

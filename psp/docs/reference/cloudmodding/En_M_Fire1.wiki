@@ -1,0 +1,13 @@
+{{actor|name=ovl_En_M_Fire1|ispage=true}}
+
+'''ovl_En_M_Fire1''' is the actor that manages the [[Deku Nut]] attack. When Link begins to toss a Deku Nut, it actually begins as an {{actor ref|0016}} spawn, before the Arrow actor spawns the Deku Nut actor.
+
+== NTSC 1.0 Notes ==
+=== Instance Variables ===
+{|class="wikitable"
+! Offset || Type || Description
+|-
+| 0x13C || struct (0x4C bytes) || [[Collision|Simple Body Collision struct]]
+|-
+| 0x188 || float || Unknown
+|}

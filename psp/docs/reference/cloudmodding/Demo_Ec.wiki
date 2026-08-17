@@ -1,0 +1,25 @@
+{{Actor|name=ovl_Demo_Ec|ispage=true}}
+
+'''ovl_Demo_Ec''' is the [[actor]] for NPCs in the ending cutscene.
+
+{{todo|Double check if this statement is true.}}
+
+{{clear}}
+
+== Console Output Strings ==
+
+{{consolestrings
+|row1= <font color="red">Demo_Ec_Actor_ct:arg_dataがおかしい!!!!!!!!!!!!</font>{{!!}}<font color="red">Demo_Ec_Actor_ct:arg_data IS ABNORMAL!!!!!!!!!!!!</font>
+|row2= ../z_demo_ec.c{{!!}}../z_demo_ec.c
+|row3= ../z_demo_ec.c{{!!}}../z_demo_ec.c
+|row4= ../z_demo_ec.c{{!!}}../z_demo_ec.c
+|row5= ../z_demo_ec.c{{!!}}../z_demo_ec.c
+|row6= ../z_demo_ec.c{{!!}}../z_demo_ec.c
+|row7= ../z_demo_ec.c{{!!}}../z_demo_ec.c
+|row8= <font color="red">かつらが無い!!!!!!!!!!!!!!!!</font>{{!!}}<font color="red">TREE DOES NOT EXIST!!!!!!!!!!!!!!!!</font>
+|row9= <font color="red">かつらが無い!!!!!!!!!!!!!!!!</font>{{!!}}<font color="red">TREE DOES NOT EXIST!!!!!!!!!!!!!!!!</font>
+|row10= <font color="red"> Demo_Ec_main_init:初期化処理がおかしいarg_data = %d</font>{{!!}}<font color="red"> Demo_Ec_main_init: INITIALIZATION PROCESSING IS ABNORMAL arg_data = %d</font>
+|row11= <font color="red">Demo_Ec_main_bank:バンクを読めない arg_data = %d!</font>{{!!}}<font color="red">Demo_Ec_main_bank: CAN'T READ BANK arg_data = %d!</font>
+|row12= <font color="red">メインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!</font>{{!!}}<font color="red">MAIN MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!!</font>
+|row13= <font color="red">描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!{{!!}}<font color="red">DRAW MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!!
+}}

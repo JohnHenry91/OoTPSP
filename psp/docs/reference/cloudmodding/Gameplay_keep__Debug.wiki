@@ -1,0 +1,3277 @@
+{{subpage}}
+
+Some of the content in NTSC 1.0's gameplay_keep is not present in the Debug ROM. Removed entries are indicated by the presence of <span style="color: red;">[Removed]</span> in the Start column.
+
+{| class="wikitable" style="text-align: center; font-family: monospace; margin: left;"
+! Start || End || style="width: 5%;" | Type || Identification || Ref. || Notes || Type || Size
+|-
+| 00000000
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x16
+|-
+| 00000200
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x16
+|-
+| 00000400
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Hylian Shield
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x64
+|-
+| 00001400
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Ocarina of Time
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x16
+|-
+| 00001800
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x16
+|-
+| 00001A00
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Is this actually a texture in Debug?
+| i8
+| 8x8
+|-
+| 00001A40
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x16
+|-
+| 00001C40
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 00001D40
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 00001F40
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 000035C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Debug Triangle [?]
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000035F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Circle
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 000036F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Ball
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 000037F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Cursor
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 000038F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | X
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 000039F0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Debug Arrow
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00003C90
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Debug Camera
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00003FC8
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Checkered Floor
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00004058
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Checkered Floor
+| ✘
+| style="text-align: left;" |
+| ia4
+| 32x32
+|-
+| 00004290
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| ✘
+| style="text-align: left;" | Blank square. Visible from one side only. Seems to take on environment textures.
+| 
+| 
+|-
+| 00004380
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Arrow - Shaft
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 16x128
+|-
+| 00005380
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Arrow - Fletching
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x16
+|-
+| 00005AA0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Arrow - High-Poly
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00005E20
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Arrow - Low-Poly
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00006020
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x32
+|-
+| 00006820
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Bomb - Body
+| ✔
+| style="text-align: left;" |
+| ia8
+| 64x64
+|-
+| 00007860
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Bomb - Body
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000078F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Bomb - Cap
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 8x8
+|-
+| 00007A50
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Bomb - Cap
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00007B10
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Bombchu
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 8x8
+|-
+| 00007E10
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Bombchu
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00007F80
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bomb & Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 00008780
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bomb & Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 00008F80
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bomb & Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 00009780
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bomb & Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 00009F80
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 0000A780
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 0000AF80
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 0000B780
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 0000BF80
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Bomb & Ss_Bomb2
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0000BFE0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| ✘
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0000C040
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Bomb2
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0000C0D0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Hahen
+| 
+| style="text-align: left;" | Try blowing up a boulder and see if it results in this. [!]
+| 
+| 
+|-
+| 0000C160
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Hahen
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x16
+|-
+| 0000C690
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| ✘
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0000C698
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Boomerang I
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0000C808
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Boomerang II
+| 
+| style="text-align: left;" | What's the difference between these two?
+| 
+| 
+|-
+| 0000C820
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| ✘
+| style="text-align: left;" | Nothing [?] Textures suggest it's a hookshot chain, but nothing appears...
+| 
+| 
+|-
+| 0000CB70
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Indicator Arrow
+| 
+| style="text-align: left;" | For pointing out things you can interact with.
+| 
+| 
+|-
+| 0000CC80
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 8x8
+|-
+| 0000CD80
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Hahen
+| 
+| style="text-align: left;" | Also referenced by Bg_Haka_Tubo.
+| 
+| 
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Hookshot Chain
+| ✘
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0000CDC0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Shop -『 Reticule
+| 
+| style="text-align: left;" |
+| ia4
+| 16x16
+|-
+| 0000CE40
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Shop - Control Stick Icon
+| 
+| style="text-align: left;" |
+| ia8
+| 16x16
+|-
+| 0000CF40
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Shop - Arrow Icon
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0000D240
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Goron Rock - Fragment
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0000D340
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Goron Rock
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0000D4E0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Goron Rock I [?]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0000DCE0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Goron Rock II [?]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0000EC30
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Forest Temple Door - Frame [?]
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0000ECB0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Forest Temple Door - Handle on Right
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0000EE00
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Forest Temple Door - Handle on Left
+| 
+| style="text-align: left;" | Referenced by En_Door.
+| 
+| 
+|-
+| 0000EF30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Forest Temple Door
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x64
+|-
+| 00010050
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" | Also referenced by Demo_Kankyo and Object_Kankyo.
+| 
+| 
+|-
+| 00010130
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Sparkle Mote I [?]
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000101A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Sparkle Mote II [?]
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00010220
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 00011230
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x32
+|-
+| 00011A30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x32
+|-
+| 00012570
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | En_M_Thunder I
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00012690
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | En_M_Thunder II
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00012AF0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | En_M_Thunder III
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00012C10
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | En_M_Thunder IV
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00012D30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00013130
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00013610
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | En_M_Thunder V
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00013700
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00013F00
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000149C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| ✘
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00014BC0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Navi Wing
+| ✔
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00015400
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Navi - Top Wing I
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000154C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Navi - Top Wing II
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00015590
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Navi - Bottom Wing I
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00015650
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Navi - Bottom Wing II
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00015720
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?] Referenced by code.
+| 
+| 
+|-
+| 00015760
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank square that seems to always face the camera. Can't be viewed head-on, can only be seen peripherally. Referenced by code.
+| 
+| 
+|-
+| 00015780
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Demo_6K
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00015960
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Navi Wing [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x64
+|-
+| 00016A50
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i4
+| 16x16
+|-
+| 00016AD0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 00016BD0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 000173D0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00017BD0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000184B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Fcircle
+| 
+| style="text-align: left;" | [Freeze] Also referenced by Bg_Haka_Tubo, Bg_Hidan_Curtain, and Boss_Sst.
+| 
+| 
+|-
+| 000188B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Fish - Tail
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00018950
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?] Texture suggests it's a fish body, but nothing appears...
+| 
+| 
+|-
+| 00018A60
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Fish - Back Half
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00018B80
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Fish - Tail
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x16
+|-
+| 00018D80
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Fish - Body
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x8
+|-
+| 000190B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Blast
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 0001A0B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Blast
+| 
+| style="text-align: left;" | Explosion blast ring.
+| 
+| 
+|-
+| 0001A160
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Bubble, Effect_Ss_Dt_Bubble, Effect_Ss_Sibuki
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0001A220
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001A620
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001AA20
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001AE20
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001B220
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001B620
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001BA20
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001BE20
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| ✘
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001C220
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0001C2C0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001C6C0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001CAC0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001CEC0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001D2C0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001D6C0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001DAC0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001DEC0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001E2C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0001E370
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 0001F370
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001F4F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001F670
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001F7F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001F970
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001FAF0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001FC70
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001FDF0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001FF70
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 000200F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020270
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 000203F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020570
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 000206F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| i8
+| 16x24
+|-
+| 00020870
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 000209F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020B70
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020E70
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020FF0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021170
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 000212F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021470
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 000215F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| i8
+| 16x24
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| ✘
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| ✘
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021770
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00021810
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00022010
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00022810
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 00023810
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00023990
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00023B10
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00023C90
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00023E10
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00023F90
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00024110
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00024290
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00024410
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000244B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Ripple
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 000254B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_G_Ripple
+| 
+| style="text-align: left;" | Appears as a flat black square with the ripple texture.
+| 
+| 
+|-
+| 00025550
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_G_Spk
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000255F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00025AF0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00025FF0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 000264F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 000269F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00026EF0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 000273F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 000278F0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00027DF0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00027E90
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00028290
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00028690
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00028A90
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00028E90
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00029290
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00029690
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00029A90
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| ✘
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00029E90
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00029F30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002A530
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002AB30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002B130
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002B730
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002BD30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002C330
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002C930
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002CF30
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" | Also referenced by Object_Kankyo.
+| 
+| 
+|-
+| 0002CFE0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002D7E0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002DFE0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002E7E0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002EFE0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002F7E0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002FFE0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000307E0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00030FE0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000317E0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00031FE0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00032090
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00032490
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00032890
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00032C90
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Kakera & Ss_Shard & Ss_En_Ice
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00033090
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00033720
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Kakera & Ss_Shard
+| 
+| style="text-align: left;" | [Freeze] Effect_Ss_Ice_Piece [?]
+| 
+| 
+|-
+| 00033810
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_En_Ice
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00033EE0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Kakera & Ss_Shard & Ss_En_Ice
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00034210
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000342B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000342C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034300
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000343A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000343B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000343F0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034490
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000344A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000344E0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034580
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034590
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000345D0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034670
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034680
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000346C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034760
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034770
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000347B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034850
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034860
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000348A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034940
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034950
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034990
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Body
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034A30
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Body
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034A40
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Insect - Body
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034B20
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Insect - Body
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x64
+|-
+| 00035320
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 8x16
+|-
+| 000355E0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Regenerating Grass - Stalk
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000356A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Regenerating Grass - Tip
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00035730
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Regenerating Grass - Stalk
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00035F30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Regenerating Grass - Tip
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00036730
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i4
+| 64x64
+|-
+| 00036F30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i4
+| 64x64
+|-
+| 00037730
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Dead_Dd & Ss_Dead_Ds
+| 
+| style="text-align: left;" | Appears as a flat black square with a white circle texture.
+| 
+| 
+|-
+| 00037790
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| ✘
+| style="text-align: left;" | Appears as a flat black square with a white ring texture.
+| 
+| 
+|-
+| 00037880
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_KiraKira
+| ✔
+| style="text-align: left;" | Navi sparkle.
+| 
+| 
+|-
+| 000378E0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_KiraKira
+| ✔
+| style="text-align: left;" |
+| i4
+| 16x16
+|-
+| 00037960
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 00037B60
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 00037E30
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze] Referenced by player_actor.
+| 
+| 
+|-
+| 00037F00
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Moon
+| ✔
+| style="text-align: left;" |
+| ia16
+| 32x64
+|-
+| 00038F00
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Moon
+| ✔
+| style="text-align: left;" | Blank rectangle with moon texture applied that seems to always face the camera. Can't be viewed head-on, can only be seen peripherally.
+| 
+| 
+|-
+| 00038FB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| ✘
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Item Drop - Bomb [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Item Drop - Recovery Heart [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Item Drop - Arrow [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00039660
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Grey Rock - Medium Angular
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00039890
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Grey Rock - Large Vertical Rectangle
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00039C00
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Grey Rock - Small Vertical Rectangle
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00039F70
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Grey Rock - Small Horizontal Rectangle
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003A2D0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Grey Rock - Large Horizontal Rectangle
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003A630
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Grey Rock - Tiny Cube
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003A9B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Stump
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003AB80
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Grass [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003AC30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 0003B030
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Piece of Heart - Interior [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003BBA0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Piece of Heart - Exterior [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003BCD0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Heart Container - Interior [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Heart Container - Exterior [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Heart Container - Shell [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Item Drop - Heart Container [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003C050
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Square Sign
+| ✔
+| style="text-align: left;" | Doesn't change its height to suit Child Link when loaded directly.
+| 
+| 
+|-
+| 0003C5B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Directional Sign
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003C870
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Arrow x2
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003D070
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Arrow x1
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003D870
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Arrow x3
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003E070
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Bomb
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| style="color: red;" | [Removed]
+| 
+| 
+| style="text-align: left;" | Item Drop - Bombchu
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| style="color: red;" | [Removed]
+| 
+| 
+| style="text-align: left;" | Item Drop - Bomb Bag
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003E870
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Recovery Heart
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| style="color: red;" | [Removed]
+| 
+| 
+| style="text-align: left;" | Item Drop - Piece of Heart
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003F070
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| 
+| style="text-align: left;" | Nothing [?] Referenced by En_Hintnuts.
+| 
+| 
+|-
+| 0003F140
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Small Key
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003F940
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Small Magic Jar
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00040140
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Deku Nut
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00040940
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Deku Seeds
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00041140
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Deku Stick
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00041940
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Large Magic Jar
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00042140
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Green Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00042160
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Blue Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00042180
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Red Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 000421A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Pink Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 000421C0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Orange Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 000421E0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Silver Rupee
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00042440
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Black Rupee shape.
+| 
+| 
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Recovery Heart [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Bomb [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Arrow [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00042510
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Red Rupee [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Green Rupee [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Heart Container [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| style="color: red;" | [Removed]
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00042530
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Grey Stone Block I
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00042D30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Grey Stone Block II
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00043530
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Stump - Top
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00043D30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Stump - Side
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00044530
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Grass [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 64x32
+|-
+| 00045530
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00045D30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00046530
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Square Sign - Side
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x16
+|-
+| 00046930
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Square Sign - Top
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x16
+|-
+| 00046D30
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Square Sign - Post
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 64x8
+|-
+| 00047130
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Directional Sign
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 64x32
+|-
+| 00048160
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?] Referenced by code.
+| 
+| 
+|-
+| 00048180
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Teardrop Shadow
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 00048210
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Teardrop Shadow
+| 
+| style="text-align: left;" |
+| ia16
+| 32x64
+|-
+| 00049210
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Circular Shadow
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00049290
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Circular Shadow
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 00049AD0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Horse Shadow
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00049B20
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Horse Shadow
+| 
+| style="text-align: left;" |
+| i8
+| 16x64
+|-
+| 00049FE0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Dungeon Door Shutter [?]
+| 
+| style="text-align: left;" | Referenced by Bg_Mori_Hineri.
+| 
+| 
+|-
+| 0004A090
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Dungeon Door Bar
+| 
+| style="text-align: left;" |
+| ia8
+| 32x128
+|-
+| 0004B0D0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Dungeon Door Bars
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0004B160
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Dungeon Door Shutter
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x64
+|-
+| 0004C160
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Sun I
+| ✔
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0004C960
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Sun II
+| ✔
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0004D160
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?] Referenced by Object_Kankyo.
+| 
+| 
+|-
+| 0004D1A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| ✘
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0004D1C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Sun I & Sun II [?]
+| ✔
+| style="text-align: left;" | Nothing [?] Referenced by code.
+| 
+| 
+|-
+| 0004D450
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?] Referenced by code.
+| 
+| 
+|-
+| 0004D4E0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_Fire_Tail & Ss_En_Fire & Ss_K_Fire
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 0004D5A0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Effect_Ss_K_Fire
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 0004D660
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_K_Fire
+| 
+| style="text-align: left;" |
+| i8
+| 32x128
+|-
+| 0004DE60
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Fire_Tail & Ss_En_Fire & Ss_K_Fire
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0004F2B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Bang Shape I
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0004F630
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Bang Shape II
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000502E0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Cloud Shape I
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00050600
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Cloud Shape II
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00051280
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Round Shape I
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00051590
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Round Shape II
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000515B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | ADLEZ
+| ✘
+| style="text-align: left;" |
+| i8
+| 64x32
+|-
+| 00051DB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000521B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000525B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000529B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00052DB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000531B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000535B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000539B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00053DB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000545B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00054DB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000555B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00055DB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bubble & Dt_Bubble
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 00055EB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_Bubble & Dt_Bubble
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 00055FB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Spk
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 000561B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Spk
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 000563B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Spk
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 000565B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Effect_Ss_G_Spk
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|}
+
+[[Category: Debug ROM]]
+[[Category: Display List Mappings]]

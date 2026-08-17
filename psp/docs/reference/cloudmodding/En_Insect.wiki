@@ -1,0 +1,25 @@
+{{Actor|name=ovl_En_Insect|ispage=true}}
+
+'''ovl_En_Insect''' is the [[actor]] for the bug.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [43;30mwarning:目標 Actor が NULL (%s %d)||[43;30mwarning: TARGET Actor IS NULL (%s %d)
+|-
+| ../z_en_mushi.c||../z_en_mushi.c
+|-
+| [m||[m
+|-
+| [43;30mBG 抜け？ Actor_delete します(%s %d)||[43;30mREMOVE BG? Actor_delete WILL OCCUR (%s %d)
+|-
+| ../z_en_mushi.c||../z_en_mushi.c
+|-
+| [m||[m
+|}
+
+[[Category:Creatures]]

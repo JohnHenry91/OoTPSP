@@ -1,0 +1,55 @@
+{{actor|name=ovl_Magic_Wind}}
+
+'''ovl_Magic_Wind''' is the [[actor]] for Farore's Wind.
+
+{{clear}}
+
+== Mechanics ==
+
+When setting a return point with Farore's Wind, the following things are saved:
+
+# An [[Entrance Table|Entrance Index]] and [[Room]] number
+# Coordinates and Direction
+# Temporary Flags (Switch and Collectible Items)
+
+To prevent being able to warp anywhere, the game keeps track of these variables elsewhere in memory before a return point is cast. Also, their values are updated when you either first enter a scene, OR when you pass through a door actor ([[ovl_En_Door]] 0x0009, [[ovl_Door_Shutter]] 0x002E). Thus returning to a Farore's Wind point set earlier on will revert the temporary flags to the state they where at when the player entered the scene or last opened a door prior to the return point's creation.
+
+The entrance index used primarily to determine which [[scene]] to load, not for placing Link. The entrance index value stored will always be that of your last entrance, unless the return point was set inside a Grotto (scene 62); in this case it will store your last entrance before having entered that grotto. The stored room number determines what room to load.
+
+The return point is lost when traveling through time. This includes the Light Arrow Cutscene, which forces you to go back in time as a child.
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| Magic_Wind_Actor_ct():コンストラクト失敗||Magic_Wind_Actor_ct(): FAILURE TO CONSTRUCT
+|-
+| ../z_magic_wind.c||../z_magic_wind.c
+|-
+| 表示開始 = %s||DISPLAY START = %s
+|-
+| 表示開始||DISPLAY START
+|-
+| ../z_magic_wind.c||../z_magic_wind.c
+|-
+| 消滅 = %s||VANISH = %s
+|-
+| 消滅||VANISH
+|-
+| ../z_magic_wind.c||../z_magic_wind.c
+|-
+| 表示開始 = %s||DISPLAY START = %s
+|-
+| 表示開始||DISPLAY START
+|-
+| ../z_magic_wind.c||../z_magic_wind.c
+|-
+| ../z_magic_wind.c||../z_magic_wind.c
+|-
+| ../z_magic_wind.c||../z_magic_wind.c
+|-
+| ../z_magic_wind.c||../z_magic_wind.c
+|}
+
+[[Category:Farore's Wind]] [[Category:Items]] [[Category:Magic]]

@@ -1,0 +1,632 @@
+{{object|name=gameplay_dangeon_keep}}
+
+'''gameplay_dangeon_keep''' is an [[object]] file that contains models and textures used globally within the game's dungeons. Its contents are identical in both NTSC 1.0 and the Debug ROM.
+
+{{clear}}
+
+{| class="wikitable" style="text-align: center; font-family: monospace; margin: left;"
+! Start || End || Type || Identification || Ref. || Notes || Type || Size
+|-
+| 00000000
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Candle Flame [?]
+| ✔
+| style="text-align: left;" | 
+| i8
+| 16x32
+|-
+| 00000200
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| ✔
+| style="text-align: left;" | 
+| i8
+| 16x32
+|-
+| 00000440
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| ✘
+| style="text-align: left;" | [Freeze] Calls textures from 0x0000 and 0x0200.
+| 
+| 
+|-
+| 00000500
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| ✘
+| style="text-align: left;" | Nothing [?] Calls texture from 0x05C0.
+| 
+| 
+|-
+| 000005C0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 16x16
+|-
+| 000007C0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| ✘
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 00001100
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Door Lock
+| ✔
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000011F0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Door Chain
+| ✔
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00001280
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Door Lock - Silver
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 00001A80
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Door Lock - Gold
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 00002280
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Door Chain
+| 
+| 
+| rgb5a1
+| 16x128
+|-
+| 000032C0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Item Drop - Bomb Bag [Early]
+| ✘
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 00003350
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Gerudo Pushblock I
+| ✘
+| style="text-align: left;" | 
+| i4
+| 64x64
+|-
+| 00003B50
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Gerudo Pushblock II
+| ✘
+| style="text-align: left;" | 
+| i4
+| 64x64
+|-
+| 00004350
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Gerudo Pushblock III
+| ✘
+| style="text-align: left;" | 
+| i4
+| 64x64
+|-
+| 00004CD0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| ✘
+| style="text-align: left;" | Cube with glitched, animated textures.
+| 
+| 
+|-
+| 00005050
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Wooden Bridge
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00005290
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Wooden Crate - Intact
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00005380
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Wooden Crate - Fragment
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00005450
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Item Drop - Kokiri Sword [Early]
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00005520
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Item Drop - Small Magic Jar [Early]
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000055F0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Item Drop - Slingshot [Early]
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00005800
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Floor Switch - Gold
+| ✔
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00005AD0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Floor Switch - Rusted
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00005D50
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Floor Switch - Blue
+| ✔
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00006170
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Floor Switch - Red
+| ✔
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000063F0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Hammer Switch [Early]
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00006610
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Eye Switch - Gold
+| ✔
+| style="text-align: left;" | Textures are screwed up.
+| 
+| 
+|-
+| 00006810
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Eye Switch - Silver
+| ✔
+| style="text-align: left;" | Textures are screwed up.
+| 
+| 
+|-
+| 00006D10
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Switch - Base - Dark Grey
+| ✔
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00006E60
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Switch - Crystal I
+| ✔
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00007340
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Switch - Base - Light Grey
+| ✔
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00007488
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Switch - Crystal II
+| ✔
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000077B0
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Switch - Base & Crystal - Rainbow
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000078A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Switch Base - Gerudo Design
+| ✔
+| style="text-align: left;" | 
+| i8
+| 32x32
+|-
+| 00007CA0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Switch Base - Plain
+| ✔
+| style="text-align: left;" | 
+| i8
+| 32x32
+|-
+| 000080A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Hammer Switch - Square
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 000088A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Hammer Switch - Plain
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 000090A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Eye Switch - Gold & Closed
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 000098A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Eye Switch - Gold & Opening
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 0000A0A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Eye Switch - Gold & Closing
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 0000A8A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Eye Switch - Gold & Open
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 0000B0A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Eye Switch - Silver & Open
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 0000B8A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Eye Switch - Silver & Half-Open
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 0000C0A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Eye Switch - Silver & Closed
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x32
+|-
+| 0000C8A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Floor Switch - Bronze - Gerudo Design
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 0000D0A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Floor Switch - Bronze - Plain
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 0000D8A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 0000E0A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 0000E8A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| i8
+| 32x32
+|-
+| 0000ECA0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| i8
+| 32x32
+|-
+| 0000F0A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 0000F8A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Wooden Bridge
+| 
+| 
+| rgb5a1
+| 64x32
+|-
+| 000108A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Pot - Intact - Side
+| 
+| 
+| rgb5a1
+| 32x64
+|-
+| 000118A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Pot - Intact - Mouth
+| 
+| 
+| rgb5a1
+| 16x16
+|-
+| 00011AA0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Pot - Fragment
+| 
+| 
+| rgb5a1
+| 16x16
+|-
+| 00011CA0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Wooden Crate - Intact
+| 
+| 
+| rgb5a1
+| 32x64
+|-
+| 00012CA0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Wooden Crate - Fragment
+| 
+| 
+| rgb5a1
+| 64x16
+|-
+| 000134A0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 00013CA0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| ia16
+| 4x4
+|-
+| 00013CB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| i4
+| 64x64
+|-
+| 000144B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 00014CB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | 
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 000154B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Kokiri Sword [Early]
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 00015CB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Small Magic Jar Early]
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 000164B0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Bomb Bag [Early]
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 00016CB0
+| 
+| style="background-color: rgba(160,200,220,0.5)" | Texture
+| style="text-align: left;" | Item Drop - Slingshot [Early]
+| 
+| 
+| rgb5a1
+| 32x32
+|-
+| 00017870
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | Pot - Intact
+| ✔
+| style="text-align: left;" | Referenced by Obj_Kibako (Wooden Crate) for some reason...
+| 
+| 
+|-
+| 00017A60
+| 
+| style="background-color: rgba(130,170,110,0.5)" | D. List
+| style="text-align: left;" | 
+| ✔
+| style="text-align: left;" | Nothing [?] Referenced by Obj_Kibako (Wooden Crate) for some reason...
+| 
+| 
+|}
+
+[[Category: Display List Mappings]]

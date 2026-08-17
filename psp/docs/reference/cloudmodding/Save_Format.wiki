@@ -1,0 +1,524 @@
+== Basic Structure ==
+
+Ocarina of Time comes with a 0x8000 byte SRAM unit for storing data. 
+
+{|class="wikitable"
+! Offset || Size || Description
+|-
+| 0x0000 || 0x0020 || Header Data
+|-
+| 0x0020 || 0x1450 || Primary File 1
+|-
+| 0x1470 || 0x1450 || Primary File 2
+|-
+| 0x28C0 || 0x1450 || Primary File 3
+|-
+| 0x3D10 || 0x1450 || Back-up File 1
+|-
+| 0x5160 || 0x1450 || Back-up File 2
+|-
+| 0x65B0 || 0x1450 || Back-up File 3
+|}
+
+The back-up save files exist to prevent data loss in the event of an untimely power loss. When saving the game, the primary file will be written to first before the secondary back-up file, while when loading the game (done during the file select screen), the game will always attempt to load the primary save file before the back-up.
+
+===Header Format===
+{|class="wikitable"
+! Offset || Type ||  Usage || Info
+|-
+| 0x00 || byte || Sound Options || 
+|-
+| 0x01 || byte || Z-Target Options || 0 for Switch, 1 for Hold
+|-
+| 0x02 || byte || Language Options ||
+|-
+| 0x03 || char[9] || If different, all options are reset || Contains the string "\x98\x09\x10\x21ZELDA"
+|-
+| 0x0C || byte[5] || Padding || Commercial releases padded with 0x00, debug with 0xAB
+|}
+
+=== Save File Validation ===
+In order to prevent the player from loading a corrupted save, two checks are performed to verify that a save file is valid. One checks that offset 0x1C in the save contains the string "ZELDAZ". The other verifies a 16 bit checksum located at offset 0x1352. The checksum is calculated by summing the first 0x1352 bytes as a series of 0x9A9 shorts, allowing the count to roll over. Values located past the checksum are stored to sram but are not copied back when loading the save, and thus go unused.
+
+==File Creation Data==
+{{address3|space=code|name=Save File Data|
+|ver1=Debug|ref1=rom|start1=BA1680
+|ver2=NTSC 1.0|ref2=rom|start2=B71E60
+|ver3=NTSC 1.2|ref3=ram|start3=800FC550
+}}
+
+In [[Code (File)|code]], there's a structure that contains a collection of data relevant to file creation and management.
+
+{|class="wikitable"
+!Start || End ||Type||Description
+|-
+|0000 || 000C || u16[6] || Save File Offsets
+|-
+|000C || 0018 || struct || Initial Settings Data
+|-
+|0018 || 00D8? || struct || New File Save Data (ZELDA)
+|-
+|00D8 || || struct || Title Screen/Dev Test Save Data (ZELDAZ)
+|-
+|0190 || || u16[16] || Either savewarp or death respawns (likely save warp)
+|}
+
+At BA1693 in the Debug Rom, there is a string that says "ZELDA." This string marks the start of the default save data table, which is copied into offset 0x1C into the save file. Using this, you can set up some of the initial save data, up until the scene flags.
+
+==Save Context==
+The "Save Context" is a term used to reference the z_common_data structure, or the home address of the variables saved by the game. Since the save file is created by copying the 0x1450 bytes from the start of the save context, it's possible to peek in ram to determine what each save variable does.
+
+{| class="wikitable"
+!colspan=6|Location in Ram
+|-
+|Debug || 8015E660
+|-
+|NTSC 1.0 || 8011A5D0
+|-
+|NTSC 1.1 || 8011A790
+|-
+|NTSC 1.2 || 8011AC80
+|-
+|PAL 1.0|| 801183D0
+|-
+|PAL 1.1|| 80118410
+|-
+|PAL MQ || 80118938
+|}
+
+==Save Format==
+{|class="wikitable"
+! Offset || Data Type || Usage || Additional Info
+|-
+| 0x0000 || int32 || Entrance index || Stores the entrance Link starts/respawns at. Check the [[Entrance Table]] for a listing of all values.
+|-
+| 0x0004 || int32 || Age Modifier || 0 = Adult Link, 1 = Child Link
+|-
+| 0x000A || int16 || Cutscene Number || Used to trigger cutscenes. Values FFF0 - FFFF trigger cutscenes 0-F. 
+|- 
+| 0x000C || int16 || World Time || Sets the current time for the world clock
+|-
+| 0x0010 || int32 || Night Flag || Denotes that it's night time. 
+|-
+| 0x001C || char[6] || Unknown || Contains the string "ZELDAZ". If different, the save will be considered corrupt even if the checksum is valid
+|-
+| 0x0022 || int16 || Death Counter || 
+|-
+| 0x0024 || char[8] || Player Name || If the player name is less than 8 characters, the remaining char values will be DF. NTSC and PAL use different character sets to represent player name.
+|-
+| 0x002C || int16 || Disk Drive Only flag || Setting to 1+ will flag the save as a Disk Drive only file. The file cannot be accessed normally (but can be forced), and will crash on copy attempt on a release build
+|-
+| 0x002E || int16 || Heart containers || 0x10 is equivalent to 1 heart container
+|-
+| 0x0030 || int16 || Health || 0x10 is equivalent to 1 full heart
+|-
+| 0x0032 || int8 || Magic meter size|| automatically sets itself to 0,1 or 2 depending on your upgrades
+|-
+| 0x0033 || int8 || Current magic amount|| 0x30 = half bar, 0x60 = full bar
+|-
+| 0x0034 || uint16_t || Rupees || 
+|-
+| 0x0035 || ? || Biggoron's Sword Flag #1 || Set to 01 in conjunction with Biggoron's Sword Flag #2 to prevent having to do the Biggoron's Sidequest
+|-
+| 0x0038 || int16_t || Navi Timer || Increments every cycle, unless the game is paused. Resets whenever a new map is loaded when under a certain value
+|-
+| 0x003A || int8 || Magic Flag #1 || first magic upgrade obtained
+|-
+| 0x003C || int8 || Magic Flag #2 || Second magic upgrade obtained (pair with 3A)
+|-
+| 0x003E || int8  || Biggoron's Sword Flag #2 || The Giant's Knife becomes the Biggoron Sword when this byte is set
+|-
+| 0x0066 || int16 || Saved Scene Index || Only set on saving. Used to determine where to spawn when reloading a save.
+|-
+| 0x0068 || byte[7] || Current Button Equips || Stores what items are currently equipped to the buttons. Indexes 0x00-0x03 store B, C-Left, C-Down, C-Right item indexes in that order, while indexes 0x04-0x06 store the offset into the inventory that the C-Left/Down/Right equips are stored at.
+|-
+| 0x0070 || uint16 || Currently Equipped Equipment || & 0x000F = Swords<br> & 0x00F0 = Shields <br> & 0x0F00 = Tunics <br> & 0xF000 = Boots
+|-
+| 0x0074 || byte[24] || Inventory || Stores obtained items, from top left to bottom right.
+|-
+| 0x008C || byte[0xF] || Item Amounts || Stores ammo counts for inventory items, following the same order as the inventory slots. Thus, some are left unused
+|-
+| 0x009B || byte || Magic Beans Bought || Stores number of Magic Beans that have been bought by the Bean Seller
+|-
+| 0x009C || uint16 || Obtained Equipment || & 0x000F = Swords<br> & 0x0070 = Shields <br> & 0x0700 = Tunics <br> & 0x7000 = Boots
+|-
+| 0x00A0 || uint32 || Obtained Upgrades || & 0x0070_0000 = Deku Nut capacity<br> & 0x000E_0000 = Deku Stick capacity<br> & 0x0001_C000 = Bullet Bag<br> & 0x0000_3000 = Wallet<br> & 0x0000_0E00 = Dive Meter<br> & 0x0000_01C0 = Strength Upgrades<br> & 0x0000_0038 = Bomb Bag<br> & 0x0000_0007 = Quiver
+|-
+| 0x00A4 || uint32 || Quest Status Items || & 0x0080_0000 = Gold Skulltula Token (Set the first time one is collected) <br> & 0x0040_0000 = Gerudo card<br> & 0x0020_0000 = Stone of Agony<br> & 0x0010_0000 = Zora Sapphire<br> & 0x0008_0000 = Goron Ruby<br> & 0x0004_0000 = Kokiri Emerald<br> & 0x0002_0000 = Song of Storms<br> & 0x0001_0000 = Song of Time<br> & 0x0000_8000 = Sun's Song<br> & 0x0000_4000 = Saria's Song<br> & 0x0000_2000 = Epona's Song<br> & 0x0000_1000 = Zelda's Lullaby<br> & 0x0000_0800 = Prelude of Light<br> & 0x0000_0400 = Nocturne of Shadow<br> & 0x0000_0200 = Requiem of Spirit<br> & 0x0000_0100 = Serenade of Water<br> & 0x0000_0080 = Bolero of Fire<br> & 0x0000_0040 = Minuet of Forest<br> & 0x0000_0020 = Light Medallion<br> & 0x0000_0010 = Shadow Medallion<br> & 0x0000_0008 = Spirit Medallion<br> & 0x0000_0004 = Water Medallion<br> & 0x0000_0002 = Fire Medallion<br> & 0x0000_0001 = Forest Medallion
+|-
+| 0x00A8 || byte[0x14] || Dungeon Items || Indexed by the Scene Index. Each byte contains the following: <br> & 0x01 = Boss Key <br> & 0x02 = Compass <br> & 0x04 = Dungeon Map
+|-
+| 0x00BC || byte[0x14] || Small Key Amounts || Initialized to 0xFF to not display key icon
+|-
+| 0x00CF || byte || Double Defense Hearts || Sets how many hearts should be displayed as being "Double Defense" hearts.
+|-
+| 0x00D0 || int16 || Gold Skulltula Tokens ||
+|-
+| 0x00D4 || struct[101] (0x1C bytes) || Permanent Scene Flags || Stores the permanent flags for all scenes. See below.
+|-
+| 0x0E64 || struct (0x20? bytes) || Farore's Wind Warp || If modifying values in-game, the warp point must be unloaded for the new values to take effect
+|-
+| 0x0E64 || long || X Coordinate || 
+|-
+| 0x0E68 || long || Y Coordinate || 
+|-
+| 0x0E6B || long || Z Coordinate || 
+|-
+| 0x0E72 || short || Y-Axis Rotation || Direction that Link Faces on returning
+|-
+| 0x0E7A || int16 || Entrance Index || Determines which scene Link is transported to. See the Entrance Table.
+|-
+| 0x0E7F ||  || Map Number || Determines which map of the scene to load
+|-
+| 0x0E83 ||  || Warp Point Set || 1 = Warp point set, 0 = unset.
+|-
+| 0x0EBC || uint32 || Big Poe Points || 100 * the number of big Poes sold
+|-
+| 0x0ED4 || uint16_t[14] || event_chk_inf || flags for various events ([[Entrance Cutscenes|entrance cutscenes]])
+|-
+| 0x0EF0 || uint16_t[4] || item_get_inf || likely flags for checking that certain items have been obtained for the first time
+|-
+| 0x0EF8 || uint16_t[30] || inf_table || unknown flags
+|-
+| 0x1352 || uint16_t || Checksum || Checksum of previous 0x9A9 shorts (0x1352 bytes)
+|-
+! colspan="4"| Variables below this point are saved but discarded when restoring a file
+|-
+| 0x1354 || int32 || File Index || Save File Index. Valid values between 0 and 2 for files 1-3, 0xFF to prevent saving
+|}
+
+== Structs ==
+=== Permanent Scene Flags ===
+
+The structure for the scene related save data. Located at offset 0xD4 into the save file. Each record is 0x1C bytes long. There are 101 records, one for each scene. 
+
+{| class="wikitable"
+!offset
+!type
+!use
+!description
+|-
+|0000
+|Int32
+|Chest Flags
+|Set exclusively by chest actors. see actor list for setting this value
+|-
+|0004
+|Int32
+|Switches
+|Stores most other other dungeon progression related flags such as locked doors, switches. 
+|-
+|0008
+|Int32
+|Room Clear Flags
+|Stores the room clear flags, preventing most enemies from spawning. One bit is reserved for each room, thus giving a limit of 32 rooms. 
+|-
+|000C
+|Int32
+|Collectible Flags
+|Stores whether a particular collectable item (like Heart Containers, Key Item) has been obtained permanently
+|-
+|0010
+|Int32
+|Unused
+|
+|-
+|0014
+|Int32
+|Visited Rooms
+|Stores what rooms have been visited, for when displaying the map screen in dungeons.
+|-
+|0018
+|Int32
+|Visited Floors
+|Stores what floors have been visited, for when displaying the map screen in dungeons.
+|}
+
+== Event Flags ==
+
+Orange rows indicate bytes for which no event flags have (yet) been identified.
+
+All event flags are implemented as an array of u16 values.
+
+A byte value between 00-DF is used to access this set of flags. For example:
+
+* 00-07 flips a bit at offset 0ED5.
+* 08-0F flips a bit at offset 0ED4.
+
+To figure out what byte is set, divide the flag by 0x10, drop remainder for later (for now), multiply by 2, and add 0ED4 to find the offset to the halfword our byte is in.
+
+<pre>
+0xB5 / 0x10 = 0x0B
+0x0B * 0x02 = 0x16
+0x16 + 0ED4 = 0EEA
+</pre>
+
+Then, divide the original flag by 10h again, keeping only the remainder, and add to the offset based on the following:
+
+* 00-07 = +1.
+* 08-0F = +0.
+
+<pre>
+0xB5 % 0x10 = 0x05. Since 5 falls within 0-7, the modified byte is 0xEEB
+</pre>
+
+Once you've found the right byte, figuring out the right bit is easy. Just take the right digit of the flag's value, divide it by 2 if it's larger than 7, giving you a value between 0 and 7
+
+<pre>
+0 flips the rightmost bit (00 becomes 01)
+1 flips the second rightmost bit (00 becomes 02)
+2 flips the third rightmost bit (00 becomes 04) etc.
+</pre>
+
+=== event_chk_inf ===
+
+{| class="wikitable"
+!  || [x] || F || E || D || C || B || A || 9 || 8 || 7 || 6 || 5 || 4 || 3 || 2 || 1 || 0
+|-
+| 0ED4 || 0 ||  ||  ||  || Met Deku Tree ||  || Played Saria's Song for Mido as Adult || Used Blue Warp in Gohma's Lair ||  || Obtained Kokiri Emerald &amp; Deku Tree Dead || Spoke to Saria After Deku Tree's Death || Deku Tree Opened Mouth || Showed Mido Sword &amp; Shield || Complained About Mido to Saria || First Spoke to Mido ||  || 
+|-
+| 0ED6 || 1 ||  || Won the Cow in Malon's Race || Destroyed the Royal Family's Tomb || Spoke to Mido After Deku Tree's Death || Rented Horse From Ingo ||  || Obtained Kokiri's Emerald || Obtained Epona || Great Deku Tree is Dead || Invited to Sing With Child Malon || Spoke to Child Malon at Ranch || Talon Fled Hyrule Castle || Woke Talon || Obtained Pocket Egg || Spoke to Ingo at Ranch before Talon returns || Spoke to Child Malon at Castle or Market
+|-
+| 0ED8 || 2 || Death Mountain Erupted ||  || [Ref. by Code Table] || [Ref. by Code Table] || [Ref. by Code Table] || [Ref. by Code Table] ||  ||  ||  ||  || Completed Dodongo's Cavern ||  || Bombed Dodongo's Cavern Entrance ||  || [Ref. by Code Table] || [Ref. by Code Table]
+|-
+| 0EDA || 3 ||  ||  ||  || Finished Nabooru Battle || Began Nabooru Battle || Offered Fish to Jabu-Jabu || Opened Entrance to Zora's Domain || Obtained Silver Scale || Obtained Zora's Sapphire ||  ||  ||  || King Zora Moved Aside ||  || Obtained Ruto's Letter || Spoke to a Zora
+|-
+| 0EDC || 4 || Entered the Master Sword Chamber || Caught by Hyrule Castle Guards || Rainbow Bridge Built by Sages ||  || Opened the Door of Time || Obtained Water Medallion || Obtained Fire Medallion || Obtained Forest Medallion ||  ||  || Pulled Master Sword from Pedestal ||  || Obtained Ocarina of Time || [Ref. by Code Table] || [Ref. by Code Table] || Obtained Zelda's Letter
+|-
+| 0EDE || 5 ||  ||  ||  || [Ref. by Code Table] || Learned Song of Storms || Learned Sun's Song || Learned Zelda's Lullaby ||  ||  ||  || Sheik Moved From Sword Pedestal || Learned Nocturne of Shadow ||  || Learned Serenade of Water || Learned Bolero of Fire || Learned Minuet of Forest
+|-
+| 0EE0 || 6 || Spoke to Kaepora Gaebora by Lost Woods ||  ||  ||  || Spoke to Talon After Saving Ranch || Woke Talon in Kakariko || Restored Lake Hylia's Water || Played Gerudo Archery Minigame || Drained Well in Kakariko Village ||  || Played Song of Storms in Windmill ||  ||  ||  ||  || 
+|-
+| 0EE2 || 7 ||  ||  ||  ||  ||  ||  ||  || Began Ganondorf Battle || Began Bongo Bongo Battle || Began Barinade Battle || Began Twinrova Battle || Began Morpha Battle || Began Volvagia Battle || Began Phantom Ganon Battle || Began King Dodongo Battle || Began Gohma Battle
+|-
+| 0EE4 || 8 || Paid Back Bunny Hood Fee || Paid Back Spooky Mask Fee || Paid Back Skull Mask Fee || Paid Back Keaton Mask Fee ||  ||  ||  ||  ||  ||  ||  ||  ||  || Bridge Unlocked (After Zelda Escape Cutscene) ||  || Zelda Fled Hyrule Castle
+|-
+| 0EE6 || 9 ||  ||  ||  || Played Song for Scarecrow as Adult ||  ||  ||  ||  ||  || Spoke to Cursed Man in Skulltula House || Nabooru Captured by Twinrova || Spoke to Nabooru in Spirit Temple || Rescued Green Carpenter || Rescued Blue Carpenter || Rescued Yellow Carpenter || Rescued Red Carpenter
+|-
+| 0EE8 || A ||  ||  || Completed Spirit Trial || Learned Requiem of Spirit ||  || Bongo Bongo Escaped Well || Learned Song of Time || Entered Deku Tree || Entered Temple of Time || Entered Goron City || Entered Hyrule Castle || Entered Zora's Domain || Entered Kakariko Village ||  || Entered Death Mountain Trail || Entered Hyrule Field
+|-
+| 0EEA || B || Completed Light Trial || Completed Fire Trial || Completed Shadow Trial || Completed Water Trial || Completed Forest Trial || Entered Ganon's Castle (Exterior) || Entered Death Mountain Crater || Entered Desert Colossus || Entered Zora's Fountain || Entered Graveyard || Entered Jabu-Jabu's Belly || Entered Lon Lon Ranch || Entered Gerudo's Fortress || Entered Gerudo Valley || Entered Lake Hylia || Entered Dodongo's Cavern
+|-
+| 0EEC || C ||  ||  ||  ||  ||  ||  || Demo_Effect, Temple of Time Warp in blue aura + sfx the first time you spawn as Adult || Obtained Spirit Medallion || Watched Ganon's Tower Collapse / Caught by Gerudo || Spoke to Deku Tree Sprout || Sheik, Spawned at Master Sword Pedestal as Adult || Returned to Temple of Time With All Medallions || Dispelled Ganon's Tower Barrier ||  || Spoke to Saria on Lost Woods Bridge || Nabooru Ordered to Fight by Twinrova
+|-
+| 0EEE || D ||  || Obtained Skulltula House's Piece of Heart || Obtained Skulltula House's Bombchu || Obtained Giant's Wallet || Obtained Stone of Agony || Obtained Adult's Wallet ||  ||  ||  || Played Song of Storms for Frogs || Played Song of Time for Frogs || Played Saria's Song for Frogs || Played Sun's Song for Frogs || Played Epona's Song for Frogs || Played Zelda's Lullaby for Frogs || Obtained Frogs' Piece of Heart
+|}
+
+=== item_get_inf ===
+{|class="wikitable"
+|-
+!rowspan="2"| Offset !!colspan="8"| Bit Number
+|-
+! 7 !! 6 !! 5 !! 4 !! 3 !! 2 !! 1 !! 0
+|-
+| 0EF0 || Obtained Gerudo Quiver Upgrade || Obtained Kakariko Quiver Upgrade ||  || Obtained Bottle From Cucco Lady || Obtained Heart Piece From Grotto Scrub || Bought Upper-Left Bombchu (Right Shelf) || Bought Lower-Left Bombchu (Left Shelf) || Bought Upper-Right Bombchu (Left Shelf)
+|-
+| 0EF1 || Bought Lower-Right Bombchu (Right Shelf) || Bought Lower-Left Bombchu (Right Shelf) || Bought Upper-Left Bombchu (Left Shelf) || Bought Lower-Right Bombchu (Left Shelf) || Bought Upper-Right Bombchu (Right Shelf) || Super Cucco Milk Bottle ||  || 
+|-
+| 0EF2 || Obtained Stage Deku Nut Upgrade || Obtained Stage Deku Stick Upgrade || Obtained Deku Seed Bag Upgrade ||  ||  || Obtained Nayru's Love || Obtained Din's Fire || Obtained Farore's Wind
+|-
+| 0EF3 || Obtained Heart Piece From Skullkids || Obtained Heart Piece From Skullkid || Obtained Heart Piece From Man on Roof ||  || Item – Deku Seeds ||  ||  || Obtained Heart Piece From Lake Researcher
+|-
+| 0EF4 ||  || Obtained Cojiro From Cucco Lady ||  || Obtained Pocket Egg From Cucco Lady ||  || Obtained Mask of Truth ||  || 
+|-
+| 0EF5 ||  || Obtained Bunny Hood || Obtained Spooky Mask || Obtained Skull Mask || Obtained Keaton Mask ||  ||  || 
+|-
+| 0EF6 || Obtained Mask of Truth ||  ||  ||  || Sold Bunny Hood / Unlocked Extra Masks || Sold Spooky Mask / Unlocked Bunny Hood || Sold Skull Mask / Unlocked Spook Mask || Sold Keaton Mask / Unlocked Skull Mask
+|-
+| 0EF7 ||  ||  ||  ||  ||  ||  || Obtained Poacher's Saw From Fado || Obtained Odd Potion From Granny
+|}
+
+===inf_table===
+{|class="wikitable"
+|-
+!rowspan="2"| Offset !!colspan="8"| Bit Number
+|-
+! 7 !! 6 !! 5 !! 4 !! 3 !! 2 !! 1 !! 0
+|-
+| 0EF8 ||  ||  ||  || Met Mido ||  ||  ||  || 
+|-
+| 0EF9 ||  ||  || Spoke to Saria in Saria's House ||  || Complained About Mido to Saria ||  || Spoke to Saria About Obtaining a Fairy || Greeted by Saria
+|-
+| 0EFA ||  || Spoke to Kokiri Girl by Jumping Stones ||  ||  ||  ||  || Told Mido Saria Won't Return || 
+|-
+| 0EFB ||  ||  || Met Mido in Lost Woods as Adult ||  ||  ||  ||  || 
+|-
+| 0EFC ||  ||  ||  ||  ||  ||  ||  || Spoke to Girl About Training Center
+|-
+| 0EFD ||  || Spoke to Kokiri Girl on Shop Awning ||  || Spoke to Kokiri Boy Pulling Grass ||  || Spoke to Kokiri Boy Guarding Forest Exit ||  || 
+|-
+| 0EFE ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0EFF ||  ||  ||  ||  ||  ||  || Spoke to Boy on Bed in Mido's House || 
+|-
+| 0F00 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F01 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F02 ||  ||  ||  ||  ||  ||  || Spoke to Know-It-All Bro. About Temple || 
+|-
+| 0F03 ||  ||  ||  ||  ||  ||  || Spoke to Girl in Saria's House || 
+|-
+| 0F04 ||  ||  ||  || Spoke to Dying Knight ||  ||  ||  || 
+|-
+| 0F05 ||  || Spoke to Deku Tree Sprout once (after cutscene) ||  ||  ||  ||  || Spoke to Know-It-All Bro. About Saria || 
+|-
+| 0F06 ||  || Spoke to Talon in Lon Lon Ranch House ||  ||  ||  ||  ||  || 
+|-
+| 0F07 || Soldier Wears Keaton Mask || Spoke to Gate Guard About Mask Shop ||  ||  ||  ||  ||  || 
+|-
+| 0F08 ||  ||  ||  ||  || Entered Hyrule Castle ||  ||  || 
+|-
+| 0F09 ||  ||  || Child Malon Said Epona Was Scared of You || Met Child Malon at Castle or Market ||  ||  ||  || 
+|-
+| 0F0A ||  ||  ||  ||  ||  || Spoke to Ingo Once as Adult ||  || 
+|-
+| 0F0B || Met Ingo at Ranch ||  ||  || Met Ingo at Ranch before Talon returns ||  ||  ||  || 
+|-
+| 0F0C ||  ||  ||  ||  || Rode any horse at Ingo's Ranch ||  ||  || 
+|-
+| 0F0D ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F0E ||  ||  ||  || Spoke to Carpenter Boss by Tent || Spoke to Fado in Kokiri Forest as Child ||  ||  || Spoke to Malon After Saving Ranch
+|-
+| 0F0F || Spoke to Fado at the start of the game || Met Poe Collector in Ruined Market ||  ||  ||  ||  || Met Medigoron as Adult || Met Medigoron as Child
+|-
+| 0F10 ||  || Spoke to Thin Lady After Zelda's Escape (DBG) || Spoke to Blue Jokester in Market (DBG) || Spoke to Itchy Lady after Malon leaves town || Spoke to Blue Jokester in Market (1.0) / Dog Lady as Adult (DBG) || Spoke to Red Jokester in Market || Spoke to Thin Lady After Zelda's Escape (1.0) || Spoke to Thin Lady by Bombchu Bowling
+|-
+| 0F11 || Spoke to Old Man by Bombchu Bowling || Spoke to Old Woman by Market Fountain || Spoke to Thin Man by Market Target Shop || Spoke to Thief After Zelda's Escape || Spoke to Burly Man After Zelda's Escape || Spoke to Burly Man About Talon Search || Spoke to Fat Woman After Zelda's Escape || Spoke to Fat Woman by Market Potion Shop
+|-
+| 0F12 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F13 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F14 ||  ||  ||  ||  || Spoke to Goron by Bomb Flowers ||  ||  || 
+|-
+| 0F15 ||  || Spoke to Goron by Woods Exit ||  ||  || Spoke to Goron Hiding Stick ||  ||  || Spoke to Goron at Cavern
+|-
+| 0F16 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F17 ||  ||  ||  || Spoke to Ruby-Crazy Goron ||  ||  ||  || Spoke to Goron at Entrance
+|-
+| 0F18 ||  || Spoke to Goron Link ||  || Stopped Goron Link's Rolling || Spoke to Goron Link About Volvagia ||  || Obtained Fire Tunic from Goron Link || 
+|-
+| 0F19 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F1A ||  || Received Goron City Bomb Bag Upgrade ||  ||  ||  || Met Darunia in Fire Temple ||  || 
+|-
+| 0F1B ||  ||  ||  ||  || Met Darunia in Goron City ||  ||  || 
+|-
+| 0F1C ||  ||  ||  ||  ||  ||  || Spoke to Zora Swimming Behind Zora Shop || Spoke to Zora Beside Zora Shop?
+|-
+| 0F1D ||  ||  ||  || Spoke to Zora near Zora Shop ||  ||  ||  || 
+|-
+| 0F1E ||  ||  ||  ||  ||  ||  || Obtained Zora Tunic || Thawed King Zora
+|-
+| 0F1F ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F20 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F21 || Ruto in JJ, Spawns on F1 instead of B1 || Ruto in JJ (M6) Kidnapped || Ruto in JJ (M6) On Sapphire platform || Ruto in JJ (?) wants to be thrown to Sapphire || Ruto in JJ (M10) Can Be Escorted || Ruto in JJ (M3) Talk First Time || Ruto in JJ (M2) Meet Ruto || Ruto in JJ (M7) On Blue Switch
+|-
+| 0F22 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F23 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F24 ||  ||  ||  || Refused Nabooru ||  ||  ||  || 
+|-
+| 0F25 ||  ||  ||  || Spoke to Carpenter Boss's Wife as Adult || Spoke to Carpenter Boss's Wife as Child || Spoke to Man in Impa's as Adult || Spoke to Man in Impa's at Night || Spoke to Man in Impa's in Day
+|-
+| 0F26 || Running Man Suggested a Race ||  ||  ||  ||  ||  ||  || Spoke to Green Carpenter in Tent
+|-
+| 0F27 ||  || Spoke to Blue Carpenter in Tent ||  ||  ||  || Spoke to Carpenter Boss in Kakariko ||  || Spoke to Carpenter Boss in Valley
+|-
+| 0F28 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F29 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F2A || Caught Cucco Behind Potion Shop || Caught Cucco Near Skulltula House || Caught Cucco in Crate || Caught Cucco Behind Windmill || Caught Cucco Near Cucco Pen || Caught Cucco Near Bazaar || Caught Cucco Near Hyrule Field Entrance || Get Magic Container
+|-
+| 0F2B || Spoke to Cursed Man With 10 Tokens || Met Cursed Man in Skulltula House ||  ||  || Obtained Grotto Deku Nut Upgrade || Obtained Lost Woods Deku Stick Upgrade || Obtained Heart Piece for Finding Richard || Gerudo Archery Heart Piece
+|-
+| 0F2C || Entered Ganon's Castle (Collapsing) || Entered Ganon's Tower (Collapsing) || Entered Ganon's Castle || Entered Thieves' Hideout || Entered Gerudo Training Ground || Entered Ganon's Tower || Entered Ice Cavern || Entered Bottom of the Well
+|-
+| 0F2D || Entered Shadow Temple || Entered Spirit Temple || Entered Water Temple || Entered Fire Temple || Entered Forest Temple || Entered Jabu-Jabu's Belly || Entered Dodongo's Cavern || Entered Deku Tree
+|-
+| 0F2E ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F2F ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F30 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F31 ||  ||  ||  ||  ||  ||  ||  || 
+|-
+| 0F32 || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword)
+|-
+| 0F33 || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || (Reset upon acquiring sword) || Swordless (Master Sword Knocked Away)
+|}
+
+==C structs/functions==
+''Beware of endianess''! Big endian (N64 native) assumed.
+<pre>
+#define	LINK_ADULT	0
+#define LINK_CHILD	1
+
+typedef struct
+{
+    uint32_t	respawn_exit_n;	/* 0x0004 */
+    uint32_t	age;		/* 0x0008 */
+    uint8_t	__pad_00[0x014];/* 0x001C */
+    char	str[5];		/* 0x0021   "ZELDA" in created file */
+    uint8_t	__pad_01[0x001];/* 0x0022 */
+    uint16_t	death_count;	/* 0x0024 */
+    uint8_t	name[8];	/* 0x002C Special char encoding */
+    uint8_t     __pad_02[0x006];/* 0x0032 */
+    uint32_t    rupee_count;    /* 0x0036 */
+    uint8_t	__pad_03[0x002];/* 0x0038 */
+    uint16_t	scene_count;	/* 0x003A May be uint32_t */
+    uint8_t	__pad_04[0xE2A];/* 0x0E64 */
+    struct
+    {
+    	float		x, y, z;	/* 0x0E70 */
+    	uint16_t	y_rot;		/* 0x0E72 */
+    	uint8_t		__pad_00[0x8];	/* 0x0E7A */
+    	uint16_t	scene_no;	/* 0x0E7C */
+    	uint32_t	map_no;		/* 0x0E80 */
+    	uint32_t	isset;		/* 0x0E84 */
+    }
+    farore_warp;
+    uint8_t	__pad_05[0x4CE];/* 0x1352 */
+    uint16_t	chksum;		/* 0x1354 */
+    uint8_t	__pad_06[0x0FC];/* 0x1540 */
+}
+z_save_file;
+
+typedef struct
+{
+    uint8_t sound_opt;
+    uint8_t ztarget_opt;
+    char tag[5]; /* "ZELDA" (not null terminated) */
+    z_save_file files[3];
+}
+z_save;
+
+void
+calc_chksum( z_save_file *f )
+{
+    int16_t *data = (int16_t*)(f);
+    int sum = 0;
+    int i;
+    
+    f->chksum = 0;
+
+    for( i = 0; i < 0x9A9; i++ )
+    {
+        sum += data[i];
+        sum &= 0xFFFF;
+    }
+    
+    f->chksum = (uint16_t)sum;
+}
+</pre>
+
+[[Category:File Formats]]
+[[Category:Ocarina of Time]]

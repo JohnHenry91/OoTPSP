@@ -1,0 +1,8 @@
+==Actors==
+* {{actor ref|009B}}
+* {{actor ref|0181}}, used to spawn {{actor ref|000A}} within the "generic" grotto.
+
+==Objects==
+* [[gameplay_field_keep]]
+
+[[Category:Grottos| ]]

@@ -1,0 +1,25 @@
+'''Also known as IS Viewer 64'''
+
+Both the OoT and MM debug roms tries to talk to a dev device. It appears to be the N64 devkit made by Intelligent Systems. Besides being a cart emulator, the device provides a way for N64 software to spew lots of debug prints on a connected PC.<br>
+
+[[File:is64_dev_cart.jpg|right|350px|thumb|IS64 development device, opened]]
+
+==Majora's Mask==
+Majora’s Mask does one mystery read from <tt>0xBFF00000</tt>. After that, it writes to the IS64 interface at <tt>0xB58C0000</tt>, but never again touches it. There’s probably something here, but more work is needed. Perhaps it only writes debug messages if the game is in debug mode, i.e. has four controllers plugged in.
+
+==Ocarina of Time==
+Ocarina of Time expects the device to be at <tt>0xB3FF0000</tt>. It starts by writing zeros to base+0x14 and base+0x04, before writing ‘IS64’ to base+0x00. If it can read IS64 back, the device is assumed to be connected and the game uses it to send debug messages.<br>
+<br>
+Messages are sent (approximitely) in this manner:
+*Game reads from base+0x14. This is a pointer to the output text buffer or something probably. Maybe. Just return a zero here. In fact, just don’t worry about it.
+*Game starts writing characters at base+0x20. Writing is done one character at a time; the game reads a word, modifies one byte in that word, and writes it back.
+*After writing an entire message to be printed has been written out, the game writes the character count to base+0x14. This triggers a transfer to the PC probably.
+*The game does not zero out either base+0x14 or the message buffer, so it’s probably done by the IS64.
+==See Also==
+[http://www.nesworld.com/n64-isviewer64.php NESWORLD article on IS64]
+
+Not great video [https://www.youtube.com/watch?v=gPMSRGqrjOg]
+
+[[Category:Debug ROM]]
+[[Category:Majora's Mask]]
+[[Category:Documentation]]

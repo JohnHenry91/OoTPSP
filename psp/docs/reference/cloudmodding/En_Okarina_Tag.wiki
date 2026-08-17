@@ -1,0 +1,11 @@
+{{Todo|Categorize for easier finding}}
+{{actor|name=ovl_En_Okarina_Tag|ispage=true}}
+
+'''ovl_En_Okarina_Tag''' is the [[actor]] for the ocarina play spot.
+
+{{clear}}
+
+== NTSC 1.0 Notes ==
+ 0x0C30 - Open the Temple of Time Door Cutscene
+
+[[Category: Cutscenes]]

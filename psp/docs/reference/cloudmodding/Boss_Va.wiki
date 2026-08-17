@@ -1,0 +1,31 @@
+{{actor|name=ovl_Boss_Va}}
+'''ovl_Boss_Va''' is the [[Barinade]] boss actor
+{{clear}}
+
+== Fight Notes ==
+===Phase 1=== 
+3 Tentacles attached to Jabu Jabu
+5 Bari connected by electrified tether, move slowly
+If the tethers disappear without Barinade being stunned (happens over time), the "radar" dish protects Barinade. 
+When core is stunned, each hit kills one of the Bari
+When all Bari are defeated, end of phase 1
+
+=== Phase 2===
+5 more Biri connected by electrified tether, spin fast
+over time, radar dish will attack twice? if player hasn't stunned Barinade
+When all Bari are defeated, end of phase 2
+
+===Phase 3===
+No Bari protecting Barinade
+Barinade has starting health of 4. After depleted, resets to 3 or less if overkill and Barinade becomes invincible. After this second health count is depleted, resets to 3 or less if overkill. If health drops below zero, Barinade is killed
+
+== NTSC 1.0 Notes ==
+=== Overlay ===
+{|class="wikitable"
+!Start||Type||Description||Notes
+|-
+|0x171E0||byte||Phase 3 current health|| Health set to 4-3-3 pattern. Keeps track of overkill somehow
+|}
+
+
+[[Category:Barinade]]

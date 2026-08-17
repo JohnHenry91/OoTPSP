@@ -1,0 +1,14 @@
+{{Actor|name=ovl_En_Diving_Game}}
+'''ovl_En_Diving_Game''' is the [[Zoras|Zora]] that manages the [[Zora Diving Game|diving minigame]].
+[[Category:Zora Diving Game]]
+[[Category:Zoras]]
+{{clear}}
+== Debug Rom Notes ==
+
+<pre>
+0x1264
+
+ROM: 0xDA5460 - (24840032) Timer of mini-game before receiving the Silver Scale
+ (2404006C) - Music played during Diving Game
+ROM: 0xDA56C8 - (24060037) Receive Silver Scale
+</pre>

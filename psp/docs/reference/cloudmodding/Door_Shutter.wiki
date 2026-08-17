@@ -1,0 +1,125 @@
+{{actor|name=ovl_Door_Shutter|ispage=true}}
+
+'''ovl_Door_Shutter''' is the Lifting Dungeon Door [[Actor]]. <br>
+
+== General Notes ==
+
+When a Lifting Dungeon Door is created, it needs the object it depends on to render.<br>
+To get this object, it looks up its type (Variable & 0x03C0) in the Design Table.<br>
+If the Design Table value is 80+ (usually FF), the Scene Table is used to choose an object from the Object Table.<br>
+If the Design Table value is lower than 80, it will use that value to choose an object from the Object Table directly.<br>
+
+===Design Table===
+{| class="wikitable"
+|-
+! NTSC 1.0 !! Debug !! Type !! Type Description !! Value
+|-
+| C57B74 || D51864 || 0000 || Lifting || FF (Scene Table)
+|-
+| C57B75 || D51865 || 0040 || Front Room Clear || FF (Scene Table)
+|-
+| C57B76 || D51866 || 0080 || Front Switch || FF (Scene Table)
+|-
+| C57B77 || D51867 || 00C0 || Back Permanently Locked || FF (Scene Table)
+|-
+| C57B78 || D51868 || 0100 || Phantom Ganon Bars || 00 (Object Table)
+|-
+| C57B79 || D51869 || 0140 || Boss Door || 06 (Object Table)
+|-
+| C57B7A || D5186A || 0180 || Falling Gohma Door || 01 (Object Table)
+|-
+| C57B7B || D5186B || 01C0 || Front Switch, Back Room Clear || FF (Scene Table)
+|-
+| C57B7C || D5186C || 0200 || Lifting || 00 (Object Table)
+|-
+| C57B7D || D5186D || 0240 || Lifting || FF (Scene Table)
+|-
+| C57B7E || D5186E || 0280 || Lifting || FF (Scene Table)
+|-
+| C57B7F || D5186F || 02C0 || Small Key Locked || FF (Scene Table)
+|-
+|}
+
+===Scene Table===
+{| class="wikitable"
+|-
+! NTSC 1.0 !! Debug !! Scene ID (Name) !! Value (Object Table)
+|-
+| C57B90 || D51880 || 0000 (Deku Tree) || 02
+|-
+| C57B94 || D51884 || 0001 (Dodongo's Cavern) || 03
+|-
+| C57B98 || D51888 || 0012 (King Dodongo's Lair) || 03
+|-
+| C57B9C || D5188C || 0002 (Inside Jabu Jabu's Belly) || 04
+|-
+| C57BA0 || D51890 || 0003 (Forest Temple) || 05
+|-
+| C57BA4 || D51894 || 0004 (Fire Temple) || 08
+|-
+| C57BA8 || D51898 || 000A (Ganon's Tower) || 09
+|-
+| C57BAC || D5189C || 0019 (Ganondorf's Lair) || 09
+|-
+| C57BB0 || D518A0 || 0006 (Spirit Temple) || 0A
+|-
+| C57BB4 || D518A4 || 0017 (Twinrova/Nabooru) || 0A
+|-
+| C57BB8 || D518A8 || 0005 (Water Temple) || 0B
+|-
+| C57BBC || D518AC || 0007 (Shadow Temple) || 0C
+|-
+| C57BC0 || D518B0 || 0008 (Bottom of the Well) || 0C
+|-
+| C57BC4 || D518B4 || 0009 (Ice Cavern) || 0D
+|-
+| C57BC8 || D518B8 || 000B (Gerudo Training Ground) || 0E
+|-
+| C57BCC || D518BC || 000D (Inside Ganon's Castle) || 0F
+|-
+| C57BD0 || D518C0 || 0041 (Royal Family's Tomb) || 10
+|-
+|}
+
+If an object is being swapped for another, its Markers must be swapped as well.<br>
+
+===Object Table===
+{| class="wikitable"
+|-
+! NTSC 1.0 !! Debug !! Value !! Object ID !! Markers !! File (Name)
+|-
+| C57A40 || D51730 || 00 || 0037 || 04 04 || object_gnd (Phantom Ganon)
+|-
+| C57A44 || D51734 || 01 || 001C || 05 05 || object_goma (Gohma)
+|-
+| C57A48 || D51738 || 02 || 0036 || 00 01 || object_ydan_objects (Inside the Deku Tree Objects)
+|-
+| C57A4C || D5173C || 03 || 002B || 02 02 || object_ddan_objects (Dodongo's Cavern Objects)
+|-
+| C57A50 || D51740 || 04 || 0096 || 03 03 || object_bdan_objects (Inside Jabu-Jabu's Belly Objects)
+|-
+| C57A54 || D51744 || 05 || 0001 || 08 08 || gameplay_keep (Global Gameplay Objects)
+|-
+| C57A58 || D51748 || 06 || 00B0 || 07 07 || object_bdoor (Boss Doors)
+|-
+| C57A5C || D5174C || 07 || 0001 || 08 08 || gameplay_keep (Global Gameplay Objects)
+|-
+| C57A60 || D51750 || 08 || 002C || 09 0A || object_hidan_objects (Fire Temple Objects)
+|-
+| C57A64 || D51754 || 09 || 0139 || 0B 0B || object_ganon_objects (Ganon's Tower Objects)
+|-
+| C57A68 || D51758 || 0A || 016D || 06 06 || object_jya_door (Spirit Temple Door & Iron Bars)
+|-
+| C57A6C || D5175C || 0B || 0059 || 0C 0D || object_mizu_objects (Water Temple Objects)
+|-
+| C57A70 || D51760 || 0C || 0187 || 0E 0F || object_haka_door (Shadow Temple Door & Shutter)
+|-
+| C57A74 || D51764 || 0D || 006B || 10 10 || object_ice_objects (Ice Cavern Objects)
+|-
+| C57A78 || D51768 || 0E || 004D || 11 11 || object_menkuri_objects (Gerudo Training Ground Objects)
+|-
+| C57A7C || D5176C || 0F || 0179 || 12 12 || object_demo_kekkai (Inside Ganon's Castle Objects)
+|-
+| C57A80 || D51770 || 10 || 018F || 13 13 || object_ouke_haka (Royal Family's Tomb Door)
+|-
+|}

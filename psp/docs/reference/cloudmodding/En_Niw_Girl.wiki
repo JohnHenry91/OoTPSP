@@ -1,0 +1,19 @@
+{{Actor|name=ovl_En_Niw_Girl|ispage=true}}
+
+'''ovl_En_Niw_Girl''' is the [[actor]] for the [[Cucco-Chasing Girl|Cucco-chasing girl]] in Hyrule Castle Town.
+
+{{clear}}
+
+== Console Output Strings ==
+ 
+{{translate}}
+{{consolestrings
+|row1=<font color="green">☆☆☆☆☆ シツレイしちゃうわね！プンプン ☆☆☆☆☆ %d</font>{{!!}}<font color="green">☆☆☆☆☆ YOU'RE BEING RUDE! GRR. ☆☆☆☆☆ %d</font>
+|row2=<font color="yellow">☆☆☆☆☆ きゃははははは、まてー ☆☆☆☆☆ %d</font>{{!!}}<font color="yellow">☆☆☆☆☆ HEEHEEHEE, WAIT FOR ME~! ☆☆☆☆☆ %d</font>
+|row3=<font color="green">☆☆☆☆☆ なぜか、セットできむぅあせん ☆☆☆☆☆ %d</font>{{!!}}<font color="green">☆☆☆☆☆ なぜか、セットできむぅあせん ☆☆☆☆☆ %d</font>
+|row4=<font color="yellow">☆☆☆☆☆ んんがくく ☆☆☆☆☆ %d</font>{{!!}}<font color="yellow">☆☆☆☆☆ んんがくく ☆☆☆☆☆ %d</font>
+|row5=../z_en_niw_girl.c{{!!}}../z_en_niw_girl.c
+|row6=../z_en_niw_girl.c{{!!}}../z_en_niw_girl.c
+}}
+
+[[Category:Cucco-Chasing Girl]]

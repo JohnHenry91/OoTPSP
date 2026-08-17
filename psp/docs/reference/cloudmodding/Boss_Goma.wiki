@@ -1,0 +1,29 @@
+{{Template:Actor|ispage=true|name=ovl_Boss_Goma}}
+
+<!--{{Z64File2| Filename=ovl_Boss_Goma}}
+{{Z64File2R|Version=Debug|ROM-Start=00CDF070|ROM-End=00CE5160|Size=60F0}}
+{{Z64File2R|Version=NTSC 1.0|ROM-Start=00C44C30|ROM-End=00C4ABB0|Size=5F80}}
+{{Z64File2R|Version=PAL MQ|ROM-Start=00C8E290|ROM-End=00C94230|Size=5FA0}}
+|}-->
+{{clear}}
+== Debug Rom Notes ==
+<pre>ROM - CDF9D8 -
+RAM - 22D9F8 - ADDIU - T7, R0, 0x0046 Stun Time Possibility while she is spawning Larva
+
+
+ROM - CE26F4
+RAM - 230714 - ADDIU - T7, R0, 0x0096 Amount of Stun Time when Gohma falls when her spawning is interrupted
+
+ROM - CE377C
+RAM - 23179C - ADDIU - T2, R0, 0x005A Amount of Stun Time when Gohma is hit with a Slingshot during her attack phase.
+
+ROM - CE379C
+RAM - 2317BC -ADDIU - T1, R0, 0x0028 24090028 = Amount of Stun Time when Gohma is stunned by Deku Nuts during her attack phase.
+
+
+ROM - CE3744
+RAM - 231764 - 318D0005 = A check of Gohma's Stun. The range of 0005 means that the Deku Nut (0001) and the Fairy Slingshot (0004) will be the only things to stun her, please refer to the Damage Identifier Bytes here for better understanding of this.
+
+It is only two bytes so you are limited in minor manners. You can't have any sword strike, for instance, stun Gohma, nor can you have her be stunned by Din's Fire, Shadow Arrows, or any of the unused magic.
+</pre>
+[[Category: Queen Gohma]]

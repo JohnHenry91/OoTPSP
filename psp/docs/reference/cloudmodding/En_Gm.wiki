@@ -1,0 +1,28 @@
+{{Actor|name=ovl_En_Gm}}
+
+'''ovl_En_Gm''' is the [[actor]] file for [[Medigoron]].
+{{clear}}
+[[Category:Gorons]]
+
+== Debug Rom Notes ==
+ROM: 0xDF4B24 - (24060028) Buying Giant's Knife for 200 Rupees
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m%s[%d] : 中ゴロン[%d][m||[32m%s[%d] : MEDIGORON[%d][m
+|-
+| ../z_en_gm.c||../z_en_gm.c
+|-
+| [41;37mモデル バンクが無いよ！！（中ゴロン）||[41;37mMODEL BANK DOESN'T EXIST!! (MEDIGORON)
+|-
+| [m0||[m0
+|-
+| ../z_en_gm.c||../z_en_gm.c
+|-
+| ../z_en_gm.c||../z_en_gm.c
+|-
+| ../z_en_gm.c||../z_en_gm.c
+|}

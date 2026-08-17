@@ -1,0 +1,10 @@
+{{todo|Complete}}
+Hylian Soldiers are the guards that serve in Hyrule's royal family. They are primarily used as a plot device for explaining why Ganon can so easily conquer Hyrule, and yet still be beaten by a child. 
+
+== Actors ==
+* {{actor ref|8F}}
+* {{actor ref|B3}} 
+* {{actor ref|142}}
+* {{actor ref|178}}
+
+[[Category:Hylian Soldiers| ]]

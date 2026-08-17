@@ -1,0 +1,8 @@
+{{actor|name=ovl_En_Hy}}
+'''ovl_En_Hy''' is the Market town npcs. 
+{{clear}}
+[[Category:Npcs]]
+== Debug Rom Notes ==
+
+ ROM: 0xE27120 (2410003E) - Heart Piece from finding Little Richard
+ ROM: 0xE27128 (2410004D) - Blue Rupee from finding Little Richard subsequent times.

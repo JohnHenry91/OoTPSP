@@ -1,0 +1,51 @@
+{{Actor|name=ovl_Demo_Ik}}
+
+'''ovl_Demo_Ik''' is the cutscene [[actor]] for the [[Iron Knuckle]].
+
+{{todo|Confirm that this actor is indeed connected to Nabooru, and isn't a regular Iron Knuckle.}}
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| Demo_Ik_Check_DemoMode:そんな動作は無い!!!!!!!!||Demo_Ik_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| ../z_demo_ik_inArmer.c||../z_demo_ik_inArmer.c
+|-
+| ../z_demo_ik_inArmer.c||../z_demo_ik_inArmer.c
+|-
+| ../z_demo_ik_inArmer.c||../z_demo_ik_inArmer.c
+|-
+| ../z_demo_ik_inArmer.c||../z_demo_ik_inArmer.c
+|-
+| ../z_demo_ik_inArmer.c||../z_demo_ik_inArmer.c
+|-
+| ../z_demo_ik_inArmer.c||../z_demo_ik_inArmer.c
+|-
+| Demo_Ik_inFace_Check_DemoMode:そんな動作は無い!!!!!!!!||Demo_Ik_inFace_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| ../z_demo_ik_inFace.c||../z_demo_ik_inFace.c
+|-
+| ../z_demo_ik_inFace.c||../z_demo_ik_inFace.c
+|-
+| ../z_demo_ik_inFace.c||../z_demo_ik_inFace.c
+|-
+| ../z_demo_ik_inFace.c||../z_demo_ik_inFace.c
+|-
+| ../z_demo_ik_inFace.c||../z_demo_ik_inFace.c
+|-
+| ../z_demo_ik_inFace.c||../z_demo_ik_inFace.c
+|-
+| ../z_demo_ik_inFace.c||../z_demo_ik_inFace.c
+|-
+| ../z_demo_ik_inFace.c||../z_demo_ik_inFace.c
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mMAIN MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mDRAW MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|}
+
+[[Category:Cutscene Actors]] [[Category:Iron Knuckles]] [[Category:Nabooru]]

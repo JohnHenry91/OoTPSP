@@ -1,0 +1,77 @@
+{{Actor|name=ovl_En_Heishi1|ispage=true}}
+
+'''ovl_En_Heishi1''' is a [[Hylian soldier]] [[actor]] used for patrolling the Castle Courtyard.
+
+Their speed is dependent upon their variables. 0XX is slowest up to 3XX. 4XX is an unused "long range" mode which is finnicky at best and stops the actor after they move one frame. 5XX only appears after Zelda has fled (unsure currently of the exact value searched for in this, I thought it was the Spiritual Stones, but it didn't appear to be)
+
+When they stop they turn their heads for a Random Value +32 frames, this is located at...
+
+Debug Rom - E088DC (25AE0032) - ADDIU T6, T5, 0x0032.
+(File Relative +A2C)
+
+The entrance that they throw Link into is located at...
+
+Debug Rom - E08D78 (240904FA) - ADDIU T1, R0, 0x04FA (Being thrown out by guards in Garden)
+(File Relative + EC8)
+{{clear}}
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m 種類☆☆☆☆☆☆☆☆☆☆☆☆☆ %d||[32m TYPE☆☆☆☆☆☆☆☆☆☆☆☆☆ %d
+|-
+| [m[33m れえるでぇたぁ☆☆☆☆☆☆☆☆ %d||[m[33m RAIL DATA☆☆☆☆☆☆☆☆ %d
+|-
+| [m[35m anime_frame_speed ☆☆☆☆☆☆ %f||[m[35m anime_frame_speed ☆☆☆☆☆☆ %f
+|-
+| [m[35m 補間フレーム☆☆☆☆☆☆☆☆☆ %f||[m[35m INTERPOLATION FRAME☆☆☆☆☆☆☆☆☆ %f
+|-
+| [m[35m point間の移動スピード目標値 ☆ %f||[m[35m point MOVEMENT SPEED TARGET VALUE ☆ %f
+|-
+| [m[35m point間の移動スピード最大 ☆☆ %f||[m[35m point MOVEMENT SPEED MAXIMUM ☆☆ %f
+|-
+| [m[35m (体)反転アングルスピード目標値 %f||[m[35m (BODY) TURNING ANGLE SPEED TARGET VALUE %f
+|-
+| [m[35m (体)反転アングルスピード最大☆ %f||[m[35m (BODY) TURNING ANGLE SPEED MAXIMUM☆ %f
+|-
+| [m[35m (頭)反転アングルスピード加算値 %f||[m[35m (HEAD) TURNING ANGLE SPEED ADDITION VALUE %f
+|-
+| [m[35m (頭)反転アングルスピード最大☆ %f||[m[35m (HEAD) TURNING ANGLE SPEED MAXIMUM☆ %f
+|-
+| [m[32m 今時間 %d||[m[32m CURRENT TIME %d
+|-
+| [m[33m チェック時間 %d||[m[33m CHECK TIME %d
+|-
+| [m||[m
+|-
+| [31m 種類  %d||[31m TYPE  %d
+|-
+| [m[31m ぱす  %d||[m[31m PATH  %d
+|-
+| [m[31m 反転  %d||[m[31m TURN  %d
+|-
+| [m[31m 時間  %d||[m[31m TIME  %d
+|-
+| [m[31m 点座  %d||[m[31m ???  %d
+|-
+| [m||[m
+|-
+| [32m 種類  %d||[32m TYPE  %d
+|-
+| [m[32m ぱす  %d||[m[32m PATH  %d
+|-
+| [m[32m 反転  %d||[m[32m TURN  %d
+|-
+| [m[32m 時間  %d||[m[32m TIME  %d
+|-
+| [m||[m
+|-
+| [32m☆☆☆☆☆ 発見！ ☆☆☆☆☆ ||[32m☆☆☆☆☆ DISCOVERED! ☆☆☆☆☆ 
+|-
+| [m[32m☆☆☆☆☆ 発見！ ☆☆☆☆☆ ||[m[32m☆☆☆☆☆ DISCOVERED! ☆☆☆☆☆ 
+|-
+| [m||[m
+|}
+
+[[Category:Hylian Soldiers]]

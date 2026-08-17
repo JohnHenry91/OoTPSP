@@ -1,0 +1,35 @@
+{{Actor|name=ovl_En_Ge2}}
+
+'''ovl_En_Ge2''' is the [[actor]] for the purple-clad Gerudos that patrol Gerudo Valley and Gerudo Fortress.
+
+{{clear}}
+
+== Debug Rom Notes ==
+
+<PRE>ROM: 0xDEA630 - (2406003A) Will give you Membership Card (Absolute Beta here. Since this is just the normal Guard Gerudo model and it is mentioned in the Actor List that one has this function, but that it would be programmed into the actor itself, is proof that this is beta and not just some code mixup.)
+
+ROM: 0xDEA6C0 - (2406003A) As above?</PRE>
+
+
+== 1.0 NTSC Rom Notes ==
+
+<PRE>Offset E9F652: normaly 03B4, it is the index of the entrance a gerudo guard will take you in if you have hookshot.</PRE>
+
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| ../z_en_ge2.c||../z_en_ge2.c
+|-
+| [32m発見!!!!!!!!!!!![m||[32mDISCOVERED!!!!!!!!!!!![m
+|-
+| [32m発見!!!!!!!!!!!![m||[32mDISCOVERED!!!!!!!!!!!![m
+|-
+| ../z_en_ge2.c||../z_en_ge2.c
+|-
+| ../z_en_ge2.c||../z_en_ge2.c
+|}
+
+[[Category:Gerudos]]

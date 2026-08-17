@@ -1,0 +1,9 @@
+== Actors ==
+* {{actor ref|00E7}}
+* {{actor ref|00D9}}
+
+== Objects ==
+* {{object ref|00E0}}
+* {{object ref|00D0}}
+
+[[Category: Malon| ]]

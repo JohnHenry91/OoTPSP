@@ -1,0 +1,95 @@
+{{Address3|space=code|name=Entrance Cutscenes
+|ver1=Debug|ref1=rom|start1=B95394|size1=1A0
+|ver2=NTSC 1.0|ref2=rom|start2=B65C64|size2=1A0}}
+
+Entrance cutscenes are a subset of [[cutscenes]] that play when entering a scene using a specific entrance index value. 
+{{clear}}
+
+== Format ==
+Each record follows the following format:
+
+<tt>eeee aaff bbbb bbbb</tt>
+ 
+'''e''' = [[entrance index]] used to trigger the cutscene<br>
+'''a''' = an age restriction code. 00 for adult only cutscenes, 01 for child only cutscenes, 02 for no restriction<br>
+'''f''' = [[event_chk_inf]] flag. See page for an explanation on how this value works<br>
+'''b''' = [[segment offset]] location of the cutscene. Always starts with 02 for scene offset.<br>
+
+The event flag is used to record whether the cutscene should has already been shown or not, except for the cutscenes that play whenever you leave Lon Lon ranch with Epona (which are instead used to set that you own Epona). This flag can be used to turn on a single bit at offsets 0x0ED4 - 0x0F13 from the start of the saved data. See [[Save Format]] for a list of ram offsets for the starting locations for the save data.
+
+== Table ==
+
+{| class="wikitable"
+|  ||'''Entrance'''||'''Age'''||'''Flag'''||'''NTSC 1.0<br>Segment Offset'''||'''Scene'''||'''Description'''
+|-
+| 0||0185||02||A0||02013AA0||Hyrule Field||
+|-
+| 1||013D||02||A1||02007EA0||Death Mountain Trail||
+|-
+| 2||00DB||02||A3||0200A540||Kakariko Village||
+|-
+| 3||0108||02||A4||02003D70||Zora's Domain||
+|-
+| 4||0138||01||A5||02003F40||Hyrule Castle||Hyrule Castle Intro
+|-
+| 5||014D||02||A6||02008400||Goron City||
+|-
+| 6||0053||02||A7||0200CE00||Temple of Time||
+|-
+| 7||0000||02||A8||0200B640||Deku Tree||
+|-
+| 8||028A||00||18||0200F9E0||Hyrule Field||Jumped Southern Lon Lon Fence
+|-
+| 9||0292||00||18||0200FF00||Hyrule Field||Jumped Eastern Lon Lon Fence
+|-
+| 10||028E||00||18||02010550||Hyrule Field||Jumped Western Lon Lon Fence
+|-
+| 11||0476||00||18||02010B30||Hyrule Field||Jumped Lon Lon Front Gate
+|-
+| 12||050F||01||A9||0200BB80||Hyrule Field||Get Ocarina of Time
+|-
+| 13||0102||02||B1||02007A30||Lake Hylia||
+|-
+| 14||0117||02||B2||020031E0||Gerudo Valley||
+|-
+| 15||0129||02||B3||02006490||Gerudo Fortress||
+|-
+| 16||0157||02||B4||02005B70||Lon Lon Ranch||
+|-
+| 17||0028||02||B5||020155E0||Inside Jabu Jabu's Belly||
+|-
+| 18||00E4||02||B6||020070C0||Graveyard||
+|-
+| 19||0225||02||B7||02004A80||Zora's Fountain||
+|-
+| 20||0123||02||B8||02007990||Desert Colossus||
+|-
+| 21||0147||02||B9||020076D0||Death Mountain Crater||
+|-
+| 22||0138||00||BA||02004280||Hyrule Castle||Ganon's Castle Intro
+|-
+| 23||0574||02||5A||020028E0||Royal Family's Tomb||Sun Song Cutscene
+|-
+| 24||0538||02||BB||0201E780||Inside Ganon's Castle||Clear Forest Trial
+|-
+| 25||053C||02||BC||0201EF60||Inside Ganon's Castle||Clear Water Trial
+|-
+| 26||0540||02||BD||02021370||Inside Ganon's Castle||Clear Shadow Trial
+|-
+| 27||0544||02||BE||0201E3D0||Inside Ganon's Castle||Clear Fire Trial
+|-
+| 28||0548||02||BF||0201DF80||Inside Ganon's Castle||Clear Light Trial
+|-
+| 29||054C||02||AD||0201EB30||Inside Ganon's Castle||Clear Spirit Trial
+|-
+| 30||008D||00||C0||02002BB0||Spirit Temple Boss||
+|-
+| 31||03B4||00||C7||020055C0||Gerudo Fortress||Captured First Time with Hookshot
+|-
+| 32||0246||02||B9||020076D0||Death Mountain Crater||
+|-
+| 33||05E8||02||C6||0200C9D0||Kokiri Forest||Deku Sprout Cutscene
+|}
+
+[[Category: Code (File)]]
+[[Category: Cutscenes]]

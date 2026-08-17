@@ -1,0 +1,74 @@
+{{Actor|name=ovl_En_Niw_Lady|ispage=true}}
+
+'''ovl_En_Niw_Lady''' is the Cucco Lady [[Actor]]. (Anju in Majora's Mask.)
+
+{{clear}}
+
+== Debug Rom Notes ==
+<pre>
+0xAB8 
+
+ROM: 0xE70768 (2406000F) Receive Empty Bottle from Cucco finding game.
+
+ROM: 0xE70790 (240B0055) Receive Fifty Rupees from Cucco finding game.
+
+ROM: 0xE70AA4 (2406001D) Receive Pocket Egg as an Adult
+ROM: 0xE70BF4 (2406000E) Receive Cojiro for hatching a Pocket Cucco.
+
+ROM: 0xE70CD0 (2406001D) As above?
+
+ROM: 0xE702F4 (24010019) - Actor that need to be determined in the pen (Cucco)</pre>
+
+== Console Output Strings ==
+
+{{investigate|Does Anju have some unused function related to hearts or bombs?}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ ねぇちゃんうっふん ☆☆☆☆☆ %d||[32m☆☆☆☆☆ NEE-CHAN~ TEEHEE ☆☆☆☆☆ %d
+|-
+| [m||[m
+|-
+| [32m☆ 鶏柵内ＧＥＴ！☆ %x||[32m☆ GOT CHICKEN INSIDE FENCE! ☆ %x
+|-
+| [m||[m
+|-
+| [33m☆☆☆☆☆ ねぇちゃん選択     ☆☆☆☆ %d||[33m☆☆☆☆☆ NEE-CHAN SELECTION     ☆☆☆☆ %d
+|-
+| [m[33m☆☆☆☆☆ ねぇちゃんハート     ☆☆☆☆ %d||[m[33m☆☆☆☆☆ NEE-CHAN HEARTS     ☆☆☆☆ %d
+|-
+| [m[33m☆☆☆☆☆ ねぇちゃん保存       ☆☆☆☆ %d||[m[33m☆☆☆☆☆ NEE-CHAN SAVING       ☆☆☆☆ %d
+|-
+| [m[33m☆☆☆☆☆ ねぇちゃん今     ☆☆☆☆ %d||[m[33m☆☆☆☆☆ NEE-CHAN CURRENT     ☆☆☆☆ %d
+|-
+| [m[32m☆☆☆☆☆ this->actor.talk_message ☆☆ %x||[m[32m☆☆☆☆☆ this->actor.talk_message ☆☆ %x
+|-
+| [m[32m☆☆☆☆☆ this->message_end_code   ☆☆ %d||[m[32m☆☆☆☆☆ this->message_end_code   ☆☆ %d
+|-
+| [m||[m
+|-
+| [36m☆☆☆☆☆ 柵内BIT変更前 ☆☆ %x||[36m☆☆☆☆☆ BEFORE CHANGING "INSIDE FENCE" BIT ☆☆ %x
+|-
+| [m[36m☆☆☆☆☆ 柵内BIT変更後 ☆☆ %x||[m[36m☆☆☆☆☆ AFTER CHANGING "INSIDE FENCE" BIT ☆☆ %x
+|-
+| [m||[m
+|-
+| [32m☆☆☆☆☆ ハート ☆☆☆☆☆ %d||[32m☆☆☆☆☆ HEARTS ☆☆☆☆☆ %d
+|-
+| [m[33m☆☆☆☆☆ 爆弾   ☆☆☆☆☆ %d||[m[33m☆☆☆☆☆ BOMBS   ☆☆☆☆☆ %d
+|-
+| [m||[m
+|-
+| [32m☆☆☆☆☆ アダルトメッセージチェック ☆☆☆☆☆ ||[32m☆☆☆☆☆ ADULT MESSAGE CHECK ☆☆☆☆☆ 
+|-
+| [m[32m☆☆☆☆☆ 正常終了 ☆☆☆☆☆ ||[m[32m☆☆☆☆☆ SUCCESS COMPLETE ☆☆☆☆☆ 
+|-
+| [m[32m☆☆☆☆☆ 通常メッセージチェック ☆☆☆☆☆ ||[m[32m☆☆☆☆☆ REGULAR MESSAGE CHECK ☆☆☆☆☆ 
+|-
+| ../z_en_niw_lady.c||../z_en_niw_lady.c
+|-
+| ../z_en_niw_lady.c||../z_en_niw_lady.c
+|}
+
+[[Category: Anju]] [[Category: Documentation]]

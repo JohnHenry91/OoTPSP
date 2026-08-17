@@ -1,0 +1,17 @@
+{{Actor|name=ovl_En_Go2}}
+'''ovl_En_Go2''' appears to be used for most [[gorons]] outside of cutscenes.
+{{clear}}
+[[Category:Gorons]]
+== Debug Rom ==
+
+ROM: 0xDFA260 (24060033) Big Bomb Bag from Rolling Goron
+ 
+ROM: 0xDFA270 (24060034) Biggest Bomb Bag from Rolling Goron
+
+ROM: 0xDFA9DC (2406002C) Goron Tunic from Link Jr.
+
+ROM: 0xDFAD74 (24060023) Prescription from Biggoron
+
+ROM: 0xDFE048 (24060026) Claim Check from Biggoron
+
+ROM: 0xDFAC60 (24060057) Biggoron's Sword from Biggoron

@@ -1,0 +1,3130 @@
+{{for|a complete explanation on how to use this table|Entrance Table}}
+== Credits ==
+
+* Original table provided by JSA
+* Comprehensive destination list compiled by mzxrules
+
+[[Category: Code (File)]]
+[[Category: Documentation]]
+
+== Table ==
+{| class="wikitable sortable"
+!data-sort-type="text"|Index
+!data-sort-type="text"|Scene
+!data-sort-type="text"|Entrance
+!data-sort-type="text"|Variable
+!Scene Name
+!Spawn Info
+|-
+| 0000 || 00 || 00 || 4102 || Deku Tree || From Kokiri Forest
+|-
+| 0001 || 00 || 00 || 4102 || Deku Tree || From Kokiri Forest
+|-
+| 0002 || 00 || 00 || 4102 || Deku Tree || From Kokiri Forest
+|-
+| 0003 || 00 || 00 || 4102 || Deku Tree || From Kokiri Forest
+|-
+| 0004 || 01 || 00 || 4102 || Dodongo's Cavern || From Death Mountain Trail
+|-
+| 0005 || 01 || 00 || 4102 || Dodongo's Cavern || From Death Mountain Trail
+|-
+| 0006 || 01 || 00 || 4102 || Dodongo's Cavern || From Death Mountain Trail
+|-
+| 0007 || 01 || 00 || 4102 || Dodongo's Cavern || From Death Mountain Trail
+|-
+| 0008 || 0B || 00 || 4102 || Gerudo Training Grounds || From Gerudo Fortress
+|-
+| 0009 || 0B || 00 || 4102 || Gerudo Training Grounds || From Gerudo Fortress
+|-
+| 000A || 0B || 00 || 4102 || Gerudo Training Grounds || From Gerudo Fortress
+|-
+| 000B || 0B || 00 || 4102 || Gerudo Training Grounds || From Gerudo Fortress
+|-
+| 000C || 14 || 00 || C102 || Forest Temple Boss || From Forest Temple
+|-
+| 000D || 14 || 00 || C102 || Forest Temple Boss || From Forest Temple
+|-
+| 000E || 14 || 00 || C102 || Forest Temple Boss || From Forest Temple
+|-
+| 000F || 14 || 00 || C102 || Forest Temple Boss || From Forest Temple
+|-
+| 0010 || 05 || 00 || 4102 || Water Temple || From Lake Hylia
+|-
+| 0011 || 05 || 00 || 4102 || Water Temple || From Lake Hylia
+|-
+| 0012 || 05 || 00 || 4102 || Water Temple || From Lake Hylia
+|-
+| 0013 || 05 || 00 || 4102 || Water Temple || From Lake Hylia
+|-
+| 0014 || 6E || 00 || 4102 || Lost Scene || 
+|-
+| 0015 || 6E || 00 || 4102 || Lost Scene || 
+|-
+| 0016 || 6E || 00 || 4102 || Lost Scene || 
+|-
+| 0017 || 6E || 00 || 4102 || Lost Scene || 
+|-
+| 0018 || 6C || 00 || 4102 || Action Testing Room || 
+|-
+| 0019 || 6C || 00 || 4102 || Action Testing Room || 
+|-
+| 001A || 6C || 00 || 4102 || Action Testing Room || 
+|-
+| 001B || 6C || 00 || 4102 || Action Testing Room || 
+|-
+| 001C || 68 || 00 || 4102 || Stalfos Middle Room || 
+|-
+| 001D || 68 || 00 || 4102 || Stalfos Middle Room || 
+|-
+| 001E || 68 || 00 || 4102 || Stalfos Middle Room || 
+|-
+| 001F || 68 || 00 || 4102 || Stalfos Middle Room || 
+|-
+| 0020 || 69 || 00 || 4102 || Stalfos Boss Room || 
+|-
+| 0021 || 69 || 00 || 4102 || Stalfos Boss Room || 
+|-
+| 0022 || 69 || 00 || 4102 || Stalfos Boss Room || 
+|-
+| 0023 || 69 || 00 || 4102 || Stalfos Boss Room || 
+|-
+| 0024 || 6D || 00 || 4102 || Item Testing Room || 
+|-
+| 0025 || 6D || 00 || 4102 || Item Testing Room || 
+|-
+| 0026 || 6D || 00 || 4102 || Item Testing Room || 
+|-
+| 0027 || 6D || 00 || 4102 || Item Testing Room || 
+|-
+| 0028 || 02 || 00 || 4102 || Inside Jabu Jabu's Belly || From Zora's Fountain
+|-
+| 0029 || 02 || 00 || 4102 || Inside Jabu Jabu's Belly || From Zora's Fountain
+|-
+| 002A || 02 || 00 || 4102 || Inside Jabu Jabu's Belly || From Zora's Fountain
+|-
+| 002B || 02 || 00 || 4102 || Inside Jabu Jabu's Belly || From Zora's Fountain
+|-
+| 002C || 02 || 00 || 4102 || Inside Jabu Jabu's Belly || From Zora's Fountain
+|-
+| 002D || 41 || 00 || 4126 || Royal Family's Tomb || From Graveyard
+|-
+| 002E || 41 || 00 || 4126 || Royal Family's Tomb || From Graveyard
+|-
+| 002F || 41 || 00 || 4126 || Royal Family's Tomb || From Graveyard
+|-
+| 0030 || 41 || 00 || 4126 || Royal Family's Tomb || From Graveyard
+|-
+| 0031 || 41 || 00 || 4102 || Royal Family's Tomb || From Graveyard
+|-
+| 0032 || 41 || 00 || 4102 || Royal Family's Tomb || From Graveyard
+|-
+| 0033 || 1B || 00 || C183 || Market Entrance - Child Day || From Market
+|-
+| 0034 || 1C || 00 || C102 || Market Entrance - Child Night || From Market
+|-
+| 0035 || 1D || 00 || C183 || Market Entrance - Adult || From Market
+|-
+| 0036 || 1D || 00 || C102 || Market Entrance - Adult || From Market
+|-
+| 0037 || 07 || 00 || 4102 || Shadow Temple || From Graveyard
+|-
+| 0038 || 07 || 00 || 4102 || Shadow Temple || From Graveyard
+|-
+| 0039 || 07 || 00 || 4102 || Shadow Temple || From Graveyard
+|-
+| 003A || 07 || 00 || 4102 || Shadow Temple || From Graveyard
+|-
+| 003B || 42 || 00 || 4220 || Shooting Gallery || From Kakariko Village
+|-
+| 003C || 42 || 00 || 4220 || Shooting Gallery || From Kakariko Village
+|-
+| 003D || 42 || 00 || 4220 || Shooting Gallery || From Kakariko Village
+|-
+| 003E || 42 || 00 || 4220 || Shooting Gallery || From Kakariko Village
+|-
+| 003F || 3E || 00 || 4102 || Grottos || Default
+|-
+| 0040 || 3E || 00 || 4102 || Grottos || Default
+|-
+| 0041 || 3E || 00 || 4102 || Grottos || Default
+|-
+| 0042 || 3E || 00 || 4102 || Grottos || Default
+|-
+| 0043 || 38 || 00 || 4220 || Lakeside Laboratory || From Lake Hylia
+|-
+| 0044 || 38 || 00 || 4220 || Lakeside Laboratory || From Lake Hylia
+|-
+| 0045 || 38 || 00 || 4220 || Lakeside Laboratory || From Lake Hylia
+|-
+| 0046 || 38 || 00 || 4220 || Lakeside Laboratory || From Lake Hylia
+|-
+| 0047 || 6A || 00 || 4102 || Dark Link Testing Area || 
+|-
+| 0048 || 6A || 00 || 4102 || Dark Link Testing Area || 
+|-
+| 0049 || 6A || 00 || 4102 || Dark Link Testing Area || 
+|-
+| 004A || 6A || 00 || 4102 || Dark Link Testing Area || 
+|-
+| 004B || 40 || 00 || 4126 || Grave with Shield || Hylian Shield Chest, from Graveyard
+|-
+| 004C || 40 || 00 || 4126 || Grave with Shield || Hylian Shield Chest, from Graveyard
+|-
+| 004D || 40 || 00 || 4126 || Grave with Shield || Hylian Shield Chest, from Graveyard
+|-
+| 004E || 40 || 00 || 4126 || Grave with Shield || Hylian Shield Chest, from Graveyard
+|-
+| 004F || 4C || 00 || 4220 || Lon Lon Ranch Buildings || Talon's House, from Lon Lon Ranch
+|-
+| 0050 || 4C || 00 || 4220 || Lon Lon Ranch Buildings || Talon's House, from Lon Lon Ranch
+|-
+| 0051 || 4C || 00 || 4220 || Lon Lon Ranch Buildings || Talon's House, from Lon Lon Ranch
+|-
+| 0052 || 4C || 00 || 4220 || Lon Lon Ranch Buildings || Talon's House, from Lon Lon Ranch
+|-
+| 0053 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0054 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0055 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0056 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0057 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0058 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0059 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 005A || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 005B || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 005C || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 005D || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 005E || 43 || 00 || 458B || Temple of Time || From Outside Temple of Time
+|-
+| 005F || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0060 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0061 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0062 || 43 || 00 || 4102 || Temple of Time || From Outside Temple of Time
+|-
+| 0063 || 10 || 00 || 4220 || Treasure Box Shop || From Market
+|-
+| 0064 || 10 || 00 || 4220 || Treasure Box Shop || From Market
+|-
+| 0065 || 10 || 00 || 4220 || Treasure Box Shop || From Market
+|-
+| 0066 || 10 || 00 || 4220 || Treasure Box Shop || From Market
+|-
+| 0067 || 1E || 03 || C183 || Back Alley - Day || Right side of alley, from door, from Back Alley Village House
+|-
+| 0068 || 1F || 03 || C102 || Back Alley - Night || Right side of alley, from door, from Back Alley Village House
+|-
+| 0069 || 1E || 03 || C102 || Back Alley - Day || Right side of alley, from door, from Back Alley Village House
+|-
+| 006A || 1F || 03 || C102 || Back Alley - Night || Right side of alley, from door, from Back Alley Village House
+|-
+| 006B || 44 || 00 || 4387 || Chamber of Sages || 
+|-
+| 006C || 44 || 00 || 4387 || Chamber of Sages || 
+|-
+| 006D || 44 || 00 || 4387 || Chamber of Sages || 
+|-
+| 006E || 44 || 00 || 4387 || Chamber of Sages || 
+|-
+| 006F || 44 || 00 || 4682 || Chamber of Sages || 
+|-
+| 0070 || 44 || 00 || 4682 || Chamber of Sages || 
+|-
+| 0071 || 44 || 00 || 4183 || Chamber of Sages || 
+|-
+| 0072 || 4E || 00 || 4220 || Granny's Potion Shop || From Kakariko Village
+|-
+| 0073 || 4E || 00 || 4220 || Granny's Potion Shop || From Kakariko Village
+|-
+| 0074 || 4E || 00 || 4220 || Granny's Potion Shop || From Kakariko Village
+|-
+| 0075 || 4E || 00 || 4220 || Granny's Potion Shop || From Kakariko Village
+|-
+| 0076 || 6B || 00 || 5122 || Beta Castle Courtyard || 
+|-
+| 0077 || 6B || 00 || 5122 || Beta Castle Courtyard || 
+|-
+| 0078 || 6B || 00 || 5122 || Beta Castle Courtyard || 
+|-
+| 0079 || 6B || 00 || 5122 || Beta Castle Courtyard || 
+|-
+| 007A || 45 || 00 || 5104 || Castle Courtyard - Day || From Castle, Crawlspace
+|-
+| 007B || 46 || 00 || 5104 || Castle Courtyard - Night || From Castle, Crawlspace
+|-
+| 007C || 45 || 00 || 5104 || Castle Courtyard - Day || From Castle, Crawlspace
+|-
+| 007D || 46 || 00 || 5104 || Castle Courtyard - Night || From Castle, Crawlspace
+|-
+| 007E || 4D || 00 || 4102 || Lots o' Pots || From Market Entrance
+|-
+| 007F || 4D || 00 || 4102 || Lots o' Pots || From Market Entrance
+|-
+| 0080 || 4D || 00 || 4102 || Lots o' Pots || From Market Entrance
+|-
+| 0081 || 4D || 00 || 4102 || Lots o' Pots || From Market Entrance
+|-
+| 0082 || 06 || 00 || 4102 || Spirit Temple || From Desert Colossus
+|-
+| 0083 || 06 || 00 || 4102 || Spirit Temple || From Desert Colossus
+|-
+| 0084 || 06 || 00 || 4102 || Spirit Temple || From Desert Colossus
+|-
+| 0085 || 06 || 00 || 4102 || Spirit Temple || From Desert Colossus
+|-
+| 0086 || 06 || 00 || 4102 || Spirit Temple || From Desert Colossus
+|-
+| 0087 || 06 || 00 || 4102 || Spirit Temple || From Desert Colossus
+|-
+| 0088 || 09 || 00 || 4102 || Ice Cavern || From Zora's Fountain
+|-
+| 0089 || 09 || 00 || 4102 || Ice Cavern || From Zora's Fountain
+|-
+| 008A || 09 || 00 || 4102 || Ice Cavern || From Zora's Fountain
+|-
+| 008B || 09 || 00 || 4102 || Ice Cavern || From Zora's Fountain
+|-
+| 008C || 09 || 00 || 4102 || Ice Cavern || From Zora's Fountain
+|-
+| 008D || 17 || 00 || C102 || Spirit Temple Boss || From Spirit Temple
+|-
+| 008E || 17 || 00 || C102 || Spirit Temple Boss || From Spirit Temple
+|-
+| 008F || 17 || 00 || C102 || Spirit Temple Boss || From Spirit Temple
+|-
+| 0090 || 17 || 00 || C102 || Spirit Temple Boss || From Spirit Temple
+|-
+| 0091 || 17 || 00 || 4102 || Spirit Temple Boss || From Spirit Temple
+|-
+| 0092 || 17 || 00 || 4102 || Spirit Temple Boss || From Spirit Temple
+|-
+| 0093 || 17 || 00 || 4102 || Spirit Temple Boss || From Spirit Temple
+|-
+| 0094 || 65 || 00 || 4102 || Collision Testing Arena || 
+|-
+| 0095 || 65 || 00 || 4102 || Collision Testing Arena || 
+|-
+| 0096 || 65 || 00 || 4102 || Collision Testing Arena || 
+|-
+| 0097 || 65 || 00 || 4102 || Collision Testing Arena || 
+|-
+| 0098 || 08 || 00 || 4204 || Bottom of the Well || From Kakariko Village
+|-
+| 0099 || 08 || 00 || 4204 || Bottom of the Well || From Kakariko Village
+|-
+| 009A || 08 || 00 || 4204 || Bottom of the Well || From Kakariko Village
+|-
+| 009B || 08 || 00 || 4204 || Bottom of the Well || From Kakariko Village
+|-
+| 009C || 27 || 00 || 4204 || House of Twins || From Kokiri Forest
+|-
+| 009D || 27 || 00 || 4204 || House of Twins || From Kokiri Forest
+|-
+| 009E || 27 || 00 || 4204 || House of Twins || From Kokiri Forest
+|-
+| 009F || 27 || 00 || 4204 || House of Twins || From Kokiri Forest
+|-
+| 00A0 || 47 || 00 || 4183 || Cutscene Map || 
+|-
+| 00A1 || 47 || 00 || 4183 || Cutscene Map || 
+|-
+| 00A2 || 47 || 00 || 4183 || Cutscene Map || 
+|-
+| 00A3 || 47 || 00 || 4183 || Cutscene Map || 
+|-
+| 00A4 || 47 || 00 || 450A || Cutscene Map || 
+|-
+| 00A5 || 47 || 00 || 410A || Cutscene Map || 
+|-
+| 00A6 || 47 || 00 || C50A || Cutscene Map || 
+|-
+| 00A7 || 47 || 00 || 458B || Cutscene Map || 
+|-
+| 00A8 || 47 || 00 || 4183 || Cutscene Map || 
+|-
+| 00A9 || 47 || 00 || 4102 || Cutscene Map || 
+|-
+| 00AA || 47 || 00 || 4102 || Cutscene Map || 
+|-
+| 00AB || 47 || 00 || 4183 || Cutscene Map || 
+|-
+| 00AC || 47 || 00 || 4183 || Cutscene Map || 
+|-
+| 00AD || 1E || 00 || C183 || Back Alley - Day || Right Entrance, from Market
+|-
+| 00AE || 1F || 00 || C102 || Back Alley - Night || Right Entrance, from Market
+|-
+| 00AF || 1E || 00 || C102 || Back Alley - Day || Right Entrance, from Market
+|-
+| 00B0 || 1F || 00 || C102 || Back Alley - Night || Right Entrance, from Market
+|-
+| 00B1 || 20 || 00 || C183 || Market - Child Day || From Market Entrance
+|-
+| 00B2 || 21 || 00 || C102 || Market - Child Night || From Market Entrance
+|-
+| 00B3 || 22 || 00 || C102 || Market - Adult || From Market Entrance
+|-
+| 00B4 || 22 || 00 || C102 || Market - Adult || From Market Entrance
+|-
+| 00B5 || 20 || 00 || 4408 || Market - Child Day || From Market Entrance
+|-
+| 00B6 || 67 || 00 || 4102 || Depth Test || 
+|-
+| 00B7 || 2C || 00 || 4220 || Bazaar || From Kakariko Village
+|-
+| 00B8 || 2C || 00 || 4220 || Bazaar || From Kakariko Village
+|-
+| 00B9 || 2C || 00 || 4220 || Bazaar || From Kakariko Village
+|-
+| 00BA || 2C || 00 || 4220 || Bazaar || From Kakariko Village
+|-
+| 00BB || 34 || 00 || 4204 || Link's House || Bed Entrance, from Savewarp
+|-
+| 00BC || 34 || 00 || 4204 || Link's House || Bed Entrance, from Savewarp
+|-
+| 00BD || 34 || 00 || 4204 || Link's House || Bed Entrance, from Savewarp
+|-
+| 00BE || 34 || 00 || 4204 || Link's House || Bed Entrance, from Savewarp
+|-
+| 00BF || 34 || 00 || 4202 || Link's House || Bed Entrance, from Savewarp
+|-
+| 00C0 || 34 || 00 || 4810 || Link's House || Bed Entrance, from Savewarp
+|-
+| 00C1 || 2D || 00 || 4204 || Kokiri Shop || From Kokiri Forest
+|-
+| 00C2 || 2D || 00 || 4204 || Kokiri Shop || From Kokiri Forest
+|-
+| 00C3 || 2D || 00 || 4204 || Kokiri Shop || From Kokiri Forest
+|-
+| 00C4 || 2D || 00 || 4204 || Kokiri Shop || From Kokiri Forest
+|-
+| 00C5 || 01 || 01 || 8102 || Dodongo's Cavern || From Dodongo's Cavern Boss
+|-
+| 00C6 || 01 || 01 || 8102 || Dodongo's Cavern || From Dodongo's Cavern Boss
+|-
+| 00C7 || 01 || 01 || 8102 || Dodongo's Cavern || From Dodongo's Cavern Boss
+|-
+| 00C8 || 01 || 01 || 8102 || Dodongo's Cavern || From Dodongo's Cavern Boss
+|-
+| 00C9 || 26 || 00 || 4204 || Know-it-all Brothers || From Kokiri Forest
+|-
+| 00CA || 26 || 00 || 4204 || Know-it-all Brothers || From Kokiri Forest
+|-
+| 00CB || 26 || 00 || 4204 || Know-it-all Brothers || From Kokiri Forest
+|-
+| 00CC || 26 || 00 || 4204 || Know-it-all Brothers || From Kokiri Forest
+|-
+| 00CD || 51 || 00 || 4183 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00CE || 51 || 00 || 4102 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00CF || 51 || 00 || 4183 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D0 || 51 || 00 || 4102 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D1 || 51 || 00 || 4202 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D2 || 51 || 00 || 50A1 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D3 || 51 || 00 || 50A1 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D4 || 51 || 00 || 51A3 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D5 || 51 || 00 || 4183 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D6 || 51 || 00 || C102 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D7 || 51 || 00 || 51A3 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D8 || 51 || 00 || 4183 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00D9 || 51 || 00 || 54A9 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00DA || 51 || 00 || C183 || Hyrule Field || From After Zelda Escape, 2nd+ Impa Escort
+|-
+| 00DB || 52 || 00 || 4183 || Kakariko Village || From Hyrule Field
+|-
+| 00DC || 52 || 00 || 4102 || Kakariko Village || From Hyrule Field
+|-
+| 00DD || 52 || 00 || 4183 || Kakariko Village || From Hyrule Field
+|-
+| 00DE || 52 || 00 || 4102 || Kakariko Village || From Hyrule Field
+|-
+| 00DF || 52 || 00 || 5326 || Kakariko Village || From Hyrule Field
+|-
+| 00E0 || 52 || 00 || 50A1 || Kakariko Village || From Hyrule Field
+|-
+| 00E1 || 52 || 00 || D0A1 || Kakariko Village || From Hyrule Field
+|-
+| 00E2 || 52 || 00 || 50A1 || Kakariko Village || From Hyrule Field
+|-
+| 00E3 || 52 || 00 || C102 || Kakariko Village || From Hyrule Field
+|-
+| 00E4 || 53 || 00 || 4183 || Kakariko Graveyard || From Kakariko Village
+|-
+| 00E5 || 53 || 00 || 4102 || Kakariko Graveyard || From Kakariko Village
+|-
+| 00E6 || 53 || 00 || 4183 || Kakariko Graveyard || From Kakariko Village
+|-
+| 00E7 || 53 || 00 || 4102 || Kakariko Graveyard || From Kakariko Village
+|-
+| 00E8 || 53 || 00 || 4202 || Kakariko Graveyard || From Kakariko Village
+|-
+| 00E9 || 53 || 00 || C102 || Kakariko Graveyard || From Kakariko Village
+|-
+| 00EA || 54 || 00 || C183 || Zora River || Land Entrance, from Hyrule Field
+|-
+| 00EB || 54 || 00 || C102 || Zora River || Land Entrance, from Hyrule Field
+|-
+| 00EC || 54 || 00 || C183 || Zora River || Land Entrance, from Hyrule Field
+|-
+| 00ED || 54 || 00 || C102 || Zora River || Land Entrance, from Hyrule Field
+|-
+| 00EE || 55 || 00 || 4183 || Kokiri Forest || Cutscene Entrance
+|-
+| 00EF || 55 || 00 || 4102 || Kokiri Forest || Cutscene Entrance
+|-
+| 00F0 || 55 || 00 || 4183 || Kokiri Forest || Cutscene Entrance
+|-
+| 00F1 || 55 || 00 || 4102 || Kokiri Forest || Cutscene Entrance
+|-
+| 00F2 || 55 || 00 || C50A || Kokiri Forest || Cutscene Entrance
+|-
+| 00F3 || 55 || 00 || 450A || Kokiri Forest || Cutscene Entrance
+|-
+| 00F4 || 55 || 00 || C50A || Kokiri Forest || Cutscene Entrance
+|-
+| 00F5 || 55 || 00 || 468A || Kokiri Forest || Cutscene Entrance
+|-
+| 00F6 || 55 || 00 || 450A || Kokiri Forest || Cutscene Entrance
+|-
+| 00F7 || 55 || 00 || 450A || Kokiri Forest || Cutscene Entrance
+|-
+| 00F8 || 55 || 00 || C102 || Kokiri Forest || Cutscene Entrance
+|-
+| 00F9 || 55 || 00 || C102 || Kokiri Forest || Cutscene Entrance
+|-
+| 00FA || 55 || 00 || C102 || Kokiri Forest || Cutscene Entrance
+|-
+| 00FB || 55 || 00 || C102 || Kokiri Forest || Cutscene Entrance
+|-
+| 00FC || 56 || 00 || C102 || Sacred Forest Meadow || From Lost Woods
+|-
+| 00FD || 56 || 00 || C102 || Sacred Forest Meadow || From Lost Woods
+|-
+| 00FE || 56 || 00 || C102 || Sacred Forest Meadow || From Lost Woods
+|-
+| 00FF || 56 || 00 || C102 || Sacred Forest Meadow || From Lost Woods
+|-
+| 0100 || 56 || 00 || 4183 || Sacred Forest Meadow || From Lost Woods
+|-
+| 0101 || 56 || 00 || 4000 || Sacred Forest Meadow || From Lost Woods
+|-
+| 0102 || 57 || 00 || C183 || Lake Hylia || From Hyrule Field
+|-
+| 0103 || 57 || 00 || C102 || Lake Hylia || From Hyrule Field
+|-
+| 0104 || 57 || 00 || C183 || Lake Hylia || From Hyrule Field
+|-
+| 0105 || 57 || 00 || C102 || Lake Hylia || From Hyrule Field
+|-
+| 0106 || 57 || 00 || 4183 || Lake Hylia || From Hyrule Field
+|-
+| 0107 || 57 || 00 || C102 || Lake Hylia || From Hyrule Field
+|-
+| 0108 || 58 || 00 || 4102 || Zora's Domain || From Zora River
+|-
+| 0109 || 58 || 00 || 4102 || Zora's Domain || From Zora River
+|-
+| 010A || 58 || 00 || 4102 || Zora's Domain || From Zora River
+|-
+| 010B || 58 || 00 || 4102 || Zora's Domain || From Zora River
+|-
+| 010C || 58 || 00 || C102 || Zora's Domain || From Zora River
+|-
+| 010D || 58 || 00 || C102 || Zora's Domain || From Zora River
+|-
+| 010E || 59 || 00 || 4183 || Zora's Fountain || Sapphire Cutscene Entrance
+|-
+| 010F || 59 || 00 || 4102 || Zora's Fountain || Sapphire Cutscene Entrance
+|-
+| 0110 || 59 || 00 || 4183 || Zora's Fountain || Sapphire Cutscene Entrance
+|-
+| 0111 || 59 || 00 || 4102 || Zora's Fountain || Sapphire Cutscene Entrance
+|-
+| 0112 || 59 || 00 || 4680 || Zora's Fountain || Sapphire Cutscene Entrance
+|-
+| 0113 || 59 || 00 || 4102 || Zora's Fountain || Sapphire Cutscene Entrance
+|-
+| 0114 || 59 || 00 || C102 || Zora's Fountain || Sapphire Cutscene Entrance
+|-
+| 0115 || 59 || 00 || 4102 || Zora's Fountain || Sapphire Cutscene Entrance
+|-
+| 0116 || 59 || 00 || C102 || Zora's Fountain || Sapphire Cutscene Entrance
+|-
+| 0117 || 5A || 00 || 4183 || Gerudo Valley || From Hyrule Field
+|-
+| 0118 || 5A || 00 || 4102 || Gerudo Valley || From Hyrule Field
+|-
+| 0119 || 5A || 00 || 4183 || Gerudo Valley || From Hyrule Field
+|-
+| 011A || 5A || 00 || 4102 || Gerudo Valley || From Hyrule Field
+|-
+| 011B || 5A || 00 || C60A || Gerudo Valley || From Hyrule Field
+|-
+| 011C || 5A || 00 || C50A || Gerudo Valley || From Hyrule Field
+|-
+| 011D || 5A || 00 || C102 || Gerudo Valley || From Hyrule Field
+|-
+| 011E || 5B || 00 || 4102 || Lost Woods || From Kokiri Forest
+|-
+| 011F || 5B || 00 || 4102 || Lost Woods || From Kokiri Forest
+|-
+| 0120 || 5B || 00 || 4102 || Lost Woods || From Kokiri Forest
+|-
+| 0121 || 5B || 00 || 4102 || Lost Woods || From Kokiri Forest
+|-
+| 0122 || 5B || 00 || 4102 || Lost Woods || From Kokiri Forest
+|-
+| 0123 || 5C || 00 || C78F || Desert Colossus || From Haunted Wasteland
+|-
+| 0124 || 5C || 00 || C78F || Desert Colossus || From Haunted Wasteland
+|-
+| 0125 || 5C || 00 || C78F || Desert Colossus || From Haunted Wasteland
+|-
+| 0126 || 5C || 00 || C78F || Desert Colossus || From Haunted Wasteland
+|-
+| 0127 || 5C || 00 || C102 || Desert Colossus || From Haunted Wasteland
+|-
+| 0128 || 5C || 00 || C78F || Desert Colossus || From Haunted Wasteland
+|-
+| 0129 || 5D || 00 || C183 || Gerudo Fortress || From Gerudo Valley
+|-
+| 012A || 5D || 00 || C102 || Gerudo Fortress || From Gerudo Valley
+|-
+| 012B || 5D || 00 || C183 || Gerudo Fortress || From Gerudo Valley
+|-
+| 012C || 5D || 00 || C102 || Gerudo Fortress || From Gerudo Valley
+|-
+| 012D || 5D || 00 || D0A1 || Gerudo Fortress || From Gerudo Valley
+|-
+| 012E || 5D || 00 || C102 || Gerudo Fortress || From Gerudo Valley
+|-
+| 012F || 5D || 00 || C102 || Gerudo Fortress || From Gerudo Valley
+|-
+| 0130 || 5E || 00 || C70E || Haunted Wasteland || From Gerudo Fortress
+|-
+| 0131 || 5E || 00 || C70E || Haunted Wasteland || From Gerudo Fortress
+|-
+| 0132 || 5E || 00 || C70E || Haunted Wasteland || From Gerudo Fortress
+|-
+| 0133 || 5E || 00 || C70E || Haunted Wasteland || From Gerudo Fortress
+|-
+| 0134 || 0E || 01 || C102 || Tower Collapse Interior || Bottom of Boss Room, from Tower Collapse Exterior, (Lower)
+|-
+| 0135 || 0E || 01 || C102 || Tower Collapse Interior || Bottom of Boss Room, from Tower Collapse Exterior, (Lower)
+|-
+| 0136 || 0E || 01 || C102 || Tower Collapse Interior || Bottom of Boss Room, from Tower Collapse Exterior, (Lower)
+|-
+| 0137 || 0E || 01 || C102 || Tower Collapse Interior || Bottom of Boss Room, from Tower Collapse Exterior, (Lower)
+|-
+| 0138 || 5F || 00 || 4183 || Hyrule Castle || From Market Entrance
+|-
+| 0139 || 5F || 00 || 4102 || Hyrule Castle || From Market Entrance
+|-
+| 013A || 64 || 00 || 4102 || Ganon's Castle || From Market Entrance
+|-
+| 013B || 64 || 00 || 4102 || Ganon's Castle || From Market Entrance
+|-
+| 013C || 64 || 00 || 4202 || Ganon's Castle || From Market Entrance
+|-
+| 013D || 60 || 00 || 4183 || Death Mountain Trail || From Kakariko Village
+|-
+| 013E || 60 || 00 || 4102 || Death Mountain Trail || From Kakariko Village
+|-
+| 013F || 60 || 00 || 4183 || Death Mountain Trail || From Kakariko Village
+|-
+| 0140 || 60 || 00 || 4102 || Death Mountain Trail || From Kakariko Village
+|-
+| 0141 || 60 || 00 || C50A || Death Mountain Trail || From Kakariko Village
+|-
+| 0142 || 60 || 00 || 4183 || Death Mountain Trail || From Kakariko Village
+|-
+| 0143 || 60 || 00 || 4102 || Death Mountain Trail || From Kakariko Village
+|-
+| 0144 || 60 || 00 || C102 || Death Mountain Trail || From Kakariko Village
+|-
+| 0145 || 60 || 00 || C183 || Death Mountain Trail || From Kakariko Village
+|-
+| 0146 || 60 || 00 || C183 || Death Mountain Trail || From Kakariko Village
+|-
+| 0147 || 61 || 00 || 4102 || Death Mountain Crater || From Death Mountain Trail
+|-
+| 0148 || 61 || 00 || 4102 || Death Mountain Crater || From Death Mountain Trail
+|-
+| 0149 || 61 || 00 || 4102 || Death Mountain Crater || From Death Mountain Trail
+|-
+| 014A || 61 || 00 || 4102 || Death Mountain Crater || From Death Mountain Trail
+|-
+| 014B || 61 || 00 || 4183 || Death Mountain Crater || From Death Mountain Trail
+|-
+| 014C || 61 || 00 || 4102 || Death Mountain Crater || From Death Mountain Trail
+|-
+| 014D || 62 || 00 || 4102 || Goron City || From Death Mountain Trail
+|-
+| 014E || 62 || 00 || 4102 || Goron City || From Death Mountain Trail
+|-
+| 014F || 62 || 00 || 4102 || Goron City || From Death Mountain Trail
+|-
+| 0150 || 62 || 00 || 4102 || Goron City || From Death Mountain Trail
+|-
+| 0151 || 62 || 00 || 4102 || Goron City || From Death Mountain Trail
+|-
+| 0152 || 62 || 00 || C102 || Goron City || From Death Mountain Trail
+|-
+| 0153 || 58 || 03 || 4000 || Zora's Domain || Eyeball Frog Timeout
+|-
+| 0154 || 58 || 03 || 4000 || Zora's Domain || Eyeball Frog Timeout
+|-
+| 0155 || 58 || 03 || 4000 || Zora's Domain || Eyeball Frog Timeout
+|-
+| 0156 || 58 || 03 || 4000 || Zora's Domain || Eyeball Frog Timeout
+|-
+| 0157 || 63 || 00 || 4183 || Lon Lon Ranch || From Hyrule Field
+|-
+| 0158 || 63 || 00 || 4102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 0159 || 63 || 00 || 4183 || Lon Lon Ranch || From Hyrule Field
+|-
+| 015A || 63 || 00 || 4102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 015B || 63 || 00 || 5020 || Lon Lon Ranch || From Hyrule Field
+|-
+| 015C || 63 || 00 || 552A || Lon Lon Ranch || From Hyrule Field
+|-
+| 015D || 63 || 00 || C102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 015E || 63 || 00 || C102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 015F || 63 || 00 || C102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 0160 || 63 || 00 || C102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 0161 || 63 || 00 || C102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 0162 || 63 || 00 || C102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 0163 || 63 || 00 || C102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 0164 || 63 || 00 || C102 || Lon Lon Ranch || From Hyrule Field
+|-
+| 0165 || 04 || 00 || 4102 || Fire Temple || From Death Mountain Crater
+|-
+| 0166 || 04 || 00 || 4102 || Fire Temple || From Death Mountain Crater
+|-
+| 0167 || 04 || 00 || 4102 || Fire Temple || From Death Mountain Crater
+|-
+| 0168 || 04 || 00 || 4102 || Fire Temple || From Death Mountain Crater
+|-
+| 0169 || 03 || 00 || 4102 || Forest Temple || From Sacred Forest Meadow
+|-
+| 016A || 03 || 00 || 4102 || Forest Temple || From Sacred Forest Meadow
+|-
+| 016B || 03 || 00 || 4102 || Forest Temple || From Sacred Forest Meadow
+|-
+| 016C || 03 || 00 || 4102 || Forest Temple || From Sacred Forest Meadow
+|-
+| 016D || 42 || 01 || 4220 || Shooting Gallery || From Market Entrance
+|-
+| 016E || 42 || 01 || 4220 || Shooting Gallery || From Market Entrance
+|-
+| 016F || 42 || 01 || 4220 || Shooting Gallery || From Market Entrance
+|-
+| 0170 || 42 || 01 || 4220 || Shooting Gallery || From Market Entrance
+|-
+| 0171 || 23 || 00 || 4183 || Outside Temple of Time - Child Day || From Market Entrance
+|-
+| 0172 || 24 || 00 || 4102 || Outside Temple of Time - Child Night || From Market Entrance
+|-
+| 0173 || 25 || 00 || 4102 || Outside Temple of Time - Adult || From Market Entrance
+|-
+| 0174 || 25 || 00 || 4102 || Outside Temple of Time - Adult || From Market Entrance
+|-
+| 0175 || 04 || 01 || C102 || Fire Temple || Outside Boss Door, from Fire Temple Boss, Secret Map #0
+|-
+| 0176 || 04 || 01 || C102 || Fire Temple || Outside Boss Door, from Fire Temple Boss, Secret Map #0
+|-
+| 0177 || 04 || 01 || C102 || Fire Temple || Outside Boss Door, from Fire Temple Boss, Secret Map #0
+|-
+| 0178 || 04 || 01 || C102 || Fire Temple || Outside Boss Door, from Fire Temple Boss, Secret Map #0
+|-
+| 0179 || 0E || 00 || C102 || Tower Collapse Interior || Bottom of Boss Room, from Tower Collapse Exterior, (Higher)
+|-
+| 017A || 0E || 00 || C102 || Tower Collapse Interior || Bottom of Boss Room, from Tower Collapse Exterior, (Higher)
+|-
+| 017B || 0E || 00 || C102 || Tower Collapse Interior || Bottom of Boss Room, from Tower Collapse Exterior, (Higher)
+|-
+| 017C || 0E || 00 || C102 || Tower Collapse Interior || Bottom of Boss Room, from Tower Collapse Exterior, (Higher)
+|-
+| 017D || 51 || 01 || 4183 || Hyrule Field || From Kakariko Village
+|-
+| 017E || 51 || 01 || 4102 || Hyrule Field || From Kakariko Village
+|-
+| 017F || 51 || 01 || 4183 || Hyrule Field || From Kakariko Village
+|-
+| 0180 || 51 || 01 || 4102 || Hyrule Field || From Kakariko Village
+|-
+| 0181 || 51 || 02 || C183 || Hyrule Field || From Zora River, Land
+|-
+| 0182 || 51 || 02 || C102 || Hyrule Field || From Zora River, Land
+|-
+| 0183 || 51 || 02 || C183 || Hyrule Field || From Zora River, Land
+|-
+| 0184 || 51 || 02 || C102 || Hyrule Field || From Zora River, Land
+|-
+| 0185 || 51 || 03 || 4102 || Hyrule Field || From Lost Woods
+|-
+| 0186 || 51 || 03 || 4102 || Hyrule Field || From Lost Woods
+|-
+| 0187 || 51 || 03 || 4102 || Hyrule Field || From Lost Woods
+|-
+| 0188 || 51 || 03 || 4102 || Hyrule Field || From Lost Woods
+|-
+| 0189 || 51 || 04 || C183 || Hyrule Field || From Lake Hylia
+|-
+| 018A || 51 || 04 || C102 || Hyrule Field || From Lake Hylia
+|-
+| 018B || 51 || 04 || C183 || Hyrule Field || From Lake Hylia
+|-
+| 018C || 51 || 04 || C102 || Hyrule Field || From Lake Hylia
+|-
+| 018D || 51 || 05 || 4183 || Hyrule Field || From Gerudo Valley
+|-
+| 018E || 51 || 05 || 4102 || Hyrule Field || From Gerudo Valley
+|-
+| 018F || 51 || 05 || 4183 || Hyrule Field || From Gerudo Valley
+|-
+| 0190 || 51 || 05 || 4102 || Hyrule Field || From Gerudo Valley
+|-
+| 0191 || 52 || 01 || 4183 || Kakariko Village || From Death Mountain Trail
+|-
+| 0192 || 52 || 01 || 4102 || Kakariko Village || From Death Mountain Trail
+|-
+| 0193 || 52 || 01 || 4183 || Kakariko Village || From Death Mountain Trail
+|-
+| 0194 || 52 || 01 || 4102 || Kakariko Village || From Death Mountain Trail
+|-
+| 0195 || 52 || 02 || 4183 || Kakariko Village || From Graveyard
+|-
+| 0196 || 52 || 02 || 4102 || Kakariko Village || From Graveyard
+|-
+| 0197 || 52 || 02 || 4183 || Kakariko Village || From Graveyard
+|-
+| 0198 || 52 || 02 || 4102 || Kakariko Village || From Graveyard
+|-
+| 0199 || 54 || 01 || C183 || Zora River || Dropped from top of Waterfall
+|-
+| 019A || 54 || 01 || C183 || Zora River || Dropped from top of Waterfall
+|-
+| 019B || 54 || 01 || C183 || Zora River || Dropped from top of Waterfall
+|-
+| 019C || 54 || 01 || C183 || Zora River || Dropped from top of Waterfall
+|-
+| 019D || 54 || 02 || 4183 || Zora River || From Zora's Domain
+|-
+| 019E || 54 || 02 || 4102 || Zora River || From Zora's Domain
+|-
+| 019F || 54 || 02 || 4183 || Zora River || From Zora's Domain
+|-
+| 01A0 || 54 || 02 || 4102 || Zora River || From Zora's Domain
+|-
+| 01A1 || 58 || 01 || 4102 || Zora's Domain || From Zora's Fountain
+|-
+| 01A2 || 58 || 01 || 4102 || Zora's Domain || From Zora's Fountain
+|-
+| 01A3 || 58 || 01 || 4102 || Zora's Domain || From Zora's Fountain
+|-
+| 01A4 || 58 || 01 || 4102 || Zora's Domain || From Zora's Fountain
+|-
+| 01A5 || 5A || 01 || 4183 || Gerudo Valley || Thrown out of Gerudo Fortress, from Caught without usable hookshot
+|-
+| 01A6 || 5A || 01 || 4102 || Gerudo Valley || Thrown out of Gerudo Fortress, from Caught without usable hookshot
+|-
+| 01A7 || 5A || 01 || 4183 || Gerudo Valley || Thrown out of Gerudo Fortress, from Caught without usable hookshot
+|-
+| 01A8 || 5A || 01 || 4102 || Gerudo Valley || Thrown out of Gerudo Fortress, from Caught without usable hookshot
+|-
+| 01A9 || 5B || 01 || C102 || Lost Woods || From Sacred Forest Meadow
+|-
+| 01AA || 5B || 01 || C102 || Lost Woods || From Sacred Forest Meadow
+|-
+| 01AB || 5B || 01 || C102 || Lost Woods || From Sacred Forest Meadow
+|-
+| 01AC || 5B || 01 || C102 || Lost Woods || From Sacred Forest Meadow
+|-
+| 01AD || 5B || 02 || 4102 || Lost Woods || Mushroom Timeout (Adult)
+|-
+| 01AE || 5B || 02 || 4102 || Lost Woods || Mushroom Timeout (Adult)
+|-
+| 01AF || 5B || 02 || 4102 || Lost Woods || Mushroom Timeout (Adult)
+|-
+| 01B0 || 5B || 02 || 4102 || Lost Woods || Mushroom Timeout (Adult)
+|-
+| 01B1 || 5B || 03 || 4102 || Lost Woods || start from the tree opposite of the main entrance
+|-
+| 01B2 || 5B || 03 || 4102 || Lost Woods || start from the tree opposite of the main entrance
+|-
+| 01B3 || 5B || 03 || 4102 || Lost Woods || start from the tree opposite of the main entrance
+|-
+| 01B4 || 5B || 03 || 4102 || Lost Woods || start from the tree opposite of the main entrance
+|-
+| 01B5 || 0E || 02 || C102 || Tower Collapse Interior || Burning Rocks, from Tower Collapse Exterior, (Higher)
+|-
+| 01B6 || 0E || 02 || C102 || Tower Collapse Interior || Burning Rocks, from Tower Collapse Exterior, (Higher)
+|-
+| 01B7 || 0E || 02 || C102 || Tower Collapse Interior || Burning Rocks, from Tower Collapse Exterior, (Higher)
+|-
+| 01B8 || 0E || 02 || C102 || Tower Collapse Interior || Burning Rocks, from Tower Collapse Exterior, (Higher)
+|-
+| 01B9 || 60 || 01 || 4183 || Death Mountain Trail || From Goron City
+|-
+| 01BA || 60 || 01 || 4102 || Death Mountain Trail || From Goron City
+|-
+| 01BB || 60 || 01 || 4183 || Death Mountain Trail || From Goron City
+|-
+| 01BC || 60 || 01 || 4102 || Death Mountain Trail || From Goron City
+|-
+| 01BD || 60 || 02 || 4183 || Death Mountain Trail || From Death Mountain Crater
+|-
+| 01BE || 60 || 02 || 4102 || Death Mountain Trail || From Death Mountain Crater
+|-
+| 01BF || 60 || 02 || 4183 || Death Mountain Trail || From Death Mountain Crater
+|-
+| 01C0 || 60 || 02 || 4102 || Death Mountain Trail || From Death Mountain Crater
+|-
+| 01C1 || 62 || 01 || 4102 || Goron City || From Death Mountain Crater
+|-
+| 01C2 || 62 || 01 || 4102 || Goron City || From Death Mountain Crater
+|-
+| 01C3 || 62 || 01 || 4102 || Goron City || From Death Mountain Crater
+|-
+| 01C4 || 62 || 01 || 4102 || Goron City || From Death Mountain Crater
+|-
+| 01C5 || 38 || 01 || 4220 || Lakeside Laboratory || Possibly Eyedrops Timeout
+|-
+| 01C6 || 38 || 01 || 4220 || Lakeside Laboratory || Possibly Eyedrops Timeout
+|-
+| 01C7 || 38 || 01 || 4220 || Lakeside Laboratory || Possibly Eyedrops Timeout
+|-
+| 01C8 || 38 || 01 || 4220 || Lakeside Laboratory || Possibly Eyedrops Timeout
+|-
+| 01C9 || 1A || 05 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stalfos Room (Higher)
+|-
+| 01CA || 1A || 05 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stalfos Room (Higher)
+|-
+| 01CB || 1A || 05 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stalfos Room (Higher)
+|-
+| 01CC || 1A || 05 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stalfos Room (Higher)
+|-
+| 01CD || 20 || 08 || 4202 || Market - Child Day || From Shooting Gallery
+|-
+| 01CE || 21 || 08 || 4202 || Market - Child Night || From Shooting Gallery
+|-
+| 01CF || 22 || 08 || 4202 || Market - Adult || From Shooting Gallery
+|-
+| 01D0 || 22 || 08 || 4202 || Market - Adult || From Shooting Gallery
+|-
+| 01D1 || 20 || 09 || 4202 || Market - Child Day || From Happy Mask Shop
+|-
+| 01D2 || 21 || 09 || 4202 || Market - Child Night || From Happy Mask Shop
+|-
+| 01D3 || 22 || 09 || 4202 || Market - Adult || From Happy Mask Shop
+|-
+| 01D4 || 22 || 09 || 4202 || Market - Adult || From Happy Mask Shop
+|-
+| 01D5 || 20 || 0A || 4202 || Market - Child Day || From Treasure Box Shop
+|-
+| 01D6 || 21 || 0A || 4202 || Market - Child Night || From Treasure Box Shop
+|-
+| 01D7 || 22 || 0A || 4202 || Market - Adult || From Treasure Box Shop
+|-
+| 01D8 || 22 || 0A || 4202 || Market - Adult || From Treasure Box Shop
+|-
+| 01D9 || 54 || 03 || C183 || Zora River || Water Entrance, from Hyrule Field
+|-
+| 01DA || 54 || 03 || C102 || Zora River || Water Entrance, from Hyrule Field
+|-
+| 01DB || 54 || 03 || C183 || Zora River || Water Entrance, from Hyrule Field
+|-
+| 01DC || 54 || 03 || C102 || Zora River || Water Entrance, from Hyrule Field
+|-
+| 01DD || 54 || 04 || 562C || Zora River || From Lost Woods
+|-
+| 01DE || 54 || 04 || 562C || Zora River || From Lost Woods
+|-
+| 01DF || 54 || 04 || 562C || Zora River || From Lost Woods
+|-
+| 01E0 || 54 || 04 || 562C || Zora River || From Lost Woods
+|-
+| 01E1 || 5C || 01 || 4183 || Desert Colossus || From Spirit Temple
+|-
+| 01E2 || 5C || 01 || 4102 || Desert Colossus || From Spirit Temple
+|-
+| 01E3 || 5C || 01 || 4183 || Desert Colossus || From Spirit Temple
+|-
+| 01E4 || 5C || 01 || 4102 || Desert Colossus || From Spirit Temple
+|-
+| 01E5 || 5C || 02 || 0183 || Desert Colossus || From Spirit Temple, Gauntlets Entrance
+|-
+| 01E6 || 5C || 02 || 0102 || Desert Colossus || From Spirit Temple, Gauntlets Entrance
+|-
+| 01E7 || 5C || 02 || 0183 || Desert Colossus || From Spirit Temple, Gauntlets Entrance
+|-
+| 01E8 || 5C || 02 || 0102 || Desert Colossus || From Spirit Temple, Gauntlets Entrance
+|-
+| 01E9 || 5C || 03 || 0183 || Desert Colossus || From Spirit Temple, Mirror Shield Entrance
+|-
+| 01EA || 5C || 03 || 0102 || Desert Colossus || From Spirit Temple, Mirror Shield Entrance
+|-
+| 01EB || 5C || 03 || 0183 || Desert Colossus || From Spirit Temple, Mirror Shield Entrance
+|-
+| 01EC || 5C || 03 || 0102 || Desert Colossus || From Spirit Temple, Mirror Shield Entrance
+|-
+| 01ED || 5C || 04 || 4102 || Desert Colossus || After Requiem Cutscene
+|-
+| 01EE || 5C || 04 || 4102 || Desert Colossus || After Requiem Cutscene
+|-
+| 01EF || 5C || 04 || 4102 || Desert Colossus || After Requiem Cutscene
+|-
+| 01F0 || 5C || 04 || 4102 || Desert Colossus || After Requiem Cutscene
+|-
+| 01F1 || 5C || 05 || 4183 || Desert Colossus || Requiem Entrance
+|-
+| 01F2 || 5C || 05 || 4102 || Desert Colossus || Requiem Entrance
+|-
+| 01F3 || 5C || 05 || 4183 || Desert Colossus || Requiem Entrance
+|-
+| 01F4 || 5C || 05 || 4102 || Desert Colossus || Requiem Entrance
+|-
+| 01F5 || 5C || 06 || 878F || Desert Colossus || Nabooru Capture Cutscene Entrance
+|-
+| 01F6 || 5C || 06 || 878F || Desert Colossus || Nabooru Capture Cutscene Entrance
+|-
+| 01F7 || 5C || 06 || 878F || Desert Colossus || Nabooru Capture Cutscene Entrance
+|-
+| 01F8 || 5C || 06 || 878F || Desert Colossus || Nabooru Capture Cutscene Entrance
+|-
+| 01F9 || 51 || 06 || 4183 || Hyrule Field || From Lon Lon Ranch
+|-
+| 01FA || 51 || 06 || 4102 || Hyrule Field || From Lon Lon Ranch
+|-
+| 01FB || 51 || 06 || 4183 || Hyrule Field || From Lon Lon Ranch
+|-
+| 01FC || 51 || 06 || 4102 || Hyrule Field || From Lon Lon Ranch
+|-
+| 01FD || 51 || 07 || 4183 || Hyrule Field || From Market Entrance
+|-
+| 01FE || 51 || 07 || 4102 || Hyrule Field || From Market Entrance
+|-
+| 01FF || 51 || 07 || 4183 || Hyrule Field || From Market Entrance
+|-
+| 0200 || 51 || 07 || 4102 || Hyrule Field || From Market Entrance
+|-
+| 0201 || 52 || 03 || 4202 || Kakariko Village || From Bazaar
+|-
+| 0202 || 52 || 03 || 4202 || Kakariko Village || From Bazaar
+|-
+| 0203 || 52 || 03 || 4202 || Kakariko Village || From Bazaar
+|-
+| 0204 || 52 || 03 || 4202 || Kakariko Village || From Bazaar
+|-
+| 0205 || 53 || 01 || 4102 || Kakariko Graveyard || From Shadow Temple
+|-
+| 0206 || 53 || 01 || 4102 || Kakariko Graveyard || From Shadow Temple
+|-
+| 0207 || 53 || 01 || 4102 || Kakariko Graveyard || From Shadow Temple
+|-
+| 0208 || 53 || 01 || 4102 || Kakariko Graveyard || From Shadow Temple
+|-
+| 0209 || 55 || 01 || 4183 || Kokiri Forest || From Deku Tree
+|-
+| 020A || 55 || 01 || 4102 || Kokiri Forest || From Deku Tree
+|-
+| 020B || 55 || 01 || 4183 || Kokiri Forest || From Deku Tree
+|-
+| 020C || 55 || 01 || 4102 || Kokiri Forest || From Deku Tree
+|-
+| 020D || 55 || 02 || 4102 || Kokiri Forest || From Lost Woods, Hyrule Bridge
+|-
+| 020E || 55 || 02 || 4102 || Kokiri Forest || From Lost Woods, Hyrule Bridge
+|-
+| 020F || 55 || 02 || 4102 || Kokiri Forest || From Lost Woods, Hyrule Bridge
+|-
+| 0210 || 55 || 02 || 4102 || Kokiri Forest || From Lost Woods, Hyrule Bridge
+|-
+| 0211 || 55 || 03 || 4204 || Kokiri Forest || From Link's House
+|-
+| 0212 || 55 || 03 || 4204 || Kokiri Forest || From Link's House
+|-
+| 0213 || 55 || 03 || 4204 || Kokiri Forest || From Link's House
+|-
+| 0214 || 55 || 03 || 4204 || Kokiri Forest || From Link's House
+|-
+| 0215 || 56 || 01 || 4912 || Sacred Forest Meadow || From Forest Temple
+|-
+| 0216 || 56 || 01 || 4102 || Sacred Forest Meadow || From Forest Temple
+|-
+| 0217 || 56 || 01 || 4912 || Sacred Forest Meadow || From Forest Temple
+|-
+| 0218 || 56 || 01 || 4102 || Sacred Forest Meadow || From Forest Temple
+|-
+| 0219 || 57 || 01 || 4183 || Lake Hylia || From Gerudo Valley
+|-
+| 021A || 57 || 01 || 4102 || Lake Hylia || From Gerudo Valley
+|-
+| 021B || 57 || 01 || 4183 || Lake Hylia || From Gerudo Valley
+|-
+| 021C || 57 || 01 || 4102 || Lake Hylia || From Gerudo Valley
+|-
+| 021D || 57 || 02 || 4993 || Lake Hylia || From Water Temple
+|-
+| 021E || 57 || 02 || 4102 || Lake Hylia || From Water Temple
+|-
+| 021F || 57 || 02 || 4993 || Lake Hylia || From Water Temple
+|-
+| 0220 || 57 || 02 || 4102 || Lake Hylia || From Water Temple
+|-
+| 0221 || 59 || 01 || 4102 || Zora's Fountain || From Inside Jabu Jabu's Belly
+|-
+| 0222 || 59 || 01 || 4102 || Zora's Fountain || From Inside Jabu Jabu's Belly
+|-
+| 0223 || 59 || 01 || 4102 || Zora's Fountain || From Inside Jabu Jabu's Belly
+|-
+| 0224 || 59 || 01 || 4102 || Zora's Fountain || From Inside Jabu Jabu's Belly
+|-
+| 0225 || 59 || 02 || 4183 || Zora's Fountain || From Zora's Domain
+|-
+| 0226 || 59 || 02 || 4102 || Zora's Fountain || From Zora's Domain
+|-
+| 0227 || 59 || 02 || 4183 || Zora's Fountain || From Zora's Domain
+|-
+| 0228 || 59 || 02 || 4102 || Zora's Fountain || From Zora's Domain
+|-
+| 0229 || 5A || 02 || C183 || Gerudo Valley || Triggers Fortress Loading Zone
+|-
+| 022A || 5A || 02 || C102 || Gerudo Valley || Triggers Fortress Loading Zone
+|-
+| 022B || 5A || 02 || C183 || Gerudo Valley || Triggers Fortress Loading Zone
+|-
+| 022C || 5A || 02 || C102 || Gerudo Valley || Triggers Fortress Loading Zone
+|-
+| 022D || 5A || 03 || C183 || Gerudo Valley || From Gerudo Fortress
+|-
+| 022E || 5A || 03 || C102 || Gerudo Valley || From Gerudo Fortress
+|-
+| 022F || 5A || 03 || C183 || Gerudo Valley || From Gerudo Fortress
+|-
+| 0230 || 5A || 03 || C102 || Gerudo Valley || From Gerudo Fortress
+|-
+| 0231 || 5D || 01 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 0232 || 5D || 01 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 0233 || 5D || 01 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 0234 || 5D || 01 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 0235 || 5D || 02 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 0236 || 5D || 02 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 0237 || 5D || 02 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 0238 || 5D || 02 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 0239 || 5D || 03 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 023A || 5D || 03 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 023B || 5D || 03 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 023C || 5D || 03 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 023D || 5F || 01 || 4183 || Hyrule Castle || From Castle Courtyard
+|-
+| 023E || 5F || 01 || 4102 || Hyrule Castle || From Castle Courtyard
+|-
+| 023F || 64 || 01 || 4285 || Ganon's Castle || From Inside Ganon's Castle
+|-
+| 0240 || 64 || 01 || 4285 || Ganon's Castle || From Inside Ganon's Castle
+|-
+| 0241 || 5F || 01 || 4000 || Hyrule Castle || From Castle Courtyard
+|-
+| 0242 || 60 || 03 || 4183 || Death Mountain Trail || From Dodongo's Cavern
+|-
+| 0243 || 60 || 03 || 4102 || Death Mountain Trail || From Dodongo's Cavern
+|-
+| 0244 || 60 || 03 || 4183 || Death Mountain Trail || From Dodongo's Cavern
+|-
+| 0245 || 60 || 03 || 4102 || Death Mountain Trail || From Dodongo's Cavern
+|-
+| 0246 || 61 || 01 || 4102 || Death Mountain Crater || From Goron City
+|-
+| 0247 || 61 || 01 || 4102 || Death Mountain Crater || From Goron City
+|-
+| 0248 || 61 || 01 || 4102 || Death Mountain Crater || From Goron City
+|-
+| 0249 || 61 || 01 || 4102 || Death Mountain Crater || From Goron City
+|-
+| 024A || 61 || 02 || 4102 || Death Mountain Crater || From Fire Temple
+|-
+| 024B || 61 || 02 || 4102 || Death Mountain Crater || From Fire Temple
+|-
+| 024C || 61 || 02 || 4102 || Death Mountain Crater || From Fire Temple
+|-
+| 024D || 61 || 02 || 4102 || Death Mountain Crater || From Fire Temple
+|-
+| 024E || 03 || 01 || C102 || Forest Temple || Outside Boss Door, from Forest Temple Boss, Secret Map #0
+|-
+| 024F || 03 || 01 || C102 || Forest Temple || Outside Boss Door, from Forest Temple Boss, Secret Map #0
+|-
+| 0250 || 03 || 01 || C102 || Forest Temple || Outside Boss Door, from Forest Temple Boss, Secret Map #0
+|-
+| 0251 || 03 || 01 || C102 || Forest Temple || Outside Boss Door, from Forest Temple Boss, Secret Map #0
+|-
+| 0252 || 00 || 01 || 8102 || Deku Tree || From Deku Tree Boss
+|-
+| 0253 || 00 || 01 || 8102 || Deku Tree || From Deku Tree Boss
+|-
+| 0254 || 00 || 01 || 8102 || Deku Tree || From Deku Tree Boss
+|-
+| 0255 || 00 || 01 || 8102 || Deku Tree || From Deku Tree Boss
+|-
+| 0256 || 0E || 03 || C102 || Tower Collapse Interior || Burning Rocks, from Tower Collapse Exterior, (Lower)
+|-
+| 0257 || 0E || 03 || C102 || Tower Collapse Interior || Burning Rocks, from Tower Collapse Exterior, (Lower)
+|-
+| 0258 || 0E || 03 || C102 || Tower Collapse Interior || Burning Rocks, from Tower Collapse Exterior, (Lower)
+|-
+| 0259 || 0E || 03 || C102 || Tower Collapse Interior || Burning Rocks, from Tower Collapse Exterior, (Lower)
+|-
+| 025A || 20 || 01 || 4183 || Market - Child Day || From Castle
+|-
+| 025B || 21 || 01 || 4102 || Market - Child Night || From Castle
+|-
+| 025C || 22 || 01 || 4102 || Market - Adult || From Ganon's Castle
+|-
+| 025D || 22 || 01 || 4102 || Market - Adult || From Ganon's Castle
+|-
+| 025E || 20 || 02 || 4183 || Market - Child Day || From Temple of Time
+|-
+| 025F || 21 || 02 || 4102 || Market - Child Night || From Temple of Time
+|-
+| 0260 || 22 || 02 || 4102 || Market - Adult || From Temple of Time
+|-
+| 0261 || 22 || 02 || 4102 || Market - Adult || From Temple of Time
+|-
+| 0262 || 20 || 03 || C183 || Market - Child Day || From Back Alley, (Right)
+|-
+| 0263 || 21 || 03 || C102 || Market - Child Night || From Back Alley, (Right)
+|-
+| 0264 || 22 || 03 || C102 || Market - Adult || From Back Alley, (Right)
+|-
+| 0265 || 22 || 03 || C102 || Market - Adult || From Back Alley, (Right)
+|-
+| 0266 || 55 || 04 || 0204 || Kokiri Forest || From Kokiri Shop
+|-
+| 0267 || 55 || 04 || 0204 || Kokiri Forest || From Kokiri Shop
+|-
+| 0268 || 55 || 04 || 0204 || Kokiri Forest || From Kokiri Shop
+|-
+| 0269 || 55 || 04 || 0204 || Kokiri Forest || From Kokiri Shop
+|-
+| 026A || 55 || 05 || 0204 || Kokiri Forest || From Know-it-all Brothers
+|-
+| 026B || 55 || 05 || 0204 || Kokiri Forest || From Know-it-all Brothers
+|-
+| 026C || 55 || 05 || 0204 || Kokiri Forest || From Know-it-all Brothers
+|-
+| 026D || 55 || 05 || 0204 || Kokiri Forest || From Know-it-all Brothers
+|-
+| 026E || 1B || 02 || 0102 || Market Entrance - Child Day || From Lots 'o Pots
+|-
+| 026F || 1C || 02 || 0102 || Market Entrance - Child Night || From Lots 'o Pots
+|-
+| 0270 || 1D || 02 || 0102 || Market Entrance - Adult || From Lots 'o Pots
+|-
+| 0271 || 1D || 02 || 0102 || Market Entrance - Adult || From Lots 'o Pots
+|-
+| 0272 || 34 || 01 || 4204 || Link's House || From Kokiri Forest
+|-
+| 0273 || 34 || 01 || 4204 || Link's House || From Kokiri Forest
+|-
+| 0274 || 34 || 01 || 4204 || Link's House || From Kokiri Forest
+|-
+| 0275 || 34 || 01 || 4204 || Link's House || From Kokiri Forest
+|-
+| 0276 || 1B || 01 || 4183 || Market Entrance - Child Day || From Hyrule Field
+|-
+| 0277 || 1C || 01 || 4102 || Market Entrance - Child Night || From Hyrule Field
+|-
+| 0278 || 1D || 01 || 4102 || Market Entrance - Adult || From Hyrule Field
+|-
+| 0279 || 1D || 01 || 4102 || Market Entrance - Adult || From Hyrule Field
+|-
+| 027A || 51 || 08 || C183 || Hyrule Field || Positioned near Lake Hylia
+|-
+| 027B || 51 || 08 || C102 || Hyrule Field || Positioned near Lake Hylia
+|-
+| 027C || 51 || 08 || C183 || Hyrule Field || Positioned near Lake Hylia
+|-
+| 027D || 51 || 08 || C102 || Hyrule Field || Positioned near Lake Hylia
+|-
+| 027E || 51 || 09 || 4183 || Hyrule Field || Owl Drop Spot, from Lake Hylia
+|-
+| 027F || 51 || 09 || 4183 || Hyrule Field || Owl Drop Spot, from Lake Hylia
+|-
+| 0280 || 51 || 09 || 4183 || Hyrule Field || Owl Drop Spot, from Lake Hylia
+|-
+| 0281 || 51 || 09 || 4183 || Hyrule Field || Owl Drop Spot, from Lake Hylia
+|-
+| 0282 || 51 || 0A || 4183 || Hyrule Field || Unused Location
+|-
+| 0283 || 51 || 0A || 4183 || Hyrule Field || Unused Location
+|-
+| 0284 || 51 || 0A || 4183 || Hyrule Field || Unused Location
+|-
+| 0285 || 51 || 0A || 4183 || Hyrule Field || Unused Location
+|-
+| 0286 || 55 || 06 || 4102 || Kokiri Forest || From Lost Woods
+|-
+| 0287 || 55 || 06 || 4102 || Kokiri Forest || From Lost Woods
+|-
+| 0288 || 55 || 06 || 4102 || Kokiri Forest || From Lost Woods
+|-
+| 0289 || 55 || 06 || 4102 || Kokiri Forest || From Lost Woods
+|-
+| 028A || 51 || 0B || 4285 || Hyrule Field || From Lon Lon Ranch, Southern Fence Jump
+|-
+| 028B || 51 || 0B || 4202 || Hyrule Field || From Lon Lon Ranch, Southern Fence Jump
+|-
+| 028C || 51 || 0B || 4285 || Hyrule Field || From Lon Lon Ranch, Southern Fence Jump
+|-
+| 028D || 51 || 0B || 4202 || Hyrule Field || From Lon Lon Ranch, Southern Fence Jump
+|-
+| 028E || 51 || 0C || 4285 || Hyrule Field || From Lon Lon Ranch, Western Fence Jump
+|-
+| 028F || 51 || 0C || 4202 || Hyrule Field || From Lon Lon Ranch, Western Fence Jump
+|-
+| 0290 || 51 || 0C || 4285 || Hyrule Field || From Lon Lon Ranch, Western Fence Jump
+|-
+| 0291 || 51 || 0C || 4202 || Hyrule Field || From Lon Lon Ranch, Western Fence Jump
+|-
+| 0292 || 51 || 0D || 4285 || Hyrule Field || From Lon Lon Ranch, Eastern Fence Jump
+|-
+| 0293 || 51 || 0D || 4202 || Hyrule Field || From Lon Lon Ranch, Eastern Fence Jump
+|-
+| 0294 || 51 || 0D || 4285 || Hyrule Field || From Lon Lon Ranch, Eastern Fence Jump
+|-
+| 0295 || 51 || 0D || 4202 || Hyrule Field || From Lon Lon Ranch, Eastern Fence Jump
+|-
+| 0296 || 45 || 01 || 4183 || Castle Courtyard - Day || From Zelda's Courtyard
+|-
+| 0297 || 46 || 01 || 4102 || Castle Courtyard - Night || From Zelda's Courtyard
+|-
+| 0298 || 45 || 01 || 4183 || Castle Courtyard - Day || From Zelda's Courtyard
+|-
+| 0299 || 46 || 01 || 4102 || Castle Courtyard - Night || From Zelda's Courtyard
+|-
+| 029A || 1E || 01 || C183 || Back Alley - Day || Left Entrance, from Market
+|-
+| 029B || 1F || 01 || C102 || Back Alley - Night || Left Entrance, from Market
+|-
+| 029C || 1E || 01 || C102 || Back Alley - Day || Left Entrance, from Market
+|-
+| 029D || 1F || 01 || C102 || Back Alley - Night || Left Entrance, from Market
+|-
+| 029E || 20 || 04 || C183 || Market - Child Day || From Back Alley, (Left)
+|-
+| 029F || 21 || 04 || C102 || Market - Child Night || From Back Alley, (Left)
+|-
+| 02A0 || 22 || 04 || C102 || Market - Adult || From Back Alley, (Left)
+|-
+| 02A1 || 22 || 04 || C102 || Market - Adult || From Back Alley, (Left)
+|-
+| 02A2 || 20 || 05 || 4202 || Market - Child Day || From Market Potion Shop
+|-
+| 02A3 || 21 || 05 || 4202 || Market - Child Night || From Potion Shop
+|-
+| 02A4 || 22 || 05 || 4202 || Market - Adult || From Potion Shop
+|-
+| 02A5 || 22 || 05 || 4202 || Market - Adult || From Potion Shop
+|-
+| 02A6 || 52 || 04 || 4102 || Kakariko Village || From Bottom of the Well
+|-
+| 02A7 || 52 || 04 || 4102 || Kakariko Village || From Bottom of the Well
+|-
+| 02A8 || 52 || 04 || 4102 || Kakariko Village || From Bottom of the Well
+|-
+| 02A9 || 52 || 04 || 4102 || Kakariko Village || From Bottom of the Well
+|-
+| 02AA || 5D || 04 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02AB || 5D || 04 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02AC || 5D || 04 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02AD || 5D || 04 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02AE || 63 || 01 || 0183 || Lon Lon Ranch || Epona's Song Cutscene
+|-
+| 02AF || 63 || 01 || 0102 || Lon Lon Ranch || Epona's Song Cutscene
+|-
+| 02B0 || 63 || 01 || 0183 || Lon Lon Ranch || Epona's Song Cutscene
+|-
+| 02B1 || 63 || 01 || 0102 || Lon Lon Ranch || Epona's Song Cutscene
+|-
+| 02B2 || 07 || 01 || 4102 || Shadow Temple || Outside Boss Door
+|-
+| 02B3 || 07 || 01 || 4102 || Shadow Temple || Outside Boss Door
+|-
+| 02B4 || 07 || 01 || 4102 || Shadow Temple || Outside Boss Door
+|-
+| 02B5 || 07 || 01 || 4102 || Shadow Temple || Outside Boss Door
+|-
+| 02B6 || 07 || 02 || C102 || Shadow Temple || From Shadow Temple Boss, Secret Map #0
+|-
+| 02B7 || 07 || 02 || C102 || Shadow Temple || From Shadow Temple Boss, Secret Map #0
+|-
+| 02B8 || 07 || 02 || C102 || Shadow Temple || From Shadow Temple Boss, Secret Map #0
+|-
+| 02B9 || 07 || 02 || C102 || Shadow Temple || From Shadow Temple Boss, Secret Map #0
+|-
+| 02BA || 5D || 05 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02BB || 5D || 05 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02BC || 5D || 05 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02BD || 5D || 05 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02BE || 5D || 06 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02BF || 5D || 06 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C0 || 5D || 06 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C1 || 5D || 06 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C2 || 5D || 07 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C3 || 5D || 07 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C4 || 5D || 07 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C5 || 5D || 07 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C6 || 5D || 08 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C7 || 5D || 08 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C8 || 5D || 08 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02C9 || 5D || 08 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02CA || 43 || 02 || 450A || Temple of Time || Pull or Place Master Sword
+|-
+| 02CB || 43 || 02 || 450A || Temple of Time || Pull or Place Master Sword
+|-
+| 02CC || 43 || 02 || 450A || Temple of Time || Pull or Place Master Sword
+|-
+| 02CD || 43 || 02 || 450A || Temple of Time || Pull or Place Master Sword
+|-
+| 02CE || 44 || 01 || 4102 || Chamber of Sages || ??? (Forest Medallion?)
+|-
+| 02CF || 44 || 01 || 4102 || Chamber of Sages || ??? (Forest Medallion?)
+|-
+| 02D0 || 44 || 01 || 4102 || Chamber of Sages || ??? (Forest Medallion?)
+|-
+| 02D1 || 44 || 01 || 4102 || Chamber of Sages || ??? (Forest Medallion?)
+|-
+| 02D2 || 5D || 09 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02D3 || 5D || 09 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02D4 || 5D || 09 || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02D5 || 5D || 09 || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02D6 || 5D || 0A || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02D7 || 5D || 0A || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02D8 || 5D || 0A || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02D9 || 5D || 0A || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02DA || 5D || 0B || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02DB || 5D || 0B || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02DC || 5D || 0B || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02DD || 5D || 0B || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02DE || 5D || 0C || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02DF || 5D || 0C || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02E0 || 5D || 0C || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02E1 || 5D || 0C || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 02E2 || 63 || 02 || 4183 || Lon Lon Ranch || Near South Gate
+|-
+| 02E3 || 63 || 02 || 4102 || Lon Lon Ranch || Near South Gate
+|-
+| 02E4 || 63 || 02 || 4183 || Lon Lon Ranch || Near South Gate
+|-
+| 02E5 || 63 || 02 || 4102 || Lon Lon Ranch || Near South Gate
+|-
+| 02E6 || 63 || 03 || 4183 || Lon Lon Ranch || Near West Gate
+|-
+| 02E7 || 63 || 03 || 4102 || Lon Lon Ranch || Near West Gate
+|-
+| 02E8 || 63 || 03 || 4183 || Lon Lon Ranch || Near West Gate
+|-
+| 02E9 || 63 || 03 || 4102 || Lon Lon Ranch || Near West Gate
+|-
+| 02EA || 42 || 00 || 4102 || Shooting Gallery || From Kakariko Village
+|-
+| 02EB || 42 || 00 || 4102 || Shooting Gallery || From Kakariko Village
+|-
+| 02EC || 42 || 00 || 4102 || Shooting Gallery || From Kakariko Village
+|-
+| 02ED || 42 || 00 || 4102 || Shooting Gallery || From Kakariko Village
+|-
+| 02EE || 56 || 00 || 4102 || Sacred Forest Meadow || From Lost Woods
+|-
+| 02EF || 47 || 00 || 4102 || Cutscene Map || 
+|-
+| 02F0 || 42 || 00 || 4102 || Shooting Gallery || From Kakariko Village
+|-
+| 02F1 || 42 || 00 || 4102 || Shooting Gallery || From Kakariko Village
+|-
+| 02F2 || 42 || 00 || 4102 || Shooting Gallery || From Kakariko Village
+|-
+| 02F3 || 42 || 00 || 4102 || Shooting Gallery || From Kakariko Village
+|-
+| 02F4 || 42 || 00 || 4102 || Shooting Gallery || From Kakariko Village
+|-
+| 02F5 || 06 || 01 || C102 || Spirit Temple || Boss Room Entrance, from Spirit Temple Boss
+|-
+| 02F6 || 06 || 01 || C102 || Spirit Temple || Boss Room Entrance, from Spirit Temple Boss
+|-
+| 02F7 || 06 || 01 || C102 || Spirit Temple || Boss Room Entrance, from Spirit Temple Boss
+|-
+| 02F8 || 06 || 01 || C102 || Spirit Temple || Boss Room Entrance, from Spirit Temple Boss
+|-
+| 02F9 || 36 || 00 || 4220 || Stables || From Lon Lon Ranch
+|-
+| 02FA || 36 || 00 || 4220 || Stables || From Lon Lon Ranch
+|-
+| 02FB || 36 || 00 || 4220 || Stables || From Lon Lon Ranch
+|-
+| 02FC || 36 || 00 || 4220 || Stables || From Lon Lon Ranch
+|-
+| 02FD || 2A || 00 || 4220 || Kakariko Village House || Boss's House, from Kakariko Village
+|-
+| 02FE || 2A || 00 || 4220 || Kakariko Village House || Boss's House, from Kakariko Village
+|-
+| 02FF || 2A || 00 || 4220 || Kakariko Village House || Boss's House, from Kakariko Village
+|-
+| 0300 || 2A || 00 || 4220 || Kakariko Village House || Boss's House, from Kakariko Village
+|-
+| 0301 || 13 || 00 || C102 || Inside Jabu Jabu's Belly Boss || From Inside Jabu Jabu's Belly
+|-
+| 0302 || 13 || 00 || C102 || Inside Jabu Jabu's Belly Boss || From Inside Jabu Jabu's Belly
+|-
+| 0303 || 13 || 00 || C102 || Inside Jabu Jabu's Belly Boss || From Inside Jabu Jabu's Belly
+|-
+| 0304 || 13 || 00 || C102 || Inside Jabu Jabu's Belly Boss || From Inside Jabu Jabu's Belly
+|-
+| 0305 || 15 || 00 || C102 || Fire Temple Boss || From Fire Temple
+|-
+| 0306 || 15 || 00 || C102 || Fire Temple Boss || From Fire Temple
+|-
+| 0307 || 15 || 00 || C102 || Fire Temple Boss || From Fire Temple
+|-
+| 0308 || 15 || 00 || C102 || Fire Temple Boss || From Fire Temple
+|-
+| 0309 || 57 || 06 || 4202 || Lake Hylia || From Fishing Pond
+|-
+| 030A || 57 || 06 || 4202 || Lake Hylia || From Fishing Pond
+|-
+| 030B || 57 || 06 || 4202 || Lake Hylia || From Fishing Pond
+|-
+| 030C || 57 || 06 || 4202 || Lake Hylia || From Fishing Pond
+|-
+| 030D || 3A || 00 || 4120 || Gravekeeper's Hut || From Graveyard
+|-
+| 030E || 3A || 00 || 4120 || Gravekeeper's Hut || From Graveyard
+|-
+| 030F || 3A || 00 || 4120 || Gravekeeper's Hut || From Graveyard
+|-
+| 0310 || 3A || 00 || 4120 || Gravekeeper's Hut || From Graveyard
+|-
+| 0311 || 51 || 0E || C183 || Hyrule Field || From Zora River, Water
+|-
+| 0312 || 51 || 0E || C183 || Hyrule Field || From Zora River, Water
+|-
+| 0313 || 51 || 0E || C183 || Hyrule Field || From Zora River, Water
+|-
+| 0314 || 51 || 0E || C183 || Hyrule Field || From Zora River, Water
+|-
+| 0315 || 3B || 00 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Trail
+|-
+| 0316 || 3B || 00 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Trail
+|-
+| 0317 || 3B || 00 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Trail
+|-
+| 0318 || 3B || 00 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Trail
+|-
+| 0319 || 3B || 00 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Trail
+|-
+| 031A || 3B || 00 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Trail
+|-
+| 031B || 3B || 00 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Trail
+|-
+| 031C || 3F || 00 || 4126 || Grave with Redead || From Graveyard
+|-
+| 031D || 3F || 00 || 4126 || Grave with Redead || From Graveyard
+|-
+| 031E || 3F || 00 || 4126 || Grave with Redead || From Graveyard
+|-
+| 031F || 3F || 00 || 4126 || Grave with Redead || From Graveyard
+|-
+| 0320 || 43 || 03 || 4102 || Temple of Time || Standing facing away from SoT spot
+|-
+| 0321 || 43 || 03 || 4102 || Temple of Time || Standing facing away from SoT spot
+|-
+| 0322 || 43 || 03 || 4102 || Temple of Time || Standing facing away from SoT spot
+|-
+| 0323 || 43 || 03 || 4102 || Temple of Time || Standing facing away from SoT spot
+|-
+| 0324 || 43 || 04 || 4102 || Temple of Time || After pulling the MS for first time
+|-
+| 0325 || 43 || 04 || 4102 || Temple of Time || After pulling the MS for first time
+|-
+| 0326 || 43 || 04 || 4102 || Temple of Time || After pulling the MS for first time
+|-
+| 0327 || 43 || 04 || 4102 || Temple of Time || After pulling the MS for first time
+|-
+| 0328 || 58 || 04 || 562C || Zora's Domain || From Lake Hylia
+|-
+| 0329 || 58 || 04 || 562C || Zora's Domain || From Lake Hylia
+|-
+| 032A || 58 || 04 || 562C || Zora's Domain || From Lake Hylia
+|-
+| 032B || 58 || 04 || 562C || Zora's Domain || From Lake Hylia
+|-
+| 032C || 1A || 02 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Boss Room Floor (Lower)
+|-
+| 032D || 1A || 02 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Boss Room Floor (Lower)
+|-
+| 032E || 1A || 02 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Boss Room Floor (Lower)
+|-
+| 032F || 1A || 02 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Boss Room Floor (Lower)
+|-
+| 0330 || 1A || 03 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Burning Rocks (Higher)
+|-
+| 0331 || 1A || 03 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Burning Rocks (Higher)
+|-
+| 0332 || 1A || 03 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Burning Rocks (Higher)
+|-
+| 0333 || 1A || 03 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Burning Rocks (Higher)
+|-
+| 0334 || 1A || 04 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Burning Rocks (Lower)
+|-
+| 0335 || 1A || 04 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Burning Rocks (Lower)
+|-
+| 0336 || 1A || 04 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Burning Rocks (Lower)
+|-
+| 0337 || 1A || 04 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Burning Rocks (Lower)
+|-
+| 0338 || 55 || 07 || 0204 || Kokiri Forest || Spawn on Link's House
+|-
+| 0339 || 55 || 07 || 0204 || Kokiri Forest || Spawn on Link's House
+|-
+| 033A || 55 || 07 || 0204 || Kokiri Forest || Spawn on Link's House
+|-
+| 033B || 55 || 07 || 0204 || Kokiri Forest || Spawn on Link's House
+|-
+| 033C || 55 || 08 || 0204 || Kokiri Forest || From House of Twins
+|-
+| 033D || 55 || 08 || 0204 || Kokiri Forest || From House of Twins
+|-
+| 033E || 55 || 08 || 0204 || Kokiri Forest || From House of Twins
+|-
+| 033F || 55 || 08 || 0204 || Kokiri Forest || From House of Twins
+|-
+| 0340 || 5F || 02 || 4102 || Hyrule Castle || From Great Fairy's Fountain (Spells)
+|-
+| 0341 || 5F || 02 || 4102 || Hyrule Castle || From Great Fairy's Fountain (Spells)
+|-
+| 0342 || 64 || 02 || 4102 || Ganon's Castle || From Great Fairy's Fountain (Upgrades)
+|-
+| 0343 || 64 || 02 || 4102 || Ganon's Castle || From Great Fairy's Fountain (Upgrades)
+|-
+| 0344 || 5F || 02 || 4000 || Hyrule Castle || From Great Fairy's Fountain (Spells)
+|-
+| 0345 || 52 || 05 || 4202 || Kakariko Village || From Cow Heartpiece House (Door)
+|-
+| 0346 || 52 || 05 || 4202 || Kakariko Village || From Cow Heartpiece House (Door)
+|-
+| 0347 || 52 || 05 || 4202 || Kakariko Village || From Cow Heartpiece House (Door)
+|-
+| 0348 || 52 || 05 || 4202 || Kakariko Village || From Cow Heartpiece House (Door)
+|-
+| 0349 || 52 || 06 || 4202 || Kakariko Village || From Kakariko Village House, Boss's House
+|-
+| 034A || 52 || 06 || 4202 || Kakariko Village || From Kakariko Village House, Boss's House
+|-
+| 034B || 52 || 06 || 4202 || Kakariko Village || From Kakariko Village House, Boss's House
+|-
+| 034C || 52 || 06 || 4202 || Kakariko Village || From Kakariko Village House, Boss's House
+|-
+| 034D || 52 || 07 || 4202 || Kakariko Village || From Granny's Potion Shop
+|-
+| 034E || 52 || 07 || 4202 || Kakariko Village || From Granny's Potion Shop
+|-
+| 034F || 52 || 07 || 4202 || Kakariko Village || From Granny's Potion Shop
+|-
+| 0350 || 52 || 07 || 4202 || Kakariko Village || From Granny's Potion Shop
+|-
+| 0351 || 52 || 08 || 4202 || Kakariko Village || From ?, Windmill
+|-
+| 0352 || 52 || 08 || 4202 || Kakariko Village || From ?, Windmill
+|-
+| 0353 || 52 || 08 || 4202 || Kakariko Village || From ?, Windmill
+|-
+| 0354 || 52 || 08 || 4202 || Kakariko Village || From ?, Windmill
+|-
+| 0355 || 53 || 02 || 4202 || Kakariko Graveyard || From Gravekeeper's Hut
+|-
+| 0356 || 53 || 02 || 4202 || Kakariko Graveyard || From Gravekeeper's Hut
+|-
+| 0357 || 53 || 02 || 4202 || Kakariko Graveyard || From Gravekeeper's Hut
+|-
+| 0358 || 53 || 02 || 4202 || Kakariko Graveyard || From Gravekeeper's Hut
+|-
+| 0359 || 53 || 03 || 4183 || Kakariko Graveyard || From ?, Dampe's Grave
+|-
+| 035A || 53 || 03 || 4183 || Kakariko Graveyard || From ?, Dampe's Grave
+|-
+| 035B || 53 || 03 || 4183 || Kakariko Graveyard || From ?, Dampe's Grave
+|-
+| 035C || 53 || 03 || 4183 || Kakariko Graveyard || From ?, Dampe's Grave
+|-
+| 035D || 53 || 04 || 4183 || Kakariko Graveyard || From Grave with Shield
+|-
+| 035E || 53 || 04 || 4183 || Kakariko Graveyard || From Grave with Shield
+|-
+| 035F || 53 || 04 || 4183 || Kakariko Graveyard || From Grave with Shield
+|-
+| 0360 || 53 || 04 || 4183 || Kakariko Graveyard || From Grave with Shield
+|-
+| 0361 || 53 || 05 || 4183 || Kakariko Graveyard || From Grave with Redead
+|-
+| 0362 || 53 || 05 || 4183 || Kakariko Graveyard || From Grave with Redead
+|-
+| 0363 || 53 || 05 || 4183 || Kakariko Graveyard || From Grave with Redead
+|-
+| 0364 || 53 || 05 || 4183 || Kakariko Graveyard || From Grave with Redead
+|-
+| 0365 || 5E || 01 || C70E || Haunted Wasteland || From Desert Colossus
+|-
+| 0366 || 5E || 01 || C70E || Haunted Wasteland || From Desert Colossus
+|-
+| 0367 || 5E || 01 || C70E || Haunted Wasteland || From Desert Colossus
+|-
+| 0368 || 5E || 01 || C70E || Haunted Wasteland || From Desert Colossus
+|-
+| 0369 || 5E || 02 || 470E || Haunted Wasteland || Crashes (Bad Map)
+|-
+| 036A || 5E || 02 || 470E || Haunted Wasteland || Crashes (Bad Map)
+|-
+| 036B || 5E || 02 || 470E || Haunted Wasteland || Crashes (Bad Map)
+|-
+| 036C || 5E || 02 || 470E || Haunted Wasteland || Crashes (Bad Map)
+|-
+| 036D || 3C || 00 || 4183 || Small Fairy's Fountain || From Grotto spot
+|-
+| 036E || 3C || 00 || 4183 || Small Fairy's Fountain || From Grotto spot
+|-
+| 036F || 3C || 00 || 4183 || Small Fairy's Fountain || From Grotto spot
+|-
+| 0370 || 3C || 00 || 4183 || Small Fairy's Fountain || From Grotto spot
+|-
+| 0371 || 3D || 00 || 4102 || Great Fairy's Fountain (Spells) || From Zora's Fountain
+|-
+| 0372 || 3D || 00 || 4102 || Great Fairy's Fountain (Spells) || From Zora's Fountain
+|-
+| 0373 || 3D || 00 || 4102 || Great Fairy's Fountain (Spells) || From Zora's Fountain
+|-
+| 0374 || 3D || 00 || 4102 || Great Fairy's Fountain (Spells) || From Zora's Fountain
+|-
+| 0375 || 3D || 00 || 4102 || Great Fairy's Fountain (Spells) || From Zora's Fountain
+|-
+| 0376 || 3D || 00 || 4102 || Great Fairy's Fountain (Spells) || From Zora's Fountain
+|-
+| 0377 || 3D || 00 || 4102 || Great Fairy's Fountain (Spells) || From Zora's Fountain
+|-
+| 0378 || 63 || 04 || 4202 || Lon Lon Ranch || From Ranch House, Talon's House
+|-
+| 0379 || 63 || 04 || 4202 || Lon Lon Ranch || From Ranch House, Talon's House
+|-
+| 037A || 63 || 04 || 4202 || Lon Lon Ranch || From Ranch House, Talon's House
+|-
+| 037B || 63 || 04 || 4202 || Lon Lon Ranch || From Ranch House, Talon's House
+|-
+| 037C || 2E || 00 || 4220 || Goron Shop || From Goron City
+|-
+| 037D || 2E || 00 || 4220 || Goron Shop || From Goron City
+|-
+| 037E || 2E || 00 || 4220 || Goron Shop || From Goron City
+|-
+| 037F || 2E || 00 || 4220 || Goron Shop || From Goron City
+|-
+| 0380 || 2F || 00 || 4204 || Zora Shop || From Zora's Domain
+|-
+| 0381 || 2F || 00 || 4204 || Zora Shop || From Zora's Domain
+|-
+| 0382 || 2F || 00 || 4204 || Zora Shop || From Zora's Domain
+|-
+| 0383 || 2F || 00 || 4204 || Zora Shop || From Zora's Domain
+|-
+| 0384 || 30 || 00 || 0220 || Kakariko Potion Shop || From Kakariko Village
+|-
+| 0385 || 30 || 00 || 0220 || Kakariko Potion Shop || From Kakariko Village
+|-
+| 0386 || 30 || 00 || 4220 || Kakariko Potion Shop || From Kakariko Village
+|-
+| 0387 || 30 || 00 || 4220 || Kakariko Potion Shop || From Kakariko Village
+|-
+| 0388 || 31 || 00 || 4220 || Market Potion Shop || From Market
+|-
+| 0389 || 31 || 00 || 4220 || Market Potion Shop || From Market
+|-
+| 038A || 31 || 00 || 4220 || Market Potion Shop || From Market
+|-
+| 038B || 31 || 00 || 4220 || Market Potion Shop || From Market
+|-
+| 038C || 1E || 04 || 4202 || Back Alley - Day || From Puppy Woman's House
+|-
+| 038D || 1F || 04 || 4202 || Back Alley - Night || From Puppy Woman's House
+|-
+| 038E || 1E || 04 || 4202 || Back Alley - Day || From Puppy Woman's House
+|-
+| 038F || 1F || 04 || 4202 || Back Alley - Night || From Puppy Woman's House
+|-
+| 0390 || 32 || 00 || 4102 || Bombchu Shop || ??? (Back Alley)
+|-
+| 0391 || 32 || 00 || 4102 || Bombchu Shop || ??? (Back Alley)
+|-
+| 0392 || 32 || 00 || 4102 || Bombchu Shop || ??? (Back Alley)
+|-
+| 0393 || 32 || 00 || 4102 || Bombchu Shop || ??? (Back Alley)
+|-
+| 0394 || 59 || 05 || 4183 || Zora's Fountain || From Great Fairy's Fountain (Spells)
+|-
+| 0395 || 59 || 05 || 4183 || Zora's Fountain || From Great Fairy's Fountain (Spells)
+|-
+| 0396 || 59 || 05 || 4183 || Zora's Fountain || From Great Fairy's Fountain (Spells)
+|-
+| 0397 || 59 || 05 || 4183 || Zora's Fountain || From Great Fairy's Fountain (Spells)
+|-
+| 0398 || 35 || 00 || 4202 || Puppy Woman's House || From Back Alley, (Left)
+|-
+| 0399 || 35 || 00 || 4202 || Puppy Woman's House || From Back Alley, (Left)
+|-
+| 039A || 35 || 00 || 4202 || Puppy Woman's House || From Back Alley, (Left)
+|-
+| 039B || 35 || 00 || 4202 || Puppy Woman's House || From Back Alley, (Left)
+|-
+| 039C || 37 || 00 || 4220 || Impa's House || From Kakariko Village
+|-
+| 039D || 37 || 00 || 4220 || Impa's House || From Kakariko Village
+|-
+| 039E || 37 || 00 || 4220 || Impa's House || From Kakariko Village
+|-
+| 039F || 37 || 00 || 4220 || Impa's House || From Kakariko Village
+|-
+| 03A0 || 39 || 00 || 4204 || Carpenter's Tent || From Gerudo Valley
+|-
+| 03A1 || 39 || 00 || 4204 || Carpenter's Tent || From Gerudo Valley
+|-
+| 03A2 || 39 || 00 || 4204 || Carpenter's Tent || From Gerudo Valley
+|-
+| 03A3 || 39 || 00 || 4204 || Carpenter's Tent || From Gerudo Valley
+|-
+| 03A4 || 5D || 0D || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 03A5 || 5D || 0D || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 03A6 || 5D || 0D || 4183 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 03A7 || 5D || 0D || 4102 || Gerudo Fortress || From Thieves' Hideout
+|-
+| 03A8 || 5D || 0E || 4185 || Gerudo Fortress || From Gerudo Training Grounds
+|-
+| 03A9 || 5D || 0E || 4104 || Gerudo Fortress || From Gerudo Training Grounds
+|-
+| 03AA || 5D || 0E || 4185 || Gerudo Fortress || From Gerudo Training Grounds
+|-
+| 03AB || 5D || 0E || 4104 || Gerudo Fortress || From Gerudo Training Grounds
+|-
+| 03AC || 5D || 0F || C78F || Gerudo Fortress || From Haunted Wasteland
+|-
+| 03AD || 5D || 0F || C78F || Gerudo Fortress || From Haunted Wasteland
+|-
+| 03AE || 5D || 0F || C78F || Gerudo Fortress || From Haunted Wasteland
+|-
+| 03AF || 5D || 0F || C78F || Gerudo Fortress || From Haunted Wasteland
+|-
+| 03B0 || 5D || 10 || 4102 || Gerudo Fortress || After Horseback Archery, from Gerudo Fortress
+|-
+| 03B1 || 5D || 10 || 4102 || Gerudo Fortress || After Horseback Archery, from Gerudo Fortress
+|-
+| 03B2 || 5D || 10 || 4102 || Gerudo Fortress || After Horseback Archery, from Gerudo Fortress
+|-
+| 03B3 || 5D || 10 || 4102 || Gerudo Fortress || After Horseback Archery, from Gerudo Fortress
+|-
+| 03B4 || 5D || 11 || 4102 || Gerudo Fortress || Captured First Time with Hookshot
+|-
+| 03B5 || 5D || 11 || 4102 || Gerudo Fortress || Captured First Time with Hookshot
+|-
+| 03B6 || 5D || 11 || 4102 || Gerudo Fortress || Captured First Time with Hookshot
+|-
+| 03B7 || 5D || 11 || 4102 || Gerudo Fortress || Captured First Time with Hookshot
+|-
+| 03B8 || 20 || 06 || 4202 || Market - Child Day || From Bazaar
+|-
+| 03B9 || 21 || 06 || 4202 || Market - Child Night || From Bazaar
+|-
+| 03BA || 22 || 06 || 4202 || Market - Adult || From Bazaar
+|-
+| 03BB || 22 || 06 || 4202 || Market - Adult || From Bazaar
+|-
+| 03BC || 20 || 07 || 4202 || Market - Child Day || From Bombchu Bowling Alley
+|-
+| 03BD || 21 || 07 || 4202 || Market - Child Night || From Bombchu Bowling Alley
+|-
+| 03BE || 22 || 07 || 4202 || Market - Adult || From Bombchu Bowling Alley
+|-
+| 03BF || 22 || 07 || 4202 || Market - Adult || From Bombchu Bowling Alley
+|-
+| 03C0 || 1E || 02 || 4202 || Back Alley - Day || From Bombchu Shop
+|-
+| 03C1 || 1F || 02 || 4202 || Back Alley - Night || From Bombchu Shop
+|-
+| 03C2 || 1E || 02 || 4183 || Back Alley - Day || From Bombchu Shop
+|-
+| 03C3 || 1F || 02 || 4102 || Back Alley - Night || From Bombchu Shop
+|-
+| 03C4 || 58 || 02 || 4102 || Zora's Domain || From Zora Shop
+|-
+| 03C5 || 58 || 02 || 4102 || Zora's Domain || From Zora Shop
+|-
+| 03C6 || 58 || 02 || 4102 || Zora's Domain || From Zora Shop
+|-
+| 03C7 || 58 || 02 || 4102 || Zora's Domain || From Zora Shop
+|-
+| 03C8 || 57 || 03 || 4183 || Lake Hylia || Hyrule Field Entrance
+|-
+| 03C9 || 57 || 03 || 4183 || Lake Hylia || Hyrule Field Entrance
+|-
+| 03CA || 57 || 03 || 4183 || Lake Hylia || Hyrule Field Entrance
+|-
+| 03CB || 57 || 03 || 4183 || Lake Hylia || Hyrule Field Entrance
+|-
+| 03CC || 57 || 04 || 4202 || Lake Hylia || From Lakeside Laboratory
+|-
+| 03CD || 57 || 04 || 4202 || Lake Hylia || From Lakeside Laboratory
+|-
+| 03CE || 57 || 04 || 4202 || Lake Hylia || From Lakeside Laboratory
+|-
+| 03CF || 57 || 04 || 4202 || Lake Hylia || From Lakeside Laboratory
+|-
+| 03D0 || 5A || 04 || 4202 || Gerudo Valley || From Carpenter's Tent
+|-
+| 03D1 || 5A || 04 || 4202 || Gerudo Valley || From Carpenter's Tent
+|-
+| 03D2 || 5A || 04 || 4202 || Gerudo Valley || From Carpenter's Tent
+|-
+| 03D3 || 5A || 04 || 4202 || Gerudo Valley || From Carpenter's Tent
+|-
+| 03D4 || 59 || 03 || 4183 || Zora's Fountain || From Ice Cavern
+|-
+| 03D5 || 59 || 03 || 4102 || Zora's Fountain || From Ice Cavern
+|-
+| 03D6 || 59 || 03 || 4183 || Zora's Fountain || From Ice Cavern
+|-
+| 03D7 || 59 || 03 || 4102 || Zora's Fountain || From Ice Cavern
+|-
+| 03D8 || 59 || 04 || 4102 || Zora's Fountain || SE corner facing fallen tree
+|-
+| 03D9 || 59 || 04 || 4102 || Zora's Fountain || SE corner facing fallen tree
+|-
+| 03DA || 59 || 04 || 4102 || Zora's Fountain || SE corner facing fallen tree
+|-
+| 03DB || 59 || 04 || 4102 || Zora's Fountain || SE corner facing fallen tree
+|-
+| 03DC || 0E || 04 || C102 || Tower Collapse Interior || Stalfos Fight Room, from Tower Collapse Exterior, (Higher)
+|-
+| 03DD || 0E || 04 || C102 || Tower Collapse Interior || Stalfos Fight Room, from Tower Collapse Exterior, (Higher)
+|-
+| 03DE || 0E || 04 || C102 || Tower Collapse Interior || Stalfos Fight Room, from Tower Collapse Exterior, (Higher)
+|-
+| 03DF || 0E || 04 || C102 || Tower Collapse Interior || Stalfos Fight Room, from Tower Collapse Exterior, (Higher)
+|-
+| 03E0 || 0E || 05 || C102 || Tower Collapse Interior || Stalfos Fight Room, from Tower Collapse Exterior, (Lower)
+|-
+| 03E1 || 0E || 05 || C102 || Tower Collapse Interior || Stalfos Fight Room, from Tower Collapse Exterior, (Lower)
+|-
+| 03E2 || 0E || 05 || C102 || Tower Collapse Interior || Stalfos Fight Room, from Tower Collapse Exterior, (Lower)
+|-
+| 03E3 || 0E || 05 || C102 || Tower Collapse Interior || Stalfos Fight Room, from Tower Collapse Exterior, (Lower)
+|-
+| 03E4 || 0E || 06 || C102 || Tower Collapse Interior || Staircase Down, from Tower Collapse Exterior, (Higher)
+|-
+| 03E5 || 0E || 06 || C102 || Tower Collapse Interior || Staircase Down, from Tower Collapse Exterior, (Higher)
+|-
+| 03E6 || 0E || 06 || C102 || Tower Collapse Interior || Staircase Down, from Tower Collapse Exterior, (Higher)
+|-
+| 03E7 || 0E || 06 || C102 || Tower Collapse Interior || Staircase Down, from Tower Collapse Exterior, (Higher)
+|-
+| 03E8 || 30 || 01 || 0220 || Kakariko Potion Shop || Unused
+|-
+| 03E9 || 30 || 01 || 0220 || Kakariko Potion Shop || Unused
+|-
+| 03EA || 30 || 01 || 4220 || Kakariko Potion Shop || Unused
+|-
+| 03EB || 30 || 01 || 4220 || Kakariko Potion Shop || Unused
+|-
+| 03EC || 30 || 02 || 0220 || Kakariko Potion Shop || Back Door, from Kakariko Village
+|-
+| 03ED || 30 || 02 || 0220 || Kakariko Potion Shop || Back Door, from Kakariko Village
+|-
+| 03EE || 30 || 02 || 4220 || Kakariko Potion Shop || Back Door, from Kakariko Village
+|-
+| 03EF || 30 || 02 || 4220 || Kakariko Potion Shop || Back Door, from Kakariko Village
+|-
+| 03F0 || 06 || 02 || 0102 || Spirit Temple || From Desert Colossus, Silver Gauntlets Chest
+|-
+| 03F1 || 06 || 02 || 0102 || Spirit Temple || From Desert Colossus, Silver Gauntlets Chest
+|-
+| 03F2 || 06 || 02 || 0102 || Spirit Temple || From Desert Colossus, Silver Gauntlets Chest
+|-
+| 03F3 || 06 || 02 || 0102 || Spirit Temple || From Desert Colossus, Silver Gauntlets Chest
+|-
+| 03F4 || 06 || 03 || 0102 || Spirit Temple || From Desert Colossus, Mirror Shield Chest
+|-
+| 03F5 || 06 || 03 || 0102 || Spirit Temple || From Desert Colossus, Mirror Shield Chest
+|-
+| 03F6 || 06 || 03 || 0102 || Spirit Temple || From Desert Colossus, Mirror Shield Chest
+|-
+| 03F7 || 06 || 03 || 0102 || Spirit Temple || From Desert Colossus, Mirror Shield Chest
+|-
+| 03F8 || 06 || 04 || 4102 || Spirit Temple || Crashes (Bad Map)
+|-
+| 03F9 || 06 || 04 || 4102 || Spirit Temple || Crashes (Bad Map)
+|-
+| 03FA || 06 || 04 || 4102 || Spirit Temple || Crashes (Bad Map)
+|-
+| 03FB || 06 || 04 || 4102 || Spirit Temple || Crashes (Bad Map)
+|-
+| 03FC || 62 || 02 || 4202 || Goron City || From Goron Shop
+|-
+| 03FD || 62 || 02 || 4202 || Goron City || From Goron Shop
+|-
+| 03FE || 62 || 02 || 4202 || Goron City || From Goron Shop
+|-
+| 03FF || 62 || 02 || 4202 || Goron City || From Goron Shop
+|-
+| 0400 || 4A || 00 || 4183 || Zelda's Courtyard || From Castle Courtyard
+|-
+| 0401 || 4A || 00 || 4102 || Zelda's Courtyard || From Castle Courtyard
+|-
+| 0402 || 4A || 00 || 4183 || Zelda's Courtyard || From Castle Courtyard
+|-
+| 0403 || 4A || 00 || 4102 || Zelda's Courtyard || From Castle Courtyard
+|-
+| 0404 || 4A || 00 || 4183 || Zelda's Courtyard || From Castle Courtyard
+|-
+| 0405 || 4A || 00 || 4183 || Zelda's Courtyard || From Castle Courtyard
+|-
+| 0406 || 4A || 00 || 4183 || Zelda's Courtyard || From Castle Courtyard
+|-
+| 0407 || 02 || 01 || C102 || Inside Jabu Jabu's Belly || Map 14, from Inside Jabu Jabu's Belly Boss
+|-
+| 0408 || 02 || 01 || C102 || Inside Jabu Jabu's Belly || Map 14, from Inside Jabu Jabu's Belly Boss
+|-
+| 0409 || 02 || 01 || C102 || Inside Jabu Jabu's Belly || Map 14, from Inside Jabu Jabu's Belly Boss
+|-
+| 040A || 02 || 01 || C102 || Inside Jabu Jabu's Belly || Map 14, from Inside Jabu Jabu's Belly Boss
+|-
+| 040B || 12 || 00 || 8102 || Dodongo's Cavern Boss || From Dodongo's Cavern
+|-
+| 040C || 12 || 00 || 8102 || Dodongo's Cavern Boss || From Dodongo's Cavern
+|-
+| 040D || 12 || 00 || 8102 || Dodongo's Cavern Boss || From Dodongo's Cavern
+|-
+| 040E || 12 || 00 || 8102 || Dodongo's Cavern Boss || From Dodongo's Cavern
+|-
+| 040F || 11 || 00 || 8102 || Deku Tree Boss || From Deku Tree
+|-
+| 0410 || 11 || 00 || 8102 || Deku Tree Boss || From Deku Tree
+|-
+| 0411 || 11 || 00 || 8102 || Deku Tree Boss || From Deku Tree
+|-
+| 0412 || 11 || 00 || 8102 || Deku Tree Boss || From Deku Tree
+|-
+| 0413 || 18 || 00 || C102 || Shadow Temple Boss || From Shadow Temple
+|-
+| 0414 || 18 || 00 || C102 || Shadow Temple Boss || From Shadow Temple
+|-
+| 0415 || 18 || 00 || C102 || Shadow Temple Boss || From Shadow Temple
+|-
+| 0416 || 18 || 00 || C102 || Shadow Temple Boss || From Shadow Temple
+|-
+| 0417 || 16 || 00 || C102 || Water Temple Boss || From Water Temple
+|-
+| 0418 || 16 || 00 || C102 || Water Temple Boss || From Water Temple
+|-
+| 0419 || 16 || 00 || C102 || Water Temple Boss || From Water Temple
+|-
+| 041A || 16 || 00 || C102 || Water Temple Boss || From Water Temple
+|-
+| 041B || 0A || 00 || 4102 || Ganon's Tower Climb || From Inside Ganon's Castle
+|-
+| 041C || 0A || 00 || 4102 || Ganon's Tower Climb || From Inside Ganon's Castle
+|-
+| 041D || 0A || 00 || 4102 || Ganon's Tower Climb || From Inside Ganon's Castle
+|-
+| 041E || 0A || 00 || 4102 || Ganon's Tower Climb || From Inside Ganon's Castle
+|-
+| 041F || 19 || 00 || C102 || Ganondorf Boss Room || From Ganon's Tower Climb
+|-
+| 0420 || 19 || 00 || C102 || Ganondorf Boss Room || From Ganon's Tower Climb
+|-
+| 0421 || 19 || 00 || C102 || Ganondorf Boss Room || From Ganon's Tower Climb
+|-
+| 0422 || 19 || 00 || C102 || Ganondorf Boss Room || From Ganon's Tower Climb
+|-
+| 0423 || 05 || 01 || C182 || Water Temple || Main Entrance, from Water Temple Boss
+|-
+| 0424 || 05 || 01 || C102 || Water Temple || Main Entrance, from Water Temple Boss
+|-
+| 0425 || 05 || 01 || C182 || Water Temple || Main Entrance, from Water Temple Boss
+|-
+| 0426 || 05 || 01 || C102 || Water Temple || Main Entrance, from Water Temple Boss
+|-
+| 0427 || 0A || 01 || C102 || Ganon's Tower Climb || From Outside Boss Door
+|-
+| 0428 || 0A || 01 || C102 || Ganon's Tower Climb || From Outside Boss Door
+|-
+| 0429 || 0A || 01 || C102 || Ganon's Tower Climb || From Outside Boss Door
+|-
+| 042A || 0A || 01 || C102 || Ganon's Tower Climb || From Outside Boss Door
+|-
+| 042B || 0A || 02 || 4102 || Ganon's Tower Climb || Facing Boss Key Door
+|-
+| 042C || 0A || 02 || 4102 || Ganon's Tower Climb || Facing Boss Key Door
+|-
+| 042D || 0A || 02 || 4102 || Ganon's Tower Climb || Facing Boss Key Door
+|-
+| 042E || 0A || 02 || 4102 || Ganon's Tower Climb || Facing Boss Key Door
+|-
+| 042F || 63 || 05 || 4202 || Lon Lon Ranch || From Stables
+|-
+| 0430 || 63 || 05 || 4202 || Lon Lon Ranch || From Stables
+|-
+| 0431 || 63 || 05 || 4202 || Lon Lon Ranch || From Stables
+|-
+| 0432 || 63 || 05 || 4202 || Lon Lon Ranch || From Stables
+|-
+| 0433 || 28 || 00 || 4204 || Mido's House || From Kokiri Forest
+|-
+| 0434 || 28 || 00 || 4204 || Mido's House || From Kokiri Forest
+|-
+| 0435 || 28 || 00 || 4204 || Mido's House || From Kokiri Forest
+|-
+| 0436 || 28 || 00 || 4204 || Mido's House || From Kokiri Forest
+|-
+| 0437 || 29 || 00 || 4204 || Saria's House || From Kokiri Forest
+|-
+| 0438 || 29 || 00 || 4204 || Saria's House || From Kokiri Forest
+|-
+| 0439 || 29 || 00 || 4204 || Saria's House || From Kokiri Forest
+|-
+| 043A || 29 || 00 || 4204 || Saria's House || From Kokiri Forest
+|-
+| 043B || 2B || 00 || 4220 || Back Alley Village House || Back Alley Guy's House, from Back Alley, (Right)
+|-
+| 043C || 2B || 00 || 4220 || Back Alley Village House || Back Alley Guy's House, from Back Alley, (Right)
+|-
+| 043D || 2B || 00 || 4220 || Back Alley Village House || Back Alley Guy's House, from Back Alley, (Right)
+|-
+| 043E || 2B || 00 || 4220 || Back Alley Village House || Back Alley Guy's House, from Back Alley, (Right)
+|-
+| 043F || 1A || 00 || C102 || Tower Collapse Exterior || Death Cutscene, from Ganondorf Boss Room
+|-
+| 0440 || 1A || 00 || C102 || Tower Collapse Exterior || Death Cutscene, from Ganondorf Boss Room
+|-
+| 0441 || 1A || 00 || C102 || Tower Collapse Exterior || Death Cutscene, from Ganondorf Boss Room
+|-
+| 0442 || 1A || 00 || C102 || Tower Collapse Exterior || Death Cutscene, from Ganondorf Boss Room
+|-
+| 0443 || 55 || 09 || 0204 || Kokiri Forest || From Mido's House
+|-
+| 0444 || 55 || 09 || 0204 || Kokiri Forest || From Mido's House
+|-
+| 0445 || 55 || 09 || 0204 || Kokiri Forest || From Mido's House
+|-
+| 0446 || 55 || 09 || 0204 || Kokiri Forest || From Mido's House
+|-
+| 0447 || 55 || 0A || 0204 || Kokiri Forest || From Saria's House
+|-
+| 0448 || 55 || 0A || 0204 || Kokiri Forest || From Saria's House
+|-
+| 0449 || 55 || 0A || 0204 || Kokiri Forest || From Saria's House
+|-
+| 044A || 55 || 0A || 0204 || Kokiri Forest || From Saria's House
+|-
+| 044B || 52 || 09 || 4204 || Kakariko Village || From Kakariko Potion Shop
+|-
+| 044C || 52 || 09 || 4204 || Kakariko Village || From Kakariko Potion Shop
+|-
+| 044D || 52 || 09 || 4204 || Kakariko Village || From Kakariko Potion Shop
+|-
+| 044E || 52 || 09 || 4204 || Kakariko Village || From Kakariko Potion Shop
+|-
+| 044F || 48 || 00 || 4126 || ? || Dampe's Grave, from Graveyard
+|-
+| 0450 || 48 || 00 || 4126 || ? || Dampe's Grave, from Graveyard
+|-
+| 0451 || 48 || 00 || 4126 || ? || Dampe's Grave, from Graveyard
+|-
+| 0452 || 48 || 00 || 4126 || ? || Dampe's Grave, from Graveyard
+|-
+| 0453 || 48 || 01 || 4220 || ? || Windmill, from Kakariko Village
+|-
+| 0454 || 48 || 01 || 4220 || ? || Windmill, from Kakariko Village
+|-
+| 0455 || 48 || 01 || 4220 || ? || Windmill, from Kakariko Village
+|-
+| 0456 || 48 || 01 || 4220 || ? || Windmill, from Kakariko Village
+|-
+| 0457 || 55 || 0B || 4202 || Kokiri Forest || After Deku Tree Death Cutscene, from Kokiri Forest
+|-
+| 0458 || 55 || 0B || 4202 || Kokiri Forest || After Deku Tree Death Cutscene, from Kokiri Forest
+|-
+| 0459 || 55 || 0B || 4202 || Kokiri Forest || After Deku Tree Death Cutscene, from Kokiri Forest
+|-
+| 045A || 55 || 0B || 4202 || Kokiri Forest || After Deku Tree Death Cutscene, from Kokiri Forest
+|-
+| 045B || 60 || 04 || 4102 || Death Mountain Trail || From Great Fairy's Fountain (Upgrades)
+|-
+| 045C || 60 || 04 || 4102 || Death Mountain Trail || From Great Fairy's Fountain (Upgrades)
+|-
+| 045D || 60 || 04 || 4102 || Death Mountain Trail || From Great Fairy's Fountain (Upgrades)
+|-
+| 045E || 60 || 04 || 4102 || Death Mountain Trail || From Great Fairy's Fountain (Upgrades)
+|-
+| 045F || 49 || 00 || 4120 || Fishing Pond || From Lake Hylia
+|-
+| 0460 || 49 || 00 || 4120 || Fishing Pond || From Lake Hylia
+|-
+| 0461 || 49 || 00 || 4120 || Fishing Pond || From Lake Hylia
+|-
+| 0462 || 49 || 00 || 4120 || Fishing Pond || From Lake Hylia
+|-
+| 0463 || 52 || 0A || 4202 || Kakariko Village || From Shooting Gallery
+|-
+| 0464 || 52 || 0A || 4202 || Kakariko Village || From Shooting Gallery
+|-
+| 0465 || 52 || 0A || 4202 || Kakariko Village || From Shooting Gallery
+|-
+| 0466 || 52 || 0A || 4202 || Kakariko Village || From Shooting Gallery
+|-
+| 0467 || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 0468 || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 0469 || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 046A || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 046B || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 046C || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 046D || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 046E || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 046F || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 0470 || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 0471 || 0D || 00 || 4202 || Inside Ganon's Castle || From Castle
+|-
+| 0472 || 23 || 01 || 4202 || Outside Temple of Time - Child Day || From Temple of Time
+|-
+| 0473 || 24 || 01 || 4202 || Outside Temple of Time - Child Night || From Temple of Time
+|-
+| 0474 || 25 || 01 || 4202 || Outside Temple of Time - Adult || From Temple of Time
+|-
+| 0475 || 25 || 01 || 4202 || Outside Temple of Time - Adult || From Temple of Time
+|-
+| 0476 || 51 || 0F || 4285 || Hyrule Field || From Lon Lon Ranch, Front Gate Jump
+|-
+| 0477 || 51 || 0F || 4202 || Hyrule Field || From Lon Lon Ranch, Front Gate Jump
+|-
+| 0478 || 51 || 0F || 4285 || Hyrule Field || From Lon Lon Ranch, Front Gate Jump
+|-
+| 0479 || 51 || 0F || 4202 || Hyrule Field || From Lon Lon Ranch, Front Gate Jump
+|-
+| 047A || 60 || 05 || 4202 || Death Mountain Trail || Goron Ruby Cutscene
+|-
+| 047B || 60 || 05 || 4202 || Death Mountain Trail || Goron Ruby Cutscene
+|-
+| 047C || 60 || 05 || 4202 || Death Mountain Trail || Goron Ruby Cutscene
+|-
+| 047D || 60 || 05 || 4202 || Death Mountain Trail || Goron Ruby Cutscene
+|-
+| 047E || 5F || 04 || 4183 || Hyrule Castle || Guard Capture (Outside)
+|-
+| 047F || 5F || 04 || 4102 || Hyrule Castle || Guard Capture (Outside)
+|-
+| 0480 || 64 || 04 || 4102 || Ganon's Castle || Crashes (Bad Map)
+|-
+| 0481 || 64 || 04 || 4102 || Ganon's Castle || Crashes (Bad Map)
+|-
+| 0482 || 61 || 03 || 4102 || Death Mountain Crater || From Great Fairy's Fountain (Upgrades)
+|-
+| 0483 || 61 || 03 || 4102 || Death Mountain Crater || From Great Fairy's Fountain (Upgrades)
+|-
+| 0484 || 61 || 03 || 4102 || Death Mountain Crater || From Great Fairy's Fountain (Upgrades)
+|-
+| 0485 || 61 || 03 || 4102 || Death Mountain Crater || From Great Fairy's Fountain (Upgrades)
+|-
+| 0486 || 0C || 00 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0487 || 0C || 00 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0488 || 0C || 00 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0489 || 0C || 00 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 048A || 0C || 01 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 048B || 0C || 01 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 048C || 0C || 01 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 048D || 0C || 01 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 048E || 0C || 02 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 048F || 0C || 02 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0490 || 0C || 02 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0491 || 0C || 02 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0492 || 0C || 03 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0493 || 0C || 03 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0494 || 0C || 03 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0495 || 0C || 03 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0496 || 0C || 04 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0497 || 0C || 04 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0498 || 0C || 04 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0499 || 0C || 04 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 049A || 0C || 05 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 049B || 0C || 05 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 049C || 0C || 05 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 049D || 0C || 05 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 049E || 0C || 06 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 049F || 0C || 06 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A0 || 0C || 06 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A1 || 0C || 06 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A2 || 0C || 07 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A3 || 0C || 07 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A4 || 0C || 07 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A5 || 0C || 07 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A6 || 0C || 08 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A7 || 0C || 08 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A8 || 0C || 08 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04A9 || 0C || 08 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04AA || 0C || 09 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04AB || 0C || 09 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04AC || 0C || 09 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04AD || 0C || 09 || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04AE || 0C || 0A || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04AF || 0C || 0A || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04B0 || 0C || 0A || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04B1 || 0C || 0A || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04B2 || 0C || 0B || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04B3 || 0C || 0B || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04B4 || 0C || 0B || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04B5 || 0C || 0B || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 04B6 || 0E || 07 || C102 || Tower Collapse Interior || Staircase Down, from Tower Collapse Interior Exit
+|-
+| 04B7 || 0E || 07 || C102 || Tower Collapse Interior || Staircase Down, from Tower Collapse Interior Exit
+|-
+| 04B8 || 0E || 07 || C102 || Tower Collapse Interior || Staircase Down, from Tower Collapse Interior Exit
+|-
+| 04B9 || 0E || 07 || C102 || Tower Collapse Interior || Staircase Down, from Tower Collapse Interior Exit
+|-
+| 04BA || 1A || 01 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Boss Room Floor (Higher)
+|-
+| 04BB || 1A || 01 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Boss Room Floor (Higher)
+|-
+| 04BC || 1A || 01 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Boss Room Floor (Higher)
+|-
+| 04BD || 1A || 01 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Boss Room Floor (Higher)
+|-
+| 04BE || 3B || 01 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Crater
+|-
+| 04BF || 3B || 01 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Crater
+|-
+| 04C0 || 3B || 01 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Crater
+|-
+| 04C1 || 3B || 01 || 4102 || Great Fairy's Fountain (Upgrades) || From Death Mountain Crater
+|-
+| 04C2 || 3B || 02 || 4102 || Great Fairy's Fountain (Upgrades) || From Castle
+|-
+| 04C3 || 3B || 02 || 4102 || Great Fairy's Fountain (Upgrades) || From Castle
+|-
+| 04C4 || 3B || 02 || 4102 || Great Fairy's Fountain (Upgrades) || From Castle
+|-
+| 04C5 || 3B || 02 || 4102 || Great Fairy's Fountain (Upgrades) || From Castle
+|-
+| 04C6 || 5B || 04 || 4102 || Lost Woods || ??? placed west of Cojiro Guy map
+|-
+| 04C7 || 5B || 04 || 4102 || Lost Woods || ??? placed west of Cojiro Guy map
+|-
+| 04C8 || 5B || 04 || 4102 || Lost Woods || ??? placed west of Cojiro Guy map
+|-
+| 04C9 || 5B || 04 || 4102 || Lost Woods || ??? placed west of Cojiro Guy map
+|-
+| 04CA || 63 || 06 || 0126 || Lon Lon Ranch || Pay Ingo to Ride
+|-
+| 04CB || 63 || 06 || 0126 || Lon Lon Ranch || Pay Ingo to Ride
+|-
+| 04CC || 63 || 06 || 0126 || Lon Lon Ranch || Pay Ingo to Ride
+|-
+| 04CD || 63 || 06 || 0126 || Lon Lon Ranch || Pay Ingo to Ride
+|-
+| 04CE || 63 || 07 || 172E || Lon Lon Ranch || Beat Ingo Both Times
+|-
+| 04CF || 63 || 07 || 172E || Lon Lon Ranch || Beat Ingo Both Times
+|-
+| 04D0 || 63 || 07 || 172E || Lon Lon Ranch || Beat Ingo Both Times
+|-
+| 04D1 || 63 || 07 || 172E || Lon Lon Ranch || Beat Ingo Both Times
+|-
+| 04D2 || 5B || 05 || 4102 || Lost Woods || Exit point clockwise from SFM exit
+|-
+| 04D3 || 5B || 05 || 4102 || Lost Woods || Exit point clockwise from SFM exit
+|-
+| 04D4 || 5B || 05 || 4102 || Lost Woods || Exit point clockwise from SFM exit
+|-
+| 04D5 || 5B || 05 || 4102 || Lost Woods || Exit point clockwise from SFM exit
+|-
+| 04D6 || 5B || 06 || 562C || Lost Woods || From Goron City
+|-
+| 04D7 || 5B || 06 || 562C || Lost Woods || From Goron City
+|-
+| 04D8 || 5B || 06 || 562C || Lost Woods || From Goron City
+|-
+| 04D9 || 5B || 06 || 562C || Lost Woods || From Goron City
+|-
+| 04DA || 5B || 07 || 562C || Lost Woods || From Zora River
+|-
+| 04DB || 5B || 07 || 562C || Lost Woods || From Zora River
+|-
+| 04DC || 5B || 07 || 562C || Lost Woods || From Zora River
+|-
+| 04DD || 5B || 07 || 562C || Lost Woods || From Zora River
+|-
+| 04DE || 5B || 08 || 0102 || Lost Woods || From Hyrule Field
+|-
+| 04DF || 5B || 08 || 0102 || Lost Woods || From Hyrule Field
+|-
+| 04E0 || 5B || 08 || 0102 || Lost Woods || From Hyrule Field
+|-
+| 04E1 || 5B || 08 || 0102 || Lost Woods || From Hyrule Field
+|-
+| 04E2 || 62 || 03 || 562C || Goron City || From Lost Woods
+|-
+| 04E3 || 62 || 03 || 562C || Goron City || From Lost Woods
+|-
+| 04E4 || 62 || 03 || 562C || Goron City || From Lost Woods
+|-
+| 04E5 || 62 || 03 || 562C || Goron City || From Lost Woods
+|-
+| 04E6 || 57 || 05 || 4102 || Lake Hylia || Serenade Entrance
+|-
+| 04E7 || 57 || 05 || 4102 || Lake Hylia || Serenade Entrance
+|-
+| 04E8 || 57 || 05 || 4102 || Lake Hylia || Serenade Entrance
+|-
+| 04E9 || 57 || 05 || 4102 || Lake Hylia || Serenade Entrance
+|-
+| 04EA || 07 || 03 || 4102 || Shadow Temple || 
+|-
+| 04EB || 07 || 03 || 4102 || Shadow Temple || 
+|-
+| 04EC || 07 || 03 || 4102 || Shadow Temple || 
+|-
+| 04ED || 07 || 03 || 4102 || Shadow Temple || 
+|-
+| 04EE || 52 || 0B || 4202 || Kakariko Village || From House of Skulltula
+|-
+| 04EF || 52 || 0B || 4202 || Kakariko Village || From House of Skulltula
+|-
+| 04F0 || 52 || 0B || 4202 || Kakariko Village || From House of Skulltula
+|-
+| 04F1 || 52 || 0B || 4202 || Kakariko Village || From House of Skulltula
+|-
+| 04F2 || 3B || 03 || 4102 || Great Fairy's Fountain (Upgrades) || Leaving puts you at 044B
+|-
+| 04F3 || 3B || 03 || 4102 || Great Fairy's Fountain (Upgrades) || Leaving puts you at 044B
+|-
+| 04F4 || 3B || 03 || 4102 || Great Fairy's Fountain (Upgrades) || Leaving puts you at 044B
+|-
+| 04F5 || 3B || 03 || 4102 || Great Fairy's Fountain (Upgrades) || Leaving puts you at 044B
+|-
+| 04F6 || 61 || 04 || 4102 || Death Mountain Crater || Bolero Entrance
+|-
+| 04F7 || 61 || 04 || 4102 || Death Mountain Crater || Bolero Entrance
+|-
+| 04F8 || 61 || 04 || 4102 || Death Mountain Crater || Bolero Entrance
+|-
+| 04F9 || 61 || 04 || 4102 || Death Mountain Crater || Bolero Entrance
+|-
+| 04FA || 5F || 03 || 4183 || Hyrule Castle || From Castle Courtyard, Caught by guard
+|-
+| 04FB || 5F || 03 || 4102 || Hyrule Castle || From Castle Courtyard, Caught by guard
+|-
+| 04FC || 64 || 03 || 4102 || Ganon's Castle || From Castle Courtyard, Caught by guard
+|-
+| 04FD || 64 || 03 || 4102 || Ganon's Castle || From Castle Courtyard, Caught by guard
+|-
+| 04FE || 5F || 03 || 4000 || Hyrule Castle || From Castle Courtyard, Caught by guard
+|-
+| 04FF || 52 || 0C || 4202 || Kakariko Village || From Kakariko Potion Shop, Back Entrance
+|-
+| 0500 || 52 || 0C || 4202 || Kakariko Village || From Kakariko Potion Shop, Back Entrance
+|-
+| 0501 || 52 || 0C || 4202 || Kakariko Village || From Kakariko Potion Shop, Back Entrance
+|-
+| 0502 || 52 || 0C || 4202 || Kakariko Village || From Kakariko Potion Shop, Back Entrance
+|-
+| 0503 || 48 || 02 || C220 || ? || Windmill After Song of Storms?
+|-
+| 0504 || 48 || 02 || C220 || ? || Windmill After Song of Storms?
+|-
+| 0505 || 48 || 02 || C220 || ? || Windmill After Song of Storms?
+|-
+| 0506 || 48 || 02 || C220 || ? || Windmill After Song of Storms?
+|-
+| 0507 || 4B || 00 || 4220 || Bombchu Bowling Alley || From Market
+|-
+| 0508 || 4B || 00 || 4220 || Bombchu Bowling Alley || From Market
+|-
+| 0509 || 4B || 00 || 4220 || Bombchu Bowling Alley || From Market
+|-
+| 050A || 4B || 00 || 4220 || Bombchu Bowling Alley || From Market
+|-
+| 050B || 53 || 06 || 4183 || Kakariko Graveyard || From Royal Family's Tomb
+|-
+| 050C || 53 || 06 || 4183 || Kakariko Graveyard || From Royal Family's Tomb
+|-
+| 050D || 53 || 06 || 4183 || Kakariko Graveyard || From Royal Family's Tomb
+|-
+| 050E || 53 || 06 || 4183 || Kakariko Graveyard || From Royal Family's Tomb
+|-
+| 050F || 51 || 10 || 458B || Hyrule Field || Get Ocarina of Time
+|-
+| 0510 || 51 || 10 || 458B || Hyrule Field || Get Ocarina of Time
+|-
+| 0511 || 51 || 10 || 458B || Hyrule Field || Get Ocarina of Time
+|-
+| 0512 || 51 || 10 || 458B || Hyrule Field || Get Ocarina of Time
+|-
+| 0513 || 52 || 0D || 4183 || Kakariko Village || From Nocturne Cutscene
+|-
+| 0514 || 52 || 0D || 4102 || Kakariko Village || From Nocturne Cutscene
+|-
+| 0515 || 52 || 0D || 4183 || Kakariko Village || From Nocturne Cutscene
+|-
+| 0516 || 52 || 0D || 4102 || Kakariko Village || From Nocturne Cutscene
+|-
+| 0517 || 4F || 00 || 4183 || Ganon Battle || From Tower Collapse Interior Exit
+|-
+| 0518 || 4F || 00 || 4183 || Ganon Battle || From Tower Collapse Interior Exit
+|-
+| 0519 || 4F || 00 || 4183 || Ganon Battle || From Tower Collapse Interior Exit
+|-
+| 051A || 4F || 00 || 4183 || Ganon Battle || From Tower Collapse Interior Exit
+|-
+| 051B || 4F || 00 || 4183 || Ganon Battle || From Tower Collapse Interior Exit
+|-
+| 051C || 1A || 06 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stalfos Fight (Lower)
+|-
+| 051D || 1A || 06 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stalfos Fight (Lower)
+|-
+| 051E || 1A || 06 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stalfos Fight (Lower)
+|-
+| 051F || 1A || 06 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stalfos Fight (Lower)
+|-
+| 0520 || 66 || 00 || 4102 || Beshitu || 
+|-
+| 0521 || 66 || 00 || 4102 || Beshitu || 
+|-
+| 0522 || 66 || 00 || 4102 || Beshitu || 
+|-
+| 0523 || 66 || 00 || 4102 || Beshitu || 
+|-
+| 0524 || 1A || 07 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stairs
+|-
+| 0525 || 1A || 07 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stairs
+|-
+| 0526 || 1A || 07 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stairs
+|-
+| 0527 || 1A || 07 || C102 || Tower Collapse Exterior || From Tower Collapse Interior, Stairs
+|-
+| 0528 || 32 || 01 || 4102 || Bombchu Shop || From Back Alley, (Left)
+|-
+| 0529 || 32 || 01 || 4102 || Bombchu Shop || From Back Alley, (Left)
+|-
+| 052A || 32 || 01 || 4102 || Bombchu Shop || From Back Alley, (Left)
+|-
+| 052B || 32 || 01 || 4102 || Bombchu Shop || From Back Alley, (Left)
+|-
+| 052C || 2C || 01 || 4220 || Bazaar || From Market
+|-
+| 052D || 2C || 01 || 4220 || Bazaar || From Market
+|-
+| 052E || 2C || 01 || 4220 || Bazaar || From Market
+|-
+| 052F || 2C || 01 || 4220 || Bazaar || From Market
+|-
+| 0530 || 33 || 00 || 4220 || Happy Mask Shop || From Market
+|-
+| 0531 || 33 || 00 || 4220 || Happy Mask Shop || From Market
+|-
+| 0532 || 33 || 00 || 4220 || Happy Mask Shop || From Market
+|-
+| 0533 || 33 || 00 || 4220 || Happy Mask Shop || From Market
+|-
+| 0534 || 0D || 01 || 0202 || Inside Ganon's Castle || From Ganon's Tower Climb
+|-
+| 0535 || 0D || 01 || 0202 || Inside Ganon's Castle || From Ganon's Tower Climb
+|-
+| 0536 || 0D || 01 || 0202 || Inside Ganon's Castle || From Ganon's Tower Climb
+|-
+| 0537 || 0D || 01 || 0202 || Inside Ganon's Castle || From Ganon's Tower Climb
+|-
+| 0538 || 0D || 02 || 4202 || Inside Ganon's Castle || Clear Forest Trial, from Inside Ganon's Castle
+|-
+| 0539 || 0D || 02 || 4202 || Inside Ganon's Castle || Clear Forest Trial, from Inside Ganon's Castle
+|-
+| 053A || 0D || 02 || 4202 || Inside Ganon's Castle || Clear Forest Trial, from Inside Ganon's Castle
+|-
+| 053B || 0D || 02 || 4202 || Inside Ganon's Castle || Clear Forest Trial, from Inside Ganon's Castle
+|-
+| 053C || 0D || 03 || 4202 || Inside Ganon's Castle || Clear Water Trial, from Inside Ganon's Castle
+|-
+| 053D || 0D || 03 || 4202 || Inside Ganon's Castle || Clear Water Trial, from Inside Ganon's Castle
+|-
+| 053E || 0D || 03 || 4202 || Inside Ganon's Castle || Clear Water Trial, from Inside Ganon's Castle
+|-
+| 053F || 0D || 03 || 4202 || Inside Ganon's Castle || Clear Water Trial, from Inside Ganon's Castle
+|-
+| 0540 || 0D || 04 || 4202 || Inside Ganon's Castle || Clear Shadow Trial, from Inside Ganon's Castle
+|-
+| 0541 || 0D || 04 || 4202 || Inside Ganon's Castle || Clear Shadow Trial, from Inside Ganon's Castle
+|-
+| 0542 || 0D || 04 || 4202 || Inside Ganon's Castle || Clear Shadow Trial, from Inside Ganon's Castle
+|-
+| 0543 || 0D || 04 || 4202 || Inside Ganon's Castle || Clear Shadow Trial, from Inside Ganon's Castle
+|-
+| 0544 || 0D || 05 || 4202 || Inside Ganon's Castle || Clear Fire Trial, from Inside Ganon's Castle
+|-
+| 0545 || 0D || 05 || 4202 || Inside Ganon's Castle || Clear Fire Trial, from Inside Ganon's Castle
+|-
+| 0546 || 0D || 05 || 4202 || Inside Ganon's Castle || Clear Fire Trial, from Inside Ganon's Castle
+|-
+| 0547 || 0D || 05 || 4202 || Inside Ganon's Castle || Clear Fire Trial, from Inside Ganon's Castle
+|-
+| 0548 || 0D || 06 || 4202 || Inside Ganon's Castle || Clear Light Trial, from Inside Ganon's Castle
+|-
+| 0549 || 0D || 06 || 4202 || Inside Ganon's Castle || Clear Light Trial, from Inside Ganon's Castle
+|-
+| 054A || 0D || 06 || 4202 || Inside Ganon's Castle || Clear Light Trial, from Inside Ganon's Castle
+|-
+| 054B || 0D || 06 || 4202 || Inside Ganon's Castle || Clear Light Trial, from Inside Ganon's Castle
+|-
+| 054C || 0D || 07 || 4202 || Inside Ganon's Castle || Clear Spirit Trial, from Inside Ganon's Castle
+|-
+| 054D || 0D || 07 || 4202 || Inside Ganon's Castle || Clear Spirit Trial, from Inside Ganon's Castle
+|-
+| 054E || 0D || 07 || 4202 || Inside Ganon's Castle || Clear Spirit Trial, from Inside Ganon's Castle
+|-
+| 054F || 0D || 07 || 4202 || Inside Ganon's Castle || Clear Spirit Trial, from Inside Ganon's Castle
+|-
+| 0550 || 50 || 00 || 4220 || House of Skulltula || From Kakariko Village
+|-
+| 0551 || 50 || 00 || 4220 || House of Skulltula || From Kakariko Village
+|-
+| 0552 || 50 || 00 || 4220 || House of Skulltula || From Kakariko Village
+|-
+| 0553 || 50 || 00 || 4220 || House of Skulltula || From Kakariko Village
+|-
+| 0554 || 52 || 0E || 4183 || Kakariko Village || Owl Drop Spot, from Death Mountain Crater, Owl Teleport
+|-
+| 0555 || 52 || 0E || 4102 || Kakariko Village || Owl Drop Spot, from Death Mountain Crater, Owl Teleport
+|-
+| 0556 || 52 || 0E || 4183 || Kakariko Village || Owl Drop Spot, from Death Mountain Crater, Owl Teleport
+|-
+| 0557 || 52 || 0E || 4102 || Kakariko Village || Owl Drop Spot, from Death Mountain Crater, Owl Teleport
+|-
+| 0558 || 63 || 08 || 1020 || Lon Lon Ranch || You're too slow!
+|-
+| 0559 || 63 || 08 || 1020 || Lon Lon Ranch || You're too slow!
+|-
+| 055A || 63 || 08 || 1020 || Lon Lon Ranch || You're too slow!
+|-
+| 055B || 63 || 08 || 1020 || Lon Lon Ranch || You're too slow!
+|-
+| 055C || 63 || 09 || 0102 || Lon Lon Ranch || ??? (Near Ingo/Malon)
+|-
+| 055D || 63 || 09 || 0102 || Lon Lon Ranch || ??? (Near Ingo/Malon)
+|-
+| 055E || 63 || 09 || 0102 || Lon Lon Ranch || ??? (Near Ingo/Malon)
+|-
+| 055F || 63 || 09 || 0102 || Lon Lon Ranch || ??? (Near Ingo/Malon)
+|-
+| 0560 || 57 || 07 || 562C || Lake Hylia || From Zora's Domain
+|-
+| 0561 || 57 || 07 || 562C || Lake Hylia || From Zora's Domain
+|-
+| 0562 || 57 || 07 || 562C || Lake Hylia || From Zora's Domain
+|-
+| 0563 || 57 || 07 || 562C || Lake Hylia || From Zora's Domain
+|-
+| 0564 || 61 || 05 || 4102 || Death Mountain Crater || From Fire Temple Boss, Blue Warp
+|-
+| 0565 || 61 || 05 || 4102 || Death Mountain Crater || From Fire Temple Boss, Blue Warp
+|-
+| 0566 || 61 || 05 || 4102 || Death Mountain Crater || From Fire Temple Boss, Blue Warp
+|-
+| 0567 || 61 || 05 || 4102 || Death Mountain Crater || From Fire Temple Boss, Blue Warp
+|-
+| 0568 || 53 || 07 || 4183 || Kakariko Graveyard || Nocturne Warp
+|-
+| 0569 || 53 || 07 || 4183 || Kakariko Graveyard || Nocturne Warp
+|-
+| 056A || 53 || 07 || 4183 || Kakariko Graveyard || Nocturne Warp
+|-
+| 056B || 53 || 07 || 4183 || Kakariko Graveyard || Nocturne Warp
+|-
+| 056C || 0F || 00 || C102 || Tower Collapse Interior Exit || From Tower Collapse Interior, Stairs
+|-
+| 056D || 0F || 00 || C102 || Tower Collapse Interior Exit || From Tower Collapse Interior, Stairs
+|-
+| 056E || 0F || 00 || C102 || Tower Collapse Interior Exit || From Tower Collapse Interior, Stairs
+|-
+| 056F || 0F || 00 || C102 || Tower Collapse Interior Exit || From Tower Collapse Interior, Stairs
+|-
+| 0570 || 0C || 0C || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0571 || 0C || 0C || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0572 || 0C || 0C || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0573 || 0C || 0C || 4102 || Thieves' Hideout || From Gerudo Fortress
+|-
+| 0574 || 41 || 01 || 4102 || Royal Family's Tomb || Sun Song Cutscene
+|-
+| 0575 || 41 || 01 || 4102 || Royal Family's Tomb || Sun Song Cutscene
+|-
+| 0576 || 41 || 01 || 4102 || Royal Family's Tomb || Sun Song Cutscene
+|-
+| 0577 || 41 || 01 || 4102 || Royal Family's Tomb || Sun Song Cutscene
+|-
+| 0578 || 3D || 01 || 4204 || Great Fairy's Fountain (Spells) || From Castle
+|-
+| 0579 || 3D || 01 || 4204 || Great Fairy's Fountain (Spells) || From Castle
+|-
+| 057A || 3D || 01 || 4204 || Great Fairy's Fountain (Spells) || From Castle
+|-
+| 057B || 3D || 01 || 4204 || Great Fairy's Fountain (Spells) || From Castle
+|-
+| 057C || 5C || 07 || 4183 || Desert Colossus || From Great Fairy's Fountain (Spells)
+|-
+| 057D || 5C || 07 || 4102 || Desert Colossus || From Great Fairy's Fountain (Spells)
+|-
+| 057E || 5C || 07 || 4183 || Desert Colossus || From Great Fairy's Fountain (Spells)
+|-
+| 057F || 5C || 07 || 4102 || Desert Colossus || From Great Fairy's Fountain (Spells)
+|-
+| 0580 || 53 || 08 || 4183 || Kakariko Graveyard || From Shadow Temple Boss, Blue Warp
+|-
+| 0581 || 53 || 08 || 4183 || Kakariko Graveyard || From Shadow Temple Boss, Blue Warp
+|-
+| 0582 || 53 || 08 || 4183 || Kakariko Graveyard || From Shadow Temple Boss, Blue Warp
+|-
+| 0583 || 53 || 08 || 4183 || Kakariko Graveyard || From Shadow Temple Boss, Blue Warp
+|-
+| 0584 || 03 || 02 || 4102 || Forest Temple || Ceiling Crush room
+|-
+| 0585 || 03 || 02 || 4102 || Forest Temple || Ceiling Crush room
+|-
+| 0586 || 03 || 02 || 4102 || Forest Temple || Ceiling Crush room
+|-
+| 0587 || 03 || 02 || 4102 || Forest Temple || Ceiling Crush room
+|-
+| 0588 || 3D || 02 || 4102 || Great Fairy's Fountain (Spells) || From Desert Colossus
+|-
+| 0589 || 3D || 02 || 4102 || Great Fairy's Fountain (Spells) || From Desert Colossus
+|-
+| 058A || 3D || 02 || 4102 || Great Fairy's Fountain (Spells) || From Desert Colossus
+|-
+| 058B || 3D || 02 || 4102 || Great Fairy's Fountain (Spells) || From Desert Colossus
+|-
+| 058C || 43 || 05 || 4102 || Temple of Time || From Temple of Time, Light Arrow Cutscene
+|-
+| 058D || 43 || 05 || 4102 || Temple of Time || From Temple of Time, Light Arrow Cutscene
+|-
+| 058E || 43 || 05 || 4102 || Temple of Time || From Temple of Time, Light Arrow Cutscene
+|-
+| 058F || 43 || 05 || 4102 || Temple of Time || From Temple of Time, Light Arrow Cutscene
+|-
+| 0590 || 43 || 06 || 4102 || Temple of Time || Front of Pedestal
+|-
+| 0591 || 43 || 06 || 4102 || Temple of Time || Front of Pedestal
+|-
+| 0592 || 43 || 06 || 4102 || Temple of Time || Front of Pedestal
+|-
+| 0593 || 43 || 06 || 4102 || Temple of Time || Front of Pedestal
+|-
+| 0594 || 51 || 11 || 4183 || Hyrule Field || After Impa Escort Cutscene
+|-
+| 0595 || 51 || 11 || 4102 || Hyrule Field || After Impa Escort Cutscene
+|-
+| 0596 || 51 || 11 || 4183 || Hyrule Field || After Impa Escort Cutscene
+|-
+| 0597 || 51 || 11 || 4102 || Hyrule Field || After Impa Escort Cutscene
+|-
+| 0598 || 3E || 01 || 4102 || Grottos || Big Skulltula
+|-
+| 0599 || 3E || 01 || 4102 || Grottos || Big Skulltula
+|-
+| 059A || 3E || 01 || 4102 || Grottos || Big Skulltula
+|-
+| 059B || 3E || 01 || 4102 || Grottos || Big Skulltula
+|-
+| 059C || 3E || 02 || 4102 || Grottos || Heart Piece Scrub
+|-
+| 059D || 3E || 02 || 4102 || Grottos || Heart Piece Scrub
+|-
+| 059E || 3E || 02 || 4102 || Grottos || Heart Piece Scrub
+|-
+| 059F || 3E || 02 || 4102 || Grottos || Heart Piece Scrub
+|-
+| 05A0 || 3E || 03 || 4102 || Grottos || Two Redeads
+|-
+| 05A1 || 3E || 03 || 4102 || Grottos || Two Redeads
+|-
+| 05A2 || 3E || 03 || 4102 || Grottos || Two Redeads
+|-
+| 05A3 || 3E || 03 || 4102 || Grottos || Two Redeads
+|-
+| 05A4 || 3E || 04 || 4102 || Grottos || Three Deku Salescrubs
+|-
+| 05A5 || 3E || 04 || 4102 || Grottos || Three Deku Salescrubs
+|-
+| 05A6 || 3E || 04 || 4102 || Grottos || Three Deku Salescrubs
+|-
+| 05A7 || 3E || 04 || 4102 || Grottos || Three Deku Salescrubs
+|-
+| 05A8 || 3E || 05 || 4103 || Grottos || Webbed
+|-
+| 05A9 || 3E || 05 || 4103 || Grottos || Webbed
+|-
+| 05AA || 3E || 05 || 4103 || Grottos || Webbed
+|-
+| 05AB || 3E || 05 || 4103 || Grottos || Webbed
+|-
+| 05AC || 3E || 06 || 4102 || Grottos || Octoroc
+|-
+| 05AD || 3E || 06 || 4102 || Grottos || Octoroc
+|-
+| 05AE || 3E || 06 || 4102 || Grottos || Octoroc
+|-
+| 05AF || 3E || 06 || 4102 || Grottos || Octoroc
+|-
+| 05B0 || 3E || 07 || 4102 || Grottos || Two Deku Salescrubs, Closest sells Deku Nut Upgrade
+|-
+| 05B1 || 3E || 07 || 4102 || Grottos || Two Deku Salescrubs, Closest sells Deku Nut Upgrade
+|-
+| 05B2 || 3E || 07 || 4102 || Grottos || Two Deku Salescrubs, Closest sells Deku Nut Upgrade
+|-
+| 05B3 || 3E || 07 || 4102 || Grottos || Two Deku Salescrubs, Closest sells Deku Nut Upgrade
+|-
+| 05B4 || 3E || 08 || 4102 || Grottos || Two Wolfos
+|-
+| 05B5 || 3E || 08 || 4102 || Grottos || Two Wolfos
+|-
+| 05B6 || 3E || 08 || 4102 || Grottos || Two Wolfos
+|-
+| 05B7 || 3E || 08 || 4102 || Grottos || Two Wolfos
+|-
+| 05B8 || 3E || 09 || 4102 || Grottos || Bombable Wall
+|-
+| 05B9 || 3E || 09 || 4102 || Grottos || Bombable Wall
+|-
+| 05BA || 3E || 09 || 4102 || Grottos || Bombable Wall
+|-
+| 05BB || 3E || 09 || 4102 || Grottos || Bombable Wall
+|-
+| 05BC || 3E || 0A || 4102 || Grottos || Two Deku Salescrubs, Closest sells Green Pot
+|-
+| 05BD || 3E || 0A || 4102 || Grottos || Two Deku Salescrubs, Closest sells Green Pot
+|-
+| 05BE || 3E || 0A || 4102 || Grottos || Two Deku Salescrubs, Closest sells Green Pot
+|-
+| 05BF || 3E || 0A || 4102 || Grottos || Two Deku Salescrubs, Closest sells Green Pot
+|-
+| 05C0 || 3E || 0B || 4102 || Grottos || Tektite
+|-
+| 05C1 || 3E || 0B || 4102 || Grottos || Tektite
+|-
+| 05C2 || 3E || 0B || 4102 || Grottos || Tektite
+|-
+| 05C3 || 3E || 0B || 4102 || Grottos || Tektite
+|-
+| 05C4 || 3E || 0C || 4102 || Grottos || Forest Stage
+|-
+| 05C5 || 3E || 0C || 4102 || Grottos || Forest Stage
+|-
+| 05C6 || 3E || 0C || 4102 || Grottos || Forest Stage
+|-
+| 05C7 || 3E || 0C || 4102 || Grottos || Forest Stage
+|-
+| 05C8 || 37 || 01 || 4220 || Impa's House || Roof entrance, from Kakariko Village
+|-
+| 05C9 || 37 || 01 || 4220 || Impa's House || Roof entrance, from Kakariko Village
+|-
+| 05CA || 37 || 01 || 4220 || Impa's House || Roof entrance, from Kakariko Village
+|-
+| 05CB || 37 || 01 || 4220 || Impa's House || Roof entrance, from Kakariko Village
+|-
+| 05CC || 08 || 01 || 4204 || Bottom of the Well || ???
+|-
+| 05CD || 08 || 01 || 4204 || Bottom of the Well || ???
+|-
+| 05CE || 08 || 01 || 4204 || Bottom of the Well || ???
+|-
+| 05CF || 08 || 01 || 4204 || Bottom of the Well || ???
+|-
+| 05D0 || 4C || 01 || 4220 || Lon Lon Ranch Buildings || Back Tower, from Lon Lon Ranch
+|-
+| 05D1 || 4C || 01 || 4220 || Lon Lon Ranch Buildings || Back Tower, from Lon Lon Ranch
+|-
+| 05D2 || 4C || 01 || 4220 || Lon Lon Ranch Buildings || Back Tower, from Lon Lon Ranch
+|-
+| 05D3 || 4C || 01 || 4220 || Lon Lon Ranch Buildings || Back Tower, from Lon Lon Ranch
+|-
+| 05D4 || 63 || 0A || 4202 || Lon Lon Ranch || From Ranch Buildings, Back Tower
+|-
+| 05D5 || 63 || 0A || 4202 || Lon Lon Ranch || From Ranch Buildings, Back Tower
+|-
+| 05D6 || 63 || 0A || 4202 || Lon Lon Ranch || From Ranch Buildings, Back Tower
+|-
+| 05D7 || 63 || 0A || 4202 || Lon Lon Ranch || From Ranch Buildings, Back Tower
+|-
+| 05D8 || 09 || 01 || 4102 || Ice Cavern || 
+|-
+| 05D9 || 09 || 01 || 4102 || Ice Cavern || 
+|-
+| 05DA || 09 || 01 || 4102 || Ice Cavern || 
+|-
+| 05DB || 09 || 01 || 4102 || Ice Cavern || 
+|-
+| 05DC || 52 || 0F || 4183 || Kakariko Village || From Impa's House, Cow Exit
+|-
+| 05DD || 52 || 0F || 4102 || Kakariko Village || From Impa's House, Cow Exit
+|-
+| 05DE || 52 || 0F || 4183 || Kakariko Village || From Impa's House, Cow Exit
+|-
+| 05DF || 52 || 0F || 4102 || Kakariko Village || From Impa's House, Cow Exit
+|-
+| 05E0 || 5B || 09 || 0102 || Lost Woods || From Kokiri Forest, Hyrule Exit
+|-
+| 05E1 || 5B || 09 || 0102 || Lost Woods || From Kokiri Forest, Hyrule Exit
+|-
+| 05E2 || 5B || 09 || 0102 || Lost Woods || From Kokiri Forest, Hyrule Exit
+|-
+| 05E3 || 5B || 09 || 0102 || Lost Woods || From Kokiri Forest, Hyrule Exit
+|-
+| 05E4 || 4C || 02 || 4220 || Lon Lon Ranch Buildings || Talon's House, from Lose/Win Cucco Game
+|-
+| 05E5 || 4C || 02 || 4220 || Lon Lon Ranch Buildings || Talon's House, from Lose/Win Cucco Game
+|-
+| 05E6 || 4C || 02 || 4220 || Lon Lon Ranch Buildings || Talon's House, from Lose/Win Cucco Game
+|-
+| 05E7 || 4C || 02 || 4220 || Lon Lon Ranch Buildings || Talon's House, from Lose/Win Cucco Game
+|-
+| 05E8 || 55 || 0C || 4202 || Kokiri Forest || Deku Sprout Cutscene
+|-
+| 05E9 || 55 || 0C || 4202 || Kokiri Forest || Deku Sprout Cutscene
+|-
+| 05EA || 55 || 0C || 4202 || Kokiri Forest || Deku Sprout Cutscene
+|-
+| 05EB || 55 || 0C || 4202 || Kokiri Forest || Deku Sprout Cutscene
+|-
+| 05EC || 17 || 02 || C102 || Spirit Temple Boss || Inside Boss Map
+|-
+| 05ED || 17 || 02 || C102 || Spirit Temple Boss || Inside Boss Map
+|-
+| 05EE || 17 || 02 || C102 || Spirit Temple Boss || Inside Boss Map
+|-
+| 05EF || 17 || 02 || C102 || Spirit Temple Boss || Inside Boss Map
+|-
+| 05F0 || 4A || 01 || 0183 || Zelda's Courtyard || From Triforce Legend Cutscene
+|-
+| 05F1 || 4A || 01 || 0102 || Zelda's Courtyard || From Triforce Legend Cutscene
+|-
+| 05F2 || 4A || 01 || 0183 || Zelda's Courtyard || From Triforce Legend Cutscene
+|-
+| 05F3 || 4A || 01 || 0102 || Zelda's Courtyard || From Triforce Legend Cutscene
+|-
+| 05F4 || 43 || 07 || 4102 || Temple of Time || Prelude Entrance
+|-
+| 05F5 || 43 || 07 || 4102 || Temple of Time || Prelude Entrance
+|-
+| 05F6 || 43 || 07 || 4102 || Temple of Time || Prelude Entrance
+|-
+| 05F7 || 43 || 07 || 4102 || Temple of Time || Prelude Entrance
+|-
+| 05F8 || 5D || 12 || 4102 || Gerudo Fortress || Captured Second Time
+|-
+| 05F9 || 5D || 12 || 4102 || Gerudo Fortress || Captured Second Time
+|-
+| 05FA || 5D || 12 || 4102 || Gerudo Fortress || Captured Second Time
+|-
+| 05FB || 5D || 12 || 4102 || Gerudo Fortress || Captured Second Time
+|-
+| 05FC || 3E || 0D || 4102 || Grottos || Cow
+|-
+| 05FD || 3E || 0D || 4102 || Grottos || Cow
+|-
+| 05FE || 3E || 0D || 4102 || Grottos || Cow
+|-
+| 05FF || 3E || 0D || 4102 || Grottos || Cow
+|-
+| 0600 || 56 || 02 || 4912 || Sacred Forest Meadow || Minuet Warp
+|-
+| 0601 || 56 || 02 || 4102 || Sacred Forest Meadow || Minuet Warp
+|-
+| 0602 || 56 || 02 || 4912 || Sacred Forest Meadow || Minuet Warp
+|-
+| 0603 || 56 || 02 || 4102 || Sacred Forest Meadow || Minuet Warp
+|-
+| 0604 || 57 || 08 || 4102 || Lake Hylia || Serenade Warp
+|-
+| 0605 || 57 || 08 || 4102 || Lake Hylia || Serenade Warp
+|-
+| 0606 || 57 || 08 || 4102 || Lake Hylia || Serenade Warp
+|-
+| 0607 || 57 || 08 || 4102 || Lake Hylia || Serenade Warp
+|-
+| 0608 || 56 || 03 || 4183 || Sacred Forest Meadow || From Forest Temple Boss, Blue Warp
+|-
+| 0609 || 56 || 03 || 4183 || Sacred Forest Meadow || From Forest Temple Boss, Blue Warp
+|-
+| 060A || 56 || 03 || 4183 || Sacred Forest Meadow || From Forest Temple Boss, Blue Warp
+|-
+| 060B || 56 || 03 || 4183 || Sacred Forest Meadow || From Forest Temple Boss, Blue Warp
+|-
+| 060C || 57 || 09 || 4183 || Lake Hylia || From Water Temple Boss, Blue Warp
+|-
+| 060D || 57 || 09 || 4183 || Lake Hylia || From Water Temple Boss, Blue Warp
+|-
+| 060E || 57 || 09 || 4183 || Lake Hylia || From Water Temple Boss, Blue Warp
+|-
+| 060F || 57 || 09 || 4183 || Lake Hylia || From Water Temple Boss, Blue Warp
+|-
+| 0610 || 5C || 08 || 4183 || Desert Colossus || From Spirit Temple Boss, Blue Warp
+|-
+| 0611 || 5C || 08 || 4183 || Desert Colossus || From Spirit Temple Boss, Blue Warp
+|-
+| 0612 || 5C || 08 || 4183 || Desert Colossus || From Spirit Temple Boss, Blue Warp
+|-
+| 0613 || 5C || 08 || 4183 || Desert Colossus || From Spirit Temple Boss, Blue Warp
+|}

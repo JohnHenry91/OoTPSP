@@ -1,0 +1,18 @@
+'''elf_message_field''' and '''elf_message_ydan''' store data related to the helpful hints Navi gives when idling in an area for long enough.
+
+== Format ==
+Each record is 4 bytes long, and is ordered by the sequence in which each hint should be relevant
+<tt>'''xxxxtt??'''</tt>
+where
+* '''x''' is a variable component
+** & E000 is the command type
+* '''t''' is the text id to display, where + 0x100 will be added to the given value
+* '''?''' is unknown
+
+=== Command Type 0 Format ===
+For values of x: 
+* & 1000 stores what state the flag should be in to trigger the hint
+* & 0F00 is the [[event_chk_inf]] variable to look at
+* & 00F0 is the bit number within the chosen event_chk_inf to test (rightmost = 0)
+
+[[Category:Navi]]

@@ -1,0 +1,7 @@
+{{actor|name=ovl_En_Cs|isPage=True}}
+'''ovl_En_Cs''' is the Graveyard Boy [[actor]]
+{{clear}}
+== Debug Notes ==
+ ROM: 0xD98864 (2405002C) Sold Out Sign (From selling him Spooky Mask)
+
+[[Category: Npcs]]

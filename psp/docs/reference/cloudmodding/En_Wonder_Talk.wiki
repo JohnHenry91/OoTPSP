@@ -1,0 +1,96 @@
+{{Actor|name=ovl_En_Wonder_Talk|ispage=true}}
+
+'''ovl_En_Wonder_Talk''' is the [[actor]] for checkable spots.
+
+{{clear}}
+
+== Notes ==
+
+=== NTSC 1.0 ===
+
+<pre>
+1E2410 Where the Actor file was loaded in ram
+Register A2 contains address of working instance
+
+1E2430 LH	V0, 0x001C(A2) //load actor init var
+
+2434 ADDIU	AT, R0, 0x003F
+243C ANDI	T0, V0, 0x003F  //var & 003F 
+2440 SH		T0, 0x0144(A2)  //store var (&003F)
+2444 LH		A3, 0x0144(A2)
+2448 SRA	T6, V0, 0xB
+244C SRA	T8, V0, 0x6
+2450 ANDI	T7, T6, 0x001F
+2454 ANDI	T9, T8, 0x001F
+2458 SH 	T7, 0x0140(A2) //store var (&F800)
+245C BNE	A3, AT, 0x801E2470 //branch if A3 != 3F
+2460 SH 	T9, 0x0142(A2) //store var (&07C0)
+//set the &003F var to -1
+2464 ADDIU	T1, R0, 0xFFFF //T1 = -1
+2468 SH 	T1, 0x0144(A2) //store T1
+246C LH 	A3, 0x0144(A2)
+2470 BLTZ	A3, 801E24A0 //branch if A3 is -1
+2474 SB 	T2, 0x001F(A2)
+</pre>
+==== Instance ====
+{|class="wikitable"
+!offset || type || use
+|-
+| 0x140 || short || Sets the dialog used
+|-
+| 0x142 || short || Unused
+|-
+| 0x144 || short || Switch Flag set when checked
+|}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ 特殊会話くん ☆☆☆☆☆ %x[m||[32m☆☆☆☆☆ Mr. Special Conversation ☆☆☆☆☆ %x[m
+|-
+| [32m☆☆☆☆☆ Ｙｏｕ ａｒｅ Ｓｈｏｃｋ！  ☆☆☆☆☆ %d[m||[32m☆☆☆☆☆ Ｙｏｕ ａｒｅ Ｓｈｏｃｋ！  ☆☆☆☆☆ %d[m
+|-
+| [32m ☆☆☆☆☆ 石板ＧＯ！ ☆☆☆☆☆ [m||[32m ☆☆☆☆☆ STONE TABLET GO! ☆☆☆☆☆ [m
+|-
+| [35m☆☆☆☆☆ 注目座標 ☆☆☆☆☆ %f[m||[35m☆☆☆☆☆ ATTENTION COORDINATES ☆☆☆☆☆ %f[m
+|-
+| [32m ☆☆☆☆☆ こども ☆☆☆☆☆ [m||[32m ☆☆☆☆☆ CHILD ☆☆☆☆☆ [m
+|-
+| [36m ☆☆☆☆☆ おとな ☆☆☆☆☆ [m||[36m ☆☆☆☆☆ ADULT ☆☆☆☆☆ [m
+|-
+| [36m☆☆☆☆☆ this->actor.talk_message    ☆☆☆☆☆ %x[m||[36m☆☆☆☆☆ this->actor.talk_message    ☆☆☆☆☆ %x[m
+|-
+| [32m ☆☆☆☆☆ 日記帳スタート！ ☆☆☆☆☆ [m||[32m ☆☆☆☆☆ DIARY START! ☆☆☆☆☆ [m
+|-
+| [35m☆☆☆☆☆ 注目座標 ☆☆☆☆☆ %f[m||[35m☆☆☆☆☆ ATTENTION COORDINATES ☆☆☆☆☆ %f[m
+|-
+| [35m☆☆☆☆☆ 注目座標 ☆☆☆☆☆ %f[m||[35m☆☆☆☆☆ ATTENTION COORDINATES ☆☆☆☆☆ %f[m
+|-
+| [35m☆☆☆☆☆ 注目座標 ☆☆☆☆☆ %f[m||[35m☆☆☆☆☆ ATTENTION COORDINATES ☆☆☆☆☆ %f[m
+|-
+| [35m☆☆☆☆☆ 注目座標 ☆☆☆☆☆ %f[m||[35m☆☆☆☆☆ ATTENTION COORDINATES ☆☆☆☆☆ %f[m
+|-
+| [36m☆☆☆☆☆ this->actor.talk_message    ☆☆☆☆☆ %x[m||[36m☆☆☆☆☆ this->actor.talk_message    ☆☆☆☆☆ %x[m
+|-
+| 　||　
+|-
+| [33m☆☆☆☆☆ セーブ情報 ☆☆☆☆☆ %f[m||[33m☆☆☆☆☆ SAVE DATA ☆☆☆☆☆ %f[m
+|-
+| [35m☆☆☆☆☆ 種類インデックス ☆☆☆☆☆ %d[m||[35m☆☆☆☆☆ TYPE INDEX ☆☆☆☆☆ %d[m
+|-
+| [36m☆☆☆☆☆ 実質メッセージ種類     %x[m||[36m☆☆☆☆☆ REAL MESSAGE TYPE     %x[m
+|-
+| [32m☆☆☆☆☆ 指定範囲               %d[m||[32m☆☆☆☆☆ DESIGNATED RANGE               %d[m
+|-
+| 　||　
+|-
+| [32m ☆☆☆☆☆ まだコドモなの！ ☆☆☆☆☆ [m||[32m ☆☆☆☆☆ YOU'RE STILL A KID! ☆☆☆☆☆ [m
+|-
+| [33m ☆☆☆☆☆ アダルトなの。。。 ☆☆☆☆☆ [m||[33m ☆☆☆☆☆ YOU'RE AN ADULT… ☆☆☆☆☆ [m
+|-
+| [35m ☆☆☆☆☆ はずれ！ ☆☆☆☆☆ [m||[35m ☆☆☆☆☆ FAILURE! ☆☆☆☆☆ [m
+|}
+
+[[Category:Target Spots]]

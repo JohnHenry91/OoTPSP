@@ -1,0 +1,30 @@
+{{address3|space=code|name=Object Table|subpage=Object Table
+|ver1=Debug|ref1=rom|start1=B9E6C0|size1=C98
+|ver2=NTSC 1.0|ref2=rom|start2=B6EF50|size2=C98
+|ver3=PAL MQ|ref3=rom|start3=B6CF50|size3=C98}}
+
+The '''Object Table''' assigns an identifier to [[object]] files.
+
+=== Format ===
+
+The table appears to start with the following variables:
+
+<syntaxhighlight lang="csharp">
+/*0x00*/ short AdultLinkObjectNumber; //Object number for Adult Link's model
+/*0x02*/ short ChildLinkObjectNumber; //Object number for Child Link's model
+/*0x04*/ int NumberOfObjects = 0x192; //402 records in the table
+</syntaxhighlight>
+
+Following that is the table itself:
+
+<syntaxhighlight lang="csharp">
+FileAddress ObjectAddresses[NumberOfObjects];
+
+struct FileAddress
+{
+    /*0x00*/ uint ObjectStart; //VRom Address
+    /*0x04*/ uint ObjectEnd;   //VRom Address
+}
+</syntaxhighlight>
+[[Category:Objects]]
+[[Category:Code (File)]]

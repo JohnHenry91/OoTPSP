@@ -1,0 +1,266 @@
+{{Fix|Add info to individual actor pages}}
+
+== Damage ==
+Damage effects are found in the actor file, I have notes on it (c&p'd from a message I got from punk7890).
+
+They're not all the same for each actor but you can take a look around these offsets: These aren't my notes, I think they're Xu's
+I don't remember how I found some of mine. Some have something like FFCFFF beside where there damage is done to Link. 00 01 02 03 04 are Fire, ice, normal and knockback (not in that order)
+
+Every thing goes up by 19! (25 normally)
+*1= There were more, of it's "attacks" but didn't bother to copy it.
+
+
+==1/4 Heart Damage from Enemies==
+<pre>
+
+C3BB51- Bdan Object? (Something from Jabu Jabu)
+C4FCA5- Scythe Statues from the Shadow Temple?
+
+C61371- Ice Spinner, from Ice Cavern?
+
+C67489- Spirit Temple related (Haheniron?)
+
+C95E09 King Dodongo's Rolling attack?
+C95E2D King Dodongo's Rolling attack 2?
+C95E51 King Dodongo's rolling attack 3?
+
+D8F271 Arwings Damage
+D8F29D Arwings Damage (second beam?)
+
+EB3F49 Stalchild's Damage
+
+EBA3ED Cursed Skulltula Families Damage 
+
+EBCF6D Skulltula Damage
+
+EDC341 Tubo Trap?
+
+EED7C9 Wolfos's Swipe
+EED7ED Wolfos's Swipe 2
+
+EF9C51 Flying Floor Tile
+</pre>
+
+==1/2 Heart Damage from Enemies==
+<pre>
+CE44C9- Ghoma's Damage
+CE44ED- Ghoma's... second attack?
+CE450C- Ghoma's third attack?
+CE4535- Ghoma's fourth attack?*1
+
+D69619- Armos Damage?
+
+D98265- Guay's Damage
+
+D9FAC5- Deku Baba's Damage
+
+DAEAB1- Dodongo Jr.
+
+DF0C85- Gerudo Fighter
+
+E02391- Ghoma Larva
+E023BD- Ghoma Larva's second attack?
+
+E4CA9D- Withered Deku Baba
+
+E5FD35- Moblin
+
+E72041- Deku Nuts shot from Deku Scrubs (actor 0193)
+
+E788A1- Oktorok?
+
+E93721- Poe sisters
+
+E97A89- Poe
+
+EA0649- Like Like?
+EA0675- Like Like Damage 2?
+
+EB75A9- Skullkid's Damage
+
+EB80A1- Skullkid's Needle, Damage?
+
+EC4F59- Skullwalltula's Damage
+
+ED1469- Tektite's Damage
+
+EE98D1- Stinger's Damage
+
+EFFF25- Dinoflos Damage
+
+234060 - Octorok's Rock Damage
+</pre>
+
+==Enemies that hurt a heart==
+<pre>
+C333A9 Stalfos 
+
+CAO382- Flying Volvagia?
+
+CB3911 Ganondorf's Ground Pound?
+
+CD1F05 Ganon's... Attack?
+
+CDE341 Phantom Ganon's Attack
+
+D4F601 Fake Door's attack
+
+E88821 Peehat
+
+EE488D Beamos
+</pre>
+
+==Enemies that hurt 2 Hearts==
+<pre>
+CA4CD9 Volvagia?
+
+D0F335 Twin Rova?
+</pre>
+==Enemies that hurt 3 hearts==
+
+ CDE36D Phantom Ganon's... Lightning Bolt?
+ 
+ DOF322- Twinrova
+
+==Enemies that hurt 4 hearts==
+
+ CD2155 Ganon's Attack
+ CD2179 Ganon's Second Attack
+
+==Enemies that "hurt" with fire==
+ D7AC88 Biri's Fire Attack?!
+ D850B8 Flobbery Muscle Blocks, Fire Attack?!
+ D8BAC8 Blocking Tentacle from Jabu Jabu's Fire Attack?!
+ ED88F0 Taliparisan's Fire Attack?
+ EDE758 Bari's Fire Attack?
+
+==Enemies that hurt 1/4 heart with fire==
+
+ D6C821 Anubis's Fire
+ DC4A14 Flare Dancer's direct attack
+ DC4A3D Flare Dancer 2
+ 
+ E11BF9(Honotrap?)
+ 
+ E8D12D Field Poe's Fire
+
+==Enemies that hurt 1/2 heart with fire==
+
+ D8AA81 Torch Slug
+ 
+ DC5C31 Flare Dancer's Flame
+ 
+ DC98CD "Falling Rubble"
+ 
+ DCBB29 Fire Keese
+
+==Enemies that "damage" with Ice ==
+
+ F43761 Freeze Trap
+
+==Enemies that hurt 1/4 heart with Lightning==
+
+ D1E059 Barinade's flash bolts
+ 
+ D8BAC1 Blocking Tentacle from Jabu Jabu
+ 
+ D8BAED Blocking Tentacle 2?
+
+==Enemies that hurt 1/2 heart with Lightning==
+
+ D7AC81 Biri's Attack
+ 
+ D850B1 Flobbery Muscle Block
+ 
+ ED88E9 Taliparisan's Attack?
+
+==Enemies that hurt 1/2 heart with Knockback==
+
+ DB8571 Stinger's in their submerged forms Attack
+ 
+ E743A9 Spike Enemy
+ 
+ EAE9C1 Shell Blade
+
+==Enemies that hurt 1 heart with Knockback==
+
+ DD1071 Floormaster's Attack
+
+==Enemies (Special Case) Fire==
+<tt>00 20 00 00 00 01 04</tt>
+
+<pre>
+C548C1 Firewall Fire Damage effect?
+
+C508C4 Skull from the Shadow Temple's damage?
+
+C55A22 Proximity Activated Firewall's damage?
+
+C56C20 Large Firewall's Damage
+
+C5ACDD Fire Temple Stone Block's Damage?
+
+C5B9C9 Spinning Flame Thrower Statue1
+C5B9ED 2
+C5BA11 3
+C5BA35 4
+C5BA59 5
+C5BA7D 6*1
+
+C5CEC9- Flame Thrower Statue's Damage (04) *1
+
+DB158D- Dodongo's Flame Damage (10)
+</pre>
+
+
+==Enemies (Special Case) Normal==
+<tt>00 20 00 00 00</tt>
+
+ C4DBA9- Scythe Spinners? (04)
+ C4DBE5- Scythe Spinners?2 (04)
+ 
+ C8E009- Rotating Spike Cylinders(04)
+ C8E045- Rotating Spike Cylinders2 (04)
+ 
+ D716E9- Hanging Tentacles from Jabu Jabu (04)
+ 
+ E04A69- Rolling Rocks Damage (04)
+ 
+ D78A0D- Big Octo's Damage (08)
+ D78A49- Big Octo's Damage2 (08)
+ D78A75- Big Octo's Damage3 (08)
+ 
+ C3C178- Jabu Jabu's Switch Damage? (10)
+ 
+ CFC189- Bongo Bongo's Damage? (30)
+ CFC1AD- Bongo Bongo's Damage?2 (30)
+ 
+ E2EFE5- Iron Knuckle's Damage! (40)
+
+== Enemies (Special Case)Ice ==
+ 00 20 00 00 00 02 
+ 
+ DD87D9- Frezzard's Damage (02 08)
+
+==Enemies (Special Case) Lightning ==
+ 00 20 00 00 00 03
+ 
+ D1E095- Barinade's Flash Bolts? (04)
+
+== Enemies (Special Case) Knockback==
+ 00 20 00 00 00 04
+ 
+ CFC359- Bongo Bongo's Attack? (10)
+
+==Oddities== 
+
+ DC98BA- Flying Rubble (09 08)?
+ 
+ E9C5AA- Leever (08 08)?
+ 
+ EDE71A- Tubo Trap? (07 08)?
+ EDE76A- Tubo Trap2
+
+[[Category: Actors]]
+[[Category: Notes]]
+[[Category: Ocarina of Time]]

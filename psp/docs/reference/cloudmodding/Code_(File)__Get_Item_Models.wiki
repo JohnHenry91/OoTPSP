@@ -1,0 +1,6 @@
+{{subpage}}
+{{todo|Better Explanation}}
+
+The Get Item Models table defines the draw routine and display lists for the Get Item objects (objects prefixed with GI). See [[Get Items]] for more information.
+
+[[Code_(File)/Debug/Get_Item_Models]]

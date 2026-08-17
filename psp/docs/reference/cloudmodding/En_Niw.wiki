@@ -1,0 +1,4 @@
+{{actor|name=ovl_En_Niw|ispage=true}}
+'''ovl_En_Niw''' is the [[actor]] file for the standard [[cucco]]. 
+{{clear}}
+[[Category: Cuccos]]

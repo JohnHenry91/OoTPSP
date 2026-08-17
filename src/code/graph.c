@@ -33,6 +33,11 @@
 #include "gfx_pc.h"
 #include "psp_frame_pace.h"
 #include "padmgr.h"
+
+#if TARGET_PSP
+/* Display-buffer overrun probe; see the use site in Graph_Update. */
+u32 gPspGfxArenaProbe[8] = { 0 };
+#endif
 /* Not part of padmgr.h's public API (only used internally by
  * PadMgr_ThreadEntry there) -- forward-declare for the direct per-frame
  * call this port needs instead. */
@@ -677,6 +682,25 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
             Fault_AddHungupAndCrash("../graph.c", LN4(943, 946, 957, 1073, 1076));
         }
     }
+
+#if TARGET_PSP
+    /* The pivot view faults with a wild jump AFTER every actor has drawn, and a
+     * global that only ever receives small constants (gPspDrawStage) reads back
+     * as 0xFFFFFFFF -- i.e. something is writing outside its buffer. These are
+     * exactly the buffers that would do it: the checks below already detect the
+     * overrun, but only PRINTF about it (and PRINTF goes nowhere in this port),
+     * so the corruption has always been silent. Recorded here so it can be read
+     * with the debugger instead. */
+    gPspGfxArenaProbe[0] = THGA_IsCrash(&gfxCtx->polyOpa) ? 1 : 0;
+    gPspGfxArenaProbe[1] = THGA_IsCrash(&gfxCtx->polyXlu) ? 1 : 0;
+    gPspGfxArenaProbe[2] = THGA_IsCrash(&gfxCtx->overlay) ? 1 : 0;
+    if (gPspGfxArenaProbe[0] | gPspGfxArenaProbe[1] | gPspGfxArenaProbe[2]) {
+        gPspGfxArenaProbe[3]++;
+    }
+    gPspGfxArenaProbe[4] = (u32)THGA_GetRemaining(&gfxCtx->polyOpa);
+    gPspGfxArenaProbe[5] = (u32)THGA_GetRemaining(&gfxCtx->polyXlu);
+    gPspGfxArenaProbe[6] = (u32)THGA_GetRemaining(&gfxCtx->overlay);
+#endif
 
     if (THGA_IsCrash(&gfxCtx->polyOpa)) {
         problem = true;

@@ -1,0 +1,5 @@
+{{actor|name=ovl_En_Anubice_Tag}}
+'''ovl_En_Anubice_Tag''' is the [[actor]] file for the [[Anubis]] [[enemy]]. This actor spawns {{actor ref|ovl_En_Anubice}}, and when attacking, {{actor ref|ovl_En_Anubice_Fire}}.
+
+{{clear}}
+[[Category: Anubis]]

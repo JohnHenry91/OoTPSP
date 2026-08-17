@@ -1,0 +1,6 @@
+{{Actor|name=ovl_Item_B_Heart}}
+{{clear}}
+[[Category:Items]]
+== Debug Rom Notes ==
+
+0xF2 (2406004F) - Receive Heart Container

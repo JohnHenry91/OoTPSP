@@ -1,0 +1,22 @@
+{{Actor|name=ovl_En_Kakasi|ispage=true}}
+'''ovl_En_Kakasi''' is the [[actor]] file for [[Pierre]] the [[Scarecrow]].
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [33m☆☆☆☆☆ Ｌｅｔ’ｓ ＤＡＮＣＥ！ ☆☆☆☆☆ %f[m||[33m☆☆☆☆☆ Ｌｅｔ’ｓ ＤＡＮＣＥ！ ☆☆☆☆☆ %f[m
+|-
+| [34m☆☆☆☆☆ 終り？ ☆☆☆☆☆ [m||[34m☆☆☆☆☆ ALL FINISHED? ☆☆☆☆☆ [m
+|-
+| game_play->message.msg_mode=%d||game_play->message.msg_mode=%d
+|-
+| 　||　
+|-
+| [33m☆☆☆☆☆ フラグ！ ☆☆☆☆☆ %d[m||[33m☆☆☆☆☆ FLAG! ☆☆☆☆☆ %d[m
+|}
+
+[[Category:Scarecrows]]

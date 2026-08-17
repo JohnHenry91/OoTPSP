@@ -1,0 +1,21 @@
+{{Actor|name=ovl_Boss_Dodongo|ispage=true}}
+<!--
+{{DISPLAYTITLE:ovl_Boss_Dodongo}}
+{{Template:Z64File2| Filename=ovl_Boss_Dodongo}}
+{{Template:Z64File2R|Version=Debug|ROM-Start=00C8FE90|ROM-End=00C99AC0|Size=9C30}}
+{{Template:Z64File2R|Version=NTSC 1.0|ROM-Start=00C3B150|ROM-End=00C44C30|Size=9AE0}}
+{{Template:Z64File2R|Version=PAL MQ|ROM-Start=00C41370|ROM-End=00C4AE70|Size=9B00}}
+|}-->
+{{clear}}
+== Debug Rom notes ==
+<pre>
+ROM - C91B78
+RAM - 22F8A8 - ADDIU T3, T2, 0xFFFE - 254BFFFE - Amount of damage Bomb will do to King Dodongo when it explodes inside of him.
+
+ROM - C9199C
+RAM - 22F5CC - ADDIU T8, R0, 0x0064 - 24160064 - How long it takes for him to breathe fire.
+
+ROM - C91C8C
+RAM - 22F9BC - ADDIU T8, R0, 0x0064 - 24180064 - Stun Duration after King Dodongo swallows a bomb.
+</pre>
+[[Category: King Dodongo]]

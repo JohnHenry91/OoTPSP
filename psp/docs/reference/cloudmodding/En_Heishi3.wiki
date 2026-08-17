@@ -1,0 +1,23 @@
+{{Actor|name=ovl_En_Heishi3|ispage=true}}
+
+'''ovl_En_Heishi3''' is the [[Actor]] for the [[Hylian soldier]] at the gate to Hyrule Castle.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{{investigate|What is "POWER UP" about?}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ 城門兵パワーアップ ☆☆☆☆☆ ||[32m☆☆☆☆☆ CASTLE GATE SOLDIER POWER UP ☆☆☆☆☆ 
+|-
+| [m[32m☆☆☆☆☆ 発見！ ☆☆☆☆☆ ||[m[32m☆☆☆☆☆ DISCOVERED! ☆☆☆☆☆ 
+|-
+| [m[32m☆☆☆☆☆ 発見！ ☆☆☆☆☆ ||[m[32m☆☆☆☆☆ DISCOVERED! ☆☆☆☆☆ 
+|-
+| [m||[m
+|}
+
+[[Category:Hylian Soldiers]]

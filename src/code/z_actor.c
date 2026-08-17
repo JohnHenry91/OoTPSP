@@ -2897,6 +2897,16 @@ s32 Actor_CullingVolumeTest(PlayState* play, Actor* actor, Vec3f* projPos, f32 p
  *
  * Note: If an actor is made visible by Lens of Truth, it will be drawn by `Actor_DrawLensActors` instead.
  */
+#if TARGET_PSP
+/* Which actor was last handed to Actor_Draw, and how far Actor_DrawAll got.
+ * Read after a crash: gPspActorProbe[0] is the id of the actor whose draw
+ * function was executing. Added because the pivot view faults with a jump to
+ * NULL somewhere inside actor drawing, and only a handful of actors have real
+ * profiles in this port -- the rest fall back to the dummy, so a real draw
+ * function reaching a stubbed dependency is the likely shape. */
+u32 gPspActorProbe[8] = { 0 };
+#endif
+
 void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
     s32 invisibleActorCounter;
     Actor* invisibleActors[INVISIBLE_ACTOR_MAX];
@@ -2971,7 +2981,17 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
                     } else {
                         if (!DEBUG_FEATURES || (HREG(64) != 1) || ((HREG(65) != -1) && (HREG(65) != HREG(66))) ||
                             (HREG(72) == 0)) {
+#if TARGET_PSP
+                            gPspActorProbe[0] = (u32)actor->id;
+                            gPspActorProbe[1] = (u32)actor->category;
+                            gPspActorProbe[2] = (u32)(uintptr_t)actor->draw;
+                            gPspActorProbe[3]++;
+#endif
                             Actor_Draw(play, actor);
+#if TARGET_PSP
+                            gPspActorProbe[4] = (u32)actor->id; /* survived */
+                            gPspActorProbe[5]++;
+#endif
                             actor->isDrawn = true;
                         }
                     }
@@ -2983,11 +3003,15 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
     }
 
     if (!DEBUG_FEATURES || (HREG(64) != 1) || (HREG(73) != 0)) {
+        gPspActorProbe[6] = 85;
         Effect_DrawAll(play->state.gfxCtx);
+        gPspActorProbe[6] = 851;
     }
 
     if (!DEBUG_FEATURES || (HREG(64) != 1) || (HREG(74) != 0)) {
+        gPspActorProbe[6] = 86;
         EffectSs_DrawAll(play);
+        gPspActorProbe[6] = 861;
     }
 
     if (!DEBUG_FEATURES || (HREG(64) != 1) || (HREG(72) != 0)) {

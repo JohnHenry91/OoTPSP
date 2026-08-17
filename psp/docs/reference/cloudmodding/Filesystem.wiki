@@ -1,0 +1,87 @@
+{{Article link|Filesystem}}
+{{See also|Mod:Filesystem}}
+{{address3|space=manual|name=dmadata|subpage=File List|hideoff=true
+|ver1=Debug|ref1=manual|rom-start1=12F70|rom-end1=0|ram-start1=80016DA0|ram-end1=0
+|ver2=NTSC 1.0|ref2=manual|rom-start2=7430|ram-start2=8000B140
+|ver3=PAL MQ|ref3=manual|rom-start3=7170|ram-start3=8000AF90
+|ver4=NTSC 1.1|ref4=manual|rom-start4=7430|ram-start4=8000B140
+|ver5=chi ique|ref5=manual|rom-start5=B7A0|rom-end5=116F0|ram-start5=13040
+|ver6=tai ique|ref6=manual|rom-start6=B240|rom-end6=11190|ram-start6=12AF0
+|ver7=NTSC 1.2|ref7=manual|rom-start7=7960
+|ver8=PAL 1.0|ref8=manual|rom-start8=7950
+|ver9=PAL 1.1|ref9=manual|rom-start9=7950
+|ver10=NTSC 0.9|ref10=manual|rom-start10=7430
+|ver11=NTSC Gateway|ref11=manual|rom-start11=7a40
+}}
+
+Ocarina of Time, Majora's Mask, and all of their separate versions & ports use an identical filesystem. It's primary purpose is to provide an easy mechanism to locate files when the rom is compressed. The '''dmadata''' file consists of a table of records for every file in the game (including itself). 
+{{clear}}
+== dmadata Format ==
+The first entry of the file table is always the "[[makerom]]" file, located at 0x00000000 to either 0x00001060 for most versions, or 0x00001050 for the iQue. 
+
+One entry for a file is 0x10 bytes, and of the following form:
+
+{|class="wikitable"
+! colspan="2"| Virtual Address ([[VRom]])
+! colspan="2"| Physical Address ([[Rom]])
+|-
+! Start || End || Start || End
+|-
+|00000000 || 00000000 || 00000000 || 00000000
+|}
+
+The virtual rom address assigns a file a virtual location, and sets the file's size. This virtual location represents the location at which the file will exist if all of the files in the rom were decompressed, and thus acts as an identifier for a file or a portion of it's data. In a fully decompressed rom, a file's virtual address will be the same as it's physical address.  The physical rom address points to where the file is actually stored in rom. A physical address either points to an uncompressed file, a compressed file, or no file at all (Majora's Mask).
+
+* If a file is compressed, the start and end physical addresses will be set to the start/end of the compressed file in the rom.
+* If a file is not compressed, the start physical address will point to rom, but the end address will be 0.
+* If a file does not exist, both start and end physical addresses will be FFFFFFFF.
+
+Consider this excerpt from the NTSC 1.0 version:
+
+{|class="wikitable" style="text-align: center; margin: left;"
+|+ Offset 0x0001C1F0 in NTSC 1.0
+! colspan="2"| Virtual Address ([[VRom]])
+! colspan="2"| Physical Address ([[Rom]])
+|-
+| 00A65000 || 00A86DE0 || 00A40A60 || 00000000
+|-
+| 00A87000 || 00B8AD30 || 00A62840 || 00AFD890
+|-
+| 00B8AD30 || 00B9DA40 || 00AFD890 || 00B07590
+|}
+
+File 00A65000 is decompressed, as it's physical end address pointer is set to 00000000. Since the size of the virtual file is the same as the one mapped in ROM, the last pointer can be set to 00000000 without losing information. Finally, note that the virtual start address ''does not'' match the physical start address. This is due to the existence of compressed files earlier on in the rom. 
+
+Now consider files 00A87000 and 00B8AD30. Their physical end address addresses are non-zero, meaning that these files are compressed, and that their physical start addresses point to the start of a block of compressed data. 
+
+== Compression Formats ==
+The file compression format used in nearly all releases of Ocarina of Time is what's known as the [[Yaz]] compression algorithm.
+
+For the iQue releases, a headerless [https://en.wikipedia.org/wiki/Zlib zlib] compression is used instead. This data can be easily decompressed with Python 3
+
+<syntaxhighlight lang="python">
+import zlib
+def decode(data):
+    decomp = zlib.decompressobj(-zlib.MAX_WBITS)
+    output = bytearray()
+    output.extend(decomp.decompress(data))
+    while decomp.unconsumed_tail:
+        output.extend(decomp.decompress(decomp.unconsumed_tail))
+    output.extend(decomp.flush())
+    return output
+</syntaxhighlight>
+
+==Filename Table==
+Since the Debug ROM is meant for debugging the game, the developers were nice enough to leave all of the filenames for OoT's resources intact. They can be found in the main code block or at offset 0xBE80. The filenames are separated by 1-4 null (0x00) bytes (for four-byte alignment), and they match up perfectly with the data referenced by the file offset table. The Debug ROM is the only Zelda 64 game to have a complete file listing. Majora's Mask has one too (following a similar format), but it only lists the names of the scene files, and some of the scenes it refers to are removed.
+
+==Error Messages==
+Segment Alignment Error
+* セグメント境界をまたがってＤＭＡ転送することはできません (segment boundary exceeded, cannot transfer DMA)
+
+This error occurs if a memory access attempts to read beyond the end bounds of a file defined in dmadata. This usually occurs due to novice modders being unaware of the need to update dmadata whenever injecting new files. This particular crash does not occur consistently in the Debug Rom due to the [[Crash Debugger]]'s null pointer glitch, but a telltale sign of its occurrence is that on Project 64 1.6, the game will inexplicably crash the next time you load a new scene, regardless of what you do.
+
+* 圧縮されたセグメントの途中からはＤＭＡ転送することはできません (cannot transfer DMA from within compressed segment)
+
+This error occurs when attempting to read from the middle of a compressed file.
+
+[[Category:Documentation]]

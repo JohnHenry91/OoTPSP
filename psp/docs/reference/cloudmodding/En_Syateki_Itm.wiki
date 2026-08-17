@@ -1,0 +1,155 @@
+{{Actor|name=ovl_En_Syateki_Itm|ispage=true}}
+
+'''ovl_En_Syateki_Itm''' is the [[actor]] for Hyrule's famous Shooting Gallery minigame. This actor spawns [[En_Syateki_Man]] behind the counter on the map, and contains information related to the movement of items within the minigame.
+
+{{clear}}
+
+== Shooting Gallery Moving Item Format ==
+
+The movement of each item of the Shooting Gallery minigame follows the format: 3C0580B124A5xxxx0C01DF9026E4yyyy - where X is the start/end value, but Y is currently unknown. This format exists twice for each item since it records the start position and is written again for the end position.
+
+{{clear}}
+
+== Values for the Shooting Gallery Item Start/End Positions ==
+
+{{todo|There are likely more undocumented start/end position values that need to be added. Additionally, confirm that unused positions are accurate and are not corrupt position values.}}
+
+{| class="wikitable"
+! Position Value||Status||Description
+|-
+|0240||Used||Phase 1 Green Rupee
+|-
+|0244||Unused?||Similar to phase 1, but is more vertically centered on platform
+|-
+|024C||Used||Phase 2 Left Blue Rupee
+|-
+|0258||Used||Phase 2 Left Blue Rupee
+|-
+|0264||Used||Phase 3 Green Rupee
+|-
+|0270||Used||Phase 4 Left Blue Rupee
+|-
+|027C||Used||Phase 4 Left Blue Rupee
+|-
+|0288||Used||Phase 5 Right Red Rupee
+|-
+|028C||Unused?||Spawns from behind Link by the front door
+|-
+|0294||Used||Phase 5 Right Red Rupee
+|-
+|02A0||Used||Phase 6 Left Red Rupee
+|-
+|02A4||Unused?||Spawns behind the back brick wall in middle. Same as [https://archive.org/details/SpanishNintendoPromotionalsOcarinaofTime prerelease footage (05:27)]?
+|-
+|02AC||Used||Phase 6 Left Red Rupee
+|-
+|02B8||Used||Phase 1 Green Rupee
+|-
+|02C4||Used||Phase 2 Right Blue Rupee
+|-
+|02D0||Used||Phase 2 Right Blue Rupee
+|-
+|02DC||Used||Phase 3 Green Rupee
+|-
+|02E8||Used||Phase 4 Right Blue Rupee
+|-
+|02F4||Used||Phase 4 Left Blue Rupee
+|-
+|0300||Used||Phase 5 Left Red Rupee
+|-
+|030C||Used||Phase 5 Left Red Rupee
+|-
+|0314||Unused?||Spawns above ceiling
+|-
+|0318||Used||Phase 6 Right Red Rupee
+|-
+|0324||Used||Phase 6 Right Red Rupee
+|-
+|}
+
+{{clear}}
+
+== Offsets for Shooting Gallery Start/End Positions ==
+This is a list of offsets for the xxxx location, as described in the format 3C0580B124A502xxxx0C01DF9026E4yyyy above.
+
+{| class="wikitable"
+! Phase/Item||Offset
+|-
+|Phase 1 Green Start||0532
+|-
+|Phase 1 Green End||0542
+|-
+|Phase 2 Blue1 Start||0566
+|-
+|Phase 2 Blue1 End||0576
+|-
+|Phase 2 Blue2 Start||0586
+|-
+|Phase 2 Blue2 End||0596
+|-
+|Phase 3 Green Start||05BA
+|-
+|Phase 3 Green End||05CA
+|-
+|Phase 4 Blue1 Start||05EE
+|-
+|Phase 4 Blue1 End||05FE
+|-
+|Phase 4 Blue2 Start||060E
+|-
+|Phase 4 Blue2 End||061E
+|-
+|Phase 5 Red1 Start||0642
+|-
+|Phase 5 Red1 End||0652
+|-
+|Phase 5 Red2 Start||0662
+|-
+|Phase 5 Red2 End||0672
+|-
+|Phase 6 Red1 Start||0696
+|-
+|Phase 6 Red1 End||06A6
+|-
+|Phase 6 Red2 Start||06B6
+|-
+|Phase 6 Red2 End||06C6
+|}
+
+{{clear}}
+
+== Console Output Strings ==
+
+{{translate}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ エラー原 ☆☆☆☆ [m||[32m☆☆☆☆☆ ERROR FIELD ☆☆☆☆ [m
+|-
+| [33m☆☆☆☆☆ エラー原セカンド ☆☆☆☆ [m||[33m☆☆☆☆☆ ERROR FIELD THE SECOND ☆☆☆☆ [m
+|-
+| [32m☆☆☆☆☆ ルピーでエラー原 ☆☆☆☆ [m||[32m☆☆☆☆☆ RUPEE ERROR FIELD ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|-
+| [31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m||[31m☆☆☆☆☆ １フレームの攻防！ ☆☆☆☆ [m
+|}
+
+[[Category:Shooting_Gallery]]

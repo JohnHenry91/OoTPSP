@@ -1,0 +1,1653 @@
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! #
+! Function
+! D. List 1
+! D. List 2
+! D. List 3
+! D. List 4
+! D. List 5
+! D. List 6
+! D. List 7
+! D. List 8
+! Model ID
+! Object
+! Used
+|-
+| 0000
+| 8006AAA8
+| 06000670
+| 06000750
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Empty Bottle
+| style="text-align: left;" | [[object_gi_bottle]]
+| class="bg-yes" | ✔
+|-
+| 0001
+| 8006A9CC
+| 06000800
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Small Key
+| style="text-align: left;" | [[object_gi_key]]
+| class="bg-yes" | ✔
+|-
+| 0002
+| 8006ABEC
+| 06000A80
+| 06000AE0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Music Note (Green)
+| style="text-align: left;" | [[object_gi_melody]]
+| class="bg-no" | ✘
+|-
+| 0003
+| 8006ABEC
+| 06000A90
+| 06000AE0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Music Note (Red)
+| style="text-align: left;" | [[object_gi_melody]]
+| class="bg-no" | ✘
+|-
+| 0004
+| 8006ABEC
+| 06000AA0
+| 06000AE0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Music Note (Blue)
+| style="text-align: left;" | [[object_gi_melody]]
+| class="bg-no" | ✘
+|-
+| 0005
+| 8006ABEC
+| 06000AB0
+| 06000AE0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Music Note (Orange)
+| style="text-align: left;" | [[object_gi_melody]]
+| class="bg-no" | ✘
+|-
+| 0006
+| 8006ABEC
+| 06000AC0
+| 06000AE0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Music Note (Purple)
+| style="text-align: left;" | [[object_gi_melody]]
+| class="bg-no" | ✘
+|-
+| 0007
+| 8006ABEC
+| 06000AD0
+| 06000AE0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Music Note (Yellow)
+| style="text-align: left;" | [[object_gi_melody]]
+| class="bg-no" | ✘
+|-
+| 0008
+| 8006A73C
+| 060000E0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Recovery Heart
+| style="text-align: left;" | [[object_gi_heart]]
+| class="bg-yes" | ✔
+|-
+| 0009
+| 8006AAA8
+| 06000CA0
+| 06000F08
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Big Key
+| style="text-align: left;" | [[object_gi_bosskey]]
+| class="bg-yes" | ✔
+|-
+| 000A
+| 8006A158
+| 06000960
+| 06000C50
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Compass
+| style="text-align: left;" | [[object_gi_compass]]
+| class="bg-yes" | ✔
+|-
+| 000B
+| 8006A060
+| 06000CB0
+| 06000E18
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Forest Medallion
+| style="text-align: left;" | [[object_gi_medal]]
+| class="bg-yes" | ✔
+|-
+| 000C
+| 8006A060
+| 06001AF0
+| 06000E18
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Fire Medallion
+| style="text-align: left;" | [[object_gi_medal]]
+| class="bg-yes" | ✔
+|-
+| 000D
+| 8006A060
+| 06002830
+| 06000E18
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Water Medallion
+| style="text-align: left;" | [[object_gi_medal]]
+| class="bg-yes" | ✔
+|-
+| 000E
+| 8006A060
+| 06003610
+| 06000E18
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Spirit Medallion
+| style="text-align: left;" | [[object_gi_medal]]
+| class="bg-yes" | ✔
+|-
+| 000F
+| 8006A060
+| 06004330
+| 06000E18
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Shadow Medallion
+| style="text-align: left;" | [[object_gi_medal]]
+| class="bg-yes" | ✔
+|-
+| 0010
+| 8006A060
+| 06005220
+| 06000E18
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Light Medallion
+| style="text-align: left;" | [[object_gi_medal]]
+| class="bg-yes" | ✔
+|-
+| 0011
+| 8006A5F0
+| 06000E90
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Deku Nut
+| style="text-align: left;" | [[object_gi_nuts]]
+| class="bg-yes" | ✔
+|-
+| 0012
+| 8006ABEC
+| 06001290
+| 06001470
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Heart Container
+| style="text-align: left;" | [[object_gi_hearts]]
+| class="bg-yes" | ✔
+|-
+| 0013
+| 8006ABEC
+| 06001290
+| 06001590
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Piece of Heart
+| style="text-align: left;" | [[object_gi_hearts]]
+| class="bg-yes" | ✔
+|-
+| 0014
+| 8006B124
+| 06000990
+| 060008D0
+| 06000930
+| 06000A80
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Quiver (Holds 30)
+| style="text-align: left;" | [[object_gi_arrowcase]]
+| class="bg-no" | ✘
+|-
+| 0015
+| 8006B124
+| 06000990
+| 060008F0
+| 06000950
+| 06000A80
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Big Quiver (Holds 40)
+| style="text-align: left;" | [[object_gi_arrowcase]]
+| class="bg-yes" | ✔
+|-
+| 0016
+| 8006B124
+| 06000990
+| 06000910
+| 06000970
+| 06000A80
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Biggest Quiver (Holds 50)
+| style="text-align: left;" | [[object_gi_arrowcase]]
+| class="bg-yes" | ✔
+|-
+| 0017
+| 8006B124
+| 06000B90
+| 06000AD0
+| 06000B30
+| 06000D98
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bomb Bag (Holds 20)
+| style="text-align: left;" | [[object_gi_bombpouch]]
+| class="bg-yes" | ✔
+|-
+| 0018
+| 8006B124
+| 06000B90
+| 06000AF0
+| 06000B50
+| 06000D98
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Big Bomb Bag (Holds 30)
+| style="text-align: left;" | [[object_gi_bombpouch]]
+| class="bg-yes" | ✔
+|-
+| 0019
+| 8006B124
+| 06000B90
+| 06000B10
+| 06000B70
+| 06000D98
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Biggest Bomb Bag (Holds 40)
+| style="text-align: left;" | [[object_gi_bombpouch]]
+| class="bg-yes" | ✔
+|-
+| 001A
+| 8006A9CC
+| 060004D0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Deku Stick
+| style="text-align: left;" | [[object_gi_stick]]
+| class="bg-yes" | ✔
+|-
+| 001B
+| 8006A9CC
+| 060003C0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Dungeon Map
+| style="text-align: left;" | [[object_gi_map]]
+| class="bg-yes" | ✔
+|-
+| 001C
+| 8006A9CC
+| 06000A50
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Deku Shield
+| style="text-align: left;" | [[object_gi_shield_1]]
+| class="bg-yes" | ✔
+|-
+| 001D
+| 8006A9CC
+| 06000580
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Small Magic Jar
+| style="text-align: left;" | [[object_gi_magicpot]]
+| class="bg-yes" | ✔
+|-
+| 001E
+| 8006A9CC
+| 06000EE0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Large Magic Jar
+| style="text-align: left;" | [[object_gi_magicpot]]
+| class="bg-yes" | ✔
+|-
+| 001F
+| 8006A9CC
+| 060009A0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bomb
+| style="text-align: left;" | [[object_gi_bomb_1]]
+| class="bg-yes" | ✔
+|-
+| 0020
+| 8006A9CC
+| 06000B70
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Stone of Agony
+| style="text-align: left;" | [[object_gi_map]]
+| class="bg-yes" | ✔
+|-
+| 0021
+| 8006B870
+| 06001850
+| 06001750
+| 06001790
+| 060019A0
+| 060017B0
+| 06001A28
+| 060017D0
+| 06001AD8
+| style="text-align: left;" | Adult's Wallet
+| style="text-align: left;" | [[object_gi_purse]]
+| class="bg-yes" | ✔
+|-
+| 0022
+| 8006B870
+| 06001850
+| 06001770
+| 060017F0
+| 060019A0
+| 06001810
+| 06001A28
+| 06001830
+| 06001AD8
+| style="text-align: left;" | Giant's Wallet
+| style="text-align: left;" | [[object_gi_purse]]
+| class="bg-yes" | ✔
+|-
+| 0023
+| 8006A9CC
+| 06000F60
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Gerudo's Card
+| style="text-align: left;" | [[object_gi_gerudo]]
+| class="bg-yes" | ✔
+|-
+| 0024
+| 8006A9CC
+| 06000340
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Arrow
+| style="text-align: left;" | [[object_gi_arrow]]
+| class="bg-yes" | ✔
+|-
+| 0025
+| 8006A9CC
+| 06000B90
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bundle of Arrows (2)
+| style="text-align: left;" | [[object_gi_arrow]]
+| class="bg-yes" | ✔
+|-
+| 0026
+| 8006A9CC
+| 06001830
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bundle of Arrows (3)
+| style="text-align: left;" | [[object_gi_arrow]]
+| class="bg-yes" | ✔
+|-
+| 0027
+| 800694E4
+| 060004B0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bombchu
+| style="text-align: left;" | [[object_gi_bomb_1]]
+| class="bg-yes" | ✔
+|-
+| 0028
+| 8006A060
+| 06000FD0
+| 06001008
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Weird Egg & Pocket Egg
+| style="text-align: left;" | [[object_gi_egg]]
+| class="bg-yes" | ✔
+|-
+| 0029
+| 8006B54C
+| 06000AA0
+| 06000A20
+| 06000A60
+| 06000CC8
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Silver Scale
+| style="text-align: left;" | [[object_gi_scale]]
+| class="bg-yes" | ✔
+|-
+| 002A
+| 8006B54C
+| 06000AA0
+| 06000A40
+| 06000A80
+| 06000CC8
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Golden Scale
+| style="text-align: left;" | [[object_gi_scale]]
+| class="bg-yes" | ✔
+|-
+| 002B
+| 8006A9CC
+| 06000C70
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Hylian Shield
+| style="text-align: left;" | [[object_gi_shield_1]]
+| class="bg-yes" | ✔
+|-
+| 002C
+| 8006A9CC
+| 06000750
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Hookshot
+| style="text-align: left;" | [[object_gi_hookshot]]
+| class="bg-yes" | ✔
+|-
+| 002D
+| 8006A9CC
+| 06001240
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Longshot
+| style="text-align: left;" | [[object_gi_hookshot]]
+| class="bg-yes" | ✔
+|-
+| 002E
+| 8006AAA8
+| 060008C0
+| 06000AF8
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Ocarina of Time
+| style="text-align: left;" | [[object_gi_ocarina]]
+| class="bg-yes" | ✔
+|-
+| 002F
+| 8006AAA8
+| 06001060
+| 06001288
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Lon Lon Milk
+| style="text-align: left;" | [[object_gi_milk]]
+| class="bg-yes" | ✔
+|-
+| 0030
+| 8006AAA8
+| 06000AC0
+| 06000D50
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Keaton Mask
+| style="text-align: left;" | [[object_gi_ki_tan_mask]]
+| class="bg-yes" | ✔
+|-
+| 0031
+| 8006A9CC
+| 060007E0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Spooky Mask
+| style="text-align: left;" | [[object_gi_redead_mask]]
+| class="bg-yes" | ✔
+|-
+| 0032
+| 8006A9CC
+| 06000940
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Fairy Slingshot
+| style="text-align: left;" | [[object_gi_pachinko]]
+| class="bg-yes" | ✔
+|-
+| 0033
+| 8006A9CC
+| 06000A30
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Boomerang
+| style="text-align: left;" | [[object_gi_boomerang]]
+| class="bg-yes" | ✔
+|-
+| 0034
+| 8006A9CC
+| 06000990
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Fairy Bow
+| style="text-align: left;" | [[object_gi_bow]]
+| class="bg-yes" | ✔
+|-
+| 0035
+| 8006AAA8
+| 06000D80
+| 06001010
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Lens of Truth
+| style="text-align: left;" | [[object_gi_glasses]]
+| class="bg-yes" | ✔
+|-
+| 0036
+| 8006A2A0
+| 06001438
+| 06001270
+| 060012D0
+| 06001790
+| 06001330
+| 06001848
+| 00000000
+| 00000000
+| style="text-align: left;" | Green Potion
+| style="text-align: left;" | [[object_gi_liquid]]
+| class="bg-yes" | ✔
+|-
+| 0037
+| 8006A2A0
+| 06001438
+| 06001290
+| 060012F0
+| 06001790
+| 06001388
+| 06001848
+| 00000000
+| 00000000
+| style="text-align: left;" | Red Potion
+| style="text-align: left;" | [[object_gi_liquid]]
+| class="bg-yes" | ✔
+|-
+| 0038
+| 8006A2A0
+| 06001438
+| 060012B0
+| 06001310
+| 06001790
+| 060013E0
+| 06001848
+| 00000000
+| 00000000
+| style="text-align: left;" | Blue Potion
+| style="text-align: left;" | [[object_gi_liquid]]
+| class="bg-yes" | ✔
+|-
+| 0039
+| 80069CF0
+| 06000FB0
+| 060011C8
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Mirror Shield
+| style="text-align: left;" | [[object_gi_shield_3]]
+| class="bg-yes" | ✔
+|-
+| 003A
+| 8006AAA8
+| 06000CC0
+| 06000D60
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Zelda's Letter
+| style="text-align: left;" | [[object_gi_letter]]
+| class="bg-yes" | ✔
+|-
+| 003B
+| 8006B124
+| 06001560
+| 060014E0
+| 06001520
+| 06001608
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Goron Tunic
+| style="text-align: left;" | [[object_gi_clothes]]
+| class="bg-yes" | ✔
+|-
+| 003C
+| 8006B124
+| 06001560
+| 06001500
+| 06001540
+| 06001608
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Zora Tunic
+| style="text-align: left;" | [[object_gi_clothes]]
+| class="bg-yes" | ✔
+|-
+| 003D
+| 8006A9CC
+| 06000580
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Magic Bean
+| style="text-align: left;" | [[object_gi_bean]]
+| class="bg-yes" | ✔
+|-
+| 003E
+| 8006A88C
+| 06000600
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Fish
+| style="text-align: left;" | [[object_gi_fish]]
+| class="bg-yes" | ✔
+|-
+| 003F
+| 8006A9CC
+| 060007E0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Poacher's Saw
+| style="text-align: left;" | [[object_gi_saw]]
+| class="bg-yes" | ✔
+|-
+| 0040
+| 8006A9CC
+| 060009D0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Megaton Hammer
+| style="text-align: left;" | [[object_gi_hammer]]
+| class="bg-yes" | ✔
+|-
+| 0041
+| 8006A9CC
+| 060008E0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Reed Whistle
+| style="text-align: left;" | [[object_gi_grass]]
+| class="bg-no" | ✘
+|-
+| 0042
+| 8006A4B0
+| 06000600
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Giant's Knife & Biggoron's Sword
+| style="text-align: left;" | [[object_gi_longsword]]
+| class="bg-yes" | ✔
+|-
+| 0043
+| 8006ACE4
+| 06001630
+| 060015F0
+| 06001948
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Chicken & Pocket Cucco
+| style="text-align: left;" | [[object_gi_niwatori]]
+| class="bg-yes" | ✔
+|-
+| 0044
+| 8006AAA8
+| 060008E0
+| 06000AE0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | [Ruto's] Letter
+| style="text-align: left;" | [[object_gi_bottle_letter]]
+| class="bg-yes" | ✔
+|-
+| 0045
+| 8006AAA8
+| 060008E0
+| 06000B58
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Fairy Ocarina
+| style="text-align: left;" | [[object_gi_ocarina_0]]
+| class="bg-no" | ✘
+|-
+| 0046
+| 8006AAA8
+| 06001630
+| 06001A98
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Iron Boots
+| style="text-align: left;" | [[object_gi_boots_2]]
+| class="bg-yes" | ✔
+|-
+| 0047
+| 8006A9CC
+| 06000810
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Deku Seeds
+| style="text-align: left;" | [[object_gi_seed]]
+| class="bg-yes" | ✔
+|-
+| 0048
+| 8006B24C
+| 06001540
+| 060014C0
+| 06001860
+| 06001500
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Silver Gauntlets
+| style="text-align: left;" | [[object_gi_gloves]]
+| class="bg-yes" | ✔
+|-
+| 0049
+| 8006B24C
+| 06001540
+| 060014E0
+| 06001860
+| 06001520
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Golden Gauntlets
+| style="text-align: left;" | [[object_gi_gloves]]
+| class="bg-yes" | ✔
+|-
+| 004A
+| 8006ACE4
+| 060005E0
+| 06000560
+| 06000768
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | N Coin (Yellow)
+| style="text-align: left;" | [[object_gi_coin]]
+| class="bg-no" | ✘
+|-
+| 004B
+| 8006ACE4
+| 060005E0
+| 06000580
+| 06000768
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | N Coin (Red)
+| style="text-align: left;" | [[object_gi_coin]]
+| class="bg-no" | ✘
+|-
+| 004C
+| 8006ACE4
+| 060005E0
+| 060005A0
+| 06000768
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | N Coin (Green)
+| style="text-align: left;" | [[object_gi_coin]]
+| class="bg-no" | ✘
+|-
+| 004D
+| 8006ACE4
+| 060005E0
+| 060005C0
+| 06000768
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | N Coin (Blue)
+| style="text-align: left;" | [[object_gi_coin]]
+| class="bg-no" | ✘
+|-
+| 004E
+| 8006A9CC
+| 060009D0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Skull Mask
+| style="text-align: left;" | [[object_gi_skj_mask]]
+| class="bg-yes" | ✔
+|-
+| 004F
+| 8006AAA8
+| 06000BC0
+| 06000E58
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bunny Hood
+| style="text-align: left;" | [[object_gi_rabit_mask]]
+| class="bg-yes" | ✔
+|-
+| 0050
+| 8006AAA8
+| 060013D0
+| 060016B0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Mask of Truth
+| style="text-align: left;" | [[object_gi_truth_mask]]
+| class="bg-yes" | ✔
+|-
+| 0051
+| 8006AAA8
+| 06000680
+| 06000768
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Eye Drops
+| style="text-align: left;" | [[object_gi_eye_lotion]]
+| class="bg-yes" | ✔
+|-
+| 0052
+| 8006A9CC
+| 060008B0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Odd Potion
+| style="text-align: left;" | [[object_gi_powder]]
+| class="bg-yes" | ✔
+|-
+| 0053
+| 8006A9CC
+| 060009D0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Odd Mushroom
+| style="text-align: left;" | [[object_gi_mushroom]]
+| class="bg-yes" | ✔
+|-
+| 0054
+| 8006AAA8
+| 06000F00
+| 06001188
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Claim Check
+| style="text-align: left;" | [[object_gi_ticketstone]]
+| class="bg-yes" | ✔
+|-
+| 0055
+| 8006A4B0
+| 060006E0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Giant's Knife & Goron's Sword (Broken)
+| style="text-align: left;" | [[object_gi_brokensword]]
+| class="bg-yes" | ✔
+|-
+| 0056
+| 8006AAA8
+| 060009C0
+| 06000AF0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Prescription
+| style="text-align: left;" | [[object_gi_prescription]]
+| class="bg-yes" | ✔
+|-
+| 0057
+| 8006A9CC
+| 06000960
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Goron's Bracelet
+| style="text-align: left;" | [[object_gi_bracelet]]
+| class="bg-yes" | ✔
+|-
+| 0058
+| 800695C0
+| 06000440
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | SOLD OUT
+| style="text-align: left;" | [[object_gi_soldout]]
+| class="bg-yes" | ✔
+|-
+| 0059
+| 8006AAA8
+| 06000D60
+| 06001060
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Eyeball Frog
+| style="text-align: left;" | [[object_gi_frog]]
+| class="bg-yes" | ✔
+|-
+| 005A
+| 800694E4
+| 060014F8
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Goron Mask
+| style="text-align: left;" | [[object_gi_golonmask]]
+| class="bg-yes" | ✔
+|-
+| 005B
+| 800694E4
+| 06001398
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Zora Mask
+| style="text-align: left;" | [[object_gi_zoramask]]
+| class="bg-yes" | ✔
+|-
+| 005C
+| 800694E4
+| 060010E8
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Gerudo Mask
+| style="text-align: left;" | [[object_gi_gerudomask]]
+| class="bg-yes" | ✔
+|-
+| 005D
+| 8006ACE4
+| 06001630
+| 06001610
+| 06001948
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Cojiro
+| style="text-align: left;" | [[object_gi_niwatori]]
+| class="bg-yes" | ✔
+|-
+| 005E
+| 8006A9CC
+| 06001850
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Hover Boots
+| style="text-align: left;" | [[object_gi_hoverboots]]
+| class="bg-yes" | ✔
+|-
+| 005F
+| 8006AE40
+| 06000AE0
+| 06000CA0
+| 06000D00
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Fire Arrows
+| style="text-align: left;" | [[object_gi_m_arrow]]
+| class="bg-yes" | ✔
+|-
+| 0060
+| 8006AE40
+| 06000AE0
+| 06000CC0
+| 06000D00
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Ice Arrows
+| style="text-align: left;" | [[object_gi_m_arrow]]
+| class="bg-yes" | ✔
+|-
+| 0061
+| 8006AE40
+| 06000AE0
+| 06000CE0
+| 06000D00
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Light Arrows
+| style="text-align: left;" | [[object_gi_m_arrow]]
+| class="bg-yes" | ✔
+|-
+| 0062
+| 80069EB0
+| 06000330
+| 06000438
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Gold Skulltula [Token] I
+| style="text-align: left;" | [[object_gi_sutaru]]
+| class="bg-yes" | ✔
+|-
+| 0063
+| 8006AF9C
+| 06000920
+| 060009E0
+| 06000A40
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Din's Fire
+| style="text-align: left;" | [[object_gi_goddess]]
+| class="bg-yes" | ✔
+|-
+| 0064
+| 8006AF9C
+| 06000920
+| 06000A00
+| 06000A40
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Farore's Wind
+| style="text-align: left;" | [[object_gi_goddess]]
+| class="bg-yes" | ✔
+|-
+| 0065
+| 8006AF9C
+| 06000920
+| 06000A20
+| 06000A40
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Nayru's Love
+| style="text-align: left;" | [[object_gi_goddess]]
+| class="bg-yes" | ✔
+|-
+| 0066
+| 8006969C
+| 06000C60
+| 06000F08
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Blue Fire
+| style="text-align: left;" | [[object_gi_fire]]
+| class="bg-yes" | ✔
+|-
+| 0067
+| 8006AAA8
+| 06000830
+| 06000B20
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bug
+| style="text-align: left;" | [[object_gi_insect]]
+| class="bg-yes" | ✔
+|-
+| 0068
+| 8006AAA8
+| 06000830
+| 06000A70
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Butterfly
+| style="text-align: left;" | [[object_gi_butterfly]]
+| class="bg-no" | ✘
+|-
+| 0069
+| 80069880
+| 06000990
+| 06000BE0
+| 06000CF0
+| 06000950
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Poe
+| style="text-align: left;" | [[object_gi_ghost]]
+| class="bg-yes" | ✔
+|-
+| 006A
+| 80069AC8
+| 06000BD0
+| 06000DB8
+| 06000EF0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bottled Fairy
+| style="text-align: left;" | [[object_gi_soul]]
+| class="bg-yes" | ✔
+|-
+| 006B
+| 8006B6E4
+| 06000B70
+| 06000AF0
+| 06000F48
+| 06000B30
+| 06000FF0
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bullet Bag (Holds 40)
+| style="text-align: left;" | [[object_gi_dekupouch]]
+| class="bg-yes" | ✔
+|-
+| 006C
+| 8006B3C0
+| 060005E0
+| 060004A0
+| 060006F0
+| 06000540
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Green Rupee
+| style="text-align: left;" | [[object_gi_rupy]]
+| class="bg-yes" | ✔
+|-
+| 006D
+| 8006B3C0
+| 060005E0
+| 060004C0
+| 060006F0
+| 06000560
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Blue Rupee
+| style="text-align: left;" | [[object_gi_rupy]]
+| class="bg-yes" | ✔
+|-
+| 006E
+| 8006B3C0
+| 060005E0
+| 060004E0
+| 060006F0
+| 06000580
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Red Rupee
+| style="text-align: left;" | [[object_gi_rupy]]
+| class="bg-yes" | ✔
+|-
+| 006F
+| 80069880
+| 06000990
+| 06000BE0
+| 06000CF0
+| 06000970
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Big Poe
+| style="text-align: left;" | [[object_gi_ghost]]
+| class="bg-yes" | ✔
+|-
+| 0070
+| 8006B24C
+| 060005E0
+| 06000500
+| 060006F0
+| 060005A0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Purple Rupee
+| style="text-align: left;" | [[object_gi_rupy]]
+| class="bg-yes" | ✔
+|-
+| 0071
+| 8006B24C
+| 060005E0
+| 06000520
+| 060006F0
+| 060005C0
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Huge Rupee
+| style="text-align: left;" | [[object_gi_rupy]]
+| class="bg-yes" | ✔
+|-
+| 0072
+| 8006B6E4
+| 06000B70
+| 06000B10
+| 06000F48
+| 06000B50
+| 06000FF0
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Bullet Bag (Holds 50)
+| style="text-align: left;" | [[object_gi_dekupouch]]
+| class="bg-yes" | ✔
+|-
+| 0073
+| 8006A9CC
+| 06000960
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Kokiri Sword
+| style="text-align: left;" | [[object_gi_sword_1]]
+| class="bg-yes" | ✔
+|-
+| 0074
+| 80069EB0
+| 06004DB0
+| 06004EB8
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| 00000000
+| style="text-align: left;" | Gold Skulltula [Token] II
+| style="text-align: left;" | [[object_st]]
+| ?
+|}

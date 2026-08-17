@@ -1,0 +1,4 @@
+{{actor|name=ovl_Bg_Bowl_Wall}}
+'''ovl_Bg_Bowl_Wall''' is an actor that makes up one of the two destructible walls in [[Bombchu Bowling]].
+{{clear}}
+[[Category:Bombchu Bowling]]

@@ -1,0 +1,10 @@
+{{actor|name=ovl_En_Ma1|isPage=true}}
+'''ovl_En_Ma1''' is the [[actor]] for Child [[Malon]].
+{{clear}}
+== Debug Rom Notes ==
+
+ ROM: 0xE56F4C (24060047) Receiving the Pocket Egg for talking with Malon outside of the Castle Gate.
+ ROM: 0xE57124 Text: (24050009) Play Epona's Song
+ ROM: 0xE5719C Text: (24050016) Learn Epona's Song
+
+[[Category: Malon]]

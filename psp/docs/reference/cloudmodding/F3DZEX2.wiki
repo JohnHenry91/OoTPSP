@@ -1,0 +1,696 @@
+'''F3DZEX2''' is the primary 3D graphics microcode for the N64's Reality Signal Processor (RSP), used exclusively by both Ocarina of Time and Majora's Mask. It is a variant of the F3DEX2 (Fast 3D, Extended 2) microcode, containing a very similar (if not identical) binary interface. 
+
+==Differences from F3DEX2==
+
+The SDK given to all N64 developers includes several microcodes to load onto the RSP, one of which is the F3DEX2 3D graphics microcode (the latest iteration of Nintendo's 3D microcode offerings). The microcode used in N64 Zelda titles appears to be a variation of this microcode, though how exactly is unknown.
+
+The only known difference between the two is that the F3D'''Z'''EX2 readme encourages the use of the <tt>g*SPBranchLessZraw</tt> macros over the <tt>g*SPBranchLessZ</tt> macros (note that the <tt>Zraw</tt> form is available to developers using F3DEX2, but it's undocumented in the SDK). This doesn't explain the need for a separate compiled microcode, however, since these macros only differ in how a programmer specifies the Z value for the [[F3DZEX/Opcode_Details#0x04_—_G_BRANCH_Z|<tt>G_BRANCH_Z</tt>]] command.
+
+The readme for F3DZEX2 (as part of the iQue leak) reveals that this microcode required F3DEX2 to be installed first, with the Z-specific microcode object files and a <tt>ucode_z.h</tt> file installed on top of the F3DEX2 installation afterwards. This header file does not define any new macros or other new features over the standard F3DEX2 microcode, so the need for a Z-specific microcode object is not currently known. It's also not known why the <tt>Zraw</tt> macro is part of the standard SDK if it was only mentioned to programmers using F3DZEX2, or why the readme doesn't bring up <tt>g*SPBranchLessZrg</tt> in its discussion of how to branch on the Z value.
+
+==Versions Used==
+The variation used in both OoT and MM is F3DZEX2.NoN.fifo, with "NoN" standing for No Near clipping (objects between the viewer and the near clipping plane are not clipped, and objects in this area aren't subject to Z buffer calculations), and "fifo" simply being a method of transferring commands to the RSP.
+
+Below is the version/copyright strings for F3DZEX2 present in Ocarina of Time and Majora's Mask. Note that the version strings claim the microcode as being "F3DZEX" microcode (which apparently did exist as the counterpart to F3DEX), but the iQue leak shows that the 2 was left out of the version string in F3DZEX2 object files. The Japanese Nintendo 64 versions of Majora's Mask also contain an alternate string that lacks the credit to Kawasedo.
+
+{| class="wikitable"
+! Version !! String
+|-
+! OoT Nintendo 64
+| <code style="white-space: pre;">RSP Gfx ucode F3DZEX.NoN  fifo 2.06H Yoshitaka Yasumoto 1998 Nintendo.</code>
+|-
+! Majora's Mask JP N64 (Alt)
+| <code style="white-space: pre;">RSP Gfx ucode F3DZEX.NoN  fifo 2.08I Yoshitaka Yasumoto Nintendo 1999.</code>
+|-
+! Majora's Mask
+| <code style="white-space: pre;">RSP Gfx ucode F3DZEX.NoN  fifo 2.08I Yoshitaka Yasumoto/Kawasedo 1999.</code>
+|-
+! OoT GameCube/iQue
+| <code style="white-space: pre;">RSP Gfx ucode F3DZEX.NoN  fifo 2.08J Yoshitaka Yasumoto/Kawasedo 1999.</code>
+|}
+
+==Graphics Binary Interface==
+This GBI instruction list is currently based on SDK documentation of F3DEX2. Slight variations may be present in F3DZEX.
+
+The below table will link to the right part of [[F3DZEX/Opcode_Details|the opcode details subpage]]. Rows highlighted blue are common between different microcodes, at least F3DEX and F3DEX2.
+
+{| class="wikitable"
+! No. !! Name !! Description
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0x00_—_G_NOOP|<tt>00</tt>]] || [[F3DZEX/Opcode_Details#0x00_—_G_NOOP|<tt>G_NOOP</tt>]] || Stalls RDP for a few cycles
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0x01_—_G_VTX|<tt>01</tt>]] || [[F3DZEX/Opcode_Details#0x01_—_G_VTX|<tt>G_VTX</tt>]] || Loads vertices to RSP
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0x02_—_G_MODIFYVTX|<tt>02</tt>]] || [[F3DZEX/Opcode_Details#0x02_—_G_MODIFYVTX|<tt>G_MODIFYVTX</tt>]] || Modifies a portion of vertex attributes in RSP
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0x03_—_G_CULLDL|<tt>03</tt>]] || [[F3DZEX/Opcode_Details#0x03_—_G_CULLDL|<tt>G_CULLDL</tt>]] || End display list if object is offscreen
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0x04_—_G_BRANCH_Z|<tt>04</tt>]] || [[F3DZEX/Opcode_Details#0x04_—_G_BRANCH_Z|<tt>G_BRANCH_Z</tt>]] || Branch to another display list if vertex is close enough to screen
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0x05_—_G_TRI1|<tt>05</tt>]] || [[F3DZEX/Opcode_Details#0x05_—_G_TRI1|<tt>G_TRI1</tt>]] || Draw a triangle
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0x06_—_G_TRI2|<tt>06</tt>]] || [[F3DZEX/Opcode_Details#0x06_—_G_TRI2|<tt>G_TRI2</tt>]] || Draw two triangles
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0x07_—_G_QUAD|<tt>07</tt>]] || [[F3DZEX/Opcode_Details#0x07_—_G_QUAD|<tt>G_QUAD</tt>]] || Draw quadrilateral (''deprecated'' in favor of <tt>G_TRI2</tt>)
+|- class="bg-no"
+|style="text-align:center;"| <tt>08</tt><br/>⋮<br/><tt>BF</tt> ||colspan=2| <i>Unspecified; these commands mean nothing for F3DEX2</i>
+|- class="bg-unknown"
+|style="text-align:center;"| [[#Triangle_Opcodes|<tt>C0</tt><br/>⋮<br/><tt>C7</tt>]] ||colspan=2| <i>Potentially internal triangle commands ([[#Triangle_Opcodes|see below]]), but not documented in SDK.</i>
+|- class="bg-warn"
+|style="text-align:center;"| [[#Triangle_Opcodes|<tt>C8</tt><br/>⋮<br/><tt>CF</tt>]] ||colspan=2| <i>Internal triangle commands. These are generated by the RSP; none of the macros available to the programmer would generate them. [[#Triangle_Opcodes|Details in the below section]]</i>
+|- class="bg-no"
+|style="text-align:center;"| <tt>D0</tt><br/>⋮<br/><tt>D2</tt> ||colspan=2| <i>Unspecified; these commands mean nothing for F3DEX2</i>
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xD3_—_G_SPECIAL_3|<tt>D3</tt>]] || [[F3DZEX/Opcode_Details#0xD3_—_G_SPECIAL_3|<tt>G_SPECIAL_3</tt>]] || Explicitly reserved opcode... or is it?
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xD4_—_G_SPECIAL_2|<tt>D4</tt>]] || [[F3DZEX/Opcode_Details#0xD4_—_G_SPECIAL_2|<tt>G_SPECIAL_2</tt>]] || Explicitly reserved opcode... or is it?
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xD5_—_G_SPECIAL_1|<tt>D5</tt>]] || [[F3DZEX/Opcode_Details#0xD5_—_G_SPECIAL_1|<tt>G_SPECIAL_1</tt>]] || Explicitly reserved opcode... or is it?
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xD6_—_G_DMA_IO|<tt>D6</tt>]] || [[F3DZEX/Opcode_Details#0xD6_—_G_DMA_IO|<tt>G_DMA_IO</tt>]] || DMA transfer between main RAM and RCP DMEM (or IMEM)
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xD7_—_G_TEXTURE|<tt>D7</tt>]] || [[F3DZEX/Opcode_Details#0xD7_—_G_TEXTURE|<tt>G_TEXTURE</tt>]] || Enables tile descriptor, sets its scaling factor and mipmap levels
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xD8_—_G_POPMTX|<tt>D8</tt>]] || [[F3DZEX/Opcode_Details#0xD8_—_G_POPMTX|<tt>G_POPMTX</tt>]] || Pops ''n'' modelview matrices from stack
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xD9_—_G_GEOMETRYMODE|<tt>D9</tt>]] || [[F3DZEX/Opcode_Details#0xD9_—_G_GEOMETRYMODE|<tt>G_GEOMETRYMODE</tt>]] || Configures RSP Geometry Mode
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xDA_—_G_MTX|<tt>DA</tt>]] || [[F3DZEX/Opcode_Details#0xDA_—_G_MTX|<tt>G_MTX</tt>]] || Push new modelview or projection matrix
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xDB_—_G_MOVEWORD|<tt>DB</tt>]] || [[F3DZEX/Opcode_Details#0xDB_—_G_MOVEWORD|<tt>G_MOVEWORD</tt>]] || Change "word" (32 bits) of data in DMEM
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xDC_—_G_MOVEMEM|<tt>DC</tt>]] || [[F3DZEX/Opcode_Details#0xDC_—_G_MOVEMEM|<tt>G_MOVEMEM</tt>]] || Change block of memory in DMEM
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xDD_—_G_LOAD_UCODE|<tt>DD</tt>]] || [[F3DZEX/Opcode_Details#0xDD_—_G_LOAD_UCODE|<tt>G_LOAD_UCODE</tt>]] || Load new microcode for RSP
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xDE_—_G_DL|<tt>DE</tt>]] || [[F3DZEX/Opcode_Details#0xDE_—_G_DL|<tt>G_DL</tt>]] || Jump or "call" another display list
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xDF_—_G_ENDDL|<tt>DF</tt>]] || [[F3DZEX/Opcode_Details#0xDF_—_G_ENDDL|<tt>G_ENDDL</tt>]] || End current display list
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE0_—_G_SPNOOP|<tt>E0</tt>]] || [[F3DZEX/Opcode_Details#0xE0_—_G_SPNOOP|<tt>G_SPNOOP</tt>]] || Stall RSP for a few cycles
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE1_—_G_RDPHALF_1|<tt>E1</tt>]] || [[F3DZEX/Opcode_Details#0xE1_—_G_RDPHALF_1|<tt>G_RDPHALF_1</tt>]] || Set value in high half of generic RDP "word"
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE2_—_G_SETOTHERMODE_L|<tt>E2</tt>]] || [[F3DZEX/Opcode_Details#0xE2_—_G_SETOTHERMODE_L|<tt>G_SETOTHERMODE_L</tt>]] || Configure lower half of RDP Other Modes
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE3_—_G_SETOTHERMODE_H|<tt>E3</tt>]] || [[F3DZEX/Opcode_Details#0xE3_—_G_SETOTHERMODE_H|<tt>G_SETOTHERMODE_H</tt>]] || Configure higher half of RDP Other Modes
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE4_—_G_TEXRECT|<tt>E4</tt>]] || [[F3DZEX/Opcode_Details#0xE4_—_G_TEXRECT|<tt>G_TEXRECT</tt>]] || Draw textured rectangle onto screen
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE5_—_G_TEXRECTFLIP|<tt>E5</tt>]] || [[F3DZEX/Opcode_Details#0xE5_—_G_TEXRECTFLIP|<tt>G_TEXRECTFLIP</tt>]] || Draw textured rectangle onto screen, with flipped texture axes
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE6_—_G_RDPLOADSYNC|<tt>E6</tt>]] || [[F3DZEX/Opcode_Details#0xE6_—_G_RDPLOADSYNC|<tt>G_RDPLOADSYNC</tt>]] || Synchronize with rendering to safely load texture
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE7_—_G_RDPPIPESYNC|<tt>E7</tt>]] || [[F3DZEX/Opcode_Details#0xE7_—_G_RDPPIPESYNC|<tt>G_RDPPIPESYNC</tt>]] || Synchronize with rendering to safely update RDP attributes. <span style="font-weight:bold; color:#ff0000;">Does not indicate start of display list!</span>
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE8_—_G_RDPTILESYNC|<tt>E8</tt>]] || [[F3DZEX/Opcode_Details#0xE8_—_G_RDPTILESYNC|<tt>G_RDPTILESYNC</tt>]] || Synchronize with rendering to safely update tile descriptor attributes
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xE9_—_G_RDPFULLSYNC|<tt>E9</tt>]] || [[F3DZEX/Opcode_Details#0xE9_—_G_RDPFULLSYNC|<tt>G_RDPFULLSYNC</tt>]] || Indicates end of RDP processing; interrupts CPU when RDP has nothing more to do
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xEA_—_G_SETKEYGB|<tt>EA</tt>]] || [[F3DZEX/Opcode_Details#0xEA_—_G_SETKEYGB|<tt>G_SETKEYGB</tt>]] || Set green and blue components of chroma key
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xEB_—_G_SETKEYR|<tt>EB</tt>]] || [[F3DZEX/Opcode_Details#0xEB_—_G_SETKEYR|<tt>G_SETKEYR</tt>]] || Set red component of chroma key
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xEC_—_G_SETCONVERT|<tt>EC</tt>]] || [[F3DZEX/Opcode_Details#0xEC_—_G_SETCONVERT|<tt>G_SETCONVERT</tt>]] || Set conversion factors for YUV to RGB conversion
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xED_—_G_SETSCISSOR|<tt>ED</tt>]] || [[F3DZEX/Opcode_Details#0xED_—_G_SETSCISSOR|<tt>G_SETSCISSOR</tt>]] || Set scissoring rectangle
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xEE_—_G_SETPRIMDEPTH|<tt>EE</tt>]] || [[F3DZEX/Opcode_Details#0xEE_—_G_SETPRIMDEPTH|<tt>G_SETPRIMDEPTH</tt>]] || Set depth value of whole primitive (used when enabled)
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xEF_—_G_RDPSETOTHERMODE|<tt>EF</tt>]] || [[F3DZEX/Opcode_Details#0xEF_—_G_RDPSETOTHERMODE|<tt>G_RDPSETOTHERMODE</tt>]] || Set state of the RDP Other Modes bits, both halves (combined <tt>E2</tt> and <tt>E3</tt>).
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF0_—_G_LOADTLUT|<tt>F0</tt>]] || [[F3DZEX/Opcode_Details#0xF0_—_G_LOADTLUT|<tt>G_LOADTLUT</tt>]] || Load palette into TMEM.
+|-
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF1_—_G_RDPHALF_2|<tt>F1</tt>]] || [[F3DZEX/Opcode_Details#0xF1_—_G_RDPHALF_2|<tt>G_RDPHALF_2</tt>]] || Set value in low half of generic RDP "word"
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF2_—_G_SETTILESIZE|<tt>F2</tt>]] || [[F3DZEX/Opcode_Details#0xF2_—_G_SETTILESIZE|<tt>G_SETTILESIZE</tt>]] || Set dimensions of texture
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF3_—_G_LOADBLOCK|<tt>F3</tt>]] || [[F3DZEX/Opcode_Details#0xF3_—_G_LOADBLOCK|<tt>G_LOADBLOCK</tt>]] || Load texture into TMEM as a continuous stream
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF4_—_G_LOADTILE|<tt>F4</tt>]] || [[F3DZEX/Opcode_Details#0xF4_—_G_LOADTILE|<tt>G_LOADTILE</tt>]] || Load texture into TMEM as a rectangular region of in-RAM texture.
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF5_—_G_SETTILE|<tt>F5</tt>]] || [[F3DZEX/Opcode_Details#0xF5_—_G_SETTILE|<tt>G_SETTILE</tt>]] || Set various parameters of a tile descriptor
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF6_—_G_FILLRECT|<tt>F6</tt>]] || [[F3DZEX/Opcode_Details#0xF6_—_G_FILLRECT|<tt>G_FILLRECT</tt>]] || Draw solid color rectangle to screen
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF7_—_G_SETFILLCOLOR|<tt>F7</tt>]] || [[F3DZEX/Opcode_Details#0xF7_—_G_SETFILLCOLOR|<tt>G_SETFILLCOLOR</tt>]] || Set fill color register
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF8_—_G_SETFOGCOLOR|<tt>F8</tt>]] || [[F3DZEX/Opcode_Details#0xF8_—_G_SETFOGCOLOR|<tt>G_SETFOGCOLOR</tt>]] || Set fog color register
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xF9_—_G_SETBLENDCOLOR|<tt>F9</tt>]] || [[F3DZEX/Opcode_Details#0xF9_—_G_SETBLENDCOLOR|<tt>G_SETBLENDCOLOR</tt>]] || Set blend color register
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xFA_—_G_SETPRIMCOLOR|<tt>FA</tt>]] || [[F3DZEX/Opcode_Details#0xFA_—_G_SETPRIMCOLOR|<tt>G_SETPRIMCOLOR</tt>]] || Set primitive color register
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xFB_—_G_SETENVCOLOR|<tt>FB</tt>]] || [[F3DZEX/Opcode_Details#0xFB_—_G_SETENVCOLOR|<tt>G_SETENVCOLOR</tt>]] || Set environment color register
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xFC_—_G_SETCOMBINE|<tt>FC</tt>]] || [[F3DZEX/Opcode_Details#0xFC_—_G_SETCOMBINE|<tt>G_SETCOMBINE</tt>]] || Set color combiner parameters
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xFD_—_G_SETTIMG|<tt>FD</tt>]] || [[F3DZEX/Opcode_Details#0xFD_—_G_SETTIMG|<tt>G_SETTIMG</tt>]] || Set location of texture image in RAM
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xFE_—_G_SETZIMG|<tt>FE</tt>]] || [[F3DZEX/Opcode_Details#0xFE_—_G_SETZIMG|<tt>G_SETZIMG</tt>]] || Set location of depth buffer
+|-class="bg-info"
+|style="text-align:center;"| [[F3DZEX/Opcode_Details#0xFF_—_G_SETCIMG|<tt>FF</tt>]] || [[F3DZEX/Opcode_Details#0xFF_—_G_SETCIMG|<tt>G_SETCIMG</tt>]] || Set location of color buffer
+|-
+|}
+
+===Triangle Opcodes===
+
+Several opcodes are named in the SDK source code, but don't get used by any opcode-generating macros. The comments with these opcodes say that they're generated by the microcode itself, and that the programmer will never use (or need) them. The list of named opcodes are:
+
+{| class="wikitable"
+! No. !! Name
+|-
+| <tt>C8</tt> || <tt>G_TRI_FILL</tt>
+|-
+| <tt>C9</tt> || <tt>G_TRI_FILL_ZBUFF</tt>
+|-
+| <tt>CA</tt> || <tt>G_TRI_TXTR</tt>
+|-
+| <tt>CB</tt> || <tt>G_TRI_TXTR_ZBUFF</tt>
+|-
+| <tt>CC</tt> || <tt>G_TRI_SHADE</tt>
+|-
+| <tt>CD</tt> || <tt>G_TRI_SHADE_ZBUFF</tt>
+|-
+| <tt>CE</tt> || <tt>G_TRI_SHADE_TXTR</tt>
+|-
+| <tt>CF</tt> || <tt>G_TRI_SHADE_TXTR_ZBUFF</tt>
+|}
+
+The source also gives a set of bitmasks to use to construct these opcodes, which as listed are:
+
+* <tt>G_RDP_TRI_ZBUFF_MASK = 0x01</tt>
+* <tt>G_RDP_TRI_TXTR_MASK  = 0x02</tt>
+* <tt>G_RDP_TRI_SHADE_MASK = 0x04</tt>
+* <tt>G_RDP_TRI_FILL_MASK  = 0x08</tt>
+
+E.g. to get <tt>G_TRI_TXTR_ZBUFF</tt>, you could do <tt>0xC0 +| G_RDP_TRI_FILL_MASK +| G_RDP_TRI_TXTR_MASK +| G_RDP_TRI_ZBUFF_MASK</tt>. Note that the bitmasks would suggest that the range <tt>0xC0..0xC7</tt> could possibly be considered triangle commands as well, however those values are not named. Not even a display list dumper provided by the SDK accounts for those potential opcodes, only accounting for <tt>0xC8..0xCF</tt>. So either <tt>0xC0..0xC7</tt> do nothing, or are otherwise not useful without a fill bit set.
+
+==Vertex Structure==
+
+===In RAM/ROM===
+
+Outside of the RCP, vertices are stored in the format presented below, depending on whether they're expecting a lighting system or not.
+
+This layout is used for vertices that supply their own color, instead of asking the lighting system to calculate one:
+
+{| class="wikitable" style="margin:auto;"
+! Struct !! Memory Layout
+|-
+|
+ struct Vertex_Color {
+     int16_t position[3]; // ({{color|red|X}}, {{color|green|Y}}, and {{color|blue|Z}}) coordinate
+     uint16_t reserved;   // unused
+     int16_t texcoord[2]; // {{color|#00CCFF|S}} and {{color|magenta|T}} texture coordinate
+     uint8_t color[4];    // {{color|darkred|R}}, {{color|darkgreen|G}}, {{color|darkblue|B}}, {{color|#777777|A}} color components
+ }
+|
+ {{color|red|xx xx}}  {{color|green|yy yy}}  {{color|blue|zz zz}}  00 00
+ {{color|#00CCFF|ss ss}}  {{color|magenta|tt tt}}  {{color|darkred|rr}} {{color|darkgreen|gg}}  {{color|darkblue|bb}} {{color|#777777|aa}}
+|}
+
+While this is the layout for vertices that wish to use lighting:
+
+{| class="wikitable" style="margin:auto;"
+! Struct !! Memory Layout
+|-
+|
+ struct Vertex_Normal {
+     int16_t position[3]; // ({{color|red|X}}, {{color|green|Y}}, and {{color|blue|Z}}) coordinate
+     uint16_t reserved;   // unused
+     int16_t texcoord[2]; // {{color|#00CCFF|S}} and {{color|magenta|T}} texture coordinate
+     int8_t normal[3];    // {{color|darkred|X}}, {{color|darkgreen|Y}}, and {{color|darkblue|Z}} of vertex normal
+     uint8_t {{color|#777777|alpha}};       // Alpha component of vertex
+ }
+|
+ {{color|red|xx xx}}  {{color|green|yy yy}}  {{color|blue|zz zz}}  00 00
+ {{color|#00CCFF|ss ss}}  {{color|magenta|tt tt}}  {{color|darkred|nn}} {{color|darkgreen|pp}}  {{color|darkblue|qq}} {{color|#777777|aa}}
+|}
+
+In this case, the red, green, and blue components are instead the vertex normal used in lighting calculations. The memory layout looks the same, the decision between which layout belongs to is made by whether or not the RSP is currently set to perform lighting calculations when vertices are being loaded.
+
+The texture coordinates are in a signed fixed-point 10.5 format, in a range of <tt>-1024 ≤ n ≤ 1023.96875</tt>
+
+===In RCP===
+
+The following vertex structure documentation is unconfirmed, and is based on documentation for Fast3D. 
+
+ struct Vertex_RCP {
+ /* 0x00 */ int16_t  xyzw_int[4];
+ /* 0x08 */ uint16_t xyzw_frac[4];
+ /* 0x10 */ u8 rgba[4]; // always a color. If lighting is enabled, this is the result of color calculations
+ /* 0x14 */ s16 s;
+ /* 0x16 */ s16 t;
+ /* 0x18 */ s16 xscr;
+ /* 0x1A */ s16 yscr;
+ /* 0x1C */ s16 zscr_int;
+ /* 0x1E */ u16 zscr_frac;
+ /* 0x20 */ s16 i/w_int;  // 1/w
+ /* 0x22 */ u16 i/w_frac; // 1/w
+ /* 0x24 */ ? OcOc
+            ? Flags (e.g clip test results)
+            ? OO
+ }; //size 0x28
+
+==Matrix Structure==
+
+The matrices used by the RSP are 4x4 matrices in a fixed-point s16.u16 format. The structure is a bit unusual, as shown here:
+
+{| class="wikitable" style="margin:auto;"
+! Struct !! Memory Layout
+|-
+|
+ struct Matrix {
+     int16_t {{color|blue|intpart}}[4][4];
+     uint16_t {{color|magenta|fracpart}}[4][4];
+ }
+|
+ {{color|blue|0000 0001 0002 0003
+ 0100 0101 0102 0103
+ 0200 0201 0202 0203
+ 0300 0301 0302 0303}}
+ {{color|magenta|0000 0001 0002 0003
+ 0100 0101 0102 0103
+ 0200 0201 0202 0203
+ 0300 0301 0302 0303}}
+|}
+
+That is, each matrix element has its integer part at <tt>Matrix.intpart[n][m]</tt>, and its fractional part at <tt>Matrix.fracpart[n][m]</tt>.
+
+The RSP does matrix multiplication with 32-bit numbers (that is, effectively combining the integer and fractional parts of an element), which leads to a 64-bit number. To fit inside a matrix, only the inner 32 bits (lower 16 integer bits, higher 16 fractional bits) are kept. An example of this:
+
+     0123.4567
+ *   89AB.CDEF
+ -----------------
+ 009C'''A39D.C94E'''4629
+     vvvv vvvv
+     A39D.C94E  (final result stored in resulting matrix)
+
+Note that the SDK sets up access to the Matrix structure in a different way, as a simple typedef:
+
+<syntaxhighlight lang="c">
+typedef int32_t Mtx[4][4];
+</syntaxhighlight>
+
+That is, the integer parts are accesible as <tt>Mtx[0..1]</tt>, and the fractional parts <tt>Mtx[2..3]</tt>, with each matrix element as one half of the <tt>int32_t</tt> type. All parts are signed here, however it appears the fractional parts are all treated as unsigned. The other structure chosen above was done so that referencing integer and fraction parts will match the "real" index of matrix elements.
+
+==RCP Bit Fields==
+
+Various opcodes in the microcode configure bitfields that tell the RSP and RDP how to operate on what ultimately will be rendered.
+
+===RSP Geometry Mode===
+
+This 32-bit value configures how the RSP will process geometry. They are all 1-bit flags. All of these flags are disabled by default ''except'' for <tt>G_CLIPPING</tt>
+
+{| class="wikitable"
+|-
+!style="width: 21%;"| Affects Bit !! Name !! Description
+|-
+| <tt>0000 0000 0000 0000  0000 0000 0000 000<span style="color:blue;">1</span></tt> || <tt>G_ZBUFFER</tt> || Enables depth (Z buffer) calculations in the RSP
+|-
+| <tt>0000 0000 0000 0000  0000 0000 0000 0<span style="color:blue;">1</span>00</tt> || <tt>G_SHADE</tt> || Enables calculating vertex color for triangle. Uses flat shading without <tt>G_SHADING_SMOOTH</tt>.
+|-
+| <tt>0000 0000 0000 0000  0000 00<span style="color:blue;">1</span>0 0000 0000</tt> || <tt>G_CULL_FRONT</tt> || Front-face culling
+|-
+| <tt>0000 0000 0000 0000  0000 0<span style="color:blue;">1</span>00 0000 0000</tt> || <tt>G_CULL_BACK</tt> || Back-face culling
+|-
+| <tt>0000 0000 0000 000<span style="color:blue;">1</span>  0000 0000 0000 0000</tt> || <tt>G_FOG</tt> || Calculates alpha value of primitives for fog effects
+|-
+| <tt>0000 0000 0000 00<span style="color:blue;">1</span>0  0000 0000 0000 0000</tt> || <tt>G_LIGHTING</tt> || Enables lighting calculations to determine vertex color (determines how the color/normal part of loaded vertices are interpreted)
+|-
+| <tt>0000 0000 0000 0<span style="color:blue;">1</span>00  0000 0000 0000 0000</tt> || <tt>G_TEXTURE_GEN</tt> || Generates spherical texture coordinates, based on X and Y components of the projected version of the normal
+|-
+| <tt>0000 0000 0000 <span style="color:blue;">1</span>000  0000 0000 0000 0000</tt> || <tt>G_TEXTURE_GEN_LINEAR</tt> || Generates linear texture coordinates, based on <tt>acos()</tt> of X and Y components of the normal, after projection transformation
+|-
+| <tt>0000 0000 00<span style="color:blue;">1</span>0 0000  0000 0000 0000 0000</tt> || <tt>G_SHADING_SMOOTH</tt> || Enables smooth (Gouraud) shading of primitives. Needs <tt>G_SHADE</tt> enabled to work.
+|-style="text-decoration: italic;"
+| <tt>0000 0000 <span style="color:blue;">1</span>000 0000  0000 0000 0000 0000</tt> || <tt>G_CLIPPING</tt> || In F3DLX2, can disable clipping calculations, and is on by default. '''Ignored by F3DEX2, clipping is always on.'''
+|-
+!colspan=3| Other Meanings
+|-
+| <tt>0000 0000 0000 0000  0000 0000 <span style="color:blue;">1111 1111</span></tt> ||colspan=2| The lowest byte of the geometry mode can be OR'd with [[#Triangle_Opcodes|<tt>G_TRI_FILL</tt>]] to generate an appropriate internal triangle opcode, apparently.
+|-
+| <tt><span style="color:blue;">1111 1111</span> 0000 0000  0000 0000 0000 0000</tt> ||colspan=2| The highest byte of the geometry mode is OR'd with <tt>0x703</tt> to generate a "clip code mask". All that's known about this value is that when set to <tt>0x04</tt> (after ORing, <tt>0x707</tt>), "near clipping will occur".
+|-
+|}
+
+===RDP Other Modes, Lower Half===
+
+The lower half of the RDP Other Modes control various aspects of the RDP blender, which mixes new primitives with the framebuffer. The majority of this 32-bit value sets up the render mode for the blender.
+
+{| class="wikitable"
+|-
+!style="width: 21%;"| Affects Bits !! Name of Option !! Description
+|-
+| <tt>0000 0000 0000 0000  0000 0000 0000 00<span style="color:blue;">11</span></tt> || <tt>G_MDSFT_ALPHACOMPARE</tt>
+| Decides how to compare the input (new) pixel's alpha value, valid choices are:
+* <tt style="color:blue;">00</tt> — No comparisons are made, so doesn't affect the process
+* <tt style="color:blue;">01</tt> — Compare to the alpha value of [[F3DZEX/Opcode_Details#0xF9_—_G_SETBLENDCOLOR|the blend color]] register. Draw only if input alpha is larger than the blend color alpha.
+* <tt style="color:blue;">11</tt> — Compare to a random dither value in the range <tt>0.0 < x < 1.0</tt><ref group="note">Not sure if the range is <tt>(0.0, 1.0)</tt>, <tt>[0.0, 1.0)</tt>, <tt>(0.0, 1.0]</tt>, or <tt>[0.0, 1.0]</tt></ref>. Creates stippling transparency effects, among other uses.
+|-
+| <tt>0000 0000 0000 0000  0000 0000 0000 0<span style="color:blue;">1</span>00</tt> || <tt>G_MDSFT_ZSRCSEL</tt>
+| Selects the source of depth information for pixels. If enabled, it uses the depth value from [[F3DZEX/Opcode_Details#0xEE_—_G_SETPRIMDEPTH|the primitive depth]] value for the entire primitive. If disabled, the depth value is calculated per-pixel and used instead.
+|-
+| <tt>0000 0000 0000 0000  <span style="color:blue;">1111 1111 1111 1</span>000</tt> || <tt>G_MDSFT_RENDERMODE</tt> (cycle-independent)
+| Sets the cycle-independent render mode options for the RDP blender. See below for details.
+|-
+| <tt><span style="color:blue;">1111 1111 1111 1111</span>  0000 0000 0000 0000</tt> || <tt>G_MDSFT_RENDERMODE</tt> (cycle-dependent)
+| Sets the cycle-dependent render mode options for the RDP blender. See below for details.
+|-
+|}
+
+====Cycle-Independent Blender Settings====
+
+The thirteen bits described here are settings for the blender that apply across both cycles in 2-cycle mode. The table in the section above shows where these cycle-independent settings fit into the lower Other Mode settings. The bit values are as follows:
+
+{| class="wikitable"
+|-
+!style="width:9%;"| Affects Bits !! Name of Option !! Description
+|-
+| <tt>0000 0000 0000 <span style="color:blue;">1</span></tt> || <tt>AA_EN</tt>
+| Judging by the name, enables antialiasing. The only description in the SDK is a cryptic "if no FORCE_BL set, allow blend enable - use cvgbit."
+|-
+| <tt>0000 0000 000<span style="color:blue;">1</span> 0</tt> || <tt>Z_CMP</tt>
+| Enables use of the Z buffer to check if an input pixel should be written to the framebuffer.
+|-
+| <tt>0000 0000 00<span style="color:blue;">1</span>0 0</tt> || <tt>Z_UPD</tt>
+| Updates the depth buffer when writing a new pixel. If disabled, the depth buffer value for a pixel will stay the same even after writing a closer pixel to the framebuffer.
+|-
+| <tt>0000 0000 0<span style="color:blue;">1</span>00 0</tt> || <tt>IM_RD</tt>
+| According to description, enables read/write memory access for color and coverage values. The true meaning of this flag is unclear, though, since it's apparently not needed by all of the pre-assembled rendering modes. It seems to be the deciding factor between the two different kinds of antialiasing provided (with this option disabled leading to the faster but uglier version), but that's not the sole pattern in pre-assembled modes.
+|-
+| <tt>0000 0000 <span style="color:blue;">1</span>000 0</tt> || <tt>CLR_ON_CVG</tt>
+| Prevents updating the color of a pixel unless its coverage value overflows, at which point the color ''is'' set and the coverage value is set to the lower four bits of the overflowing summed coverage value. Note that coverage value is always updated, this mode doesn't prevent it.
+|-
+| <tt>0000 00<span style="color:blue;">11</span> 0000 0</tt> || <tt>CVG_DST_*</tt>
+| Configures out to handle the coverage value in the framebuffer (<tt>CVG_DST</tt> presumably means "coverage [value] destination"). The options available are:
+* <tt style="color:blue;">00</tt> — <tt>CVG_DST_CLAMP</tt> — clamps the value if <tt>FORCE_BL</tt>, otherwise "new" (perhaps "new coverage value"?)
+* <tt style="color:blue;">01</tt> — <tt>CVG_DST_WRAP</tt> — Always wraps the coverage value on overflow
+* <tt style="color:blue;">10</tt> — <tt>CVG_DST_FULL</tt> — Force coverage value to fully-on (hence "full")
+* <tt style="color:blue;">11</tt> — <tt>CVG_DST_SAVE</tt> — Don't overwrite buffer coverage value
+|-
+| <tt>0000 <span style="color:blue;">11</span>00 0000 0</tt> || <tt>ZMODE_*</tt>
+| This mode is unfortunately completely unexplained. Judging by the name, it controls the usage of the depth buffer, depending on the type of surface being rendered. Values are:
+* <tt style="color:blue;">00</tt> — <tt>ZMODE_OPA</tt> — Opaque surfaces
+* <tt style="color:blue;">01</tt> — <tt>ZMODE_INTER</tt> — Interpenetrating surfaces
+* <tt style="color:blue;">10</tt> — <tt>ZMODE_XLU</tt> — Translucent surfaces
+* <tt style="color:blue;">11</tt> — <tt>ZMODE_DEC</tt> — Decal surfaces
+|-
+| <tt>000<span style="color:blue;">1</span> 0000 0000 0</tt> || <tt>CVG_X_ALPHA</tt>
+| Multiplies coverage and alpha values and uses the result as both the coverage and the alpha.
+|-
+| <tt>00<span style="color:blue;">1</span>0 0000 0000 0</tt> || <tt>ALPHA_CVG_SEL</tt>
+| Use the coverage value for alpha instead (does nothing different if <tt>CVG_X_ALPHA</tt> is enabled)
+|-
+| <tt>0<span style="color:blue;">1</span>00 0000 0000 0</tt> || <tt>FORCE_BL</tt>
+| "Forces blending" if enabled. What this means is not explained.
+|-
+|}
+
+Note that the highest bit of this group no longer means anything.
+
+====Cycle-Dependent Blender Settings====
+
+The 16 bits that make up the cycle-dependent settings for the RDP blender specify what and how to actually blend things together. The blender runs on the formula
+
+    (P * A + M * B) / (A + B)
+
+to blend primitives into the framebuffer. The 16 bits specify the values of these variables for both cycles in the following layout:
+
+{| class="wikitable"
+|-
+! !! Bit Layout
+|-
+! Parameter
+| <tt>PPPP AAAA MMMM BBBB</tt>
+|-
+! Cycle No.
+| <tt>1122 1122 1122 1122</tt>
+|}
+
+Or in other words, each nybble specifies one of the formula parameters, with each nybble half specifying that parameter for one of the two cycles. In 1-cycle mode, both halves must be equal.
+
+The <tt>P</tt> and <tt>M</tt> values can be any of the following values:
+
+* <tt>00</tt> — <tt>G_BL_CLR_IN</tt> — In the first cycle, parameter is color from input pixel. In the second cycle, parameter is the numerator of the formula as computed for the first cycle.
+* <tt>01</tt> — <tt>G_BL_CLR_MEM</tt> — Takes color from the framebuffer
+* <tt>10</tt> — <tt>G_BL_CLR_BL</tt> — Takes color from the [[F3DZEX/Opcode_Details#0xF9_—_G_SETBLENDCOLOR|blend color register]]
+* <tt>11</tt> — <tt>G_BL_CLR_FOG</tt> — Takes color from the [[F3DZEX/Opcode_Details#0xF8_—_G_SETFOGCOLOR|fog color register]]
+
+The <tt>A</tt> parameter can be set to any of these things:
+
+*<tt>00</tt> — <tt>G_BL_A_IN</tt> — Parameter is alpha value of input pixel
+*<tt>01</tt> — <tt>G_BL_A_FOG</tt> — Alpha value from the [[F3DZEX/Opcode_Details#0xF8_—_G_SETFOGCOLOR|fog color register]]
+*<tt>10</tt> — <tt>G_BL_A_SHADE</tt> — Calculated alpha value for the pixel, presumably
+*<tt>11</tt> — <tt>G_BL_0</tt> — Constant <tt>0.0</tt> value
+
+And the <tt>B</tt> parameter can be set to any of these:
+
+*<tt>00</tt> — <tt>G_BL_1MA</tt> — <tt>1.0 - source alpha</tt>
+*<tt>01</tt> — <tt>G_BL_A_MEM</tt> — Framebuffer alpha value
+*<tt>10</tt> — <tt>G_BL_1</tt> — Constant <tt>1.0</tt> value
+*<tt>11</tt> — <tt>G_BL_0</tt> — Constant <tt>0.0</tt> value
+
+===RDP Other Modes, Higher Half===
+
+The higher half of the RDP Other Modes bits controls various aspects of the RDP (whereas the lower half deals more with just the blender). Some of these options differ between two hardware versions; since it's currently not known which version OoT was programmed for, both versions will be accounted for below where there are differences.
+
+{| class="wikitable"
+|-
+!style="width:21%"| Bits Affected !! Option Name !! Description
+|-
+| <tt>0000 0000 0000 0000  0000 0000 00{{color|blue|11}} 0000</tt> || <tt>G_MDSFT_ALPHADITHER</tt>
+| ''Only a hardware v2.0 option.'' Sets up the dithering of the alpha value for when the blender drops from 8-bit to 5-bit precision (this always happens, even for a 32-bit color buffer). Some of the settings are dependent on the color dither setting (see <tt>G_MDSFT_RGBDITHER</tt> and/or <tt>G_MDSFT_COLORDITHER</tt> below). Possible values are:
+* <tt>{{color|blue|00}}</tt> — <tt>G_AD_PATTERN</tt> — Alpha dithering uses the same pattern as that for the color components. If the color dither is disabled, alpha dithering uses the "standard" Bayer pattern (so <tt>G_CD_BAYER</tt>). If the color dither is set to <tt>G_CD_NOISE</tt>, alpha dither is instead like <tt>G_CD_MAGICSQ</tt>.
+* <tt>{{color|blue|01}}</tt> — <tt>G_AD_NOTPATTERN</tt> — the inverse of whatever <tt>G_AD_PATTERN</tt> would be using.
+* <tt>{{color|blue|10}}</tt> — <tt>G_AD_NOISE</tt> — Random dithering pattern.
+* <tt>{{color|blue|11}}</tt> — <tt>G_AD_DISABLE</tt> — No dithering for alpha values.
+|-
+| <tt>0000 0000 0000 0000  0000 0000 {{color|blue|11}}00 0000</tt> || <tt>G_MDSFT_RGBDITHER</tt>
+| ''Only a hardware v2.0 option.'' Sets up the dithering for the color components. Possible options are:
+* <tt>{{color|blue|00}}</tt> — <tt>G_CD_MAGICSQ</tt> — Uses magic square ordered dithering (presumably a matrix of values which is a magic square, though it's not further specified)
+* <tt>{{color|blue|01}}</tt> — <tt>G_CD_BAYER</tt> — Uses standard Bayer matrix (of unknown size) for ordered dithering
+* <tt>{{color|blue|10}}</tt> — <tt>G_CD_NOISE</tt> — Random dithering pattern
+
+These names for the <tt>G_MDSFT_COLORDITHER</tt> option are defined as aliases for this option in hardware version 2.0:
+
+*<tt>{{color|blue|11}}</tt> — <tt>G_CD_DISABLE</tt> — Disable dithering for color.
+*<tt>{{color|blue|10}}</tt> — <tt>G_CD_ENABLE</tt> — Backwards-compatible name, for code previously expecting hardware version 1.0. Equivalent to <tt>G_CD_NOISE</tt>.
+
+The above two options are defined differently for hardware version 1.0, see <tt>G_MDSFT_COLORDITHER</tt> below.
+|-
+| <tt>0000 0000 0000 0000  0000 000{{color|blue|1}} 0000 0000</tt> || <tt>G_MDSFT_COMBKEY</tt>
+| This option enables/disables chroma key, with the bit enabled specifying chroma key is enabled.
+|-
+| <tt>0000 0000 0000 0000  0000 {{color|blue|111}}0 0000 0000</tt> || <tt>G_MDSFT_TEXTCONV</tt>
+| Specifies what the Texture Filter unit of the RDP should do with the texels it receives. Valid options are:
+* <tt>{{color|blue|000}}</tt> — <tt>G_TC_CONV</tt> — Does the first step of converting texels from YUV to RGB (second step done in color combiner)
+* <tt>{{color|blue|101}}</tt> — <tt>G_TC_FILTCONV</tt> — Does both <tt>G_TC_CONV</tt> and <tt>G_TC_FILT</tt>.
+* <tt>{{color|blue|110}}</tt> — <tt>G_TC_FILT</tt> — Does linear filtering between the four texels it received into one texel. (Typically referred to as "bilinear" filtering in this context.)
+
+Note that even though <tt>G_TC_CONV</tt> is the default state, '''most programs will make sure to set this value differently'''. If you're making a new display list, for example, and the textures happen to be messed up, making sure you set this option is one place to look (assuming a real N64 or perfect emulator).
+|-
+| <tt>0000 0000 0000 0000  00{{color|blue|11}} 0000 0000 0000</tt> || <tt>G_MDSFT_TEXTFILT</tt>
+| Chooses how the Texture Filter unit filters the texels it received (if doing filtering, see <tt>G_MDSFT_TEXTCONV</tt>). Available choices are:
+* <tt>{{color|blue|00}}</tt> — <tt>G_TF_POINT</tt> — Just takes the texel closest to the destination pixel as-is.
+* <tt>{{color|blue|10}}</tt> — <tt>G_TF_BILERP</tt> — Does linear filtering between the four texels ("bilinear filtering")
+* <tt>{{color|blue|11}}</tt> — <tt>G_TF_AVERAGE</tt> — Averages values of the four texels
+|-
+| <tt>0000 0000 0000 0000  {{color|blue|11}}00 0000 0000 0000</tt> || <tt>G_MDSFT_TEXTLUT</tt>
+| Sets the storage type of the pixels in the TLUT, for color-indexed textures. Possible values are:
+* <tt>{{color|blue|00}}</tt> — <tt>G_TT_NONE</tt> — No TLUT is being used
+* <tt>{{color|blue|10}}</tt> — <tt>G_TT_RGBA16</tt> — Colors are stored in RGBA16 format
+* <tt>{{color|blue|11}}</tt> — <tt>G_TT_IA16</tt> — Colors are stored in IA16 format
+|-
+| <tt>0000 0000 0000 000{{color|blue|1}}  0000 0000 0000 0000</tt> || <tt>G_MDSFT_TEXTLOD</tt>
+| Sets whether to use LOD calculations in selecting texture tiles. Possible values are:
+* <tt>{{color|blue|0}}</tt> — <tt>G_TL_TILE</tt> — No LOD performed. Display list specifies the tile to use directly. In 2-cycle mode the second tile selected is the next one after the specified tile, that is <tt>selected_tile + 1</tt>.
+* <tt>{{color|blue|1}}</tt> — <tt>G_TL_LOD</tt> — LOD is performed. Calculations are done to select the closer (i.e. larger) tile for a given LOD. In 2-cycle mode the second-closest mipmap level is chosen as the second tile.
+|-
+| <tt>0000 0000 0000 0{{color|blue|11}}0  0000 0000 0000 0000</tt> || <tt>G_MDSFT_TEXTDETAIL</tt>
+| Decides how to handle texturing when the LOD is less than <tt>1.0</tt>, if LOD is enabled (see <tt>G_MDSFT_TEXTLOD</tt> above). Available choices are:
+* <tt>{{color|blue|00}}</tt> — <tt>G_TD_CLAMP</tt> — Just uses the tile for the highest LOD.
+* <tt>{{color|blue|01}}</tt> — <tt>G_TD_SHARPEN</tt> — Generates a sharper texture from the highest two mipmap levels.
+* <tt>{{color|blue|10}}</tt> — <tt>G_TD_DETAIL</tt> — Uses a special detail texture to add detail to the highest mipmap level.
+
+It's not known what would happen if you set both bits, that is specify both sharpening and detail texture.
+|-
+| <tt>0000 0000 0000 {{color|blue|1}}000  0000 0000 0000 0000</tt> || <tt>G_MDSFT_TEXTPERSP</tt>
+| Enables perspective correction on texture coordinates when set.
+|-
+| <tt>0000 0000 00{{color|blue|11}} 0000  0000 0000 0000 0000</tt> || <tt>G_MDSFT_CYCLETYPE</tt>
+| Sets the cycle type of RDP, and thus what it does in rendering.
+* <tt>{{color|blue|00}}</tt> — <tt>G_CYC_1CYCLE</tt> — 1-cycle mode. Renders a pixel per clock cycle.
+* <tt>{{color|blue|01}}</tt> — <tt>G_CYC_2CYCLE</tt> — 2-cycle mode. Renders a pixel per two clock cycles. Used when more advanced operations are needed, e.g. fog effects or mipmapping.
+* <tt>{{color|blue|10}}</tt> — <tt>G_CYC_COPY</tt> — Texture copy mode. Copies a texture direct to the framebuffer at 64 bits per clock cycle. Can apparently still do alpha comparison, but otherwise is just direct copying.
+* <tt>{{color|blue|11}}</tt> — <tt>G_CYC_FILL</tt> — Buffer fill mode. Fills the chosen color buffer (which may really be the depth buffer) with the color in the fill color register at a rate of 64 bits per clock cycle.
+
+Note that only 1-cycle and 2-cycle mode make use of the whole RDP pipeline; fill and copy mode skip past most (if not all) of it for greater speeds.
+|-
+| <tt>0000 0000 0{{color|blue|1}}00 0000  0000 0000 0000 0000</tt> || <tt>G_MDSFT_COLORDITHER</tt>
+| ''Only for hardware version 1.0''. Enables dithering in the color components of pixels, with the set bit enabling it. Note that the names <tt>G_CD_ENABLE</tt> and <tt>G_CD_DISABLE</tt> are defined for <tt>G_MDSFT_RGBDITHER</tt> instead in hardware version 2.0.
+|-
+| <tt>0000 0000 {{color|blue|1}}000 0000  0000 0000 0000 0000</tt> || <tt>G_MDSFT_PIPELINE</tt>
+| This option controls whether span buffer coherency will be used in the RDP. Options are:
+* <tt>{{color|blue|0}}</tt> — <tt>G_PM_NPRIMITIVE</tt> — No coherency is guaranteed. Several span buffers may load the same area of the framebuffer into memory, causing problems in rendering.
+* <tt>{{color|blue|1}}</tt> — <tt>G_PM_1PRIMITIVE</tt> — Coherency is acheived via adding around 30 to 40 null cycles after the last span of a primitive is rendered. This ensures that each span buffer will always have the latest-computed version of pixels. This reduces speed (due to the empty cycles) at the cost of correctness. The SDK notes that this shouldn't be used unless necessary.
+|}
+
+===Color Combiner Settings===
+
+The color combiner mixes colors together with the general formula
+
+    (a - b) * c + d
+
+The choice of what <tt>a</tt>, <tt>b</tt>, <tt>c</tt>, and <tt>d</tt> mean is configured by the programmer, separately for color and alpha. In 2-cycle mode, these calculations can be set differently for the second cycle (1-cycle mode needs the settings to match). In essence, four calculations can be performed:
+
+    First/only cycle color = (ca1 - cb1) * cc1 + cd1
+    First/only cycle alpha = (aa1 - ab1) * ac1 + ad1
+    Second cycle color     = (ca2 - cb2) * cc2 + cd2
+    Second cycle alpha     = (aa2 - ab2) * ac2 + ad2
+
+The configuration of this is done by [[F3DZEX/Opcode_Details#0xFC_—_G_SETCOMBINE|opcode <tt>FC</tt>]], and the values they take vary based on which parameter you're configuring for. A chart of valid configuration values is below:
+
+{| class="wikitable" {{ts|ac|ml5|font-family: monospace}}
+! Parameter || Color A || Color B || Color C || Color D || Alpha A || Alpha B || Alpha C || Alpha D
+|-
+| 00 
+| colspan=4| G_CCMUX_COMBINED 
+| colspan=2| G_ACMUX_COMBINED  || G_ACMUX_LOD_FRACTION || G_ACMUX_COMBINED
+|-
+| 01
+| colspan=4 | G_CCMUX_TEXEL0 
+| colspan=4 | G_ACMUX_TEXEL0 
+|-
+| 02 
+| colspan=4 | G_CCMUX_TEXEL1 
+| colspan=4 | G_ACMUX_TEXEL1 
+|-
+| 03 
+| colspan=4 | G_CCMUX_PRIMITIVE 
+| colspan=4 | G_ACMUX_PRIMITIVE
+|-
+| 04 
+| colspan=4 | G_CCMUX_SHADE 
+| colspan=4 | G_ACMUX_SHADE
+|-
+| 05 
+| colspan=4 | G_CCMUX_ENVIRONMENT
+| colspan=4 | G_ACMUX_ENVIRONMENT
+|-
+| 06 || G_CCMUX_1 || G_CCMUX_CENTER || G_CCMUX_SCALE || G_CCMUX_1 
+| colspan=2 | G_ACMUX_1 || G_ACMUX_PRIM_LOD_FRAC || G_ACMUX_1
+|-
+| 07 || G_CCMUX_NOISE || G_CCMUX_K4 || G_CCMUX_COMBINED_ALPHA || G_CCMUX_0 
+| colspan=4 | G_ACMUX_0
+|-
+| 08 
+| rowspan=8 | G_CCMUX_0 
+| rowspan=8 | G_CCMUX_0 || G_CCMUX_TEXEL0_ALPHA 
+| rowspan=9 colspan=5 class="bg-empty"|  
+|-
+| 09 || G_CCMUX_TEXEL1_ALPHA 
+|-
+| 0A || G_CCMUX_PRIMITIVE_ALPHA
+|-
+| 0B || G_CCMUX_SHADE_ALPHA 
+|-
+| 0C || G_CCMUX_ENV_ALPHA 
+|-
+| 0D || G_CCMUX_LOD_FRACTION 
+|-
+| 0E || G_CCMUX_PRIM_LOD_FRAC
+|-
+| 0F || G_CCMUX_K5 
+|-
+| 10 <br>⋮<br> 1F 
+| colspan=2 class="bg-empty"| || G_CCMUX_0  
+|}
+
+
+Note that, in SDK code, <tt>G_CCMUX_0</tt> is actually defined as <tt>0x1F</tt>, with the value ANDed to the right number of bits for the particular parameter. The other values the various <tt>G_CCMUX_0</tt> options occupy in each parameter are specified in other parts of SDK documentation.
+
+====Parameter Description====
+
+Here is a list detailing what all the color options above do:
+
+* <tt>G_CCMUX_COMBINED</tt> — Uses the color value calculated in the first cycle. '''Presumably only for the second cycle of 2-cycle mode, behavior unknown in the first/only cycle.'''
+* <tt>G_CCMUX_TEXEL0</tt> — Uses the texel colors from the currently-selected tile; either the directly selected tile or the closest tile as chosen by LOD, depending on LOD calculations.
+* <tt>G_CCMUX_TEXEL1</tt> — Uses the texel colors from the next (farther) tile after <tt>TEXEL0</tt>.
+* <tt>G_CCMUX_PRIMITIVE</tt> — Takes color from the primitive color register.
+* <tt>G_CCMUX_SHADE</tt> — Uses the color for the current pixel of the primitive, as calculated from vertex colors. That is, flat shading would effectively return the color for the first vertex, and non-flat shading would calculate the color from all the vertices as per Gouraud shading.
+* <tt>G_CCMUX_ENVIRONMENT</tt> — Uses color from the environment color register.
+* <tt>G_CCMUX_1</tt> — Uses a constant <tt>1.0</tt> for all color components (red, green, and blue).
+* <tt>G_CCMUX_NOISE</tt> — Uses random values for color components.
+* <tt>G_CCMUX_0</tt> — Uses a constant <tt>0.0</tt> for all color components (red, green, and blue).
+* <tt>G_CCMUX_CENTER</tt> — Uses the center values set for chroma keying.
+* <tt>G_CCMUX_K4</tt> — Uses constant K4 from the set values for the YUV to RGB conversion process.
+* <tt>G_CCMUX_SCALE</tt> — Uses scale values set for chroma keying.
+* <tt>G_CCMUX_COMBINED_ALPHA</tt> — Uses alpha value calculated in the first cycle in all color components. '''Presumably only for the second cycle of 2-cycle mode, behavior unknown in the first/only cycle.'''
+* <tt>G_CCMUX_TEXEL0_ALPHA</tt> — Uses alpha value from the texel of the currently-selected tile in all color components.
+* <tt>G_CCMUX_TEXEL1_ALPHA</tt> — Uses alpha value from the texel of the next tile in all color components.
+* <tt>G_CCMUX_PRIMITIVE_ALPHA</tt> — Uses alpha value from the primitive color register in all color components.
+* <tt>G_CCMUX_SHADE_ALPHA</tt> — Uses alpha value from current pixel of the primitive in all color components.
+* <tt>G_CCMUX_ENV_ALPHA</tt> — Uses the alpha value from the environment color register in all color components.
+* <tt>G_CCMUX_LOD_FRACTION</tt> — Uses the LOD fraction value specified in the primitive color register for all color components.
+* <tt>G_CCMUX_PRIM_LOD_FRAC</tt> — Unclear, used in only one (undocumented) Color Combiner configuration. ''Possibly'' the calculated LOD value for the current pixel of the primitive.
+* <tt>G_CCMUX_K5</tt> — Uses constant K5 from the set values for YUV to RGB conversion.
+
+And for alpha options:
+
+* <tt>G_ACMUX_COMBINED</tt> — Uses alpha value calculated in the first cycle. '''Presumably only for the second cycle of 2-cycle mode, behavior unknown in the first/only cycle.'''
+* <tt>G_ACMUX_TEXEL0</tt> — Uses alpha value in the texel from the currently-selected tile.
+* <tt>G_ACMUX_TEXEL1</tt> — Uses alpha value in the texel from the next tile after <tt>TEXEL0</tt>.
+* <tt>G_ACMUX_PRIMITIVE</tt> — Uses alpha value from the primitive color register.
+* <tt>G_ACMUX_SHADE</tt> — Uses alpha value from the current primitive pixel's calculated RGBA value.
+* <tt>G_ACMUX_ENVIRONMENT</tt> — Uses alpha value from the environment color register.
+* <tt>G_ACMUX_1</tt> — Uses a constant <tt>1.0</tt> for the alpha component.
+* <tt>G_ACMUX_0</tt> — Uses a constant <tt>0.0</tt> for the alpha component.
+* <tt>G_ACMUX_LOD_FRACTION</tt> — Uses the LOD fraction value from the primitive color register.
+* <tt>G_ACMUX_PRIM_LOD_FRAC</tt> — Unclear, used in only one (undocumented) Color Combiner configuration. ''Possibly'' the calculated LOD value for the current pixel of the primitive.
+
+==DMEM Memory Access==
+
+This section describes the parts of the RCP's DMEM that <tt>G_MOVEWORD</tt> and <tt>G_MOVEMEM</tt> handle. These commands access memory via a pointer table, so their locations are currently only known via these table indices.
+
+Following is a description of what the table indices for each of those two opcodes mean:
+
+{| class="wikitable"
+|-
+! Name !! Index !! Description
+|-
+!colspan=3|<tt>G_MOVEWORD</tt> Indices
+|-
+| <tt>G_MW_MATRIX</tt> || <tt>00</tt> || Allows direct modification of part of the current MP (<tt>modelview * projection</tt>) matrix (which is calculated upon loading of either kind of matrix), modifying two elements' integer or fractional parts. '''Supposedly not supported by F3DEX2.'''
+|-
+| <tt>G_MW_NUMLIGHT</tt> || <tt>02</tt> || Specifies the number of directional/diffuse lights. (The lighting system always has an ambient light.)
+|-
+| <tt>G_MW_CLIP</tt> || <tt>04</tt> || Specifies the ratio between the clipping and scissoring boxes.
+|-
+| <tt>G_MW_SEGMENT</tt> || <tt>06</tt> || Sets up the physical address of a segment.
+|-
+| <tt>G_MW_FOG</tt> || <tt>08</tt> || Specifies the multiplier and offset for fog effects.
+|-
+| <tt>G_MW_LIGHTCOL</tt> || <tt>0A</tt> || Changes the color of a light without changing the direction
+|-
+| <tt>G_MW_FORCEMTX</tt> || <tt>0C</tt> || Tells the RCP if the MP matrix has been forcibly changed(?)
+|-
+| <tt>G_MW_PERSPNORM</tt> || <tt>0E</tt> || Sets amount by which to scale the W axis value before dividing X, Y, and Z by it.
+|-
+!colspan=3|<tt>G_MOVEMEM</tt> Indices
+|-
+| <tt>G_MV_VIEWPORT</tt> || <tt>08</tt> || Specifies the scale and translation of the viewport.
+|-
+| <tt>G_MV_LIGHT</tt> || <tt>0A</tt> || Location of appropriate light structures.
+|-
+| <tt>G_MV_MATRIX</tt> || <tt>0E</tt> || The location of the multiplied MP matrix.
+|-
+|}
+
+Note that there are more indices defined for <tt>G_MOVEMEM</tt>, but only the ones listed above are used by any macros.
+
+
+==Notes==
+<references group="note"/>
+
+[[Category:Microcode]]

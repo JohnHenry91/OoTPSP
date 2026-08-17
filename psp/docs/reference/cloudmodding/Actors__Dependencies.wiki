@@ -1,0 +1,3102 @@
+{{subpage}}
+
+==Actor Spawns==
+
+===0000 - Player===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00F0 - En_Ice_Hono
+0066 - Arms_Hook
+0016 - En_Arrow
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0032 - En_Boom
+0057 - En_M_Thunder
+00EE - Item_Shield
+0018 - En_Elf
+[?] - 
+019B - En_Dog
+008C - Demo_Kankyo
+0016 - En_Arrow
+013B - En_Clear_Tag
+[?] - 
+008C - Demo_Kankyo
+</pre>
+
+{{clear}}
+
+===0002 - En_Test===
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+0002 - En_Test
+0002 - En_Test
+</pre>
+
+{{clear}}
+
+===0009 - En_Door===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0009 - En_Door
+</pre>
+
+{{clear}}
+
+===000A - En_Box===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00AA - Demo_Tre_Lgt
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+008C - Demo_Kankyo
+</pre>
+
+{{clear}}
+
+===000B - Bg_Dy_Yoseizo===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0184 - En_Dy_Extra
+0168 - En_Ex_Item
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+008B - Demo_Effect
+005D - Door_Warp1
+</pre>
+
+{{clear}}
+
+===000E - En_Okuta===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+000E - En_Okuta
+</pre>
+
+{{clear}}
+
+===0012 - En_Dodongo===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0010 - En_Bom
+</pre>
+
+{{clear}}
+
+===0014 - En_Horse===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00CB - En_In
+</pre>
+
+{{clear}}
+
+===0016 - En_Arrow===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+[?] - 
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0056 - En_M_Fire1
+</pre>
+
+{{clear}}
+
+===0018 - En_Elf===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0018 - En_Elf
+</pre>
+
+{{clear}}
+
+===0019 - En_Niw===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0144 - En_Attack_Niw
+</pre>
+
+{{clear}}
+
+===001D - En_Peehat===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+001D - En_Peehat
+001D - En_Peehat
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0010 - En_Bom
+</pre>
+
+{{clear}}
+
+===001E - En_Butte===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0018 - En_Elf
+</pre>
+
+{{clear}}
+
+===0020 - En_Insect===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0020 - En_Insect
+</pre>
+
+{{clear}}
+
+===0025 - En_Zf===
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+0025 - En_Zf
+FFFF - [?]
+</pre>
+
+{{clear}}
+
+===0027 - Boss_Dodongo===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+0030 - En_Bdfire
+005D - Door_Warp1
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0059 - Bg_Breakwall
+005F - Item_B_Heart
+0059 - Bg_Breakwall
+005F - Item_B_Heart
+</pre>
+
+{{clear}}
+
+===0028 - Boss_Goma===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+002E - Door_Shutter
+002E - Door_Shutter
+005D - Door_Warp1
+002B - En_Goma
+002B - En_Goma
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+005F - Item_B_Heart
+005F - Item_B_Heart
+</pre>
+
+{{clear}}
+
+===002A - En_Viewer===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+016F - En_Ganon_Mant
+00F5 - Demo_6K
+00F1 - Item_Ocarina
+00F1 - Item_Ocarina
+</pre>
+
+{{clear}}
+
+===002F - En_Dodojr===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00C8 - Bg_Bdan_Objects
+</pre>
+
+{{clear}}
+
+===0035 - En_Tp===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0035 - En_Tp
+0035 - En_Tp
+</pre>
+
+{{clear}}
+
+===003A - En_Eiyer===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+003A - En_Eiyer
+</pre>
+
+{{clear}}
+
+===003D - En_Ossan===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0018 - En_Elf
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0004 - En_GirlA
+0004 - En_GirlA
+</pre>
+
+{{clear}}
+
+===0048 - En_Xc===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0016 - En_Arrow
+0008 - En_Light
+005D - Door_Warp1
+</pre>
+
+{{clear}}
+
+===004A - Bg_Spot00_Hanebasi===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+004A - Bg_Spot00_Hanebasi
+004A - Bg_Spot00_Hanebasi
+</pre>
+
+{{clear}}
+
+===004C - En_Bombf===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+004C - En_Bombf
+004C - En_Bombf
+004C - En_Bombf
+</pre>
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+005C - Bg_Ddan_Kd
+</pre>
+
+{{clear}}
+
+===004D - En_Zl2===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+008B - Demo_Effect
+005D - Door_Warp1
+005D - Door_Warp1
+</pre>
+
+{{clear}}
+
+===004E - Bg_Hidan_Fslift===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+012D - Obj_Hsblock
+</pre>
+
+{{clear}}
+
+===0052 - Boss_Ganondrof===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0067 - En_fHG
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+005D - Door_Warp1
+005F - Item_B_Heart
+005D - Door_Warp1
+005F - Item_B_Heart
+</pre>
+
+{{clear}}
+
+===0054 - En_Am===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0010 - En_Bom
+</pre>
+
+{{clear}}
+
+===0057 - En_M_Thunder===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0101 - Eff_Dust
+</pre>
+
+{{clear}}
+
+===0059 - Bg_Breakwall===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0039 - En_A_Obj
+</pre>
+
+{{clear}}
+
+===005A - En_Jj===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005A - En_Jj
+0101 - Eff_Dust
+</pre>
+
+{{clear}}
+
+===0060 - En_Dekunuts===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0060 - En_Dekunuts
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0193 - En_Nutsball
+</pre>
+
+{{clear}}
+
+===0063 - En_Vali===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0034 - En_Bili
+</pre>
+
+{{clear}}
+
+===0064 - Bg_Mizu_Movebg===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+012D - Obj_Hsblock
+</pre>
+
+{{clear}}
+
+===0067 - En_fHG===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+002E - Door_Shutter
+002E - Door_Shutter
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+0052 - Boss_Ganondrof
+</pre>
+
+{{clear}}
+
+===0068 - Bg_Mori_Hineri===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+000A - En_Box
+</pre>
+
+{{clear}}
+
+===0069 - En_Bb===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0069 - En_Bb
+</pre>
+
+{{clear}}
+
+===006D - En_Fhg_Fire===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+006D - En_Fhg_Fire
+</pre>
+
+{{clear}}
+
+===0071 - Bg_Hidan_Hamstep===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0071 - Bg_Hidan_Hamstep
+</pre>
+
+{{clear}}
+
+===0077 - En_Wood02===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0077 - En_Wood02
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0095 - En_Sw
+0077 - En_Wood02
+</pre>
+
+{{clear}}
+
+===0081 - En_Arow_Trap===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0016 - En_Arrow
+</pre>
+
+{{clear}}
+
+===0084 - En_Ta===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0019 - En_Niw
+0019 - En_Niw
+0019 - En_Niw
+</pre>
+
+{{clear}}
+
+===0086 - Bg_Mori_Bigst===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0002 - En_Test
+0002 - En_Test
+0002 - En_Test
+</pre>
+
+{{clear}}
+
+===008A - En_Vm===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0010 - En_Bom
+0010 - En_Bom
+</pre>
+
+{{clear}}
+
+===008B - Demo_Effect===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+008B - Demo_Effect
+008B - Demo_Effect
+008B - Demo_Effect
+008B - Demo_Effect
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+008B - Demo_Effect
+008B - Demo_Effect
+008B - Demo_Effect
+008B - Demo_Effect
+008B - Demo_Effect
+</pre>
+
+{{clear}}
+
+===008C - Demo_Kankyo===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0070 - Door_Toki
+</pre>
+
+{{clear}}
+
+===008E - En_Floormas===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+008E - En_Floormas
+008E - En_Floormas
+</pre>
+
+{{clear}}
+
+===008F - En_Heishi1===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0131 - En_Ex_Ruppy
+</pre>
+
+{{clear}}
+
+===0091 - En_Po_Sisters===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0091 - En_Po_Sisters
+0091 - En_Po_Sisters
+0091 - En_Po_Sisters
+</pre>
+
+{{clear}}
+
+===0092 - Bg_Heavy_Block===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0092 - Bg_Heavy_Block
+0092 - Bg_Heavy_Block
+</pre>
+
+{{clear}}
+
+===0093 - Bg_Po_Event===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0093 - Bg_Po_Event
+0093 - Bg_Po_Event
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0091 - En_Po_Sisters
+0091 - En_Po_Sisters
+</pre>
+
+{{clear}}
+
+===0094 - Obj_Mure===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+[?] - 
+</pre>
+
+{{clear}}
+
+===0095 - En_Sw===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+019C - En_Si
+</pre>
+
+{{clear}}
+
+===0096 - Boss_Fd===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00AC - Bg_Vb_Sima
+005D - Door_Warp1
+00A2 - Boss_Fd2
+00AD - En_Vb_Ball
+00AD - En_Vb_Ball
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+005F - Item_B_Heart
+005F - Item_B_Heart
+</pre>
+
+{{clear}}
+
+===0099 - En_Fd===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00AB - En_Fw
+00A3 - En_Fd_Fire
+</pre>
+
+{{clear}}
+
+===009D - Bg_Haka===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+000D - En_Poh
+</pre>
+
+{{clear}}
+
+===00A1 - En_Ru1===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+</pre>
+
+{{clear}}
+
+===00A2 - Boss_Fd2===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+</pre>
+
+{{clear}}
+
+===00A5 - En_Dha===
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+00A4 - En_Dh
+</pre>
+
+{{clear}}
+
+===00A6 - En_Rl===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00F5 - Demo_6K
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+008B - Demo_Effect
+</pre>
+
+{{clear}}
+
+===00A7 - En_Encount1===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+001C - En_Reeba
+001B - En_Tite
+01AF - En_Wf
+01B0 - En_Skb
+</pre>
+
+{{clear}}
+
+===00A8 - Demo_Du===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+008B - Demo_Effect
+00F5 - Demo_6K
+</pre>
+
+{{clear}}
+
+===00A9 - Demo_Im===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+008B - Demo_Effect
+00F5 - Demo_6K
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0016 - En_Arrow
+</pre>
+
+{{clear}}
+
+===00AB - En_Fw===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0010 - En_Bom
+</pre>
+
+{{clear}}
+
+===00AD - En_Vb_Ball===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00AD - En_Vb_Ball
+</pre>
+
+{{clear}}
+
+===00B0 - Bg_Haka_Ship===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00B0 - Bg_Haka_Ship
+</pre>
+
+{{clear}}
+
+===00B3 - En_Heishi2===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0010 - En_Bom
+</pre>
+
+{{clear}}
+
+===00B4 - En_Encount2===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00B5 - En_Fire_Rock
+</pre>
+
+{{clear}}
+
+===00B5 - En_Fire_Rock===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00B5 - En_Fire_Rock
+00B5 - En_Fire_Rock
+</pre>
+
+{{clear}}
+
+===00BA - Boss_Va===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00BA - Boss_Va
+00BA - Boss_Va
+00BA - Boss_Va
+00BA - Boss_Va
+00BA - Boss_Va
+00BA - Boss_Va
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+005D - Door_Warp1
+005F - Item_B_Heart
+005F - Item_B_Heart
+00A1 - En_Ru1
+00BA - Boss_Va
+</pre>
+
+{{clear}}
+
+===00BB - Bg_Haka_Tubo===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0013 - En_Firefly
+</pre>
+
+{{clear}}
+
+===00BC - Bg_Haka_Trap===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00BE - Bg_Haka_Zou
+</pre>
+
+{{clear}}
+
+===00BD - Bg_Haka_Huta===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0013 - En_Firefly
+0013 - En_Firefly
+0090 - En_Rd
+</pre>
+
+{{clear}}
+
+===00BE - Bg_Haka_Zou===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00BE - Bg_Haka_Zou
+</pre>
+
+{{clear}}
+
+===00C0 - En_Syateki_Itm===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00C1 - En_Syateki_Man
+0131 - En_Ex_Ruppy
+0117 - En_G_Switch
+</pre>
+
+{{clear}}
+
+===00C3 - En_Nb===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+008B - Demo_Effect
+00F5 - Demo_6K
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00F5 - Demo_6K
+</pre>
+
+{{clear}}
+
+===00C4 - Boss_Mo===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+00C4 - Boss_Mo
+005D - Door_Warp1
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+005F - Item_B_Heart
+00C4 - Boss_Mo
+005F - Item_B_Heart
+</pre>
+
+{{clear}}
+
+===00C8 - Bg_Bdan_Objects===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00C6 - En_Bigokuta
+00C6 - En_Bigokuta
+</pre>
+
+{{clear}}
+
+===00C9 - Demo_Sa===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+008B - Demo_Effect
+00F5 - Demo_6K
+0018 - En_Elf
+</pre>
+
+{{clear}}
+
+===00CC - En_Tr===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00F5 - Demo_6K
+</pre>
+
+{{clear}}
+
+===00CD - Bg_Spot16_Bombstone===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00CD - Bg_Spot16_Bombstone
+00CD - Bg_Spot16_Bombstone
+</pre>
+
+{{clear}}
+
+===00D1 - Bg_Spot08_Iceblock===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00D1 - Bg_Spot08_Iceblock
+</pre>
+
+{{clear}}
+
+===00D2 - En_Ru2===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+008B - Demo_Effect
+00F5 - Demo_6K
+</pre>
+
+{{clear}}
+
+===00DA - En_Bom_Chu===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0010 - En_Bom
+</pre>
+
+{{clear}}
+
+===00DB - En_Horse_Game_Check===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0014 - En_Horse
+</pre>
+
+{{clear}}
+
+===00DC - Boss_Tw===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+00DC - Boss_Tw
+00DC - Boss_Tw
+00DC - Boss_Tw
+00DC - Boss_Tw
+00DC - Boss_Tw
+00DC - Boss_Tw
+005D - Door_Warp1
+00DC - Boss_Tw
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+005F - Item_B_Heart
+005F - Item_B_Heart
+</pre>
+
+{{clear}}
+
+===00DE - En_Ba===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00DE - En_Ba
+</pre>
+
+{{clear}}
+
+===00E0 - En_Anubice===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00E1 - En_Anubice_Fire
+</pre>
+
+{{clear}}
+
+===00E2 - Bg_Mori_Hashigo===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00E2 - Bg_Mori_Hashigo
+</pre>
+
+{{clear}}
+
+===00E8 - Boss_Ganon===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+016F - En_Ganon_Mant
+0179 - En_Zl3
+015E - En_Ganon_Organ
+0179 - En_Zl3
+00E8 - Boss_Ganon
+00E8 - Boss_Ganon
+00E8 - Boss_Ganon
+00E8 - Boss_Ganon
+00E8 - Boss_Ganon
+00E8 - Boss_Ganon
+</pre>
+
+{{clear}}
+
+===00E9 - Boss_Sst===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0166 - Bg_Sst_Floor
+005D - Door_Warp1
+005F - Item_B_Heart
+00E9 - Boss_Sst
+00E9 - Boss_Sst
+005D - Door_Warp1
+005F - Item_B_Heart
+</pre>
+
+{{clear}}
+
+===00F0 - En_Ice_Hono===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00F0 - En_Ice_Hono
+00F0 - En_Ice_Hono
+</pre>
+
+{{clear}}
+
+===00F1 - Item_Ocarina===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0173 - Elf_Msg2
+</pre>
+
+{{clear}}
+
+===00F5 - Demo_6K===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0101 - Eff_Dust
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00F5 - Demo_6K
+00F5 - Demo_6K
+</pre>
+
+{{clear}}
+
+===00F6 - En_Anubice_Tag===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00E0 - En_Anubice
+</pre>
+
+{{clear}}
+
+===00FC - Bg_Jya_Cobra===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00B7 - Mir_Ray
+</pre>
+
+{{clear}}
+
+===00FE - Fishing===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0141 - En_Kanban
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00FE - Fishing
+00FE - Fishing
+</pre>
+
+{{clear}}
+
+===0105 - Bg_Po_Syokudai===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0091 - En_Po_Sisters
+0091 - En_Po_Sisters
+</pre>
+
+{{clear}}
+
+===0112 - En_Wonder_Item===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00B3 - En_Heishi2
+</pre>
+
+{{clear}}
+
+===0113 - En_Ik===
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+0113 - En_Ik
+</pre>
+
+{{clear}}
+
+===0115 - En_Skj===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0116 - En_Skjneedle
+</pre>
+
+{{clear}}
+
+===011C - En_Honotrap===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+011C - En_Honotrap
+</pre>
+
+{{clear}}
+
+===0122 - En_Po_Relay===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+011C - En_Honotrap
+0015 - En_Item00
+</pre>
+
+{{clear}}
+
+===0124 - En_Diving_Game===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0131 - En_Ex_Ruppy
+</pre>
+
+{{clear}}
+
+===0125 - En_Kusa===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0020 - En_Insect
+</pre>
+
+{{clear}}
+
+===012A - Obj_Switch===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+011E - Obj_Ice_Poly
+</pre>
+
+{{clear}}
+
+===012D - Obj_Hsblock===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+011E - Obj_Ice_Poly
+</pre>
+
+{{clear}}
+
+===0133 - En_Daiku===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+01D0 - En_Ge3
+</pre>
+
+{{clear}}
+
+===0136 - En_Blkobj===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0033 - En_Torch2
+</pre>
+
+{{clear}}
+
+===013B - En_Clear_Tag===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+013B - En_Clear_Tag
+</pre>
+
+{{clear}}
+
+===0141 - En_Kanban===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0141 - En_Kanban
+</pre>
+
+{{clear}}
+
+===0146 - En_Sa===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0018 - En_Elf
+</pre>
+
+{{clear}}
+
+===0147 - En_Wonder_Talk===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+000D - En_Poh
+000D - En_Poh
+</pre>
+
+{{clear}}
+
+===014B - En_Bom_Bowl_Man===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0168 - En_Ex_Item
+014C - En_Bom_Bowl_Pit
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0143 - En_Syateki_Niw
+</pre>
+
+{{clear}}
+
+===014C - En_Bom_Bowl_Pit===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0168 - En_Ex_Item
+</pre>
+
+{{clear}}
+
+===014E - En_Ishi===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0020 - En_Insect
+</pre>
+
+{{clear}}
+
+===0150 - Obj_Lightswitch===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00FF - Obj_Oshihiki
+</pre>
+
+{{clear}}
+
+===0151 - Obj_Mure2===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+[?] - 
+</pre>
+
+{{clear}}
+
+===0152 - En_Go===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0010 - En_Bom
+</pre>
+
+{{clear}}
+
+===0155 - En_Changer===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+000A - En_Box
+000A - En_Box
+000A - En_Box
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+010F - Item_Etcetera
+010F - Item_Etcetera
+010F - Item_Etcetera
+0168 - En_Ex_Item
+0168 - En_Ex_Item
+0168 - En_Ex_Item
+0168 - En_Ex_Item
+</pre>
+
+{{clear}}
+
+===0158 - Bg_Jya_Bigmirror===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00FC - Bg_Jya_Cobra
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00B7 - Mir_Ray
+</pre>
+
+{{clear}}
+
+===0159 - Bg_Jya_Bombchuiwa===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00B7 - Mir_Ray
+</pre>
+
+{{clear}}
+
+===015C - Bg_Spot18_Basket===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+01C3 - Bg_Spot18_Futa
+</pre>
+
+{{clear}}
+
+===0163 - En_Ko===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0018 - En_Elf
+</pre>
+
+{{clear}}
+
+===0164 - En_Kz===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00EF - Bg_Ice_Shelter
+</pre>
+
+{{clear}}
+
+===0169 - Bg_Jya_Ironobj===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+018F - Bg_Jya_Haheniron
+018F - Bg_Jya_Haheniron
+018F - Bg_Jya_Haheniron
+018F - Bg_Jya_Haheniron
+</pre>
+
+{{clear}}
+
+===016A - En_Js===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+016B - En_Jsjutan
+</pre>
+
+{{clear}}
+
+===016D - En_Md===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0018 - En_Elf
+</pre>
+
+{{clear}}
+
+===0174 - Demo_Gt===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00E5 - Bg_Spot16_Doughnut
+</pre>
+
+{{clear}}
+
+===0179 - En_Zl3===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+005D - Door_Warp1
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+003B - En_River_Sound
+01CC - En_Eg
+01CB - Oceff_Wipe4
+0002 - En_Test
+0177 - Bg_Zg
+</pre>
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+0002 - En_Test
+</pre>
+
+{{clear}}
+
+===017A - Boss_Ganon2===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0179 - En_Zl3
+</pre>
+
+{{clear}}
+
+===017D - Obj_Makeoshihiki===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+00FF - Obj_Oshihiki
+</pre>
+
+{{clear}}
+
+===0181 - En_Torch===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+000A - En_Box
+</pre>
+
+{{clear}}
+
+===0183 - Shot_Sun===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0018 - En_Elf
+008C - Demo_Kankyo
+010F - Item_Etcetera
+</pre>
+
+{{clear}}
+
+===018B - Oceff_Storm===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0170 - En_Okarina_Effect
+</pre>
+
+{{clear}}
+
+===0192 - En_Hintnuts===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0192 - En_Hintnuts
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0015 - En_Item00
+0193 - En_Nutsball
+</pre>
+
+{{clear}}
+
+===0195 - En_Shopnuts===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0193 - En_Nutsball
+011A - En_Dns
+</pre>
+
+{{clear}}
+
+===0197 - En_GeldB===
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+FFFF - [?]
+</pre>
+
+{{clear}}
+
+===019A - En_Niw_Girl===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0019 - En_Niw
+</pre>
+
+{{clear}}
+
+===019D - Bg_Spot01_Objects2===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+01BC - En_Daiku_Kakariko
+</pre>
+
+{{clear}}
+
+===01A0 - Obj_Kibako2===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0095 - En_Sw
+</pre>
+
+{{clear}}
+
+===01A1 - En_Dnt_Demo===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+01A3 - En_Dnt_Nomal
+01A2 - En_Dnt_Jiji
+</pre>
+
+{{clear}}
+
+===01A3 - En_Dnt_Nomal===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+0168 - En_Ex_Item
+</pre>
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0131 - En_Ex_Ruppy
+0193 - En_Nutsball
+</pre>
+
+{{clear}}
+
+===01AE - En_Go2===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0010 - En_Bom
+</pre>
+
+{{clear}}
+
+===01AF - En_Wf===
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+FFFF - [?]
+</pre>
+
+{{clear}}
+
+===01B5 - Bg_Gnd_Soulmeiro===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+00B7 - Mir_Ray
+</pre>
+
+{{clear}}
+
+===01B9 - En_Gs===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0018 - En_Elf
+0018 - En_Elf
+</pre>
+
+{{clear}}
+
+===01BA - Bg_Mizu_Bwall===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0039 - En_A_Obj
+</pre>
+
+{{clear}}
+
+===01BD - Bg_Bowl_Wall===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+01BE - En_Wall_Tubo
+</pre>
+
+{{clear}}
+
+===01C1 - Door_Killer===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+01C1 - Door_Killer
+01C1 - Door_Killer
+01C1 - Door_Killer
+01C1 - Door_Killer
+</pre>
+
+{{clear}}
+
+===01C2 - Bg_Spot11_Oasis===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0018 - En_Elf
+</pre>
+
+{{clear}}
+
+===01C5 - En_Ma3===
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+0014 - En_Horse
+</pre>
+
+{{clear}}
+
+===01C6 - En_Cow===
+
+Loaded with Debug functions {{hex|800253F0}} and {{hex|80032458}}:
+
+<pre>
+01C6 - En_Cow
+</pre>
+
+{{clear}}
+
+===01CF - Obj_Makekinsuta===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+0095 - En_Sw
+</pre>
+
+{{clear}}
+
+===01D1 - Obj_Timeblock===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+008B - Demo_Effect
+</pre>
+
+{{clear}}
+
+===01D6 - Obj_Warp2block===
+
+Loaded with Debug function {{hex|80031F50}}:
+
+<pre>
+008B - Demo_Effect
+008B - Demo_Effect
+</pre>
+
+{{clear}}
+
+==Object Dependencies==
+
+===0000 - Player===
+
+Object listed in actor table:
+
+<pre>
+0000 - [Unset]
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0014 - object_link_boy
+0015 - object_link_child
+016B - object_dog
+</pre>
+
+{{clear}}
+
+===0004 - En_GirlA===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+Something from http://wikicloudmoddingcom/oot/En_GirlA#Debug_ROM (0xDF3254)
+</pre>
+
+{{clear}}
+
+===0009 - En_Door===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0001 - gameplay_keep
+0002 - gameplay_field_keep
+</pre>
+
+{{clear}}
+
+===000D - En_Poh===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0009 - object_poh
+006E - object_po_composer
+</pre>
+
+{{clear}}
+
+===0014 - En_Horse===
+
+Object listed in actor table:
+
+<pre>
+001A - object_horse
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+001A - object_horse
+00D2 - object_hni
+</pre>
+
+{{clear}}
+
+===002A - En_Viewer===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0046 - object_horse_zelda
+0046 - object_horse_zelda
+</pre>
+
+{{clear}}
+
+===002E - Door_Shutter===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0037 (0404) - object_gnd
+001C (0505) - object_goma
+0036 (0001) - object_ydan_objects
+002B (0202) - object_ddan_objects
+0096 (0303) - object_bdan_objects
+0001 (0808) - gameplay_keep
+00B0 (0707) - object_bdoor
+0001 (0808) - gameplay_keep
+002C (090A) - object_hidan_objects
+0139 (0B0B) - object_ganon_objects
+016D (0606) - object_jya_door
+0059 (0C0D) - object_mizu_objects
+0187 (0E0F) - object_haka_door
+006B (1010) - object_ice_objects
+004D (1111) - object_menkuri_objects
+0179 (1212) - object_demo_kekkai
+018F (1313) - object_ouke_haka
+</pre>
+
+{{clear}}
+
+===003D - En_Ossan===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0x8009812C?
+00FC - object_km1
+0102 - object_masterkokirihead
+0101 - object_masterkokiri
+0159 - object_ds2
+0192 - [?]
+0192 - [?]
+0165 - object_rs
+0192 - [?]
+0192 - [?]
+0159 - object_ds2
+0192 - [?]
+0192 - [?]
+005B - object_ossan
+0192 - [?]
+0192 - [?]
+005B - object_ossan
+0192 - [?]
+0192 - [?]
+005B - object_ossan
+0192 - [?]
+0192 - [?]
+00FE - object_zo
+0192 - [?]
+0104 - object_masterzoora
+00C9 - object_oF1d_map
+0192 - [?]
+0103 - object_mastergolon
+005B - object_ossan
+0192 - [?]
+0192 - [?]
+013E - object_os
+0192 - [?]
+0192 - [?]
+</pre>
+
+{{clear}}
+
+===004D - En_Zl2===
+
+Object listed in actor table:
+
+<pre>
+0060 - object_zl2
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0060 - object_zl2
+014E - object_zl2_anime1
+</pre>
+
+{{clear}}
+
+===0059 - Bg_Breakwall===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0019 - object_kingdodongo
+018A - object_bwall
+</pre>
+
+{{clear}}
+
+===0068 - Bg_Mori_Hineri===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+000E - object_box
+005C - object_mori_hineri1
+006F - object_mori_hineri1a
+0070 - object_mori_hineri2
+0071 - object_mori_hineri2a
+0073 - object_mori_tex
+</pre>
+
+{{clear}}
+
+===006E - Bg_Mjin===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0061 - object_mjin
+0068 - object_mjin_oka
+</pre>
+
+{{clear}}
+
+===0086 - Bg_Mori_Bigst===
+
+Object listed in actor table:
+
+<pre>
+0072 - object_mori_objects
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0072 - object_mori_objects
+0073 - object_mori_tex
+</pre>
+
+{{clear}}
+
+===0087 - Bg_Mori_Elevator===
+
+Object listed in actor table:
+
+<pre>
+0072 - object_mori_objects
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0072 - object_mori_objects
+0073 - object_mori_tex
+</pre>
+
+{{clear}}
+
+===0088 - Bg_Mori_Kaitenkabe===
+
+Object listed in actor table:
+
+<pre>
+0072 - object_mori_objects
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0072 - object_mori_objects
+0073 - object_mori_tex
+</pre>
+
+{{clear}}
+
+===0089 - Bg_Mori_Rakkatenjo===
+
+Object listed in actor table:
+
+<pre>
+0072 - object_mori_objects
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0072 - object_mori_objects
+0073 - object_mori_tex
+</pre>
+
+{{clear}}
+
+===008B - Demo_Effect===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0000 - [Unset]
+0000 - [Unset]
+008E - object_efc_crystal_light
+008F - object_efc_fire_ball
+0001 - gameplay_keep
+0091 - object_efc_lgt_shower
+0093 - object_god_lgt
+0093 - object_god_lgt
+0093 - object_god_lgt
+0094 - object_light_ring
+0095 - object_triforce_spot
+00BA - object_gi_medal
+00BA - object_gi_medal
+00BA - object_gi_medal
+00BA - object_gi_medal
+00BA - object_gi_medal
+00BA - object_gi_medal
+00A8 - object_efc_tw
+0094 - object_light_ring
+0094 - object_light_ring
+0001 - gameplay_keep
+00AD - object_gi_jewel
+00AD - object_gi_jewel
+00AD - object_gi_jewel
+00AD - object_gi_jewel
+0158 - object_gi_m_arrow
+00A8 - object_efc_tw
+00A8 - object_efc_tw
+</pre>
+
+{{clear}}
+
+===008C - Demo_Kankyo===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0092 - object_efc_star_field
+0092 - object_efc_star_field
+0092 - object_efc_star_field
+0092 - object_efc_star_field
+0092 - object_efc_star_field
+0092 - object_efc_star_field
+0092 - object_efc_star_field
+0001 - gameplay_keep
+00B6 - object_gi_melody
+00B6 - object_gi_melody
+00B6 - object_gi_melody
+00B6 - object_gi_melody
+00B6 - object_gi_melody
+005E - object_toki_objects
+005E - object_toki_objects
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+</pre>
+
+{{clear}}
+
+===0097 - Object_Kankyo===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00A1 - object_spot02_objects
+0179 - object_demo_kekkai
+</pre>
+
+{{clear}}
+
+===00AE - Bg_Haka_Megane===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0069 - object_haka_objects
+008D - object_hakach_objects
+</pre>
+
+{{clear}}
+
+===00B1 - Bg_Haka_Sgami===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0069 - object_haka_objects
+</pre>
+
+{{clear}}
+
+===00B3 - En_Heishi2===
+
+Object listed in actor table:
+
+<pre>
+0097 - object_sd
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0015 - object_link_child
+0097 - object_sd
+</pre>
+
+{{clear}}
+
+===00B4 - En_Encount2===
+
+Object listed in actor table:
+
+<pre>
+0092 - object_efc_star_field
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0092 - object_efc_star_field
+</pre>
+
+{{clear}}
+
+===00BE - Bg_Haka_Zou===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0069 - object_haka_objects
+008D - object_hakach_objects
+</pre>
+
+{{clear}}
+
+===00CB - En_In===
+
+Object listed in actor table:
+
+<pre>
+00C0 - object_in
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00C0 - object_in
+</pre>
+
+{{clear}}
+
+===00CD - Bg_Spot16_Bombstone===
+
+Object listed in actor table:
+
+<pre>
+00C2 - object_spot16_obj
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00C2 - object_spot16_obj
+0163 - object_spot12_obj
+</pre>
+
+{{clear}}
+
+===00E2 - Bg_Mori_Hashigo===
+
+Object listed in actor table:
+
+<pre>
+0072 - object_mori_objects
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0072 - object_mori_objects
+0073 - object_mori_tex
+</pre>
+
+{{clear}}
+
+===00E3 - Bg_Mori_Hashira4===
+
+Object listed in actor table:
+
+<pre>
+0072 - object_mori_objects
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0072 - object_mori_objects
+0073 - object_mori_tex
+</pre>
+
+{{clear}}
+
+===00E4 - Bg_Mori_Idomizu===
+
+Object listed in actor table:
+
+<pre>
+0072 - object_mori_objects
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0072 - object_mori_objects
+0073 - object_mori_tex
+</pre>
+
+{{clear}}
+
+===00E8 - Boss_Ganon===
+
+Object listed in actor table:
+
+<pre>
+00E1 - object_ganon
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00E1 - object_ganon
+017C - object_ganon_anime1
+017D - object_ganon_anime2
+</pre>
+
+{{clear}}
+
+===00ED - En_Fr===
+
+Object listed in actor table:
+
+<pre>
+00E6 - object_fr
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0002 - gameplay_field_keep
+00E6 - object_fr
+</pre>
+
+{{clear}}
+
+===00F5 - Demo_6K===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0001 - gameplay_keep
+00ED - object_demo_6k
+00ED - object_demo_6k
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+011A - object_gnd_magic
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+0001 - gameplay_keep
+</pre>
+
+{{clear}}
+
+===010F - Item_Etcetera===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+Load with 00C6 (object_gi_bottle)
+010B (object_gi_bottle_letter)
+00DC (object_gi_shield_2)
+00BE (object_gi_arrowcase)
+00DB (object_gi_scale)
+00DB - 
+00AA (object_gi_key)
+0158 (object_gi_m_arrow)
+017F (object_gi_rupy)
+017F - 
+017F - 
+017F - 
+00BD (object_gi_hearts)
+00AA - 
+</pre>
+
+{{clear}}
+
+===0111 - Obj_Tsubo===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0003 - gameplay_dangeon_keep
+012C - object_tsubo
+</pre>
+
+{{clear}}
+
+===0117 - En_G_Switch===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0001 - gameplay_keep
+012C - object_tsubo
+</pre>
+
+{{clear}}
+
+===0125 - En_Kusa===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0002 - gameplay_field_keep
+012B - object_kusa
+012B - object_kusa
+</pre>
+
+{{clear}}
+
+===0138 - En_Ge1===
+
+Loaded with Debug function {{hex|800353F4}}:
+
+<pre>
+0014 - En_Horse
+</pre>
+
+{{clear}}
+
+===013C - En_Niw_Lady===
+
+Object listed in actor table:
+
+<pre>
+0110 - object_ane
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00C5 - object_os_anime
+0110 - object_ane
+</pre>
+
+{{clear}}
+
+===013D - En_Gm===
+
+Object listed in actor table:
+
+<pre>
+00C9 - object_oF1d_map
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00C9 - object_oF1d_map
+0126 - object_gm
+</pre>
+
+{{clear}}
+
+===0158 - Bg_Jya_Bigmirror===
+
+Object listed in actor table:
+
+<pre>
+00F1 - object_jya_obj
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00AB - object_mir_ray
+</pre>
+
+{{clear}}
+
+===0162 - En_Mm===
+
+Object listed in actor table:
+
+<pre>
+013C - object_mm
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0015 - object_link_child
+013C - object_mm
+</pre>
+
+{{clear}}
+
+===0163 - En_Ko===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00C5 - object_os_anime
+00FC - object_km1
+00FD - object_kw1
+013D - object_fa
+</pre>
+
+{{clear}}
+
+===0168 - En_Ex_Item===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00BD - object_gi_hearts
+00BF - object_gi_bombpouch
+00CE - object_gi_bomb_1
+00D9 - object_gi_bomb_2
+015D - object_gi_goddess
+017B - object_gi_dekupouch
+017F - object_gi_rupy
+</pre>
+
+{{clear}}
+
+===016C - En_Cs===
+
+Object listed in actor table:
+
+<pre>
+0145 - object_cs
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0015 - object_link_child
+0145 - object_cs
+</pre>
+
+{{clear}}
+
+===016E - En_Hy===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0105 (0000 0600 00F0) - object_aob
+0115 (0000 0600 00F0) - object_bob
+0111 (0000 0600 00F0) - object_boj
+0107 (0000 0600 00F0) - object_ahg
+010D (0000 0600 00F0) - object_bba
+0108 (0000 0600 00F0) - object_cne
+010C (0000 0600 00F0) - object_bji
+018C (0000 0600 21F8) - object_cob
+00C5                  - object_os_anime
+</pre>
+
+{{clear}}
+
+===0179 - En_Zl3===
+
+Object listed in actor table:
+
+<pre>
+0060 - object_zl2
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0060 - object_zl2
+014F - object_zl2_anime2
+</pre>
+
+{{clear}}
+
+===017A - Boss_Ganon2===
+
+Object listed in actor table:
+
+<pre>
+0153 - object_ganon2
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0153 - object_ganon2
+017E - object_ganon_anime3
+</pre>
+
+{{clear}}
+
+===0182 - Demo_Ec===
+
+Object listed in actor table:
+
+<pre>
+015A - object_ec
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00C0 - object_in
+0088 - object_ta
+0133 - object_fu
+00FC - object_km1
+00FD - object_kw1
+010C - object_bji
+0107 - object_ahg
+0115 - object_bob
+010D - object_bba
+0121 - object_toryo
+0122 - object_daiku
+0122 - object_daiku
+0122 - object_daiku
+0122 - object_daiku
+00FC - object_km1
+00FD - object_kw1
+0116 - object_ge1
+0116 - object_ge1
+0116 - object_ge1
+00FE - object_zo
+00FF - object_kz
+00FB - object_md
+0013 - object_niw
+0013 - object_niw
+0013 - object_niw
+0110 - object_ane
+0159 - object_ds2
+013E - object_os
+015B - object_fish
+0165 - object_rs
+00C9 - object_oF1d_map
+00C9 - object_oF1d_map
+00C9 - object_oF1d_map
+00C9 - object_oF1d_map
+00D0 - object_ma2
+
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+015A - object_ec
+0126 - object_gm
+00D0 - object_ma2
+</pre>
+
+{{clear}}
+
+===0189 - En_Sth===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0107 - object_ahg
+0111 - object_boj
+0111 - object_boj
+0111 - object_boj
+0111 - object_boj
+0111 - object_boj
+</pre>
+
+{{clear}}
+
+===0193 - En_Nutsball===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+004A - object_dekunuts
+0164 - object_hintnuts
+0168 - object_shopnuts
+0171 - object_dns
+0172 - object_dnk
+</pre>
+
+{{clear}}
+
+===019D - Bg_Spot01_Objects2===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0180 - object_spot01_matoya
+0181 - object_spot01_matoyab
+</pre>
+
+{{clear}}
+
+===01A3 - En_Dnt_Nomal===
+
+Object listed in actor table:
+
+<pre>
+0001 - gameplay_keep
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0172 - object_dnk
+</pre>
+
+{{clear}}
+
+===01A4 - En_Guest===
+
+Object listed in actor table:
+
+<pre>
+0111 - object_boj
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+00C5 - object_os_anime
+0111 - object_boj
+</pre>
+
+{{clear}}
+
+===01B2 - Demo_Geff===
+
+Object listed in actor table:
+
+<pre>
+0186 - object_geff
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+0186 - object_geff
+0186 - object_geff
+0186 - object_geff
+0186 - object_geff
+0186 - object_geff
+0186 - object_geff
+0186 - object_geff
+0186 - object_geff
+0186 - object_geff
+</pre>
+
+{{clear}}
+
+===01C1 - Door_Killer===
+
+Object listed in actor table:
+
+<pre>
+018E - object_door_killer
+</pre>
+
+Loaded by Debug function {{hex|8009812C}}:
+
+<pre>
+002C (0000 0600 E5A0) - object_hidan_objects
+0059 (0000 0600 35C0) - object_mizu_objects
+0187 (0000 0600 0000) - object_haka_door
+0001 (0000 0400 EF38) - gameplay_keep
+</pre>
+
+{{clear}}
+
+==Notes==
+
+===Debug===
+
+<pre>
+800253F0 - [?]
+             a3 - Actor Number
+80031F50 - [?]
+             a2 - Actor Number
+      0x24($sp) - Variable Number [?]
+80032458 - [?]
+             a3 - Actor Number
+800353F4 - [?]
+             a2 - Actor Number
+8009812C - [?]
+             a1 - Object Number
+</pre>

@@ -1,0 +1,8 @@
+{{actor|name=ovl_En_Mm}}
+'''ovl_En_Mm''' is the [[Running Man]] [[actor]] that most likely appears in the Child era.
+{{clear}}
+[[Category:Running Man]]
+
+== Debug Rom Notes ==
+
+ROM: 0xE63C08 (2405002C) Sold Out Sign (From selling him Bunny Hood)

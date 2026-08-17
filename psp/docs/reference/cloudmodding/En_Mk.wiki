@@ -1,0 +1,11 @@
+{{Actor|name=ovl_En_Mk}}
+'''ovl_En_Mk''' is the Lakeside Laboratory Professor actor.
+{{clear}}
+== Debug Rom Notes ==
+ROM: 0xE62B68 (24060025) Receiving the Eyedrops from the Professor to bring them to Biggoron.
+
+ROM: 0xE62BC0 (24060025) If you fail the first time, perhaps?
+
+ROM: 0xE63068 (2406003E) Receiving the Heart Piece for diving to the bottom of his pool.
+
+ROM: 0xE630C4 (2406003E) As above? (Study the SPOT between these two!)

@@ -1,0 +1,14 @@
+{{actor|name=ovl_Bg_Mjin|ispage=true}}
+
+'''ovl_Bg_Mjin''' is the warp pad [[actor]]. It's notable for the so called "Ocarina Pedestal" that spawns in Zora's Fountain. 
+{{clear}}
+
+== U1.0 Notes ==
+
+<pre>
+CBA680 - The list of object dependencies for the medallion textures starts here. 
+Changing this order likely changes the actor variable's settings. Values are:
+0062 0063 0064 0065 0066 0067
+</pre>
+
+[[Category:Entities]]

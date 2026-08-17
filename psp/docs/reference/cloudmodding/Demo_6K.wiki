@@ -1,0 +1,65 @@
+{{Actor|name=ovl_Demo_6K}}
+
+'''ovl_Demo_6K''' is the [[actor]] for the Chamber of Sages cutscene.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| no = %d||no = %d
+|-
+| bank_ID = %d||bank_ID = %d
+|-
+| 0||0
+|-
+| ../z_demo_6k.c0||../z_cutscene_6sages.c0
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| [36m  NA_SE_EN_GANON_FIRE_DEMO[m||[36m  NA_SFX_EN_GANON_FIRE_CUTSCENE[m
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|-
+| ../z_demo_6k.c||../z_cutscene_6sages.c
+|}
+
+[[Category:Cutscene Actors]]

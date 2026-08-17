@@ -1,0 +1,3 @@
+{{actor|name=ovl_Elf_Msg}}
+'''ovl_Elf_Msg''' is the [[Navi]] infospot actor. It's purpose is to display text dialogs with an id of 0x01xx. It is similar in behavior to actor {{actor ref|0173}}
+[[Category:Navi]]

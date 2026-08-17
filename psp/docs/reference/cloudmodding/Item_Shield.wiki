@@ -1,0 +1,31 @@
+{{Actor|name=ovl_Item_Shield}}
+
+'''ovl_Item_Shield''' is the [[actor]] used for a collectible version of the [[Deku Shield]]. This actor is not used in normal gameplay. Instead  {{actor ref|En_Item00}} is used. 
+
+There are two key differences between En_Item00's Deku Shield and '''ovl_Item_Shield''':
+* En_Item00's shield lays flat on the floor while ovl_Item_Shield is propped up as a standard collectible item
+* ovl_Item_Shield has extra behavior. It can be shot with the slingshot, causing it to drop down and disappear like a normal item. 
+
+{{clear}}
+
+== Debug Notes ==
+
+ ROM: 0xF35750 (24060029) Give item Deku Shield
+ ROM: 0xF35824 (24060029) Give item Deku Shield
+
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text
+|-
+| [32mItem_Shild %d [m
+|-
+| ../z_item_shield.c
+|-
+| ../z_item_shield.c
+|-
+| ../z_item_shield.c
+|}
+
+[[Category:Items]]

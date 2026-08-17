@@ -1,0 +1,11 @@
+== Actors ==
+* {{actor ref|ovl_En_Ik}}
+* {{actor ref|ovl_Demo_Ik}} - spawn after completion of the [[Nabooru]] fight
+* {{actor ref|ovl_Bg_Jya_Ironobj}} - Stone Chair and Pillars from the Spirit Temple. Can only be destroyed by the Iron Knuckle
+* {{actor ref|ovl_Bg_Jya_Haheniron}} - Particle Effects for when the Stone Chair/Pillars are destroyed. 
+
+== Objects ==
+* {{object ref|object_ik}}
+* {{object ref|object_jya_iron}}
+
+[[Category:Iron Knuckles| ]]

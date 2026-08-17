@@ -1,0 +1,10 @@
+'''Flare Dancer''' is the Fire Temple's miniboss.
+
+== Actors ==
+* {{actor ref|ovl_En_Fd}} - Main Spawn
+* {{actor ref|ovl_En_Fw}} - Spawned by above
+
+== Objects ==
+* {{object ref|object_fw}} - Flare Dancer
+
+[[Category:Flare Dancer| ]]

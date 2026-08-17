@@ -461,6 +461,41 @@ void Skybox_Calculate128(SkyboxContext* skyboxCtx, s32 nFaces) {
     }
 }
 
+#if TARGET_PSP
+/* Skybox palettes are the last raw big-endian assets in the port.
+ *
+ * The vr_*_pal_static files are DMA'd straight out of the ROM (see the many
+ * DMA_REQUEST_SYNC calls below), so their u16 TLUT entries arrive in N64 byte
+ * order on this little-endian machine. Everything else the renderer consumes
+ * now comes through the native-endian blob pipeline
+ * (psp/tools/make_scene_blob.sh) and needs no swapping; the skyboxes were never
+ * moved over because until the CMD_BBBB byte-order fix landed, skyboxId always
+ * read as 0 and none of this code ever ran.
+ *
+ * ONLY the palettes need this. The matching vr_*_static files are CI8 -- one
+ * byte per texel -- which no byte order can disturb.
+ *
+ * Why it matters here specifically: the Market's buildings and Link's House's
+ * interior walls are both skyboxes (SKYBOX_MARKET_CHILD_DAY / SKYBOX_HOUSE_LINK,
+ * both SKYBOX_DRAW_256_4FACE), and the skybox is the only thing in the game
+ * that draws CI8 through gDPLoadTLUT_pal256. */
+/* A/B switch: the swap was added blind, before the skybox rendered at all, so
+ * it was never testable. Now that the geometry is on screen it is. */
+int gPspSkyboxSwapPalettes = 0;
+
+static void PspSkyboxSwapPalette(void* pal, size_t sizeBytes) {
+    u16* p = (u16*)pal;
+    size_t i;
+
+    if (pal == NULL || !gPspSkyboxSwapPalettes) {
+        return;
+    }
+    for (i = 0; i < sizeBytes / sizeof(u16); i++) {
+        p[i] = (u16)((p[i] >> 8) | (p[i] << 8));
+    }
+}
+#endif
+
 void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
     u32 size;
     s16 i;
@@ -521,6 +556,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
                 DMA_REQUEST_SYNC(skyboxCtx->palettes, gNormalSkyFiles[skybox1Index].palette.vromStart, size,
                                  "../z_vr_box.c", 1075);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
                 DMA_REQUEST_SYNC((u8*)skyboxCtx->palettes + size, gNormalSkyFiles[skybox2Index].palette.vromStart, size,
                                  "../z_vr_box.c", 1077);
             } else {
@@ -532,6 +570,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
                 DMA_REQUEST_SYNC(skyboxCtx->palettes, gNormalSkyFiles[skybox2Index].palette.vromStart, size,
                                  "../z_vr_box.c", 1088);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
                 DMA_REQUEST_SYNC((u8*)skyboxCtx->palettes + size, gNormalSkyFiles[skybox1Index].palette.vromStart, size,
                                  "../z_vr_box.c", 1090);
             }
@@ -554,6 +595,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_SP1a_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1134);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             skyboxCtx->rot.y = 0.8f;
             break;
 
@@ -579,6 +623,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_cloud2_pal_staticSegmentRomStart, size,
                              "../z_vr_box.c", 1173);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             DMA_REQUEST_SYNC((u8*)skyboxCtx->palettes + size, (uintptr_t)_vr_cloud2_pal_staticSegmentRomStart, size,
                              "../z_vr_box.c", 1175);
             break;
@@ -602,6 +649,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_RUVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1190);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_CUTSCENE_MAP:
@@ -627,6 +677,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_holy0_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1214);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             DMA_REQUEST_SYNC((u8*)skyboxCtx->palettes + size, (uintptr_t)_vr_holy1_pal_staticSegmentRomStart, size,
                              "../z_vr_box.c", 1216);
             break;
@@ -648,6 +701,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_LHVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1233);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_MARKET_CHILD_DAY:
@@ -667,6 +723,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_MDVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1264);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_MARKET_CHILD_NIGHT:
@@ -688,6 +747,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_MNVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1279);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_HAPPY_MASK_SHOP:
@@ -707,6 +769,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_FCVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1293);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             skyboxCtx->rot.y = 0.8f;
             break;
 
@@ -727,6 +792,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_KHVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1308);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_HOUSE_OF_TWINS:
@@ -746,6 +814,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_K3VR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1338);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_STABLES:
@@ -765,6 +836,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_MLVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1352);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_HOUSE_KAKARIKO:
@@ -784,6 +858,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_KKRVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1366);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_KOKIRI_SHOP:
@@ -803,6 +880,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_KSVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1380);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             skyboxCtx->rot.y = 0.8f;
             break;
 
@@ -823,6 +903,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_GLVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1412);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             skyboxCtx->rot.y = 0.8f;
             break;
 
@@ -843,6 +926,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_ZRVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1427);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             skyboxCtx->rot.y = 0.8f;
             break;
 
@@ -863,6 +949,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_DGVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1458);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             skyboxCtx->rot.y = 0.8f;
             break;
 
@@ -883,6 +972,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_ALVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1473);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             skyboxCtx->rot.y = 0.8f;
             break;
 
@@ -903,6 +995,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_NSVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1488);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             skyboxCtx->rot.y = 0.8f;
             break;
 
@@ -923,6 +1018,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_IPVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1519);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_HOUSE_IMPA:
@@ -942,6 +1040,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_LBVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1533);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_TENT:
@@ -961,6 +1062,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_TTVR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1547);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_HOUSE_MIDO:
@@ -980,6 +1084,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_K4VR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1567);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_HOUSE_SARIA:
@@ -999,6 +1106,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_K5VR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1581);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_HOUSE_ALLEY:
@@ -1018,6 +1128,9 @@ void Skybox_Setup(PlayState* play, SkyboxContext* skyboxCtx, s16 skyboxId) {
 
             DMA_REQUEST_SYNC(skyboxCtx->palettes, (uintptr_t)_vr_KR3VR_pal_staticSegmentRomStart, size, "../z_vr_box.c",
                              1595);
+#if TARGET_PSP
+            PspSkyboxSwapPalette(skyboxCtx->palettes, size);
+#endif
             break;
 
         case SKYBOX_UNSET_27:

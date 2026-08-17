@@ -1,0 +1,32 @@
+{{todo|Categorize [[Category:Uncategorized Actors]]}}
+{{Actor|name=ovl_En_Kanban|ispage=true}}
+
+'''ovl_En_Kanban''' is the [[actor]] for the signposts around Hyrule.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| KANBAN ARG    %x[m WAT  Y  = %f||SIGN ARG    %x[m WAT  Y  = %f
+|-
+|  POS  Y  = %f|| POS  Y  = %f
+|-
+|  GROUND Y  = %f|| GROUND Y  = %f
+|-
+| [32mOCARINA_MODE %d[m||[32mOCARINA_MODE %d[m
+|-
+| ../z_en_kanban.c||../z_en_kanban.c
+|-
+| ../z_en_kanban.c||../z_en_kanban.c
+|-
+| ../z_en_kanban.c||../z_en_kanban.c
+|-
+| ../z_en_kanban.c||../z_en_kanban.c
+|-
+| ../z_en_kanban.c||../z_en_kanban.c
+|-
+| ../z_en_kanban.c||../z_en_kanban.c
+|}

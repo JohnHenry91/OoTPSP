@@ -1,0 +1,9 @@
+{{actor|name=ovl_En_Zl1}}
+'''ovl_En_Zl1''' is one of the [[Princess Zelda|Child Zelda]] actors. This actor an "unused" near copy of {{actor ref|ovl_En_Zl4}}.
+
+This actor is notable for having an unused cutscene embedded into it's file.
+{{clear}}
+[[Category:Princess Zelda]]
+== Debug Rom Notes ==
+ ROM: 0xF01D34 (2406000B) Letter from Zelda?
+ ROM: 0xF01DD0 (2406000B) Letter from Zelda?

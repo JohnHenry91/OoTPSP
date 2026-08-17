@@ -1,0 +1,38 @@
+{{Actor|name=ovl_Door_Warp1}}
+'''ovl_Door_Warp1''' (Blue Warp) is an actor spawned by [[Boss|bosses]] once they are defeated, leading to the next sequence in the quest.
+ {{clear}}
+== NTSC 1.0 Notes ==
+<pre>
+Kokiri Emerald cutscene:  CA3176 "FFF1"
+Goron Ruby cutscene:      CA30F6 "FFF1"
+Zora Sapphire cutscene:   CA3712 "FFF0"
+
+Change the item you get with a blue warp (Items table index, not Get Item table)
+Deku Tree:          CA315F (originally "6C")
+Dodongo's Cavern:   CA30DF (originally "6D")
+Jabu Jabu:          CA36EB (originally "6E")
+Forest Temple:      CA3D07 (originally "66")
+Fire Temple:        CA3D93 (originally "67")
+Water Temple:       CA3E1F (originally "68")
+Spirit Temple:      CA3EB3 (originally "69")
+Shadow Temple:      CA3F43 (originally "6A")</pre>
+
+=== Instance === 
+
+ 0x0182 s16 //count up animation timer (wrong warp)
+ //0xA1 Adult Warps
+ //0x65 Child Warps
+
+== Debug Rom Notes ==
+
+ROM: 0xD531B8 (2405006D) (From King Dodongo Warp) - Goron Ruby<br>
+ROM: 0xD53228 (2405006C) (From Ghoma Warp) - Kokiri Emerald<br>
+ROM: 0xD537AC (2405006E) (From Barinade Warp) - Zora's Sapphire<br>
+ROM: 0xD53DC0 (24050066) (From Phantom Ganon Warp) - Forest Medallion<br>
+ROM: 0xD53E4C (24050067) (From Volvagia Warp) - Fire Medallion<br>
+ROM: 0xD53ED8 (24050068) (From Morpha Warp) - Water Medallion<br>
+ROM: 0xD53F6C (24050069) (From Twinrova Warp) - Spirit Medallion<br>
+ROM: 0xD53FFC (2405006A) (From Bongo-Bongo Warp) - Shadow Medallion
+
+RAM - 242834 ORI - T6, V0, 0x0400 (Add 400 if applicable, clear flag for the Water Temple)<br>
+RAM - 242838 SH T6, 0x0EDC (Store 0400 in 15F53C)

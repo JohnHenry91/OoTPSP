@@ -1,0 +1,25 @@
+==History==
+The Blade Beam (also commonly known as beam blade) was an attack in the pre-release version of Ocarina of Time, where a beam would shoot out of Link's sword.[[Image:Beta_Beamblade.jpg|thumb|right|''Blade beam in a pre-release strategy guide scan'']]
+
+==Restorations==
+Three Times has the beam blade been restored, once by Dark_Link-77, once by sakura89 and [[user:spinout|spinout]], and once more by Fkualol/Playtendo.
+
+===DL77's Restoration===
+In May 2007, Dark_Link-77 stumbled upon the beam blade while browsing through display lists within gameplay_keep in Utility of Time. After this find, he replaced the display list used for the large spin attack with the beam blade's display list, though there were some errors and thus it was buggy. To fix the animation, DL77 used a GS code. While it was not perfectly restored, it was a amazing at the time. It's errors, however, lead to sakura89 and spinout's re-doing of the beam blade restoration.
+
+===sakura89 and spinout's Restoration===
+In 2008 sakura89 found where the LUI/ADDIU that loaded the polygon data for the secondary spin attack, and she re-pointed them so their immediate value was that of the old beam blade. Building off of this, spinout changed the animation that link used for the second spin attack to that of link stabbing, thus instead of spinning link gave a stab motion. Together, the beam blade was fixed, and the whole restoration only required 8 bytes total to be changed. A patch can be found [http://spinout182.com/beamblade%20complete.ppf here].
+
+===A Full Correct Restoration===
+As of currently there is no true restoration of the blade beam attack without having to replace the spinattack and use the proper animations.
+
+===Fkualol's Majora's Mask 64 Sword Beam Port===
+As seen in the video here: https://www.youtube.com/watch?v=mD1vPuOvaW0. Fkualol is showcasing his own port of Majora's Mask's Young Link Sword Beam from MM to OOT, on Dec 20, 2016. This one nearly personifies the sword beam that's been sought after for years and can be manipulated to allow for the spin attack to be the first one, and the second spin attack can be replaced by the sword beam for Kokiri Sword/Master Sword. Note: unless you bundle with Three Pendant's: One-Handed Biggoron Sword with Silver Gauntlets, the biggoron sword functions will be back to normal as the sword beam isn't mapped to the biggoron sword (this is only temporary if you use both patches).
+
+Fkualol's Sword Beam Hack
+
+http://www.mediafire.com/file/sprikbrm9p7cwrq/swordbeamdebug.ppf
+
+Three Pendants' (Xiu Yuan) One-Handed Biggoron Sword): https://drive.google.com/open?id=0B74OW6axSr_cZlEtazFaOFFwU3M
+
+[[Category: Hacks]]

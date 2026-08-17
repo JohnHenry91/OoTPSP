@@ -1,0 +1,8 @@
+{{actor|name=ovl_En_Fu}}
+'''ovl_En_Fu''' is the [[actor]] file for [[Guru-Guru]].
+{{clear}}
+[[Category:Guru-Guru]]
+== Debug Rom Notes ==
+ROM: 0xDD48AC (24050065) Song of Storms learned from Windmill Man<br>
+ROM: 0xDD49F0 Text: (2405000D) Play Song of Storms<br>
+ROM: 0xDD4974 Text: (2405001A) Learn Song of Storms

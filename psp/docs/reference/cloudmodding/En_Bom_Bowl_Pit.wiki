@@ -1,0 +1,12 @@
+{{actor|name=ovl_En_Bom_Bowl_Pit}}
+'''ovl_En_Bom_Bowl_Pit''' is the main actor for the [[Bombchu Bowling]] [[minigame]]
+{{clear}}
+[[Category:Bombchu Bowling]]
+== Debug Rom Notes ==
+ ROM: 0xD7EB9F (8FA50034) Biggest Bomb Bag 
+
+ ROM: 0xD7ED13 (00000033) Big Bomb Bag
+ ROM: 0xD7ED17 (0000003E) Heart Piece
+ ROM: 0xD7ED1B (00000003) Bombchus
+ ROM: 0XD7ED1F (00000065) One Bomb?
+ ROM: 0xD7ED23 (00000055) Purple Rupee

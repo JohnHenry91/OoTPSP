@@ -1,0 +1,137 @@
+{{Actor|name=ovl_En_Dns}}
+
+'''ovl_En_Dns''' ([[Business Scrub]] (NPC)) is the NPC version of {{actor ref|ovl_En_Shopnuts}}. It is spawned by ovl_En_Shopnuts after it's been defeated.
+{{clear}}
+[[Category:Deku Scrubs]]
+
+
+== NTSC 1.0 Notes ==
+
+=== Instance Variables ===
+
+{|class="wikitable"
+! Offset || Type || Description
+|-
+|0x02B0||ptr||points to shop keeper data within the scrub salesman ovl
+|}
+
+=== Overlay ===
+DF866C Shopkeeper Dialog Table, 0x0A records, s16 each. Corresponds to table below.
+
+DF8684 Shopkeeper Table. 0x0A records: 
+
+  0x00 s16 // Rupee Cost
+  0x02 s16 // Quantity
+  0x04 s32 // [[Get Item|Get Item Index]], not always used?
+  0x08 func_ptr //Executed when selecting to make a purchase
+  0x0C func_ptr //Executed when closing the collect item dialog
+
+{| class="wikitable
+! Id || Sold Item || Cost || Quantity || Get Item Index || Purchase Accept || Item Dialog Close
+|-
+| 00 || Deku Nuts || 0014 || 0005 || 00000063 || 80A74E88 || 80A75320
+|-
+| 01 || Deku Sticks || 000F || 0001 || 00000007 || 80A74F40 || 80A752EC
+|-
+| 02 || Piece of Heart || 000A || 0001 || 0000003E || 80A74FF8 || 80A75354
+|-
+| 03 || Deku Seeds || 0028 || 001E || 00000069 || 80A75028 || 80A752EC
+|-
+| 04 || Deku Shield || 0032 || 0001 || 00000029 || 80A750F0 || 80A752EC
+|-
+| 05 || Bombs || 0028 || 0005 || 00000001 || 80A75144 || 80A7539C
+|-
+| 06 || Deku Seeds || 0046 || 0014 || 0000004B || 80A751E4 || 80A753D0
+|-
+| 07 || Red Potion || 0028 || 0001 || 00000010 || 80A75294 || 80A752EC
+|-
+| 08 || Green Potion || 0028 || 0001 || 00000011 || 80A75294 || 80A752EC
+|-
+| 09 || Deku Stick Upgrade || 0028 || 0001 || 00000077 || 80A74FF8 || 80A75404
+|-
+| 0A || Deku Nut Upgrade || 0028 || 0001 || 00000079 || 80A74FF8 || 80A7544C
+|}
+
+==Debug Rom Notes ==
+(These are points of study as they did not follow the normal patterns! Keep that in mind!)
+
+(Addendum: Are they not following the normal patterns because this is how the game looks to see if you have the prior upgrade to give you the proper upgrade?)
+
+
+ROM: 0xDA6A00 - (24060078) Buying Deku Stick Upgrade (30) if you already have Deku Stick Upgrade (20). 
+
+ROM: 0xDA6A0E (24060077) Buying Deku Stick Upgrade (20)
+
+ROM: 0xDA6A74 (2406007A) Buying Deku Nut Upgrade (30) if you already have Deku Nut Upgrade (20).
+
+ROM: 0xDA6A80 (24060079) Buying Deku Nut Upgrade (20)
+
+
+===Deku Salesman Data Sheet===
+
+ROM: 0xDA7000 (0014) Price of 5 Deku Nuts<br>
+ROM: 0xDA7044 (00000063) Buying 5 Deku Nuts
+
+ROM: 0xDA7050 (000F) Price of 1 Deku Stick<br>
+ROM: 0xDA7054 (00000007) Buying a Deku Stick 
+
+ROM: 0xDA7060 (000A) Price of Heart Piece<br>
+ROM: 0xDA7064 (0000003E) Buying a Heart Piece
+
+ROM: 0xDA7070 (0028) Price of Deku Seeds<br>
+ROM: 0xDA7074 (00000069) Buying Deku Seeds
+
+ROM: 0xDA7080 (0032) Price of Deku Shield<br>
+ROM: 0xDA7084 (00000029) Buying Deku Shield
+
+ROM: 0xDA7090 (0028) Price of Five Bombs<br>
+ROM: 0xDA7094 (00000001) Buying Five Bombs
+
+ROM: 0xDA70A0 (0046) Price of Thirty Arrows<br>
+ROM: 0xDA70A4 (0000004B) Buying Thirty Arrows
+
+ROM: 0xDA70B0 (0028) Price of Red Potion<br>
+ROM: 0xDA70B4 (00000010) Buying Red Potion
+
+ROM: 0xDA70C0 (0028) Price of Green Potion<br>
+ROM: 0xDA70C4 (00000011) Buying Green Potion
+
+ROM: 0xDA70D0 (0028) Price of Deku Stick Upgrade<br>
+ROM: 0xDA70D4 (00000077) Buying Deku Stick Upgrade (20)
+
+ROM: 0xDA70E0 (0028) Price of Deku Nut Upgrade<br>
+ROM: 0xDA70E4 (00000079) Buying Deku Nut Upgrade (30)
+
+==Console Output Strings==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| デクの実売り||Selling Deku Nuts
+|-
+| デクの棒売り||Selling Deku Sticks
+|-
+| ハートの欠片売り||Selling Heart Piece
+|-
+| デクの種売り||Selling Deku Seeds
+|-
+| デクの盾売り||Selling Deku Shield
+|-
+| バクダン売り||Selling Bombs
+|-
+| 矢売り||Selling Arrows
+|-
+| 赤のくすり売り||Selling Red Potion
+|-
+| 緑のくすり売り||Selling Green Potion
+|-
+| デクの棒持てる数を増やす||Increase Amount of Deku Sticks You Can Carry
+|-
+| デクの実持てる数を増やす||Increase Amount of Deku Nuts You Can Carry
+|-
+| [31m引数エラー（売りナッツ）[ arg_data = %d ][m||[31mFUNCTION ERROR (DEKU SALESMAN) [ arg_data = %d ][m
+|-
+| [32m◆◆◆ 売りナッツ『%s』 ◆◆◆[m||[32m◆◆◆ DEKU SALESMAN『%s』 ◆◆◆[m
+|}
+
+[[Category:Documentation]]

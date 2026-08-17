@@ -320,6 +320,7 @@ u32 gPspBgProbeCalls = 0;
 u32 gPspBgProbeCamSetting = 0;
 u32 gPspBgProbeFlags = 0;
 u32 gPspCamProbe[20] = { 0 };
+u32 gPspLightProbe[20] = { 0 };
 
 /**
  * PSP replacement for Room_DrawBackground2D's S2DEX display list.
@@ -493,6 +494,54 @@ void Room_DrawImageSingle(PlayState* play, Room* room, u32 flags) {
         gPspCamProbe[9] = (play->colCtx.colHeader != NULL) ? (u32)play->colCtx.colHeader->numPolygons : 0;
         gPspCamProbe[10] = (play->colCtx.colHeader != NULL) ? (u32)(uintptr_t)play->colCtx.colHeader->bgCamList : 0;
         gPspCamProbe[11] = (u32)activeCam->camId;
+
+        /* --- lighting probe -------------------------------------------------
+         * Measured 2026-08-17 in link_home: rsp.current_lights come out ALL
+         * ZERO (amb #000000, light0 #000000), so shade is black and Link, whose
+         * materials are TEXEL0 * SHADE under GU_TFX_MODULATE, renders as a solid
+         * black silhouette over an otherwise perfect pre-rendered background.
+         * The scene's own EnvLightSettings are nothing like zero (ambient
+         * 70,60,40; light1 250,230,230), so something between the scene data and
+         * the RSP zeroes them. These fields cut that path at its joints:
+         *
+         *   [0..2]  what Environment_Update actually put in lightCtx
+         *   [3..6]  which setting it thinks it is using, and out of how many
+         *   [7]     the scene's settings list pointer (0 => never delivered)
+         *   [8..10] the ambient read straight back out of that list
+         *
+         * lightCtx black but the list good  => Environment_Update / the blend
+         * list null or ambient zero          => Scene_CommandEnvLightSettings
+         * both good, RSP still black         => Lights_Draw / the G_MV_LIGHT path */
+        gPspLightProbe[0] = play->lightCtx.ambientColor[0];
+        gPspLightProbe[1] = play->lightCtx.ambientColor[1];
+        gPspLightProbe[2] = play->lightCtx.ambientColor[2];
+        gPspLightProbe[3] = play->envCtx.lightMode;
+        gPspLightProbe[4] = play->envCtx.lightSetting;
+        gPspLightProbe[5] = play->envCtx.numLightSettings;
+        gPspLightProbe[6] = (u32)(play->envCtx.lightBlend * 1000.0f);
+        gPspLightProbe[7] = (u32)(uintptr_t)play->envCtx.lightSettingsList;
+        if (play->envCtx.lightSettingsList != NULL) {
+            EnvLightSettings* ls = &play->envCtx.lightSettingsList[0];
+
+            gPspLightProbe[8] = ls->ambientColor[0];
+            gPspLightProbe[9] = ls->ambientColor[1];
+            gPspLightProbe[10] = ls->ambientColor[2];
+            gPspLightProbe[11] = ls->light1Color[0];
+            gPspLightProbe[12] = ls->light1Color[1];
+            gPspLightProbe[13] = ls->light1Color[2];
+        }
+        /* Skybox probe. The Market's buildings and Link's House's interior walls
+         * are BOTH the skybox (SKYBOX_MARKET_CHILD_DAY / SKYBOX_HOUSE_LINK,
+         * both SKYBOX_DRAW_256_4FACE), drawn by the site in Play_Draw that runs
+         * whenever the camera is not CAM_SET_PREREND_FIXED. Until today
+         * skyboxId was always read as 0 (the CMD_BBBB byte order bug), so none
+         * of this could ever run. These say whether Skybox_Init got its data. */
+        gPspLightProbe[16] = (u32)play->skyboxId;
+        gPspLightProbe[17] = (u32)play->skyboxCtx.drawType;
+        gPspLightProbe[18] = (u32)(uintptr_t)play->skyboxCtx.staticSegments[0];
+        gPspLightProbe[19] = (u32)(uintptr_t)play->skyboxCtx.palettes;
+        gPspLightProbe[14] = (u32)play->lightCtx.zFar;
+        gPspLightProbe[15] = (u32)(uintptr_t)play->lightCtx.listHead;
     }
 #endif
 

@@ -1,0 +1,29 @@
+{{actor|name=ovl_En_Syateki_Man}}
+
+'''ovl_En_Syateki_Man''' is the [[actor]] for the [[Shooting Gallery]] [[minigame]] shopkeeper. It is spawned by [[ovl_En_Syateki_Itm]].
+
+{{clear}}
+
+== Debug Rom Notes ==
+
+ ROM: 0xEC6EA4 (24080055) Purple Rupee
+ ROM: 0xEC6EFC (24180030) Biggest Arrow Quiver (if you have upgrade)
+ ROM: 0xEC6F08 (24190031) Big Arrow Quiver 
+
+ ROM: 0xEC6E24 (240E0055) Fifty Rupee
+ ROM: 0xEC6E70 (240D007B) Bullet Bag (50)
+ ROM: 0xEC6E74 (240C0060) Bullet Bag (40)
+
+ ROM: 0xEC6EF4 (240F0055) ?Fifty Rupees?
+
+== Console Output Strings ==
+
+{{consolestrings
+|row1= <font color="green">☆☆☆☆☆ 親父登場！！むほほほほほほほーん ☆☆☆☆☆</font>{{!!}}<font color="green">☆☆☆☆☆ HERE'S DADDY!! MUHOHOHOHOHOHOHO! ☆☆☆☆☆</font>
+|row2= <font color="green">☆☆☆☆☆ Equip_Pachinko ☆☆☆☆☆ %d</font>{{!!}}<font color="green">☆☆☆☆☆ Equip_Slingshot ☆☆☆☆☆ %d</font>
+|row3= <font color="green">☆☆☆☆☆ Equip_Bow ☆☆☆☆☆ %d</font>{{!!}}<font color="green">☆☆☆☆☆ Equip_Bow ☆☆☆☆☆ %d</font>
+|row4= <font color="green">☆☆☆☆☆ 正常終了 ☆☆☆☆☆</font>{{!!}}<font color="green">☆☆☆☆☆ SUCCESSFULLY COMPLETED ☆☆☆☆☆</font>
+|row5= <font color="blue">再挑戦だぜ！ベイビー！</font>{{!!}}<font color="blue">IT'S A REMATCH, BABY!</font>
+}}
+
+[[Category:Shooting Gallery]]

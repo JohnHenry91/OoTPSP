@@ -1,0 +1,666 @@
+{{article link|Scenes and Rooms}}
+==Header Commands==
+The header commands are designed to define the bulk of the structure for Scene and Room files. All commands follow the following 8 byte structure:
+
+<pre>
+struct {
+    u8  code;
+    u8  data1;
+    s32 data2;
+}
+</pre>
+
+{| class="wikitable"
+<!--                !!!!!!!!!!!!!!!!!!!!!!NOTICE EDITORS!!!!!!!!!!!!!!!!!!
+                         Please keep this table in numerical order -->
+! Command || Description || Variables || Usage || Found in ||Optional
+|-
+|<tt>0x00</tt>
+| Defines the start positions list
+|<tt>00xx0000 yyyyyyyy</tt>
+|'''x''' is the number of start positons<br>'''y''' is the [[Segment offset|segment offset]] of that list. Follows the [[#Actors_List|actors list]] format.
+|scenes
+| No
+|-
+|<tt>0x01</tt>
+|Defines the actor list
+|<tt>01xx0000 yyyyyyyy</tt>
+|'''x''' is the number of actors<br>'''y''' is the [[Segment offset|segment offset]] of that list. Follows the [[#Actors_List|actors list]] format.
+|rooms
+| Yes
+|-
+|<tt>0x02</tt>
+|Cameras used by 0x1B command (MM only)
+|<tt>02xx0000 yyyyyyyy</tt>
+|'''x''' is the number of entries, '''y''' is the [[Segment offset|segment offset]] of the entries. Follows the [[#Camera Entries|camera entries]] format
+|scenes
+| Yes
+|-
+|<tt>0x03</tt>
+|Defines the collision header
+|<tt>03000000 yyyyyyyy</tt>
+|'''y''' is the [[Segment offset|segment offset]] of the collision header. Follows the [[Collision Format|collision]] format.
+|scenes
+| No
+|-
+|<tt>0x04</tt>
+|Defines the rooms
+|<tt>04xx0000 yyyyyyyy</tt>
+|'''x''' is the number of rooms<br>'''y''' is the [[Segment offset|segment offset]] of the room list. Follows the [[#Rooms_List|room list]] format.
+|scenes
+| No
+|-
+|<tt>0x05</tt>
+|Sets the wind (red cloth posts, rain)
+|<tt>05000000 wwzzssff</tt>
+|'''ww''' will push the wind westward<br>'''zz''' affects the wind vertically<br>'''ss''' pushes the wind south<br>'''ff''' alters the strength of the cloth flapping<br><sub>Documented by Strati and mzxrules</sub>
+|rooms
+| Yes
+|-
+|<tt>0x06</tt>
+|Defines the entrance list
+|<tt>06000000 yyyyyyyy</tt>
+|The number of entrances is undefined, though it is usually equal to the number of start positions (see below) (that the [[Ocarina of Time: Entrance Table|entrance table]] accesses)<br>'''y''' is the [[Segment offset|segment offset]] of that list. Follows the [[#Entrance_List|entrance list]] format.
+|scenes
+| No
+|-
+|<tt>0x07</tt>
+|Special objects
+|<tt>07xx0000 0000yyyy</tt>
+|'''x''' loads an elf_message file, which determines how the C-Up Navi icon hints work. 00 for no data, 01 for [[elf_message_field]], 02 for [[elf_message_ydan]].
+'''y''' loads a global object file, assigning it to segment offset 05. 0x0000 for no object, 0x0002 for [[gameplay_field_keep]], or 0x0003 for [[gameplay_dangeon_keep]]<br><sub>Posted on z64 by xdaniel</sub>
+|scenes
+| No
+|-
+|<tt>0x08</tt>
+|Room behavior
+|<tt>08xx0000 0000yyzz</tt>
+|'''x''' affects Sun's Song, backflipping with A<br>
+'''y''' &>> 4 = Disable Warp Songs<br>
+'''y''' & 1 = Show/Hide invisible actors<br>
+'''z''' affects Link's idle animation OR makes the room "Too Hot". See [[#Room Behavior|here]].<br><sub>Invisible Actors documented by ChriisTiian</sub>
+|rooms
+| No
+|-
+|<tt>0x09</tt>
+|Unused command
+|<tt>09000000 00000000</tt>
+|Has two instructions saving values to the stack, which aren't read before being overwritten.<br><sub>Documented by Strati</sub>
+|rooms<br>(Depth Test)
+| Yes
+|-
+|<tt>0x0A</tt>
+|Defines the mesh
+|<tt>0A000000 yyyyyyyy</tt>
+|'''y''' is the [[Segment offset|segment offset]] of the mesh header. Follows the [[#Mesh_Header|mesh header]] format.
+|rooms
+| No
+|-
+|<tt>0x0B</tt>
+|Defines the object list
+|<tt>0Bxx0000 yyyyyyyy</tt>
+|'''x''' is the number of objects (maximum 15)<br>'''y''' is the [[Segment offset|segment offset]] of the object list. Follows the [[#Object_List|object list]] format.
+|rooms
+| Yes
+|-
+|<tt>0x0C</tt>
+|Unused Lighting settings
+|<tt>0Cxx0000 yyyyyyyy</tt>
+|'''x''' is the number of unused Lighting settings<br>'''y''' is the [[Segment offset|segment offset]] of the list. Follows the [[#Unused_Lighting_List|unused lighting list]] format.<br><sub>Discovered by ChriisTiian</sub>
+| rooms<br>(Unused)
+| Yes
+|-
+|<tt>0x0D</tt>
+|Pathways
+|<tt>0D000000 yyyyyyyy</tt>
+|'''y''' is the [[Segment offset|segment offset]] of the path list. Follows the [[#Path_List|path list]] format.<br><sub>Documented by xdaniel</sub>
+|scenes
+| Yes
+|-
+|<tt>0x0E</tt>
+|Defines the transition actor list
+|<tt>0Exx0000 yyyyyyyy</tt>
+|'''x''' is the number of transition actors<br>'''y''' is the [[Segment offset|segment offset]] of that list. Follows the [[#Transition_Actors|transition actors list]] format.
+|scenes
+| Yes
+|-
+|<tt>0x0F</tt>
+|Defines the lighting settings
+|<tt>0Fxx0000 yyyyyyyy</tt>
+|'''x''' is the number of lighting settings<br>'''y''' is the [[Segment offset|segment offset]] of that list. Follows the [[#Lighting_List|lighting list]] format.
+|scenes
+| No
+|-
+|<tt>0x10</tt>
+|Time settings
+|<tt>10000000 xxxxyy00</tt>
+|'''x''' = Sets time to a specific value. 0xFFFF = No change<br>'''y''' = Time speed (signed), default 0xA.
+|rooms
+| No
+|-
+|<tt>0x11</tt>
+|Skybox settings
+|<tt>11000000 xx0y0z00</tt>
+|'''x''' = Skybox number (see the [[Skyboxes|skybox list]])<br>'''y''' = Cast. 0 = Sunny, 1 = Cloudy. Affects the sun's lens flare, and skybox 1 will load sky/clouds<br>'''z''' = Lighting Settings Control. 0 = Controlled by Day Time, 1 = "Indoor" lighting 
+|scenes
+| No
+|-
+|<tt>0x12</tt>
+|Skybox modifier
+|<tt>12000000 xxyy0000</tt>
+|Allows skyboxes to be enabled in some rooms of a scene but disabled in others.<br>'''x''' = disable sky if not 0 (some backgrounds still appear)<br>'''y''' = disable sun/moon if not 0<br><sub>Sun/Moon disabler documented by ChriisTiian</sub>
+|rooms
+| No
+|-
+|<tt>0x13</tt>
+|Defines the exit list
+|<tt>13000000 yyyyyyyy</tt>
+|'''y''' is the [[Segment offset|segment offset]] of the exit list. Follows the [[#Exit_List|exit list]] format.
+|scenes
+| Yes
+|-
+|<tt>0x14</tt>
+|End marker
+|<tt>14000000 00000000</tt>
+|Signals the end of the header
+|scenes,<br>rooms
+| No
+|-
+|<tt>0x15</tt>
+|Sound settings
+|<tt>15xx0000 0000yyzz</tt>
+|'''x''' = Settings config, max value 0x11. See [[#Sound_Settings|Sound Settings]]<br>'''y''' = [[Music Sequences#Nighttime SFX|Nighttime SFX]] to play, 0x13 = always playing day sequence<br>'''z''' = [[Music Sequences|Music sequence]] to play, 0x7F = always playing Nighttime SFX<br><sub>Nighttime SFX documented by Strati</sub>
+|scenes
+| No
+|-
+|<tt>0x16</tt>
+|Sound settings
+|<tt>16000000 000000xx</tt>
+|'''x''' = echo
+|rooms
+| No
+|-
+|<tt>0x17</tt>
+|Cutscenes
+|<tt>17000000 xxxxxxxx</tt>
+|'''x''' = [[Segment offset|segment offset]] of cutscene data. Follows the [[Cutscenes|cutscene data]] format.
+|scenes
+| Yes
+|-
+|<tt>0x18</tt>
+|Alternate headers
+|<tt>18000000 xxxxxxxx</tt>
+|'''x''' = [[Segment offset|segment offset]] of alternate header list. Follows the [[#Alternate_Header_List|alternate header list]] format.
+|scenes,<br>rooms
+| Yes
+|-
+|<tt>0x19</tt>
+|Camera Settings and World Map
+|<tt>19xx0000 000000yy</tt>
+|'''x''' = Affects camera movement<br>'''y''' = Sets what location of the world map to highlight.<br>See [[#Camera_Settings|camera settings]]
+|scenes
+| Yes
+|-
+! colspan="6" |Commands beyond 0x19 are used in Majora's Mask only.
+|}
+
+== Command Ordering ==
+
+=== Scenes ===
+{|class="wikitable"
+! Id || Required || Purpose
+|-
+| 0x18 || || Alternate Headers
+|-
+| 0x15 || ✔ || Sound Settings
+|-
+| 0x04 || ✔ || Rooms
+|-
+| 0x0E || || Transition Actors
+|- 
+| 0x19 || || Camera Settings and World Map
+|-
+| 0x03 || ✔ || Collision Header
+|-
+| 0x06 || ✔ || Entrance List
+|-
+| 0x07 || ✔ || "Special Objects"
+|-
+| 0x0D || || Pathways
+|-
+| 0x00 || ✔ || Link Spawns
+|-
+| 0x11 || ✔ || Skybox Settings
+|-
+| 0x13 || || Exit List
+|-
+| 0x0F || ✔ || Lighting Settings
+|-
+| 0x17 || || Cutscenes
+|}
+
+=== Rooms ===
+{|class="wikitable"
+! Id || Required || Purpose
+|-
+| 0x18 || || Alternate Headers
+|-
+| 0x16 || ✔ || Sound Settings
+|-
+| 0x08 || ✔ || Room Behavior
+|-
+| 0x12 || ✔ || Skybox Settings
+|-
+| 0x10 || ✔ || Time Settings
+|-
+| 0x05 || || Wind Settings
+|-
+| 0x0A || ✔ || Room Mesh
+|-
+| 0x0B || || Object List
+|-
+| 0x01 || || Actor List
+|}
+
+==Unreferenced Assets==
+Some assets stored within scene and room files are only referenced by external files, or not at all. 
+
+* Textures that are used by multiple rooms are typically stored in the scene file to save space.
+* Cutscenes:
+** [[Entrance Cutscenes|Entrance cutscenes]], triggered when spawning using a specific entrance (referenced by [[Code|code]], possibly Ocarina of Time only).
+** Some actors ([[Sheik]] in the Ice Cavern, [[Saria]] in Sacred Forest Meadow) trigger cutscenes stored within the scene setup, rather than internally. 
+* Extra scene/room headers not referenced by the 0x18 command:
+** The Spirit Temple in Ocarina of Time has two unreferenced headers in every scene and room.
+** Hyrule Castle has an unreferenced scene header, but no matching room header
+** Death Mountain Trail
+** Cutscene Map
+
+==Actors List==
+
+<tt>aaaaxxxx yyyyzzzz ppppwwww rrrrvvvv</tt> (repeats for each actor)<br>
+Where:<br>
+'''a''' = Actor number<br>
+'''x''' = Position on x-axis<br>
+'''y''' = Position on y-axis<br>
+'''z''' = Position on z-axis<br>
+'''p''' = Rotation around x-axis<br>
+'''w''' = Rotation around y-axis<br>
+'''r''' = Rotation around z-axis<br>
+'''v''' = initialization variable sent to actor<br>
+
+For more info on initializing OoT actors, see [[Actor List (Variables)]]
+
+==Rooms List==
+Each room is two pointers, start and end, which game searches for in the [[Filesystem|file system]]. A maximum of 32 rooms can exist per scene without encountering potential issues.
+
+Format:<br>
+<tt>ssssssss eeeeeeee</tt> (repeats for each room)<br>
+Where:<br>
+'''s''' = Room virtual address start.<br>
+'''e''' = Room virtual address end.
+==Room Behavior==
+<tt>08xx0000 0000yyzz</tt>
+
+'''x'''
+<pre>
+00 - No effect/restrictions
+01 - Prevents the Sun's Song time effect.
+02 - Disables jumping through the action button.
+05 - ??? (Used only in boss rooms)
+</pre>
+'''y''' - Show / Hides invisible actors (like Floormasters, Fake Walls, etc).
+<pre>
+00 - Hide
+01 - Show
+</pre>
+'''z''' - Sets extra idle animation OR makes the room too hot without the Goron Tunic
+<pre>
+00 - Link tends to stand in place and glance back at the player
+01 - Link's cold sneeze
+02 - Link wipes his head
+03 - Triggers the Heat timer! Camera seems to move in and out rapidly, and ever so slightly for the "heat" effect
+04 - Link stretches and yawns?
+06 - ?
+07 - Bends over and gasps for breath
+09 - Brandishes sword even if not equipped
+0A - Re-adjusts his tunic?
+ 
+FF - Link hops on Epona (even as a child)
+</pre>
+
+==Entrance List==
+Contains a list of start position and room pairs. Indexed based off of the entrance called by the [[Entrance Table|entrance table]].<br>
+
+Format:<br>
+<tt>pprr</tt> (repeats for each entry)<br>
+Where:<br>
+'''p''' = Which start position to use, defined by the start positions list (command 0x00) for the scene<br>
+'''r''' = Which room to load for this entrance
+
+==Mesh Header==
+The first byte in the mesh header determines the "type" of mesh information is stored. There are 3 different types of meshes.
+
+===Type 0===
+Simple mesh format; renders all display lists specified.
+
+==== Header Format ====
+<tt>00cc0000 ssssssss eeeeeeee</tt><br>
+Where:<br>
+'''c''' = number of entries<br>
+'''s''' = start of display list entries<br>
+'''e''' = end of display list entries<br>
+
+==== Entry Format ====
+<tt>xxxxxxxx yyyyyyyy</tt> (repeats for each entry)<br>
+Where:<br>
+'''x''' = display list with opaque geometry. Set to 0 if unused.<br>
+'''y''' = display list with translucent geometry. Set to 0 if unused.<br>
+
+=== Type 1 ===
+This format is used with certain pre-rendered areas, specifically to render a static background image rather than the panoramas. Notably, the JFIF image is rendered via the [[S2DEX]] microcode, rather than the primary rendering microcode ([[F3DZEX2]]). The JFIF is drawn using S2DEX's gsSPBgRectCopy (0x0A) macro. 
+
+==== Header Format ====
+See [[JFIF Backgrounds|JFIF]] for more information on the background image format. 
+
+===== Common Format =====
+<pre>
+/* 0x00 */ s8 header_type = 0x01; 
+/* 0x01 */ s8 format; // 01 = Single static background, 02 = Multi-static background
+/* 0x04 */ u32 *entryRecord; //pointer to entry record that references display lists to draw
+</pre>
+Beyond this, the format differs a bit between single and multi backgrounds. 
+===== (01) Single Format =====
+<pre>
+// Below is start of data used to initialize a uObjBg (uObjBg_t)
+/* 0x08 */ u32 *imagePtr; //pointer/segment address to JFIF background image displayed when viewing from a top-down vantage 
+/* 0x0C */ u32 unknown; //value never read?
+
+/* 0x10 */ s32 unknown2; //value never read?
+/* 0x14 */ u16 background_width; //typically 320px
+/* 0x16 */ u16 background_height; //typically 240px
+/* 0x18 */ u8 imageFmt; 
+/* 0x19 */ u8 imageSiz;
+/* 0x1A */ u16 imagePal;
+/* 0x1C */ u16 imageFlip;
+</pre>
+
+===== (02) Multi Format =====
+<pre>
+/* 0x08 */ u8 background_count; //number of pre-rendered backgrounds stored
+/* 0x0C */ BackgroundRecord *background_record; //segment address pointing to the start of the BackgroundRecord array (defined below)
+</pre>
+<pre>struct
+{
+/* 0x00 */ u16 unknown_0x0082; //unknown, contains value of 0x0082
+/* 0x02 */ s8 backgroundId; //used to give a BackgroundRecord an identifier
+
+// Below is start of data used to initialize a uObjBg (uObjBg_t)
+/* 0x04 */ u64 *imagePtr; //pointer/segment address to JFIF background image displayed when viewing from a top-down vantage 
+/* 0x08 */ u32 unknown; //value never read?
+/* 0x0C */ s32 unknown2; //value never read?
+/* 0x10 */ u16 background_width; //typically 320px
+/* 0x12 */ u16 background_height; //typically 240px
+/* 0x14 */ u8 imageFmt; 
+/* 0x15 */ u8 imageSiz;
+/* 0x16 */ u16 imagePal;
+/* 0x18 */ u16 imageFlip;
+} BackgroundRecord; //size 0x1C
+</pre>
+
+==== Entry Format ====
+<tt>xxxxxxxx yyyyyyyy</tt> (repeats for each entry)<br>
+Where:<br>
+'''x''' = display list with opaque geometry. Set to 0 if unused.<br>
+'''y''' = display list with translucent geometry. Set to 0 if unused.<br>
+
+=== Type 2 ===
+Mesh that culls if the camera behind a set point by a certain distance. 
+
+==== Header Format ====
+<tt>02cc0000 ssssssss eeeeeeee</tt><br>
+Where:<br>
+'''c''' = number of entries<br>
+'''s''' = start of display list entries<br>
+'''e''' = end of display list entries<br>
+
+==== Entry Format ====
+<tt>aaaabbbb ccccdddd xxxxxxxx yyyyyyyy</tt> (repeats for each entry)<br>
+Where:<br>
+'''a''' = X coordinate<br>
+'''b''' = Y coordinate<br>
+'''c''' = Z coordinate<br>
+'''d''' = distance from camera to start culling<br>
+'''x''' = display list with opaque geometry. Set to 0 if unused.<br>
+'''y''' = display list with translucent geometry. Set to 0 if unused.<br>
+
+==Object List==
+Each entry is a two-byte value representing an index value into the [[object]] file table. Objects are graphical dependencies required to load any actors. You should not load the following object files with this command:
+
+{|class="wikitable"
+! Object Id || Filename || Reason
+|-
+| 0000 || N/A || Not actually a reference to any object file
+|-
+| 0001 || [[gameplay_keep]] || Always loaded by the game engine
+|-
+| 0002 || [[gameplay_field_keep]] || Load using the 0x07 command. Used in "overworld" scenes
+|-
+| 0003 || [[gameplay_dangeon_keep]] || Load using the 0x07 command. Used in "dungeon" scenes
+|-
+| 0014 || [[object_link_boy]] || Loaded when Link is an Adult
+|-
+| 0015 || [[object_link_child]] || Loaded when Link is a Child
+|}
+
+A maximum of 15 objects can be defined on the object list. The combined file size of all object files loaded at one time (including the ones listed above) typically cannot exceed 0xFA000 bytes without writing a hack to expand the reserved space. See [[Objects]] for more information on this.
+
+If a scene has connected rooms, care must be taken when choosing what order to list object files. When travelling from one room to the next, the game will compare the objects that were loaded by the first room to the objects requested from the second, starting with the first object number in each list. When the game encounters a number that does not match, then all object files after the last match will be unloaded, causing any actors dependent on those object files to unload as well, even if the second room contains the correct object number later on in the list.
+
+==Unused Lighting list==
+<tt>tt00 xxxx xxxx xxxx xxxx xxxx xxxx</tt><br>
+Where tt = Light type:<br>
+00 - Nothing<br>
+01 - Light coming from outside of the room<br>
+02 - Punctual light source<br>
+===Type 01===
+Format:<br>
+<tt>0100 uu00 vvcc cccc 0000 0000 0000</tt><br>
+Where:<br>
+'''u''' = North/South direction the light is coming from (00 = no light from noth or south, 01-7E = light from north, 7F-FF light from south)<br>
+'''v''' = East/West direction the light is coming from (00 = no light from east or west, 01-7E = light from east, 7F-FF light from west)<br>
+'''c''' = RGB color of the light<br>
+===Type 02===
+Format:<br>
+<tt>0200 xxxx yyyy zzzz cccc cc00 rr00</tt><br>
+Where:<br>
+'''x''' = Position on x-axis of the light source<br>
+'''y''' = Position on y-axis of the light source<br>
+'''z''' = Position on z-axis of the light source<br>
+'''c''' = RGB color of the light<br>
+'''r''' = radius of the emitted light<br>
+
+==Path List==
+Actors which have a "route" to follow, such as the carpenters or the graveyard boy, do not have the route hard-coded within them. Instead, the points which they make straight lines to are mapped out in a list. That is, a point is marked at every turning point, and they follow straight lines between the turning points.
+
+The data pointed to by the scene header is an array of the following struct:
+
+<pre>
+/* 0x00 */ s8 numPoints; //number of points for the given path
+/* 0x04 */ SegmentAddress pathStart; //location of first point of the path
+//size 0x08 bytes
+</pre>
+
+Each point is a signed 16 bit x, y, z component, as seen below: 
+
+<pre>
+/* 0x00 */ s16 x;
+/* 0x02 */ s16 y;
+/* 0x04 */ s16 z;
+//size 0x06 bytes
+</pre>
+
+xdaniel figured this out while working on [[SayakaGL]], and the information was verified by spinout by reversal of a function which reads the data. ([http://spinout182.com/mqd/En_Cs.S Graveyard boy @ func_809E1E90]) ([http://i.imgur.com/KPvs4.png SayakaGL Implementation])
+
+==Transition Actors==
+Transition actors are scene level actors that swap the room that is loaded. A maximum of 64 transition actors can exist per scene. Transition actors don't have their own collision, it must be part of the collision specified by the collision command in the scene header.
+
+Format:<br>
+<tt>ffmmbbnn aaaaxxxx yyyyzzzz wwwwvvvv</tt> (repeats for each transition actor)
+
+'''f''' = Room to switch to when triggered from the front of the object (for doors, the front has the knob on the right)<br>
+'''m''' = How the camera reacts during the front transition (effects depend on actor, best to experiment; recommended are 0, 0F, and FF)<br>
+'''b''' = Room to switch to when triggered from the back of the object<br>
+'''n''' = How the camera reacts during the back transition<br>
+'''a''' = [[Actor List|Actor Number]]<br>
+'''x''' = Position along x-axis<br>
+'''y''' = Position along y-axis<br>
+'''z''' = Position along z-axis<br>
+'''w''' = Y rotation<br>
+'''v''' = Initialization variable
+
+Check out the [[Room Transition Actors|transition actor]] page for a list of all transition actors.
+
+==Lighting List==
+<tt>aaaaaabb bbbbcccc ccdddddd eeeeeeff</tt><br>
+<tt>ffffgggg hhhh</tt> 
+
+Where:
+
+* '''a''' = Ambient light color, <tt>RRGGBB</tt> format. Usually <tt>0x462D39</tt>
+* '''b''' = First light direction <tt>XXYYZZ</tt> format. Usually <tt>0xB49A8A</tt>
+* '''c''' = First light color, <tt>RRGGBB</tt> format. Usually <tt>0x494949</tt>
+* '''d''' = Second light direction, <tt>XXYYZZ</tt> format.  Usually <tt>0x14143C</tt>
+* '''e''' = Second light color, <tt>RRGGBB</tt> format. Usually <tt>0xB7B7B7</tt>
+* '''f''' = Fog color, <tt>RRGGBB</tt> format
+* '''g & 0xFC00''' = Blend rate between light settings
+* '''g & 0x03FF''' = Fog near, how close fog starts
+* '''h''' = Fog far, how far until fog saturates
+
+==Exit List==
+Each entry is a two-byte exit number, from the game's [[Entrance Table|entrance table]] (for index values, [[Entrance Table (Data)|click here]]). The length of the list is undefined, the engine assumes all indexes within the list which it asks for exist.
+
+Check out the [[Collision_Format|collision format]] for more information about exits.
+
+== Sound Settings ==
+The data1 byte of the sound settings command eventually sets Audio Ctx + 0x3519 (NTSC 1.0). This is used to index a 0x38 byte struct located at 80104778 (NTSC 1.0)
+
+<pre>
+struct struct_104778
+{
+    s32     unk_0x00; //range u16
+    u8      unk_0x05;
+    u8      unk_0x06;
+    u16     unk_0x10;
+    u16     unk_0x12;
+    s32     unk_0x18; //size of ?
+    s32     unk_0x1C; //size of ?
+    s32     unk_0x20; //size of ?
+    s32     unk_0x24; //size of ?
+    s32     unk_0x28; //size of ?
+    s32     unk_0x2C; //size of ?
+} //size 0x38
+</pre>
+
+==Alternate Header List==
+The alternate header list defines scene or room to have multiple loadouts, called [[Scene Setups|scene setups]]. 
+
+Each entry in the alternate header list contains a [[Segment offset|segment offset]] reference to an alternate header for the current scene/room, or a null offset. Alternate headers have the same format as a normal scene header. The number of alternate headers is undefined, but there must be a minimum of three alternate header records, one for all four combination of day/night child/adult when you add in the main header.
+
+The scene setup number set when spawning into the scene determines which loadout will be used. 
+
+* If the alternate header list command is absent, or the scene setup number is 0, the "main" header defined after the alternate header list is used.
+* If the scene setup number is 1+, the setup number is subtracted by 1, and the entry at that index is loaded. In other words, scene setup 1 loads alternate header 0
+* If the scene setup number is between 1-3 but the alternate header entry is null, the game will scan toward the lower setup number to find a valid scene setup. 
+* If the scene setup number is 4+, but the alternate header entry is null, the game will crash.
+
+For example: 
+{|class="wikitable"
+!Index||Alternate<br>Headers
+|-
+|0||<tt>00000000</tt>
+|-
+|1||<tt>02001458</tt>
+|-
+|2||<tt>00000000</tt>
+|}
+
+Scene setup numbers 0 and 1 will use the "main" header. Scene setup numbers 2 and 3 will use alternate header 1.
+
+==Camera Settings==
+<tt>19xx0000 000000yy</tt>
+
+'''x''' sets restrictions on both camera movement and c-up camera usage. For more details on skybox camera attributes, see [[Collision Format#Camera_Data|collision camera data]].
+
+{| class="wikitable"
+! Value || Where It's Used
+|-
+| 00 || Scenes without pre-rendered environments that have free C-Up camera control.
+|-
+| 10 || Shop scenes which have a fixed camera that switches between two views, and lack a C-Up option.
+|-
+| 20 || Scenes which have pre-rendered backgrounds that can rotate, in which pressing C-Up gives you a bird's eye view.
+|-
+| 30 || Scenes which have pre-rendered backgrounds that are fixed, and lack a C-Up option.
+|-
+| 40 || Scenes which have pre-rendered backgrounds that rotate, and lack a C-Up option. 
+|-
+| 50 || The Shooting Gallery.
+|}
+
+'''y''' sets the scene's location on the world map. The Grotto/Great Fairy Fountain setting might be ignored.
+
+{| class="wikitable"
+! Value || Location
+|-
+| 00 || Spot 00 - Hyrule Field / Not Applicable
+|-
+| 01 || Spot 01 - Kakariko Village
+|-
+| 02 || Spot 02 - Graveyard
+|-
+| 03 || Spot 03 - Zora's River
+|-
+| 04 || Spot 04 - Kokiri Forest
+|-
+| 05 || Spot 05 - Sacred Forest Meadow
+|-
+| 06 || Spot 06 - Lake Hylia
+|-
+| 07 || Spot 07 - Zora's Domain
+|-
+| 08 || Spot 08 - Zora's Fountain
+|-
+| 09 || Spot 09 - Gerudo Valley
+|-
+| 0A || Spot 10 - Lost Woods
+|-
+| 0B || Spot 11 - Desert Colossus
+|-
+| 0C || Spot 12 - Gerudo's Fortress
+|-
+| 0D || Spot 13 - Haunted Wasteland
+|-
+| 0E || Market
+|-
+| 0F || Spot 15 - Hyrule Castle
+|-
+| 10 || Spot 16 - Death Mountain Trail
+|-
+| 11 || Spot 17 - Death Mountain Crater
+|-
+| 12 || Spot 18 - Goron City
+|-
+| 13 || Spot 20 - Lon Lon Ranch
+|-
+| 14 || Dampe's Grave & Windmill
+|-
+| 15 || Ganon's Castle
+|-
+| 16 || Grottos & Fairy Fountains
+|}
+
+==Credits==
+[[User:spinout|spinout]], jsa, cendamos, MNGoldenEagle, xdaniel, fkualol probably others
+[[Category:File Formats]]
+[[Category:Scenes]]
+[[Category:Rooms]]

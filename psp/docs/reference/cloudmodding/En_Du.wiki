@@ -1,0 +1,12 @@
+{{actor|name=ovl_En_Du}}
+'''ovl_En_Du''' is the [[Darunia]] actor.
+{{clear}}
+== Notable Glitches ==
+If the cutscene number (Save Context + 0x08) is set between 0xFFF0 and 0xFFFD or so when Darunia's initialization function is called under certain circumstances, Darunia will immediately trigger the cutscene where he performs his trademark dance/gives the Goron Bracelet. At this time it's not known how the game logic excludes the other cutscenes he appears in (giving the Goron Ruby, giving the Fire Medallion, sequence where the sages unite to "seal" Ganon, appearing on top of Death Mountain in the credits). When triggering the cutscene, Darunia sets the cutscene pointer to the [[segment address]] of 02xxxxxx, where x is the offset from the start of Goron City's scene file to the cutscene data. As such, triggering cutscenes with Darunia in them outside of Goron City may exhibit bizarre oddities.
+
+== Debug Rom Notes ==
+
+ ROM: 0xD2362C (24050067) Fire Medallion from Sage Darunia
+ ROM: 0xDB58AC (24060054) Goron's Bracelet from Darunia
+
+[[Category:Darunia]]

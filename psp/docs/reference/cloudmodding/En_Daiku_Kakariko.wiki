@@ -1,0 +1,4 @@
+{{actor|name=ovl_En_Daiku_Kakariko}}
+'''ovl_En_Daiku_Kakariko''' is the [[actor]] file used for the [[Carpenters]] in Kakariko (Child Era).
+{{clear}}
+[[Category:Carpenters]]

@@ -1,0 +1,7 @@
+{{actor|name=ovl_Demo_Effect|ispage=true}}
+
+{{clear}}
+== NTSC 1.0 Notes ==
+
+0x1CFC = Frame check for playing "flash" sfx during Kokiri Emerald Cutscene (Kokiri Forest Cutscene 2), plus code to play said sfx
+[[Category:Cutscenes]]

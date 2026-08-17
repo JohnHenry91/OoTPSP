@@ -1,0 +1,20 @@
+Link has a massive arsenal of items. Because of this, there are a lot of places where different tables pertaining to items can hide. 
+
+== Using Items ==
+* [[Item List]] contains the internal indexes for items that can be permanently obtained.
+* [[Action Parameters]] defines the coded behavior for usable items.
+* [[Item Usability Table]] sets what items can be equipped by Child/Adult Link.
+* [[Scenes#Restriction Flags|Scene Restriction Flags]] table sets what items can be used on a per-scene basis
+
+== Get Items ==
+
+* The [[Get Items]] table defines all the items that Link can collect from [[chests]] and random drops.
+* {{actor ref|En_Item00}}, is the actor used for items that can be walked into and collected
+* {{actor ref|0112}} can be used to spawn En_Item00 actors
+* {{actor ref|00EE}}, is an unused collectible Deku Shield
+
+== Shops ==
+{{main|Shops}}
+
+
+[[Category:Items| ]]

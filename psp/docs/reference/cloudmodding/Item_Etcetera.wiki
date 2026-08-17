@@ -1,0 +1,123 @@
+{{Actor|name=ovl_Item_Etcetera}}
+
+'''ovl_Item_Etcetera''' is the [[actor]] used to spawn a subset of the "[[Get Items|Get Item]]" collectibles.
+
+{{todo|Confirm identity.}}
+
+{{clear}}
+
+==Debug Notes==
+
+=== GI Object References ===
+
+This table lists what object is needed to load a given item
+
+{| class="wikitable"
+! Rom || Object || Filename
+|-
+| 0xF34940 || 00C6 || object_gi_bottle
+|-
+| 0xF34942 || 010B || object_gi_bottle_letter
+|-
+| 0xF34944 || 00DC || object_gi_shield_2
+|-
+| 0xF34946 || 00BE || object_gi_arrowcase
+|-
+| 0xF34948 || 00DB || object_gi_scale
+|-
+| 0xF3494A || 00DB || object_gi_scale
+|-
+| 0xF3494C || 00AA || object_gi_key
+|-
+| 0xF3494E || 0158 || object_gi_m_arrow
+|-
+| 0xF34950 || 017F || object_gi_rupy
+|-
+| 0xF34952 || 017F || object_gi_rupy
+|-
+| 0xF34954 || 017F || object_gi_rupy
+|-
+| 0xF34956 || 017F || object_gi_rupy
+|-
+| 0xF34958 || 00BD || object_gi_hearts
+|-
+| 0xF3495A || 00AA || object_gi_key
+|}
+
+=== Shader References ===
+
+Shader numbers for use with the above table. Shader number values within the table are 1 less than the ones used in ovl_player_actor for some reason (ex. 0000 is 0001 in ovl_player_actor). Thanks to JSA!
+
+{| class="wikitable"
+! Rom || Shader || Use
+|-
+| 0xF3495C || 0000 || Bottle
+|-
+| 0xF3495E || 0044 || Letter in Bottle
+|-
+| 0xF34960 || 002B || Hylian Shield
+|-
+| 0xF34962 || 0015 || Big Quiver
+|-
+| 0xF34964 || 0029 || Silver Scale
+|-
+| 0xF34966 || 002A || Gold Scale
+|-
+| 0xF34968 || 0001 || Small Key
+|-
+| 0xF3496A || 005F || Fire Arrows
+|-
+| 0xF3496C || 006C || Green Rupee
+|-
+| 0xF3496E || 006D || Blue Rupee
+|-
+| 0xF34970 || 006E || Red Rupee
+|-
+| 0xF34972 || 0070 || Purple Rupee
+|-
+| 0xF34974 || 0013 || Gi_Hearts
+|-
+| 0xF34976 || 0001 || Small Key
+|}
+
+===GI Item Action===
+
+{| class="wikitable"
+! Rom || Action || Item || Actor<br>Variable || Object
+|-
+| 0xF34978  || 000F || Empty Bottle || 00 || 00C6
+|-
+| 0xF3497A  || 0015 || Letter in Bottle || 01 || 010B
+|-
+| 0xF3497C  || 002A || Hylian Shield || 02 || 00DC
+|-
+| 0xF3497E  || 0030 || Big Quiver || 03 || 00BE
+|-
+| 0xF34980  || 0037 || Silver Scale || 04 || 00DB
+|-
+| 0xF34982  || 0038 || Golden Scale || 05 || 00DB
+|-
+| 0xF34984  || 0042 || Small Key || 06 || 00AA
+|-
+| 0xF34986  || 0058 || Fire Arrow || 07 || 0158
+|}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| no = %d||no = %d
+|-
+| bank_ID = %d||bank_ID = %d
+|-
+| 0||0
+|-
+| ../z_item_etcetera.c||../z_item_etcetera.c
+|-
+| ../z_item_etcetera.c||../z_item_etcetera.c
+|-
+| (game_play->demo_play.npcdemopnt[0]->dousa) = %d||(game_play->demo_play.npcdemopnt[0]->operation) = %d
+|}
+
+{{Category:Items}}

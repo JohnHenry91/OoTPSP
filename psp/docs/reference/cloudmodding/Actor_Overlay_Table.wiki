@@ -1,0 +1,28 @@
+{{for|a list of the data within this table|Actor List}}
+{{address3|space=code|name=Actor Overlay Table|subpage=Actor Overlay Table
+|ver1=Debug|ref1=rom|start1=B8D440|size1=3AE0
+|ver2=NTSC 1.0|ref2=rom|start2=B5E490|size2=3AE0
+|ver3=PAL MQ|ref3=rom|start3=B5C480|size3=3AE0
+}}
+The actor table manages the [[Actors|actor files]] ([[overlays]]). It defines an actor's number, maps the actor to a virtual address, and during gameplay is used to find the overlay in ram. 
+
+=== Format ===
+<tt>xxxxxxxx yyyyyyyy aaaaaaaa bbbbbbbb</tt><br>
+<tt>rrrrrrrr iiiiiiii nnnnnnnn vvvvcc00</tt>
+
+This breaks down into-<br>
+'''x''' '''y''': Start/End Virtual Rom addresses of the actor file<br>
+'''a''' '''b''': Start/End Virtual Ram addresses of the actor file<br>
+'''r''': Ram address of actor file (00000000 if overlay isn't loaded, or if in ROM)<br>
+'''i''': Virtual Ram address of the start of the actor instance initialization variables, located within the file<br>
+'''n''': Address of actor filename (Debug ROM only, value is 0 in commercial releases)<br>
+'''v''': Allocation Type, affects how overlay is allocated. See below for values<br>
+'''c''': Number of actor instances of this type currently loaded (ram only)
+
+==== Allocation Type Values ====
+'''00''' performs a "low to high" address allocation (high address volatility), unloading the overlay if no instances of that actor exist<br>
+'''01''' performs a "high to low" address allocation (low address volatility), reserving a fixed space for all overlays of this type until the scene is destructed. Only one overlay of this type can ever be loaded at once.
+The pointer to this space is located at [[Game Play]] + 0x1C60<br>
+'''02''' performs a "high to low" address allocation (low address volatility), keeping the overlay in ram until the scene is destructed
+
+Note: The record for Link's actor in rom (the first record in the table) only sets the vram address that points to the start of the variable info for Link's actor, and the actor file name pointer if it's the Debug Rom.<noinclude>[[Category:Actors]][[Category: Code (File)]][[Category:Overlays]]</noinclude>

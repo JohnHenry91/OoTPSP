@@ -1,0 +1,17 @@
+{{Actor|name=ovl_En_Sth}}
+'''ovl_En_Sth''' is used to make up the Skulltula family (after being freed from the curse). See [[ovl_En_Ssh]] for the uncursed variation.
+{{clear}}
+[[Category: Skulltula Family]]
+==Debug Rom Notes ==
+<pre>
+0x3F4C (20004000) 
+0x3F50(0056) Receive 200 Rupee from 100 Gold Skulltula man 
+0x3F52(0045) Receive Adult's Wallet from 10 Gold Skulltula Man 
+0x3F54(0029) Receive Stone of Agony from 20 Gold Skulltula Man
+0x3F56(0046) Receive Giant's Wallet from 30 Gold Skulltula Man
+0x3F58(0003) Receive Bombchus from 40 Gold Skulltula Man
+0x3F5A(003E) Receive Piece of Heart from 50 Gold Skulltula Man
+
+0xEBDB54 (24080046) Giant's Wallet
+0xEBDB64 (24080045) Adult's Wallet
+0xEBDB68 (24080046) Giant's Wallet (maybe something to assure you get the Adult's Wallet, regardless of which family member you speak to?)

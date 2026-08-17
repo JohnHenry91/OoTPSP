@@ -1,0 +1,37 @@
+{{Actor|name=ovl_En_Kakasi2|ispage=true}}
+
+'''ovl_En_Kakasi2''' is the [[actor]] file for the version of [[Pierre]] the [[Scarecrows|Scarecrow]] that appears when you call him with the Scarecrow's Song.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ 梅田参号見参！ ☆☆☆☆☆ [m||[32m☆☆☆☆☆ SEE SANGO UMEDA! ☆☆☆☆☆ [m
+|-
+| [33m☆☆☆☆☆ 元？(引数０) ☆☆☆☆ %f[m||[33m☆☆☆☆☆ ORIGIN? (FUNCTION 0) ☆☆☆☆ %f[m
+|-
+| [33m☆☆☆☆☆ 元？(Ｚアングル) ☆☆ %f[m||[33m☆☆☆☆☆ ORIGIN? (Z ANGLE) ☆☆ %f[m
+|-
+| [33m☆☆☆☆☆ 補正座標Ｘ ☆☆☆☆☆ %f[m||[33m☆☆☆☆☆ REVISED COORDINATE Ｘ ☆☆☆☆☆ %f[m
+|-
+| [33m☆☆☆☆☆ 補正座標Ｙ ☆☆☆☆☆ %f[m||[33m☆☆☆☆☆ REVISED COORDINATE Ｙ ☆☆☆☆☆ %f[m
+|-
+| [33m☆☆☆☆☆ 補正座標Ｚ ☆☆☆☆☆ %f[m||[33m☆☆☆☆☆ REVISED COORDINATE Ｚ ☆☆☆☆☆ %f[m
+|-
+| [33m☆☆☆☆☆ SAVE       ☆☆☆☆☆ %d[m||[33m☆☆☆☆☆ SAVE       ☆☆☆☆☆ %d[m
+|-
+| 　||
+|-
+| [32m☆☆☆☆☆ SAVE 終了 ☆☆☆☆☆ %d[m||[32m☆☆☆☆☆ SAVE COMPLETE ☆☆☆☆☆ %d[m
+|-
+| [32m☆☆☆☆☆ SAVE 終了 ☆☆☆☆☆ %d[m||[32m☆☆☆☆☆ SAVE COMPLETE ☆☆☆☆☆ %d[m
+|-
+| [33m☆☆☆☆☆ this->actor.player_distance ☆☆☆☆☆ %f[m||[33m☆☆☆☆☆ this->actor.player_distance ☆☆☆☆☆ %f[m
+|-
+| [33m☆☆☆☆☆ this->hosei.x ☆☆☆☆☆ %f[m||[33m☆☆☆☆☆ this->revised.x ☆☆☆☆☆ %f[m
+|}
+
+[[Category:Scarecrows]]

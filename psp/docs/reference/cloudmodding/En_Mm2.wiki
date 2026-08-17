@@ -1,0 +1,23 @@
+{{Actor|name=ovl_En_Mm2|ispage=true}}
+
+'''ovl_En_Mm2''' is the [[Running Man]] [[actor]] that appears in the Adult era and challenges you to a race.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [36m マラソン 開始されていない [m||[36m MARATHON NOT STARTED [m
+|-
+| ../z_en_mm2.c||../z_en_mm2.c
+|-
+| ((z_common_data.event_inf[1]) & (0x0001)) = %x||((z_common_data.event_inf[1]) & (0x0001)) = %x
+|-
+| ../z_en_mm2.c||../z_en_mm2.c
+|-
+| ../z_en_mm2.c||../z_en_mm2.c
+|}
+
+[[Category:Running Man]]

@@ -1,0 +1,13 @@
+{{actor|name=ovl_Bg_Bom_Guard}}
+
+'''ovl_Bg_Bom_Guard''' is the main [[Bombchu Bowling]] [[minigame]] [[actor]]. It spawns the other actors.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{{consolestrings
+|row1=<font color="green">☆☆☆☆☆ 透明ガード出現 ☆☆☆☆☆</font>{{!!}}<font color="green">☆☆☆☆☆ TRANSPARENT GUARD APPEARS ☆☆☆☆☆</font>
+}}
+
+[[Category:Bombchu Bowling]]

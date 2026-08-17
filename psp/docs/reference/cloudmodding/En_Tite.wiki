@@ -1,0 +1,11 @@
+{{Template:Actor|ispage=true|name=ovl_En_Tite}}
+
+<!--{{Z64File2| Filename=ovl_En_Tite}}
+{{Z64File2R|Version=Debug|ROM-Start=00ECE910|ROM-End=?|Size=2E80}}
+{{Z64File2R|Version=NTSC 1.0|ROM-Start=?|ROM-End=?|Size=?}}
+{{Z64File2R|Version=PAL MQ|ROM-Start=?|ROM-End=?|Size=?}}
+|}-->
+
+This is the actor for the Red and Blue Tektites.
+
+{{clear}}

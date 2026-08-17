@@ -1,0 +1,8 @@
+{{actor|name=ovl_En_Si}}
+'''ovl_En_Si''' is the Skulltula Token actor, the item dropped by [[skulltulas|Gold Skulltulas]].
+{{clear}}
+[[Category:Skulltulas]]
+== Debug Rom Notes ==
+ROM: 0xEB173C (24050071) Golden Skulltula Token (You don't say...) Can be changed to another item. Unsure at this time if they still count towards a Skulltula counter. 
+
+ROM: 0xEB1828 (24050071) Repeat? I'm not sure what it could do.

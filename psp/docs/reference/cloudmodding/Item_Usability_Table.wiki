@@ -1,0 +1,287 @@
+{{Address3|space=ovl_kaleido_scope|name=Item Usability/Highlight Table
+|ver1=Debug|ref1=rom|start1=BF9B0C|size1=80
+|ver2=NTSC 1.0|ref2=rom|start2=BC7794|size2=80
+|ver3=PAL MQ|ref3=manual|size3=80}}
+
+== Item Slot Equipability ==
+
+Sets whether an item can be equipped to the C-Buttons or in the gear screen. Each record is one byte in size.
+
+<tt>00 = Adult Only</tt><br>
+<tt>01 = Child Only</tt><br>
+<tt>09 = Both</tt>
+
+The Bullet Bag / Quiver and Strength Upgrade slots are special cases and do not use their entries.
+
+The Bullet Bag and Quiver slot is always enabled for child link. For adult link it is usable if it contains any item except a bullet bag.
+
+The Strength Upgrade slot is enabled for child link if it contains the Goron Bracelet. For adult link it is the opposite. The slot is enabled if it contains any other item.
+
+{| class="wikitable"
+! Offset || Item Slot
+|-
+| 00||Deku Sticks
+|-
+| 01||Deku Nuts
+|-
+| 02||Bombs
+|-
+| 03||Bow
+|-
+| 04||Fire Arrows
+|-
+| 05||Din's Fire
+|-
+| 06||Slingshot
+|-
+| 07||Ocarina
+|-
+| 08||Bombchus
+|-
+| 09||Hookshot/Longshot
+|-
+| 0A||Ice Arrows
+|-
+| 0B||Farore's Wind
+|-
+| 0C||Boomerang
+|-
+| 0D||Lens of Truth
+|-
+| 0E||Magic Beans
+|-
+| 0F||Megaton Hammer
+|-
+| 10||Light Arrows
+|-
+| 11||Nayru's Love
+|-
+| 12||Bottle 1
+|-
+| 13||Bottle 2
+|-
+| 14||Bottle 3
+|-
+| 15||Bottle 4
+|-
+| 16||Adult Trade Slot
+|-
+| 17||Child Trade Slot
+|-
+| 18||Unused (Bullet Bag / Quiver)
+|-
+| 19||Kokiri Sword
+|-
+| 1A||Master Sword
+|-
+| 1B||Big Goron Sword
+|-
+| 1C||Bomb Bag
+|-
+| 1D||Deku Shield
+|-
+| 1E||Hylian Shield
+|-
+| 1F||Mirror Shield
+|-
+| 20||Unused (Strength Upgrade)
+|-
+| 21||Kokiri Tunic
+|-
+| 22||Goron Tunic
+|-
+| 23||Zora Tunic
+|-
+| 24||Scale
+|-
+| 25||Kokiri Boots
+|-
+| 26||Iron Boots
+|-
+| 27||Hover Boots
+|}
+
+== Item Highlight Table ==
+
+Sets the appearance (grayed out/colored) of an item icon on a per item rather than per slot basis. Each record is again one byte in size.
+
+<tt>00 = Adult Only</tt><br>
+<tt>01 = Child Only</tt><br>
+<tt>09 = Both</tt>
+
+{| class="wikitable"
+! Offset || Item
+|-
+| 28||Deku Sticks
+|-
+| 29||Deku Nuts
+|-
+| 2A||Bombs
+|-
+| 2B||Bow
+|-
+| 2C||Fire Arrows
+|-
+| 2D||Din's Fire
+|-
+| 2E||Slingshot
+|-
+| 2F||Fairy Ocarina
+|-
+| 30||Ocarina of Time
+|-
+| 31||Bombchus
+|-
+| 32||Hookshot
+|-
+| 33||Longshot
+|-
+| 34||Ice Arrows
+|-
+| 35||Farore's Wind
+|-
+| 36||Boomerang
+|-
+| 37||Lens of Truth
+|-
+| 38||Magic Beans
+|-
+| 39||Megaton Hammer
+|-
+| 3A||Light Arrows
+|-
+| 3B||Nayru's Love
+|-
+| 3C||Empty Bottle
+|-
+| 3D||Red Potion
+|-
+| 3E||Green Potion
+|-
+| 3F||Blue Potion
+|-
+| 40||Fairy
+|-
+| 41||Fish
+|-
+| 42||Milk
+|-
+| 43||Letter in a Bottle
+|-
+| 44||Blue Fire
+|-
+| 45||Bug
+|-
+| 46||Big Poe
+|-
+| 47||Lon-Lon Milk (Half)
+|-
+| 48||Poe
+|-
+| 49||Weird Egg
+|-
+| 4A||Chicken
+|-
+| 4B||Zelda's Letter
+|-
+| 4C||Keaton Mask
+|-
+| 4D||Skull Mask
+|-
+| 4E||Spooky Mask
+|-
+| 4F||Bunny Hood
+|-
+| 50||Goron Mask
+|-
+| 51||Zora Mask
+|-
+| 52||Gerudo Mask
+|-
+| 53||Mask of Truth
+|-
+| 54||SOLD OUT
+|-
+| 55||Pocket Egg
+|-
+| 56||Pocket Cucco
+|-
+| 57||Cojiro
+|-
+| 58||Odd Mushroom
+|-
+| 59||Odd Potion
+|-
+| 5A||Poacher's Saw
+|-
+| 5B||Goron's Sword (Broken)
+|-
+| 5C||Prescription
+|-
+| 5D||Eyeball Frog
+|-
+| 5E||Eye Drops
+|-
+| 5F||Claim Check
+|-
+| 63||Kokiri Sword
+|-
+| 64||Master Sword
+|-
+| 65||Big Goron Sword
+|-
+| 66||Deku Shield
+|-
+| 67||Hylian Shield
+|-
+| 68||Mirror Shield
+|-
+| 69||Kokiri Tunic
+|-
+| 6A||Goron Tunic
+|-
+| 6B||Zora Tunic
+|-
+| 6C||Kokiri Boots
+|-
+| 6D||Iron Boots
+|-
+| 6E||Hover Boots
+|-
+| 6F||Bullet Bag 30
+|-
+| 70||Bullet Bag 40
+|-
+| 71||Bullet Bag 50
+|-
+| 72||Quiver 30
+|-
+| 73||Quiver 40
+|-
+| 74||Quiver 50
+|-
+| 75||Bomb Bag 20
+|-
+| 76||Bomb Bag 30
+|-
+| 77||Bomb Bag 40
+|-
+| 78||Goron Bracelet
+|-
+| 79||Silver Gauntlets
+|-
+| 7A||Golden Gauntlets
+|-
+| 7B||Silver Scale
+|-
+| 7C||Golden Scale
+|-
+| 7D||Unused
+|-
+| 7E||Unused
+|-
+| 7F||Unused
+|}
+
+[[Category:ovl_kaleido_scope]]
+[[Category:Items]]

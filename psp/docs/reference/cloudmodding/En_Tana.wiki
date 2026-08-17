@@ -1,0 +1,31 @@
+{{Actor|name=ovl_En_Tana|ispage=true}}
+
+'''ovl_En_Tana''' is the [[actor]] for the shelves that appear in shops.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| 木の棚||Wooden Shelves
+|-
+| 石の棚||Stone Shelves
+|-
+| ☆☆☆ %s ☆☆☆||☆☆☆ %s ☆☆☆
+|-
+| ../z_en_tana.c||../z_en_tana.c
+|-
+| ../z_en_tana.c||../z_en_tana.c
+|-
+| ../z_en_tana.c||../z_en_tana.c
+|-
+| ../z_en_tana.c||../z_en_tana.c
+|-
+| ../z_en_tana.c||../z_en_tana.c
+|-
+| ../z_en_tana.c||../z_en_tana.c
+|}
+
+[[Category:Shops]]

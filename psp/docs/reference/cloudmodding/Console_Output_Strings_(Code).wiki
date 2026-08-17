@@ -1,0 +1,12421 @@
+== Overview ==
+[[Category:Code (File)]]
+== Data ==
+{| class=wikitable
+! Original
+! Translation
+|-
+| NONE      
+| NONE      
+|-
+| NORMAL0    
+| NORMAL0    
+|-
+| NORMAL1    
+| NORMAL1    
+|-
+| DUNGEON0   
+| DUNGEON0   
+|-
+| DUNGEON1   
+| DUNGEON1   
+|-
+| NORMAL3    
+| NORMAL3    
+|-
+| HORSE0     
+| HORSE0     
+|-
+| BOSS_GOMA  
+| BOSS_GOHMA
+|-
+| BOSS_DODO  
+| BOSS_DODONGO
+|-
+| BOSS_BARI  
+| BOSS_BARINADE
+|-
+| BOSS_FGANON
+| BOSS_PHANTOMGANON
+|-
+| BOSS_BAL   
+| BOSS_VOLVAGIA
+|-
+| BOSS_SHADES
+| BOSS_BONGOBONGO
+|-
+| BOSS_MOFA  
+| BOSS_MORPHA
+|-
+| BOSS_TWIN0 
+| BOSS_TWINROVA0 
+|-
+| BOSS_TWIN1 
+| BOSS_TWINROVA1 
+|-
+| BOSS_GANON1
+| BOSS_GANON1
+|-
+| BOSS_GANON2
+| BOSS_GANON2
+|-
+| TOWER0     
+| TOWER0     
+|-
+| TOWER1     
+| TOWER1     
+|-
+| FIXED0     
+| FIXED0     
+|-
+| FIXED1     
+| FIXED1     
+|-
+| CIRCLE0    
+| CIRCLE0    
+|-
+| CIRCLE2    
+| CIRCLE2    
+|-
+| CIRCLE3    
+| CIRCLE3    
+|-
+| PREREND0   
+| PREREND0   
+|-
+| PREREND1   
+| PREREND1   
+|-
+| PREREND3   
+| PREREND3   
+|-
+| DOOR0      
+| DOOR0      
+|-
+| DOORC      
+| DOORC      
+|-
+| RAIL3      
+| RAIL3      
+|-
+| START0     
+| START0     
+|-
+| START1     
+| START1     
+|-
+| FREE0      
+| FREE0      
+|-
+| FREE2      
+| FREE2      
+|-
+| CIRCLE4    
+| CIRCLE4    
+|-
+| CIRCLE5    
+| CIRCLE5    
+|-
+| DEMO0      
+| CUTSCENE0      
+|-
+| DEMO1      
+| CUTSCENE1      
+|-
+| MORI1      
+| FOREST1      
+|-
+| ITEM0      
+| ITEM0      
+|-
+| ITEM1      
+| ITEM1      
+|-
+| DEMO3      
+| CUTSCENE3      
+|-
+| DEMO4      
+| CUTSCENE4      
+|-
+| UFOBEAN    
+| UFOBEAN    
+|-
+| LIFTBEAN   
+| LIFTBEAN   
+|-
+| SCENE0     
+| SCENE0     
+|-
+| SCENE1     
+| SCENE1     
+|-
+| HIDAN1     
+| FIREDUNGEON1     
+|-
+| HIDAN2     
+| FIREDUNGEON2     
+|-
+| MORI2      
+| FOREST2      
+|-
+| MORI3      
+| FOREST3      
+|-
+| TAKO       
+| OCTOPUS       
+|-
+| SPOT05A    
+| SPOT05A    
+|-
+| SPOT05B    
+| SPOT05B    
+|-
+| HIDAN3     
+| FIREDUNGEON3     
+|-
+| ITEM2      
+| ITEM2      
+|-
+| CIRCLE6    
+| CIRCLE6    
+|-
+| NORMAL2    
+| NORMAL2    
+|-
+| FISHING    
+| FISHING    
+|-
+| DEMOC      
+| DEMOC      
+|-
+| UO_FIBER   
+| UO_FIBER   
+|-
+| DUNGEON2   
+| DUNGEON2   
+|-
+| TEPPEN     
+| SUMMIT     
+|-
+| CIRCLE7    
+| CIRCLE7    
+|-
+| NORMAL4    
+| NORMAL4    
+|-
+| NORMAL     
+| NORMAL     
+|-
+| PARALLEL   
+| PARALLEL   
+|-
+| KEEPON     
+| KEEPON     
+|-
+| TALK       
+| TALK       
+|-
+| BATTLE     
+| BATTLE     
+|-
+| CLIMB      
+| CLIMB      
+|-
+| SUBJECT    
+| SUBJECT    
+|-
+| BOWARROW   
+| BOWARROW   
+|-
+| BOWARROWZ  
+| BOWARROWZ  
+|-
+| FOOKSHOT   
+| FOOKSHOT   
+|-
+| BOOMERANG  
+| BOOMERANG  
+|-
+| PACHINCO   
+| PACHINCO   
+|-
+| CLIMBZ     
+| CLIMBZ     
+|-
+| JUMP       
+| JUMP       
+|-
+| HANG       
+| HANG       
+|-
+| HANGZ      
+| HANGZ      
+|-
+| FREEFALL   
+| FREEFALL   
+|-
+| CHARGE     
+| CHARGE     
+|-
+| STILL      
+| STILL      
+|-
+| PUSHPULL   
+| PUSHPULL   
+|-
+| BOOKEEPON  
+| BOOKEEPON  
+|-
+| NONE   
+| NONE   
+|-
+| NORM0()
+| NORM0()
+|-
+| NORM1()
+| NORM1()
+|-
+| NORM2()
+| NORM2()
+|-
+| NORM3()
+| NORM3()
+|-
+| NORM4()
+| NORM4()
+|-
+| PARA0()
+| PARA0()
+|-
+| PARA1()
+| PARA1()
+|-
+| PARA2()
+| PARA2()
+|-
+| PARA3()
+| PARA3()
+|-
+| PARA4()
+| PARA4()
+|-
+| KEEP0()
+| KEEP0()
+|-
+| KEEP1()
+| KEEP1()
+|-
+| KEEP2()
+| KEEP2()
+|-
+| KEEP3()
+| KEEP3()
+|-
+| KEEP4()
+| KEEP4()
+|-
+| SUBJ0()
+| SUBJ0()
+|-
+| SUBJ1()
+| SUBJ1()
+|-
+| SUBJ2()
+| SUBJ2()
+|-
+| SUBJ3()
+| SUBJ3()
+|-
+| SUBJ4()
+| SUBJ4()
+|-
+| JUMP0()
+| JUMP0()
+|-
+| JUMP1()
+| JUMP1()
+|-
+| JUMP2()
+| JUMP2()
+|-
+| JUMP3()
+| JUMP3()
+|-
+| JUMP4()
+| JUMP4()
+|-
+| BATT0()
+| BATT0()
+|-
+| BATT1()
+| BATT1()
+|-
+| BATT2()
+| BATT2()
+|-
+| BATT3()
+| BATT3()
+|-
+| BATT4()
+| BATT4()
+|-
+| FIXD0()
+| FIXD0()
+|-
+| FIXD1()
+| FIXD1()
+|-
+| FIXD2()
+| FIXD2()
+|-
+| FIXD3()
+| FIXD3()
+|-
+| FIXD4()
+| FIXD4()
+|-
+| DATA0()
+| DATA0()
+|-
+| DATA1()
+| DATA1()
+|-
+| DATA2()
+| DATA2()
+|-
+| DATA3()
+| DATA3()
+|-
+| DATA4()
+| DATA4()
+|-
+| UNIQ0()
+| UNIQ0()
+|-
+| UNIQ1()
+| UNIQ1()
+|-
+| UNIQ2()
+| UNIQ2()
+|-
+| UNIQ3()
+| UNIQ3()
+|-
+| UNIQ4()
+| UNIQ4()
+|-
+| UNIQ5()
+| UNIQ5()
+|-
+| UNIQ6()
+| UNIQ6()
+|-
+| UNIQ7()
+| UNIQ7()
+|-
+| UNIQ8()
+| UNIQ8()
+|-
+| UNIQ9()
+| UNIQ9()
+|-
+| DEMO0()
+| CUTSCENE0()
+|-
+| DEMO1()
+| CUTSCENE1()
+|-
+| DEMO2()
+| CUTSCENE2()
+|-
+| DEMO3()
+| CUTSCENE3()
+|-
+| DEMO4()
+| CUTSCENE4()
+|-
+| DEMO5()
+| CUTSCENE5()
+|-
+| DEMO6()
+| CUTSCENE6()
+|-
+| DEMO7()
+| CUTSCENE7()
+|-
+| DEMO8()
+| CUTSCENE8()
+|-
+| DEMO9()
+| CUTSCENE9()
+|-
+| SPEC0()
+| SPEC0()
+|-
+| SPEC1()
+| SPEC1()
+|-
+| SPEC2()
+| SPEC2()
+|-
+| SPEC3()
+| SPEC3()
+|-
+| SPEC4()
+| SPEC4()
+|-
+| SPEC5()
+| SPEC5()
+|-
+| SPEC6()
+| SPEC6()
+|-
+| SPEC7()
+| SPEC7()
+|-
+| SPEC8()
+| SPEC8()
+|-
+| SPEC9()
+| SPEC9()
+|-
+| U+008Cﾌﾚ-ﾑ       
+| U+008C frame       
+|-
+| U+008Cｷ-   /   
+| U+008C key   /   
+|-
+| U+008D(ｾﾝﾀ-ﾃﾝ)
+| U+008D (centerpoint)
+|-
+| U+008D(ｹﾞﾝﾃﾝ)
+| U+008D (origin point)
+|-
+| U+008C(ﾌﾟﾚｲﾔ-)
+| U+008C (player)
+|-
+| U+008D(ｲﾁｱﾜｾ)
+| U+008D (alignment)
+|-
+| U+008D(ｾｯﾃｲ)
+| U+008D (settings)
+|-
+| U+008D(ｷｬｯｶﾝ)
+| U+008D (object)
+|-
+| U+008CﾎﾟｲﾝﾄNo.  
+| U+008C point No.  
+|-
+| U+008Dｶﾞｶｸ    
+| U+008D viewing angle    
+|-
+| U+008CNﾌﾚ-ﾑ   
+| U+008C N frame   
+|-
+| U+008DZｶｲﾃﾝ   
+| U+008D Z rotation   
+|-
+| U+008Cﾓ-ﾄﾞ    
+| U+008C mode    
+|-
+|   RU+008Dﾁｭｳｼﾝ  
+|   RU+008D focal point  
+|-
+| U+008DPｼﾞｶﾝ       
+| U+008DP time       
+|-
+| U+008Dｷｮﾘ       
+| U+008D range       
+|-
+| U+008DXｶｲﾃﾝ       
+| U+008D X rotation       
+|-
+| U+008DYｶｲﾃﾝ       
+| U+008D Y rotation       
+|-
+| d
+| d
+|-
+| U+008Cﾌﾚ-ﾑ         
+| U+008C frame         
+|-
+| U+008Cﾄ-ﾀﾙ         
+| U+008C total         
+|-
+| U+008Cｷ-     /   
+| U+008C key     /   
+|-
+| ABZSuldr*+LRudl
+| ABZSuldr*+LRudl
+|-
+| Non
+| Non
+|-
+| Sound Control
+| Sound Control
+|-
+| Spec Info
+| Spec Info
+|-
+| Heap Info
+| Heap Info
+|-
+| Grp Track Info
+| Grp Track Info
+|-
+| Sub Track Info
+| Sub Track Info
+|-
+| Channel Info
+| Channel Info
+|-
+| Interface Info
+| Interface Info
+|-
+| SE Flag Swap
+| SE Flag Swap
+|-
+| Block Change BGM
+| Block Change BGM
+|-
+| Natural Sound Control
+| Natural Sound Control
+|-
+| Ocarina Test
+| Ocarina Test
+|-
+| SE Parameter Change
+| SE Parameter Change
+|-
+| Scroll Print
+| Scroll Print
+|-
+| Free FIELD
+| Free FIELD
+|-
+| 
+| 
+|-
+| 
+| 
+|-
+| PLAYER
+| PLAYER
+|-
+| ITEM
+| ITEM
+|-
+| ENVIROMENT
+| ENVIROMENT
+|-
+| ENEMY
+| ENEMY
+|-
+| SYSTEM
+| SYSTEM
+|-
+| OCARINA
+| OCARINA
+|-
+| VOICE
+| VOICE
+|-
+| W-STEREO
+| W-STEREO
+|-
+| HEADPHONE
+| HEADPHONE
+|-
+| 3D SOUND
+| 3D SOUND
+|-
+| MONO
+| MONO
+|-
+| SWAP
+| SWAP
+|-
+| ADD
+| ADD
+|-
+| A
+| A
+|-
+| S
+| S
+|-
+| X
+| X
+|-
+| OFF
+| OFF
+|-
+| ON
+| ON
+|-
+| STBY
+| STBY
+|-
+| SE
+| SE
+|-
+| [41;37m&lt;INAGAKI CHECK&gt; dist over! flag:%04X ptr:%08X pos:%f-%f-%f[m
+| [41;37m&lt;INAGAKI CHECK&gt; dist over! flag:%04X ptr:%08X pos:%f-%f-%f[m
+|-
+| SEQ H
+| SEQ H
+|-
+|     L
+|     L
+|-
+| ../z_en_a_keep.c
+| ../z_en_a_keep.c
+|-
+| ../z_en_a_keep.c
+| ../z_en_a_keep.c
+|-
+| ../z_en_a_keep.c
+| ../z_en_a_keep.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ../z_en_item00.c
+| ../z_en_item00.c
+|-
+| ブラ─頂点追加処理:テーブルオーバー %d
+| BLUR TOP ADDITION PROCESSING: TABLE EXCEEDED %d
+|-
+| ブラ─空白追加処理:テーブルオーバー %d
+| BLUR NULL ADDITION PROCESSING: TABLE EXCEEDED %d
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| z_eff_blure.c::SQ_NoInterpolate_disp() 頂点確保できず。
+| z_eff_blure.c::SQ_NoInterpolate_disp() CANNOT RESERVE TOP.
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| index - 1 &gt;= 0
+| index - 1 &gt;= 0
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| index + 2 &lt; this2-&gt;now_edge_num
+| index + 2 &lt; this2-&gt;now_edge_num
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| z_eff_blure.c::SQ_HermiteInterpolate_disp() 頂点確保できず。
+| z_eff_blure.c::SQ_HermiteInterpolate_disp() CANNOT RESERVE TOP.
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| EffectBlureInfo2_disp_makeDisplayList()マトリックス取れないので,強制終了
+| CAN'T OBTAIN EffectBlureInfo2_disp_makeDisplayList() MATRIX, FORCED TO END
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ブラ─表示:頂点確保できず。強制終了
+| BLUR DISPLAY: CANNOT RESERVE TOP. FORCED TO END
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| ブラ─表示:頂点テーブル確保できず
+| BLUR DISPLAY: TOP - CANNOT RESERVE TABLE
+|-
+| ../z_eff_blure.c
+| ../z_eff_blure.c
+|-
+| [31m
+| [31m
+|-
+| EffectShieldParticle_ct():パーティクル数がオーバしてます。
+| EffectShieldParticle_ct(): PARTICLE NUMBER EXCEEDED.
+|-
+| [m
+| [m
+|-
+| ../z_eff_shield_particle.c
+| ../z_eff_shield_particle.c
+|-
+| ../z_eff_shield_particle.c
+| ../z_eff_shield_particle.c
+|-
+| spark():u_div,v_div 0では困る。
+| spark():u_div,v_div CANNOT BE 0.
+|-
+| table_sizeオーバー
+| table_size EXCEEDED
+|-
+| EffectSparkInfo_proc():Spark Pointer is NULL
+| EffectSparkInfo_proc():Spark Pointer is NULL
+|-
+| ../z_eff_spark.c
+| ../z_eff_spark.c
+|-
+| EffectSparkInfo_disp():メモリー確保失敗 graph_malloc
+| EffectSparkInfo_disp(): MEMORY RESERVATION FAILURE graph_malloc
+|-
+| ../z_eff_spark.c
+| ../z_eff_spark.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| ../z_eff_ss_dead.c
+| ../z_eff_ss_dead.c
+|-
+| E;
+| E;
+|-
+| E;
+| E;
+|-
+| EffectAdd():確保できません。注意してください。Type%d
+| EffectAdd(): CANNOT BE RESERVED. PLEASE BE CAREFUL. Type%d
+|-
+| エフェクト追加せずに終了します。
+| COMPLETED WITHOUT ADDING EFFECTS.
+|-
+| エフェクト総て解放
+| TOTAL EFFECT DEALLOCATION
+|-
+| エフェクト総て解放 終了
+| TOTAL EFFECT DEALLOCATION COMPLETE
+|-
+| effect index %3d:size=%6dbyte romsize=%6dbyte
+| effect index %3d:size=%6dbyte romsize=%6dbyte
+|-
+| ../z_effect_soft_sprite.c
+| ../z_effect_soft_sprite.c
+|-
+| EffectSS2Info.data_table != NULL
+| EffectSS2Info.data_table != NULL
+|-
+| ../z_effect_soft_sprite.c
+| ../z_effect_soft_sprite.c
+|-
+| ../z_effect_soft_sprite.c
+| ../z_effect_soft_sprite.c
+|-
+| type &lt; EFFECT_SS2_TYPE_LAST_LABEL
+| type &lt; EFFECT_SS2_TYPE_LAST_LABEL
+|-
+| ../z_effect_soft_sprite.c
+| ../z_effect_soft_sprite.c
+|-
+| EffectSoftSprite2_makeEffect():オーバーレイではありません。
+| EffectSoftSprite2_makeEffect(): NOT AN OVERLAY
+|-
+| ../z_effect_soft_sprite.c
+| ../z_effect_soft_sprite.c
+|-
+| [31m
+| [31m
+|-
+| EffectSoftSprite2_makeEffect():zelda_malloc_r()により,%dbyteのメモリ確保ができま
+| EffectSoftSprite2_makeEffect(): %dbyte MEMORY CANNOT BE RESERVED DUE TO zelda_malloc_r().
+|-
+| せん。そのため、プログラムのロードも
+| AS A RESULT, THE PROGRAM CANNOT BE LOADED.
+|-
+| 出来ません。ただいま危険な状態です！
+| WHAT A RISKY SITUATION!
+|-
+| もちろん,エフェクトも出ません。
+| NATURALLY, EFFECTS WILL NOT BE PRODUCED EITHER.
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| EFFECT SS OVL:SegRom %08x %08x, Seg %08x %08x, RamStart %08x, type: %d
+| EFFECT SS OVL:SegRom %08x %08x, Seg %08x %08x, RamStart %08x, type: %d
+|-
+| [m
+| [m
+|-
+| EffectSoftSprite2_makeEffect():すでにエフェクトはロード済みで
+| EffectSoftSprite2_makeEffect(): EFFECTS HAVE ALREADY BEEN LOADED, BUT
+|-
+| すが,コンストラクターがNULLなので追加をやめます。
+| THE CONSTRUCTOR IS NULL, SO ADDITION WILL NOT OCCUR.
+|-
+| 直してください。（メモリーの無駄) %08x %d
+| PLEASE FIX THIS.（WASTE OF MEMORY) %08x %d
+|-
+| [32m
+| [32m
+|-
+| EffectSoftSprite2_makeEffect():何らかの理由でコンストラクト失敗。コンストラクターがエラーを返しました。エフェクトの追加を中止します。
+| EffectSoftSprite2_makeEffect(): FOR SOME REASON, THE CONSTRUCTOR HAS FAILED. THE CONSTRUCTOR HAS RETURNED AN ERROR. CEASING EFFECT ADDITION.
+|-
+| [m
+| [m
+|-
+| [31m
+| [31m
+|-
+| EffectSoftSprite2_disp():位置が領域外のため 削除します。エフェクトラベルNo.%d:プログラムの方で対応をお願いします。ここです ==&gt; pos(%f, %f, %f)で、ラベルはz_effect_soft_sprite_dlftbls.declにあります。
+| EffectSoftSprite2_disp(): THE POSITION IS OUTSIDE THE FIELD, SO IT WILL BE DELETD. EFFECT LABEL No.%d: PLEASE MAKE IT COMPATIBLE WITH THE PROGRAM. RIGHT HERE ==&gt; pos(%f, %f, %f) IS WHERE THE z_effect_soft_sprite_dlftbls.decl LABEL IS LOCATED.
+|-
+| [32m
+| [32m
+|-
+| もし、posを別のことに使っている場合相談に応じます。
+| PLEASE CONSULT IF USING pos FOR SOMETHING ELSE.
+|-
+| [m
+| [m
+|-
+| ../z_effect_soft_sprite_old_init.c
+| ../z_effect_soft_sprite_old_init.c
+|-
+| ../z_effect_soft_sprite_old_init.c
+| ../z_effect_soft_sprite_old_init.c
+|-
+| event_chk_inf[0]
+| event_chk_inf[0]
+|-
+| event_chk_inf[1]
+| event_chk_inf[1]
+|-
+| event_chk_inf[2]
+| event_chk_inf[2]
+|-
+| event_chk_inf[3]
+| event_chk_inf[3]
+|-
+| event_chk_inf[4]
+| event_chk_inf[4]
+|-
+| event_chk_inf[5]
+| event_chk_inf[5]
+|-
+| event_chk_inf[6]
+| event_chk_inf[6]
+|-
+| event_chk_inf[7]
+| event_chk_inf[7]
+|-
+| event_chk_inf[8]
+| event_chk_inf[8]
+|-
+| event_chk_inf[9]
+| event_chk_inf[9]
+|-
+| event_chk_inf[10]
+| event_chk_inf[10]
+|-
+| event_chk_inf[11]
+| event_chk_inf[11]
+|-
+| event_chk_inf[12]
+| event_chk_inf[12]
+|-
+| event_chk_inf[13]
+| event_chk_inf[13]
+|-
+| item_get_inf[0]
+| item_get_inf[0]
+|-
+| item_get_inf[1]
+| item_get_inf[1]
+|-
+| item_get_inf[2]
+| item_get_inf[2]
+|-
+| item_get_inf[3]
+| item_get_inf[3]
+|-
+| inf_table[0]
+| inf_table[0]
+|-
+| inf_table[1]
+| inf_table[1]
+|-
+| inf_table[2]
+| inf_table[2]
+|-
+| inf_table[3]
+| inf_table[3]
+|-
+| inf_table[4]
+| inf_table[4]
+|-
+| inf_table[5]
+| inf_table[5]
+|-
+| inf_table[6]
+| inf_table[6]
+|-
+| inf_table[7]
+| inf_table[7]
+|-
+| inf_table[8]
+| inf_table[8]
+|-
+| inf_table[9]
+| inf_table[9]
+|-
+| inf_table[10]
+| inf_table[10]
+|-
+| inf_table[11]
+| inf_table[11]
+|-
+| inf_table[12]
+| inf_table[12]
+|-
+| inf_table[13]
+| inf_table[13]
+|-
+| inf_table[14]
+| inf_table[14]
+|-
+| inf_table[15]
+| inf_table[15]
+|-
+| inf_table[16]
+| inf_table[16]
+|-
+| inf_table[17]
+| inf_table[17]
+|-
+| inf_table[18]
+| inf_table[18]
+|-
+| inf_table[19]
+| inf_table[19]
+|-
+| inf_table[20]
+| inf_table[20]
+|-
+| inf_table[21]
+| inf_table[21]
+|-
+| inf_table[22]
+| inf_table[22]
+|-
+| inf_table[23]
+| inf_table[23]
+|-
+| inf_table[24]
+| inf_table[24]
+|-
+| inf_table[25]
+| inf_table[25]
+|-
+| inf_table[26]
+| inf_table[26]
+|-
+| inf_table[27]
+| inf_table[27]
+|-
+| inf_table[28]
+| inf_table[28]
+|-
+| inf_table[29]
+| inf_table[29]
+|-
+| event_inf[0]
+| event_inf[0]
+|-
+| event_inf[1]
+| event_inf[1]
+|-
+| event_inf[2]
+| event_inf[2]
+|-
+| event_inf[3]
+| event_inf[3]
+|-
+| ../flg_set.c
+| ../flg_set.c
+|-
+| 1
+| 1
+|-
+| 0
+| 0
+|-
+|  
+|  
+|-
+| ../flg_set.c
+| ../flg_set.c
+|-
+| 既にリンクされています
+| ALREADY LINKED
+|-
+| ロードに失敗しました
+| LOADING FAILED
+|-
+| [32m
+| [32m
+|-
+| OVL(d):Seg:%08x-%08x Ram:%08x-%08x Off:%08x %s
+| OVL(d):Seg:%08x-%08x Ram:%08x-%08x Off:%08x %s
+|-
+| [m
+| [m
+|-
+| ../z_DLF.c
+| ../z_DLF.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| Ａｃｔｏｒクラス デストラクトがありません [%s]
+| NO Actor CLASS DESTRUCT [%s]
+|-
+| [m
+| [m
+|-
+| z_actor.c 3529 eye=[%f(%f) %f %f] object=[%f %f %f] light_direction=[%f %f %f]
+| z_actor.c 3529 eye=[%f(%f) %f %f] object=[%f %f %f] light_direction=[%f %f %f]
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| z_actor.c 3637 game_play-&gt;view.eye=[%f(%f) %f %f]
+| z_actor.c 3637 game_play-&gt;view.eye=[%f(%f) %f %f]
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| -------- DISPLAY Y=%f
+| -------- DISPLAY Y=%f
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| MaxProfile == ACTOR_DLF_MAX
+| MaxProfile == ACTOR_DLF_MAX
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ACTOR NAME is NULL
+| ACTOR NAME is NULL
+|-
+| アクターの名前(%08x:%s)
+| ACTOR NAME (%08x:%s)
+|-
+| コメント:%s
+| COMMAND:%s
+|-
+| ACTOR NAME %08x:%s
+| ACTOR NAME %08x:%s
+|-
+| Actor_draw
+| Actor_draw
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| 魔法のメガネ START
+| MAGIC LENS START
+|-
+| 魔法のメガネ 見えないＡcｔｏｒ表示 START
+| MAGIC LENS INVISIBLE ACTOR DISPLAY START
+|-
+| 魔法のメガネ 見えないＡcｔｏｒ表示
+| MAGIC LENS INVISIBLE ACTOR DISPLAY
+|-
+| 魔法のメガネ 見えないＡcｔｏｒ表示 END
+| MAGIC LENS INVISIBLE ACTOR DISPLAY END
+|-
+| 青い眼鏡(外側)
+| BLUE SPECTACLES (EXTERIOR)
+|-
+| 青い眼鏡(外側)
+| BLUE SPECTACLES (EXTERIOR)
+|-
+| 魔法のメガネ END
+| MAGIC LENS END
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| invisible_actor_counter &lt; INVISIBLE_ACTOR_MAX
+| invisible_actor_counter &lt; INVISIBLE_ACTOR_MAX
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| 絶対魔法領域解放
+| ABSOLUTE MAGIC FIELD DEALLOCATION
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| [36m
+| [36m
+|-
+| アクタークライアントが０になりました
+| ACTOR CLIENT IS NOW 0
+|-
+| オーバーレイ解放しません
+| OVERLAY WILL NOT BE DEALLOCATED
+|-
+| 絶対魔法領域確保なので解放しません
+| ABSOLUTE MAGIC FIELD RESERVED, SO DEALLOCATION WILL NOT OCCUR
+|-
+| オーバーレイ解放します
+| OVERLAY DEALLOCATED
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| アクタークライアントはあと %d 残っています
+| %d OF ACTOR CLIENT REMAINS
+|-
+| [m
+| [m
+|-
+| profile &lt; ACTOR_DLF_MAX
+| profile &lt; ACTOR_DLF_MAX
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| アクタークラス追加 [%d:%s]
+| ACTOR CLASS ADDITION [%d:%s]
+|-
+| [43;30mＡｃｔｏｒセット数オーバー
+| [43;30mＡｃｔｏｒSET NUMBER EXCEEDED
+|-
+| [m
+| [m
+|-
+| オーバーレイではありません
+| NOT AN OVERLAY
+|-
+| 既にロードされています
+| ALREADY LOADED
+|-
+| actor_segsize &lt;= AM_FIELD_SIZE
+| actor_segsize &lt;= AM_FIELD_SIZE
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| AMF:絶対魔法領域
+| AMF: ABSOLUTE MAGIC FIELD
+|-
+| 絶対魔法領域確保 %d バイト確保
+| ABSOLUTE MAGIC FIELD RESERVATION - %d BYTES RESERVED
+|-
+| [41;37mＡｃｔｏｒプログラムメモリが確保できません
+| [41;37m CANNOT RESERVE ACTOR PROGRAM MEMORY
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| OVL(a):Seg:%08x-%08x Ram:%08x-%08x Off:%08x %s
+| OVL(a):Seg:%08x-%08x Ram:%08x-%08x Off:%08x %s
+|-
+| [m
+| [m
+|-
+| [41;37mデータバンク無し！！&lt;データバンク＝%d&gt;(profilep-&gt;bank=%d)
+| [41;37m NO DATA BANK!!&lt;DATA BANK＝%d&gt;(profilep-&gt;bank=%d)
+|-
+| [m
+| [m
+|-
+| [41;37mＡｃｔｏｒクラス確保できません！ %s &lt;サイズ＝%dバイト&gt;
+| [41;37m ACTOR CLASS CANNOT BE RESERVED! %s &lt;SIZE＝%d BYTES&gt;
+|-
+| [m
+| [m
+|-
+| actor_dlftbl-&gt;clients &lt; 255
+| actor_dlftbl-&gt;clients &lt; 255
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| アクタークライアントは %d 個目です
+| ACTOR CLIENT No. %d
+|-
+| アクタークラス削除 [%s]
+| ACTOR CLASS DELETED [%s]
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| オーバーレイではありません
+| NOT AN OVERLAY
+|-
+| actor_dlftbl-&gt;allocp != NULL
+| actor_dlftbl-&gt;allocp != NULL
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| actor_dlftbl-&gt;clients &gt; 0
+| actor_dlftbl-&gt;clients &gt; 0
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_actor.c
+| ../z_actor.c
+|-
+| ../z_cheap_proc.c
+| ../z_cheap_proc.c
+|-
+| ../z_cheap_proc.c
+| ../z_cheap_proc.c
+|-
+| ../z_cheap_proc.c
+| ../z_cheap_proc.c
+|-
+| ../z_cheap_proc.c
+| ../z_cheap_proc.c
+|-
+| ../z_cheap_proc.c
+| ../z_cheap_proc.c
+|-
+| ../z_cheap_proc.c
+| ../z_cheap_proc.c
+|-
+| Player
+| Player
+|-
+| En_Test
+| En_Test
+|-
+| En_GirlA
+| En_GirlA
+|-
+| En_Part
+| En_Part
+|-
+| En_Light
+| En_Light
+|-
+| En_Door
+| En_Door
+|-
+| En_Box
+| En_Box
+|-
+| Bg_Dy_Yoseizo
+| Bg_Dy_Yoseizo
+|-
+| Bg_Hidan_Firewall
+| Bg_Hidan_Firewall
+|-
+| En_Poh
+| En_Poh
+|-
+| En_Okuta
+| En_Okuta
+|-
+| Bg_Ydan_Sp
+| Bg_Ydan_Sp
+|-
+| En_Bom
+| En_Bom
+|-
+| En_Wallmas
+| En_Wallmas
+|-
+| En_Dodongo
+| En_Dodongo
+|-
+| En_Firefly
+| En_Firefly
+|-
+| En_Horse
+| En_Horse
+|-
+| En_Item00
+| En_Item00
+|-
+| En_Arrow
+| En_Arrow
+|-
+| En_Elf
+| En_Elf
+|-
+| En_Niw
+| En_Niw
+|-
+| En_Tite
+| En_Tite
+|-
+| En_Reeba
+| En_Reeba
+|-
+| En_Peehat
+| En_Peehat
+|-
+| En_Butte
+| En_Butte
+|-
+| En_Insect
+| En_Insect
+|-
+| En_Fish
+| En_Fish
+|-
+| En_Holl
+| En_Holl
+|-
+| En_Scene_Change
+| En_Scene_Change
+|-
+| En_Zf
+| En_Zf
+|-
+| En_Hata
+| En_Hata
+|-
+| Boss_Dodongo
+| Boss_Dodongo
+|-
+| Boss_Goma
+| Boss_Goma
+|-
+| En_Zl1
+| En_Zl1
+|-
+| En_Viewer
+| En_Viewer
+|-
+| En_Goma
+| En_Goma
+|-
+| Bg_Pushbox
+| Bg_Pushbox
+|-
+| En_Bubble
+| En_Bubble
+|-
+| Door_Shutter
+| Door_Shutter
+|-
+| En_Dodojr
+| En_Dodojr
+|-
+| En_Bdfire
+| En_Bdfire
+|-
+| En_Boom
+| En_Boom
+|-
+| En_Torch2
+| En_Torch2
+|-
+| En_Bili
+| En_Bili
+|-
+| En_Tp
+| En_Tp
+|-
+| En_St
+| En_St
+|-
+| En_Bw
+| En_Bw
+|-
+| En_A_Obj
+| En_A_Obj
+|-
+| En_Eiyer
+| En_Eiyer
+|-
+| En_River_Sound
+| En_River_Sound
+|-
+| En_Horse_Normal
+| En_Horse_Normal
+|-
+| En_Ossan
+| En_Ossan
+|-
+| Bg_Treemouth
+| Bg_Treemouth
+|-
+| Bg_Dodoago
+| Bg_Dodoago
+|-
+| Bg_Hidan_Dalm
+| Bg_Hidan_Dalm
+|-
+| Bg_Hidan_Hrock
+| Bg_Hidan_Hrock
+|-
+| En_Horse_Ganon
+| En_Horse_Ganon
+|-
+| Bg_Hidan_Rock
+| Bg_Hidan_Rock
+|-
+| Bg_Hidan_Rsekizou
+| Bg_Hidan_Rsekizou
+|-
+| Bg_Hidan_Sekizou
+| Bg_Hidan_Sekizou
+|-
+| Bg_Hidan_Sima
+| Bg_Hidan_Sima
+|-
+| Bg_Hidan_Syoku
+| Bg_Hidan_Syoku
+|-
+| En_Xc
+| En_Xc
+|-
+| Bg_Hidan_Curtain
+| Bg_Hidan_Curtain
+|-
+| Bg_Spot00_Hanebasi
+| Bg_Spot00_Hanebasi
+|-
+| En_Mb
+| En_Mb
+|-
+| En_Bombf
+| En_Bombf
+|-
+| En_Zl2
+| En_Zl2
+|-
+| Bg_Hidan_Fslift
+| Bg_Hidan_Fslift
+|-
+| En_OE2
+| En_OE2
+|-
+| Bg_Ydan_Hasi
+| Bg_Ydan_Hasi
+|-
+| Bg_Ydan_Maruta
+| Bg_Ydan_Maruta
+|-
+| Boss_Ganondrof
+| Boss_Ganondrof
+|-
+| En_Am
+| En_Am
+|-
+| En_Dekubaba
+| En_Dekubaba
+|-
+| En_M_Fire1
+| En_M_Fire1
+|-
+| En_M_Thunder
+| En_M_Thunder
+|-
+| Bg_Ddan_Jd
+| Bg_Ddan_Jd
+|-
+| Bg_Breakwall
+| Bg_Breakwall
+|-
+| En_Jj
+| En_Jj
+|-
+| En_Horse_Zelda
+| En_Horse_Zelda
+|-
+| Bg_Ddan_Kd
+| Bg_Ddan_Kd
+|-
+| Door_Warp1
+| Door_Warp1
+|-
+| Obj_Syokudai
+| Obj_Syokudai
+|-
+| Item_B_Heart
+| Item_B_Heart
+|-
+| En_Dekunuts
+| En_Dekunuts
+|-
+| Bg_Menkuri_Kaiten
+| Bg_Menkuri_Kaiten
+|-
+| Bg_Menkuri_Eye
+| Bg_Menkuri_Eye
+|-
+| En_Vali
+| En_Vali
+|-
+| Bg_Mizu_Movebg
+| Bg_Mizu_Movebg
+|-
+| Bg_Mizu_Water
+| Bg_Mizu_Water
+|-
+| Arms_Hook
+| Arms_Hook
+|-
+| En_fHG
+| En_fHG
+|-
+| Bg_Mori_Hineri
+| Bg_Mori_Hineri
+|-
+| En_Bb
+| En_Bb
+|-
+| Bg_Toki_Hikari
+| Bg_Toki_Hikari
+|-
+| En_Yukabyun
+| En_Yukabyun
+|-
+| Bg_Toki_Swd
+| Bg_Toki_Swd
+|-
+| En_Fhg_Fire
+| En_Fhg_Fire
+|-
+| Bg_Mjin
+| Bg_Mjin
+|-
+| Bg_Hidan_Kousi
+| Bg_Hidan_Kousi
+|-
+| Door_Toki
+| Door_Toki
+|-
+| Bg_Hidan_Hamstep
+| Bg_Hidan_Hamstep
+|-
+| En_Bird
+| En_Bird
+|-
+| En_Wood02
+| En_Wood02
+|-
+| En_Lightbox
+| En_Lightbox
+|-
+| En_Pu_box
+| En_Pu_box
+|-
+| En_Trap
+| En_Trap
+|-
+| En_Arow_Trap
+| En_Arow_Trap
+|-
+| En_Vase
+| En_Vase
+|-
+| En_Ta
+| En_Ta
+|-
+| En_Tk
+| En_Tk
+|-
+| Bg_Mori_Bigst
+| Bg_Mori_Bigst
+|-
+| Bg_Mori_Elevator
+| Bg_Mori_Elevator
+|-
+| Bg_Mori_Kaitenkabe
+| Bg_Mori_Kaitenkabe
+|-
+| Bg_Mori_Rakkatenjo
+| Bg_Mori_Rakkatenjo
+|-
+| En_Vm
+| En_Vm
+|-
+| Demo_Effect
+| Demo_Effect
+|-
+| Demo_Kankyo
+| Demo_Kankyo
+|-
+| Bg_Hidan_Fwbig
+| Bg_Hidan_Fwbig
+|-
+| En_Floormas
+| En_Floormas
+|-
+| En_Heishi1
+| En_Heishi1
+|-
+| En_Rd
+| En_Rd
+|-
+| En_Po_Sisters
+| En_Po_Sisters
+|-
+| Bg_Heavy_Block
+| Bg_Heavy_Block
+|-
+| Bg_Po_Event
+| Bg_Po_Event
+|-
+| Obj_Mure
+| Obj_Mure
+|-
+| En_Sw
+| En_Sw
+|-
+| Boss_Fd
+| Boss_Fd
+|-
+| Object_Kankyo
+| Object_Kankyo
+|-
+| En_Du
+| En_Du
+|-
+| En_Fd
+| En_Fd
+|-
+| En_Horse_Link_Child
+| En_Horse_Link_Child
+|-
+| Door_Ana
+| Door_Ana
+|-
+| Bg_Spot02_Objects
+| Bg_Spot02_Objects
+|-
+| Bg_Haka
+| Bg_Haka
+|-
+| Magic_Wind
+| Magic_Wind
+|-
+| Magic_Fire
+| Magic_Fire
+|-
+| En_Ru1
+| En_Ru1
+|-
+| Boss_Fd2
+| Boss_Fd2
+|-
+| En_Fd_Fire
+| En_Fd_Fire
+|-
+| En_Dh
+| En_Dh
+|-
+| En_Dha
+| En_Dha
+|-
+| En_Rl
+| En_Rl
+|-
+| En_Encount1
+| En_Encount1
+|-
+| Demo_Du
+| Demo_Du
+|-
+| Demo_Im
+| Demo_Im
+|-
+| Demo_Tre_Lgt
+| Demo_Tre_Lgt
+|-
+| En_Fw
+| En_Fw
+|-
+| Bg_Vb_Sima
+| Bg_Vb_Sima
+|-
+| En_Vb_Ball
+| En_Vb_Ball
+|-
+| Bg_Haka_Megane
+| Bg_Haka_Megane
+|-
+| Bg_Haka_MeganeBG
+| Bg_Haka_MeganeBG
+|-
+| Bg_Haka_Ship
+| Bg_Haka_Ship
+|-
+| Bg_Haka_Sgami
+| Bg_Haka_Sgami
+|-
+| En_Heishi2
+| En_Heishi2
+|-
+| En_Encount2
+| En_Encount2
+|-
+| En_Fire_Rock
+| En_Fire_Rock
+|-
+| En_Brob
+| En_Brob
+|-
+| Mir_Ray
+| Mir_Ray
+|-
+| Bg_Spot09_Obj
+| Bg_Spot09_Obj
+|-
+| Bg_Spot18_Obj
+| Bg_Spot18_Obj
+|-
+| Boss_Va
+| Boss_Va
+|-
+| Bg_Haka_Tubo
+| Bg_Haka_Tubo
+|-
+| Bg_Haka_Trap
+| Bg_Haka_Trap
+|-
+| Bg_Haka_Huta
+| Bg_Haka_Huta
+|-
+| Bg_Haka_Zou
+| Bg_Haka_Zou
+|-
+| Bg_Spot17_Funen
+| Bg_Spot17_Funen
+|-
+| En_Syateki_Itm
+| En_Syateki_Itm
+|-
+| En_Syateki_Man
+| En_Syateki_Man
+|-
+| En_Tana
+| En_Tana
+|-
+| En_Nb
+| En_Nb
+|-
+| Boss_Mo
+| Boss_Mo
+|-
+| En_Sb
+| En_Sb
+|-
+| En_Bigokuta
+| En_Bigokuta
+|-
+| En_Karebaba
+| En_Karebaba
+|-
+| Bg_Bdan_Objects
+| Bg_Bdan_Objects
+|-
+| Demo_Sa
+| Demo_Sa
+|-
+| Demo_Go
+| Demo_Go
+|-
+| En_In
+| En_In
+|-
+| En_Tr
+| En_Tr
+|-
+| Bg_Spot16_Bombstone
+| Bg_Spot16_Bombstone
+|-
+| Bg_Hidan_Kowarerukabe
+| Bg_Hidan_Kowarerukabe
+|-
+| Bg_Bombwall
+| Bg_Bombwall
+|-
+| Bg_Spot08_Iceblock
+| Bg_Spot08_Iceblock
+|-
+| En_Ru2
+| En_Ru2
+|-
+| Obj_Dekujr
+| Obj_Dekujr
+|-
+| Bg_Mizu_Uzu
+| Bg_Mizu_Uzu
+|-
+| Bg_Spot06_Objects
+| Bg_Spot06_Objects
+|-
+| Bg_Ice_Objects
+| Bg_Ice_Objects
+|-
+| Bg_Haka_Water
+| Bg_Haka_Water
+|-
+| En_Ma2
+| En_Ma2
+|-
+| En_Bom_Chu
+| En_Bom_Chu
+|-
+| En_Horse_Game_Check
+| En_Horse_Game_Check
+|-
+| Boss_Tw
+| Boss_Tw
+|-
+| En_Rr
+| En_Rr
+|-
+| En_Ba
+| En_Ba
+|-
+| En_Bx
+| En_Bx
+|-
+| En_Anubice
+| En_Anubice
+|-
+| En_Anubice_Fire
+| En_Anubice_Fire
+|-
+| Bg_Mori_Hashigo
+| Bg_Mori_Hashigo
+|-
+| Bg_Mori_Hashira4
+| Bg_Mori_Hashira4
+|-
+| Bg_Mori_Idomizu
+| Bg_Mori_Idomizu
+|-
+| Bg_Spot16_Doughnut
+| Bg_Spot16_Doughnut
+|-
+| Bg_Bdan_Switch
+| Bg_Bdan_Switch
+|-
+| En_Ma1
+| En_Ma1
+|-
+| Boss_Ganon
+| Boss_Ganon
+|-
+| Boss_Sst
+| Boss_Sst
+|-
+| En_Ny
+| En_Ny
+|-
+| En_Fr
+| En_Fr
+|-
+| Item_Shield
+| Item_Shield
+|-
+| Bg_Ice_Shelter
+| Bg_Ice_Shelter
+|-
+| En_Ice_Hono
+| En_Ice_Hono
+|-
+| Item_Ocarina
+| Item_Ocarina
+|-
+| Magic_Dark
+| Magic_Dark
+|-
+| Demo_6K
+| Demo_6K
+|-
+| En_Anubice_Tag
+| En_Anubice_Tag
+|-
+| Bg_Haka_Gate
+| Bg_Haka_Gate
+|-
+| Bg_Spot15_Saku
+| Bg_Spot15_Saku
+|-
+| Bg_Jya_Goroiwa
+| Bg_Jya_Goroiwa
+|-
+| Bg_Jya_Zurerukabe
+| Bg_Jya_Zurerukabe
+|-
+| Bg_Jya_Cobra
+| Bg_Jya_Cobra
+|-
+| Bg_Jya_Kanaami
+| Bg_Jya_Kanaami
+|-
+| Fishing
+| Fishing
+|-
+| Obj_Oshihiki
+| Obj_Oshihiki
+|-
+| Bg_Gate_Shutter
+| Bg_Gate_Shutter
+|-
+| Eff_Dust
+| Eff_Dust
+|-
+| Bg_Spot01_Fusya
+| Bg_Spot01_Fusya
+|-
+| Bg_Spot01_Idohashira
+| Bg_Spot01_Idohashira
+|-
+| Bg_Spot01_Idomizu
+| Bg_Spot01_Idomizu
+|-
+| Bg_Po_Syokudai
+| Bg_Po_Syokudai
+|-
+| Bg_Ganon_Otyuka
+| Bg_Ganon_Otyuka
+|-
+| Bg_Spot15_Rrbox
+| Bg_Spot15_Rrbox
+|-
+| Bg_Umajump
+| Bg_Umajump
+|-
+| Arrow_Fire
+| Arrow_Fire
+|-
+| Arrow_Ice
+| Arrow_Ice
+|-
+| Arrow_Light
+| Arrow_Light
+|-
+| Item_Etcetera
+| Item_Etcetera
+|-
+| Obj_Kibako
+| Obj_Kibako
+|-
+| Obj_Tsubo
+| Obj_Tsubo
+|-
+| En_Wonder_Item
+| En_Wonder_Item
+|-
+| En_Ik
+| En_Ik
+|-
+| Demo_Ik
+| Demo_Ik
+|-
+| En_Skj
+| En_Skj
+|-
+| En_Skjneedle
+| En_Skjneedle
+|-
+| En_G_Switch
+| En_G_Switch
+|-
+| Demo_Ext
+| Demo_Ext
+|-
+| Demo_Shd
+| Demo_Shd
+|-
+| En_Dns
+| En_Dns
+|-
+| Elf_Msg
+| Elf_Msg
+|-
+| En_Honotrap
+| En_Honotrap
+|-
+| En_Tubo_Trap
+| En_Tubo_Trap
+|-
+| Obj_Ice_Poly
+| Obj_Ice_Poly
+|-
+| Bg_Spot03_Taki
+| Bg_Spot03_Taki
+|-
+| Bg_Spot07_Taki
+| Bg_Spot07_Taki
+|-
+| En_Fz
+| En_Fz
+|-
+| En_Po_Relay
+| En_Po_Relay
+|-
+| Bg_Relay_Objects
+| Bg_Relay_Objects
+|-
+| En_Diving_Game
+| En_Diving_Game
+|-
+| En_Kusa
+| En_Kusa
+|-
+| Obj_Bean
+| Obj_Bean
+|-
+| Obj_Bombiwa
+| Obj_Bombiwa
+|-
+| Obj_Switch
+| Obj_Switch
+|-
+| Obj_Elevator
+| Obj_Elevator
+|-
+| Obj_Lift
+| Obj_Lift
+|-
+| Obj_Hsblock
+| Obj_Hsblock
+|-
+| En_Okarina_Tag
+| En_Okarina_Tag
+|-
+| En_Yabusame_Mark
+| En_Yabusame_Mark
+|-
+| En_Goroiwa
+| En_Goroiwa
+|-
+| En_Ex_Ruppy
+| En_Ex_Ruppy
+|-
+| En_Toryo
+| En_Toryo
+|-
+| En_Daiku
+| En_Daiku
+|-
+| En_Nwc
+| En_Nwc
+|-
+| En_Blkobj
+| En_Blkobj
+|-
+| Item_Inbox
+| Item_Inbox
+|-
+| En_Ge1
+| En_Ge1
+|-
+| Obj_Blockstop
+| Obj_Blockstop
+|-
+| En_Sda
+| En_Sda
+|-
+| En_Clear_Tag
+| En_Clear_Tag
+|-
+| En_Niw_Lady
+| En_Niw_Lady
+|-
+| En_Gm
+| En_Gm
+|-
+| En_Ms
+| En_Ms
+|-
+| En_Hs
+| En_Hs
+|-
+| Bg_Ingate
+| Bg_Ingate
+|-
+| En_Kanban
+| En_Kanban
+|-
+| En_Heishi3
+| En_Heishi3
+|-
+| En_Syateki_Niw
+| En_Syateki_Niw
+|-
+| En_Attack_Niw
+| En_Attack_Niw
+|-
+| Bg_Spot01_Idosoko
+| Bg_Spot01_Idosoko
+|-
+| En_Sa
+| En_Sa
+|-
+| En_Wonder_Talk
+| En_Wonder_Talk
+|-
+| Bg_Gjyo_Bridge
+| Bg_Gjyo_Bridge
+|-
+| En_Ds
+| En_Ds
+|-
+| En_Mk
+| En_Mk
+|-
+| En_Bom_Bowl_Man
+| En_Bom_Bowl_Man
+|-
+| En_Bom_Bowl_Pit
+| En_Bom_Bowl_Pit
+|-
+| En_Owl
+| En_Owl
+|-
+| En_Ishi
+| En_Ishi
+|-
+| Obj_Hana
+| Obj_Hana
+|-
+| Obj_Lightswitch
+| Obj_Lightswitch
+|-
+| Obj_Mure2
+| Obj_Mure2
+|-
+| En_Go
+| En_Go
+|-
+| En_Fu
+| En_Fu
+|-
+| En_Changer
+| En_Changer
+|-
+| Bg_Jya_Megami
+| Bg_Jya_Megami
+|-
+| Bg_Jya_Lift
+| Bg_Jya_Lift
+|-
+| Bg_Jya_Bigmirror
+| Bg_Jya_Bigmirror
+|-
+| Bg_Jya_Bombchuiwa
+| Bg_Jya_Bombchuiwa
+|-
+| Bg_Jya_Amishutter
+| Bg_Jya_Amishutter
+|-
+| Bg_Jya_Bombiwa
+| Bg_Jya_Bombiwa
+|-
+| Bg_Spot18_Basket
+| Bg_Spot18_Basket
+|-
+| En_Ganon_Organ
+| En_Ganon_Organ
+|-
+| En_Siofuki
+| En_Siofuki
+|-
+| En_Stream
+| En_Stream
+|-
+| En_Mm
+| En_Mm
+|-
+| En_Ko
+| En_Ko
+|-
+| En_Kz
+| En_Kz
+|-
+| En_Weather_Tag
+| En_Weather_Tag
+|-
+| Bg_Sst_Floor
+| Bg_Sst_Floor
+|-
+| En_Ani
+| En_Ani
+|-
+| En_Ex_Item
+| En_Ex_Item
+|-
+| Bg_Jya_Ironobj
+| Bg_Jya_Ironobj
+|-
+| En_Js
+| En_Js
+|-
+| En_Jsjutan
+| En_Jsjutan
+|-
+| En_Cs
+| En_Cs
+|-
+| En_Md
+| En_Md
+|-
+| En_Hy
+| En_Hy
+|-
+| En_Ganon_Mant
+| En_Ganon_Mant
+|-
+| En_Okarina_Effect
+| En_Okarina_Effect
+|-
+| En_Mag
+| En_Mag
+|-
+| Door_Gerudo
+| Door_Gerudo
+|-
+| Elf_Msg2
+| Elf_Msg2
+|-
+| Demo_Gt
+| Demo_Gt
+|-
+| En_Po_Field
+| En_Po_Field
+|-
+| Efc_Erupc
+| Efc_Erupc
+|-
+| Bg_Zg
+| Bg_Zg
+|-
+| En_Heishi4
+| En_Heishi4
+|-
+| En_Zl3
+| En_Zl3
+|-
+| Boss_Ganon2
+| Boss_Ganon2
+|-
+| En_Kakasi
+| En_Kakasi
+|-
+| En_Takara_Man
+| En_Takara_Man
+|-
+| Obj_Makeoshihiki
+| Obj_Makeoshihiki
+|-
+| Oceff_Spot
+| Oceff_Spot
+|-
+| End_Title
+| End_Title
+|-
+| En_Torch
+| En_Torch
+|-
+| Demo_Ec
+| Demo_Ec
+|-
+| Shot_Sun
+| Shot_Sun
+|-
+| En_Dy_Extra
+| En_Dy_Extra
+|-
+| En_Wonder_Talk2
+| En_Wonder_Talk2
+|-
+| En_Ge2
+| En_Ge2
+|-
+| Obj_Roomtimer
+| Obj_Roomtimer
+|-
+| En_Ssh
+| En_Ssh
+|-
+| En_Sth
+| En_Sth
+|-
+| Oceff_Wipe
+| Oceff_Wipe
+|-
+| Oceff_Storm
+| Oceff_Storm
+|-
+| En_Weiyer
+| En_Weiyer
+|-
+| Bg_Spot05_Soko
+| Bg_Spot05_Soko
+|-
+| Bg_Jya_1flift
+| Bg_Jya_1flift
+|-
+| Bg_Jya_Haheniron
+| Bg_Jya_Haheniron
+|-
+| Bg_Spot12_Gate
+| Bg_Spot12_Gate
+|-
+| Bg_Spot12_Saku
+| Bg_Spot12_Saku
+|-
+| En_Hintnuts
+| En_Hintnuts
+|-
+| En_Nutsball
+| En_Nutsball
+|-
+| Bg_Spot00_Break
+| Bg_Spot00_Break
+|-
+| En_Shopnuts
+| En_Shopnuts
+|-
+| En_It
+| En_It
+|-
+| En_GeldB
+| En_GeldB
+|-
+| Oceff_Wipe2
+| Oceff_Wipe2
+|-
+| Oceff_Wipe3
+| Oceff_Wipe3
+|-
+| En_Niw_Girl
+| En_Niw_Girl
+|-
+| En_Dog
+| En_Dog
+|-
+| En_Si
+| En_Si
+|-
+| Bg_Spot01_Objects2
+| Bg_Spot01_Objects2
+|-
+| Obj_Comb
+| Obj_Comb
+|-
+| Bg_Spot11_Bakudankabe
+| Bg_Spot11_Bakudankabe
+|-
+| Obj_Kibako2
+| Obj_Kibako2
+|-
+| En_Dnt_Demo
+| En_Dnt_Demo
+|-
+| En_Dnt_Jiji
+| En_Dnt_Jiji
+|-
+| En_Dnt_Nomal
+| En_Dnt_Nomal
+|-
+| En_Guest
+| En_Guest
+|-
+| Bg_Bom_Guard
+| Bg_Bom_Guard
+|-
+| En_Hs2
+| En_Hs2
+|-
+| Demo_Kekkai
+| Demo_Kekkai
+|-
+| Bg_Spot08_Bakudankabe
+| Bg_Spot08_Bakudankabe
+|-
+| Bg_Spot17_Bakudankabe
+| Bg_Spot17_Bakudankabe
+|-
+| Obj_Mure3
+| Obj_Mure3
+|-
+| En_Tg
+| En_Tg
+|-
+| En_Mu
+| En_Mu
+|-
+| En_Go2
+| En_Go2
+|-
+| En_Wf
+| En_Wf
+|-
+| En_Skb
+| En_Skb
+|-
+| Demo_Gj
+| Demo_Gj
+|-
+| Demo_Geff
+| Demo_Geff
+|-
+| Bg_Gnd_Firemeiro
+| Bg_Gnd_Firemeiro
+|-
+| Bg_Gnd_Darkmeiro
+| Bg_Gnd_Darkmeiro
+|-
+| Bg_Gnd_Soulmeiro
+| Bg_Gnd_Soulmeiro
+|-
+| Bg_Gnd_Nisekabe
+| Bg_Gnd_Nisekabe
+|-
+| Bg_Gnd_Iceblock
+| Bg_Gnd_Iceblock
+|-
+| En_Gb
+| En_Gb
+|-
+| En_Gs
+| En_Gs
+|-
+| Bg_Mizu_Bwall
+| Bg_Mizu_Bwall
+|-
+| Bg_Mizu_Shutter
+| Bg_Mizu_Shutter
+|-
+| En_Daiku_Kakariko
+| En_Daiku_Kakariko
+|-
+| Bg_Bowl_Wall
+| Bg_Bowl_Wall
+|-
+| En_Wall_Tubo
+| En_Wall_Tubo
+|-
+| En_Po_Desert
+| En_Po_Desert
+|-
+| En_Crow
+| En_Crow
+|-
+| Door_Killer
+| Door_Killer
+|-
+| Bg_Spot11_Oasis
+| Bg_Spot11_Oasis
+|-
+| Bg_Spot18_Futa
+| Bg_Spot18_Futa
+|-
+| Bg_Spot18_Shutter
+| Bg_Spot18_Shutter
+|-
+| En_Ma3
+| En_Ma3
+|-
+| En_Cow
+| En_Cow
+|-
+| Bg_Ice_Turara
+| Bg_Ice_Turara
+|-
+| Bg_Ice_Shutter
+| Bg_Ice_Shutter
+|-
+| En_Kakasi2
+| En_Kakasi2
+|-
+| En_Kakasi3
+| En_Kakasi3
+|-
+| Oceff_Wipe4
+| Oceff_Wipe4
+|-
+| En_Eg
+| En_Eg
+|-
+| Bg_Menkuri_Nisekabe
+| Bg_Menkuri_Nisekabe
+|-
+| En_Zo
+| En_Zo
+|-
+| Obj_Makekinsuta
+| Obj_Makekinsuta
+|-
+| En_Ge3
+| En_Ge3
+|-
+| Obj_Timeblock
+| Obj_Timeblock
+|-
+| Obj_Hamishi
+| Obj_Hamishi
+|-
+| En_Zl4
+| En_Zl4
+|-
+| En_Mm2
+| En_Mm2
+|-
+| Bg_Jya_Block
+| Bg_Jya_Block
+|-
+| Obj_Warp2block
+| Obj_Warp2block
+|-
+| actor_dlftbls %u
+| actor_dlftbls %u
+|-
+| RomStart RomEnd   SegStart SegEnd   allocp   profile  segname
+| RomStart RomEnd   SegStart SegEnd   allocp   profile  segname
+|-
+| %08x %08x %08x %08x %08x %08x %s
+| %08x %08x %08x %08x %08x %08x %s
+|-
+| ?
+| ?
+|-
+| actor_dlftbls %u
+| actor_dlftbls %u
+|-
+| No. RamStart- RamEnd cn  Name
+| No. RamStart- RamEnd cn  Name
+|-
+| %3d %08x-%08x %3d %s
+| %3d %08x-%08x %3d %s
+|-
+| [31m
+| [31m
+|-
+| T_BGCheck_PosErrorCheck():位置が妥当ではありません。pos (%f,%f,%f) file:%s line:%d
+| T_BGCheck_PosErrorCheck(): POSITION INVALID. pos (%f,%f,%f) file:%s line:%d
+|-
+| [m
+| [m
+|-
+| new_node != SS_NULL
+| new_node != SS_NULL
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| psst-&gt;tbl != NULL
+| psst-&gt;tbl != NULL
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| [41;37m
+| [41;37m
+|-
+| T_Polygon_GetVertex_bg_ai(): Error %d %d %d 引数が適切ではありません。処理を終了します。
+| T_Polygon_GetVertex_bg_ai(): Error %d %d %d INADEQUATE FUNCTION. PROCESSING COMPLETE.
+|-
+| [m
+| [m
+|-
+| !IS_ZERO(ac_size)
+| !IS_ZERO(ac_size)
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| !IS_ZERO(ac_size)
+| !IS_ZERO(ac_size)
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| /*---------------- BGCheck バッファーメモリサイズ -------------*/
+| /*---------------- BGCheck BUFFER MEMORY SIZE -------------*/
+|-
+| /* BGCheck LonLonサイズ %dbyte */
+| /* BGCheck LonLon SIZE %dbyte */
+|-
+| /* BGCheck ミニサイズ %dbyte */
+| /* BGCheck MINI SIZE %dbyte */
+|-
+| /* BGCheck Spot用サイズ %dbyte */
+| /* BGCheck Spot SIZE %dbyte */
+|-
+| /* BGCheck ノーマルサイズ %dbyte  */
+| /* BGCheck NORMAL SIZE %dbyte  */
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| [32m
+| [32m
+|-
+| /*---結局 BG使用サイズ %dbyte---*/
+| /*---RESULTING BG USAGE SIZE %dbyte---*/
+|-
+| [m
+| [m
+|-
+| [43;30m
+| [43;30m
+|-
+| T_BGCheck_getBGDataInfo():そのbg_actor_indexは使われておりません。index=%d
+| T_BGCheck_getBGDataInfo(): THAT bg_actor_index IS UNUSED. index=%d
+|-
+| [m
+| [m
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| こいつ,pself_actor-&gt;name %d
+| THIS ONE, pself_actor-&gt;name %d
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| こいつ,pself_actor-&gt;name %d
+| THIS ONE, pself_actor-&gt;name %d
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| こいつ,pself_actor-&gt;name %d
+| THIS ONE, pself_actor-&gt;name %d
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| こいつ,pself_actor-&gt;name %d
+| THIS ONE, pself_actor-&gt;name %d
+|-
+| pself_actor == NULLで犯人不明
+| pself_actor == NULL, CULPRIT UNCLEAR
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| こいつ,pself_actor-&gt;name %d
+| THIS ONE, pself_actor-&gt;name %d
+|-
+| this-&gt;short_slist_node_tbl != NULL
+| this-&gt;short_slist_node_tbl != NULL
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| this-&gt;polygon_check != NULL
+| this-&gt;polygon_check != NULL
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| this-&gt;short_slist_node_last_index &lt; this-&gt;short_slist_node_size
+| this-&gt;short_slist_node_last_index &lt; this-&gt;short_slist_node_size
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| new_index &lt; this-&gt;short_slist_node_size
+| new_index &lt; this-&gt;short_slist_node_size
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| ptbl-&gt;pbuf != NULL
+| ptbl-&gt;pbuf != NULL
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| ptbl-&gt;pbuf != NULL
+| ptbl-&gt;pbuf != NULL
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| [31m
+| [31m
+|-
+| DynaPolyInfo_setActor():ダイナミックポリゴン 空きインデックスはありません
+| DynaPolyInfo_setActor(): DYNAMIC POLYGON - NO EMPTY INDEX
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| DynaPolyInfo_setActor():index %d
+| DynaPolyInfo_setActor():index %d
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| DynaPolyInfo_delReserve():index %d
+| DynaPolyInfo_delReserve():index %d
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| DynaPolyInfo_delReserve():削除されているはずの(?)
+| DynaPolyInfo_delReserve(): SHOULD BE UNDERGOING DELETION (?)
+|-
+| インデックス(== -1)のため,処理を中止します。
+| DUE TO INDEX (== -1), PROCESSING WILL BE CANCELLED.
+|-
+| [m
+| [m
+|-
+| [31m
+| [31m
+|-
+| DynaPolyInfo_delReserve():確保していない／出来なかったインデックスの解放のため、処理を中止します。index == %d
+| DynaPolyInfo_delReserve(): DUE TO AN INABILITY TO DEALLOCATE THE INDEX, OR DUE TO BEING UNRESERVED, PROCESING WILL BE CANCELLED. index == %d
+|-
+| [m
+| [m
+|-
+| [31m
+| [31m
+|-
+| DynaPolyInfo_expandSRT():polygon over %dが%dを越えるとダメ
+| DynaPolyInfo_expandSRT():polygon over %d CANNOT BE OVER %d
+|-
+| [31m
+| [31m
+|-
+| DynaPolyInfo_expandSRT():vertex over %dが%dを越えるとダメ
+| DynaPolyInfo_expandSRT():vertex over %d CANNOT BE OVER %d
+|-
+| pdyna_poly_info-&gt;poly_num &gt;= *pstart_poly_index + pbgdata-&gt;poly_num
+| pdyna_poly_info-&gt;poly_num &gt;= *pstart_poly_index + pbgdata-&gt;poly_num
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| pdyna_poly_info-&gt;vert_num &gt;= *pstart_vert_index + pbgdata-&gt;vtx_num
+| pdyna_poly_info-&gt;vert_num &gt;= *pstart_vert_index + pbgdata-&gt;vtx_num
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| [32m
+| [32m
+|-
+| DynaPolyInfo_setup():削除 index=%d
+| DynaPolyInfo_setup(): DELETED index=%d
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| DynaPolyInfo_setup():削除 index=%d
+| DynaPolyInfo_setup(): DELETED index=%d
+|-
+| [m
+| [m
+|-
+| !IS_ZERO(ac_size)
+| !IS_ZERO(ac_size)
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| !IS_ZERO(ac_size)
+| !IS_ZERO(ac_size)
+|-
+| ../z_bgcheck.c
+| ../z_bgcheck.c
+|-
+| [31m
+| [31m
+|-
+| BGCheckCollection_typicalActorPos():位置が妥当ではありません。
+| BGCheckCollection_typicalActorPos(): POSITION INVALID.
+|-
+| pos (%f,%f,%f) file:%s line:%d
+| pos (%f,%f,%f) file:%s line:%d
+|-
+| [m
+| [m
+|-
+| [43;30mcamera: foward check: too many layer!
+| [43;30mcamera: foward check: too many layer!
+|-
+| [m
+| [m
+|-
+| camera: res: stat (%d/%d/%d)
+| camera: res: stat (%d/%d/%d)
+|-
+| camera: res: PREG(%02d) = %d
+| camera: res: PREG(%02d) = %d
+|-
+| camera: res: %d = PREG(%02d)
+| camera: res: %d = PREG(%02d)
+|-
+| [43;30mcamera: corner check no cross point %x %x
+| [43;30mcamera: corner check no cross point %x %x
+|-
+| [m
+| [m
+|-
+| %f (%f %f %f) %f
+| %f (%f %f %f) %f
+|-
+| [43;30mcamera: climb: no floor 
+| [43;30mcamera: climb: no floor 
+|-
+| [m
+| [m
+|-
+| [43;30mcamera: warning: battle: target is not valid, change parallel
+| [43;30mcamera: warning: battle: target is not valid, change parallel
+|-
+| [m
+| [m
+|-
+| camera: battle: target actor name [34m%d[m
+| camera: battle: target actor name [34m%d[m
+|-
+| camera: battle: target actor name [41;37m%d[m
+| camera: battle: target actor name [41;37m%d[m
+|-
+| camera: battle: change target %d -&gt; [34m%d[m
+| camera: battle: change target %d -&gt; [34m%d[m
+|-
+| [43;30mcamera: warning: keepon: target is not valid, change parallel
+| [43;30mcamera: warning: keepon: target is not valid, change parallel
+|-
+| [m
+| [m
+|-
+| [43;30mcamera: warning: talk: target is not valid, change parallel
+| [43;30mcamera: warning: talk: target is not valid, change parallel
+|-
+| [m
+| [m
+|-
+| camera: talk: BG&amp;collision check %d time(s)
+| camera: talk: BG&amp;collision check %d time(s)
+|-
+| [43;30mcamera: item: item type changed %d -&gt; %d
+| [43;30mcamera: item: item type changed %d -&gt; %d
+|-
+| [m
+| [m
+|-
+| camera: item: type %d
+| camera: item: type %d
+|-
+| camera: item: BG&amp;collision check %d time(s)
+| camera: item: BG&amp;collision check %d time(s)
+|-
+| [43;30mcamera: warning: talk: target is not valid, change normal camera
+| [43;30mcamera: warning: talk: target is not valid, change normal camera
+|-
+| [m
+| [m
+|-
+| camera: position change %d 
+| camera: position change %d 
+|-
+| chau!chau!
+| chau!chau!
+|-
+| camera: demo: player demo set WAIT
+| camera: demo: player demo set WAIT
+|-
+| camera: demo: player demo set %d
+| camera: demo: player demo set %d
+|-
+| [43;30mcamera: warning: demo C: actor is not valid
+| [43;30mcamera: warning: demo C: actor is not valid
+|-
+| [m
+| [m
+|-
+| [43;30mcamera: warning: demo C: actor is not valid
+| [43;30mcamera: warning: demo C: actor is not valid
+|-
+| [m
+| [m
+|-
+| [43;30mcamera: warning: demo C: actor is not valid
+| [43;30mcamera: warning: demo C: actor is not valid
+|-
+| [m
+| [m
+|-
+| [43;30mcamera: warning: demo C: actor is not valid
+| [43;30mcamera: warning: demo C: actor is not valid
+|-
+| [m
+| [m
+|-
+| static SplinedatZ  %s[] = {
+| static SplinedatZ  %s[] = {
+|-
+|     /* key frame %2d */ {
+|     /* key frame %2d */ {
+|-
+|     /*     code     */ %d,
+|     /*     code     */ %d,
+|-
+|     /*     z        */ %d,
+|     /*     z        */ %d,
+|-
+|     /*     T        */ %d,
+|     /*     T        */ %d,
+|-
+|     /*     zoom     */ %f,
+|     /*     zoom     */ %f,
+|-
+|     /*     pos      */ { %d, %d, %d }
+|     /*     pos      */ { %d, %d, %d }
+|-
+|     },
+|     },
+|-
+| };
+| };
+|-
+| [1m%06u:[m camera: spline demo: start %s 
+| [1m%06u:[m camera: spline demo: start %s 
+|-
+| 絶対
+| ABSOLUTE
+|-
+| 相対
+| RELATIVE
+|-
+| CENTER
+| CENTER
+|-
+|    EYE
+|    EYE
+|-
+| [41;37mcamera: spline demo: owner dead
+| [41;37mcamera: spline demo: owner dead
+|-
+| [m
+| [m
+|-
+| [43;30mcamera: warning: attention: target is not valid, stop!
+| [43;30mcamera: warning: attention: target is not valid, stop!
+|-
+| [m
+| [m
+|-
+| [43;30mcamera: attention demo: this door is dummy door!
+| [43;30mcamera: attention demo: this door is dummy door!
+|-
+| [m
+| [m
+|-
+| [43;30mcamera: warning: circle: target is not valid, stop!
+| [43;30mcamera: warning: circle: target is not valid, stop!
+|-
+| [m
+| [m
+|-
+| ../z_camera.c
+| ../z_camera.c
+|-
+| [34mcamera: create --- allocate %d byte[m
+| [34mcamera: create --- allocate %d byte[m
+|-
+| [41;37mcamera: create: not enough memory
+| [41;37mcamera: create: not enough memory
+|-
+| [m
+| [m
+|-
+| [34mcamera: destroy ---[m
+| [34mcamera: destroy ---[m
+|-
+| ../z_camera.c
+| ../z_camera.c
+|-
+| [43;30mcamera: destroy: already cleared
+| [43;30mcamera: destroy: already cleared
+|-
+| [m
+| [m
+|-
+| [34mcamera: initialize --- [m UID %d
+| [34mcamera: initialize --- [m UID %d
+|-
+| camera: room type: default set field
+| camera: room type: default set field
+|-
+| camera: room type: default set etc (%d)
+| camera: room type: default set etc (%d)
+|-
+| camera: room type: prerender
+| camera: room type: prerender
+|-
+| [34mcamera: personalize ---[m
+| [34mcamera: personalize ---[m
+|-
+| camera: change camera status: cond %c%c
+| camera: change camera status: cond %c%c
+|-
+| camera: res: stat (%d/%d/%d)
+| camera: res: stat (%d/%d/%d)
+|-
+| camera: change camera status: PREG(%02d) = %d
+| camera: change camera status: PREG(%02d) = %d
+|-
+| S:
+| S:
+|-
+| M:
+| M:
+|-
+| F:
+| F:
+|-
+| I:
+| I:
+|-
+| camera: water: off
+| camera: water: off
+|-
+| kankyo changed water, sound on
+| environment changed water, sound on
+|-
+| kankyo changed water off, sound off
+| environment changed water off, sound off
+|-
+| attention sound URGENCY
+| attention sound URGENCY
+|-
+| attention sound NORMAL
+| attention sound NORMAL
+|-
+| camera: force change SET to %s!
+| camera: force change SET to %s!
+|-
+| camera: in %x
+| camera: in %x
+|-
+| camera: cut out %x
+| camera: cut out %x
+|-
+| camera: wait out %x
+| camera: wait out %x
+|-
+| camera: engine (%d %d %d) %04x 
+| camera: engine (%d %d %d) %04x 
+|-
+| camera: shrink_and_bitem %x(%d)
+| camera: shrink_and_bitem %x(%d)
+|-
+| camera: engine (%s(%d) %s(%d) %s(%d)) ok!
+| camera: engine (%s(%d) %s(%d) %s(%d)) ok!
+|-
+| camera: debug out
+| camera: debug out
+|-
+| dir  (%d) %d(%f) %d(%f) 0(0) 
+| dir  (%d) %d(%f) %d(%f) 0(0) 
+|-
+| real (%d) %d(%f) %d(%f) 0(0) 
+| real (%d) %d(%f) %d(%f) 0(0) 
+|-
+| camera: out (%f %f %f) (%f %f %f)
+| camera: out (%f %f %f) (%f %f %f)
+|-
+| camera: dir (%f %d(%f) %d(%f)) (%f)
+| camera: dir (%f %d(%f) %d(%f)) (%f)
+|-
+| camera: foot(%f %f %f) dist (%f)
+| camera: foot(%f %f %f) dist (%f)
+|-
+| camera: player demo end!!
+| camera: player demo end!!
+|-
+| #ERROR!
+| #ERROR!
+|-
+| camera: error sound
+| camera: error sound
+|-
+| [43;30mcamera: change camera mode: force NORMAL: %s %s refused
+| [43;30mcamera: change camera mode: force NORMAL: %s %s refused
+|-
+| [m
+| [m
+|-
+| #ERROR!
+| #ERROR!
+|-
+| [41;37mcamera: error: illegal camera set (%d) !!!!
+| [41;37mcamera: error: illegal camera set (%d) !!!!
+|-
+| [m
+| [m
+|-
+| [1m%06u:[m camera: change camera[%d] set %s
+| [1m%06u:[m camera: change camera[%d] set %s
+|-
+| [41;37mcamera: error: illegal camera ID (%d) !! (%d&#124;%d&#124;%d)
+| [41;37mcamera: error: illegal camera ID (%d) !! (%d&#124;%d&#124;%d)
+|-
+| [m
+| [m
+|-
+| .... change default door camera (set %d)
+| .... change default door camera (set %d)
+|-
+| ....change door camera ID %d (set %d)
+| ....change door camera ID %d (set %d)
+|-
+| [41;37mcamera: setCameraData: last argument not alive!
+| [41;37mcamera: setCameraData: last argument not alive!
+|-
+| [m
+| [m
+|-
+| CollisionBtlTbl_get():インデックスオーバー
+| CollisionBtlTbl_get(): INDEX EXCEEDED
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| vtx_tbl != NULL
+| vtx_tbl != NULL
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| [31m
+| [31m
+|-
+| ClObjJntSph_set():zelda_malloc()出来ません。
+| ClObjJntSph_set(): CANNOT zelda_malloc()
+|-
+| [m
+| [m
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| [31m
+| [31m
+|-
+| ClObjJntSph_set3():zelda_malloc_出来ません。
+| ClObjJntSph_set3(): CANNOT zelda_malloc_
+|-
+| [m
+| [m
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| [31m
+| [31m
+|-
+| ClObjJntSph_set5():zelda_malloc出来ません
+| ClObjJntSph_set5(): CANNOT zelda_malloc
+|-
+| [m
+| [m
+|-
+| pclobj_jntsph-&gt;elem_tbl != NULL
+| pclobj_jntsph-&gt;elem_tbl != NULL
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| [31m
+| [31m
+|-
+| ClObjTris_set3():zelda_malloc()出来ません
+| ClObjTris_set3(): CANNOT zelda_malloc()
+|-
+| [m
+| [m
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| [31m
+| [31m
+|-
+| ClObjTris_set5():zelda_malloc出来ません
+| ClObjTris_set5(): CANNOT zelda_malloc
+|-
+| [m
+| [m
+|-
+| pclobj_tris-&gt;elem_tbl != NULL
+| pclobj_tris-&gt;elem_tbl != NULL
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| CollisionCheck_setAT():インデックスがオーバーして追加不能
+| CollisionCheck_setAT(): INDEX EXCEEDED, ADDITION IMPOSSIBLE
+|-
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| CollisionCheck_setAT_SAC():全データ数より大きいところに登録しようとしている。
+| CollisionCheck_setAT_SAC(): REGISTERING TO A LARGER AREA THAN TOTAL DATA AMOUNT.
+|-
+| CollisionCheck_setAT():インデックスがオーバーして追加不能
+| CollisionCheck_setAT(): INDEX EXCEEDED, ADDITION IMPOSSIBLE
+|-
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| CollisionCheck_setAC():インデックスがオーバして追加不能
+| CollisionCheck_setAC(): INDEX EXCEEDED, ADDITION IMPOSSIBLE
+|-
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| CollisionCheck_setAC_SAC():全データ数より大きいところに登録しようとしている。
+| CollisionCheck_setAC_SAC(): REGISTERING TO A LARGER AREA THAN TOTAL DATA AMOUNT.
+|-
+| CollisionCheck_setAC():インデックスがオーバして追加不能
+| CollisionCheck_setAC(): INDEX EXCEEDED, ADDITION IMPOSSIBLE
+|-
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| CollisionCheck_setOC():インデックスがオーバして追加不能
+| CollisionCheck_setOC(): INDEX EXCEEDED, ADDITION IMPOSSIBLE
+|-
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+| pcl_obj-&gt;data_type &lt;= CL_DATA_LBL_SWRD
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| CollisionCheck_setOC_SAC():全データ数より大きいところに登録しようとしている。
+| CollisionCheck_setOC_SAC(): REGISTERING TO A LARGER AREA THAN TOTAL DATA AMOUNT.
+|-
+| CollisionCheck_setOC():インデックスがオーバして追加不能
+| CollisionCheck_setOC(): INDEX EXCEEDED, ADDITION IMPOSSIBLE
+|-
+| CollisionCheck_setOCLine():インデックスがオーバして追加不能
+| CollisionCheck_setOCLine(): INDEX EXCEEDED, ADDITION IMPOSSIBLE
+|-
+| CollisionCheck_OC():未対応 %d, %d
+| CollisionCheck_OC(): INCOMPATIBLE %d, %d
+|-
+| pclobj_elem-&gt;ac_hit_elem != NULL
+| pclobj_elem-&gt;ac_hit_elem != NULL
+|-
+| ../z_collision_check.c
+| ../z_collision_check.c
+|-
+| CollisionCheck_generalLineOcCheck():未対応 %dタイプ
+| CollisionCheck_generalLineOcCheck(): INCOMPATIBLE %d TYPE
+|-
+| ../z_debug.c
+| ../z_debug.c
+|-
+| %s
+| %s
+|-
+| %s%02d%6d
+| %s%02d%6d
+|-
+| ../z_debug.c
+| ../z_debug.c
+|-
+| ../z_debug.c
+| ../z_debug.c
+|-
+| ../z_debug_display.c
+| ../z_debug_display.c
+|-
+| ../z_debug_display.c
+| ../z_debug_display.c
+|-
+| ../z_debug_display.c
+| ../z_debug_display.c
+|-
+| ../z_debug_display.c
+| ../z_debug_display.c
+|-
+| ../z_debug_display.c
+| ../z_debug_display.c
+|-
+| ../z_debug_display.c
+| ../z_debug_display.c
+|-
+| %s
+| %s
+|-
+| FLAME 
+| FLAME 
+|-
+| %06d
+| %06d
+|-
+| %s
+| %s
+|-
+| SKIP=(START) or (Cursole Right)
+| SKIP=(START) or (Cursole Right)
+|-
+| デモ開始要求 発令！
+| CUTSCENE START REQUEST ANNOUNCEMENT!
+|-
+| 分岐先指定！！=[%d]番
+| FUTURE FORK DESIGNATION=No. [%d]
+|-
+| ../z_demo.c
+| ../z_demo.c
+|-
+| ../z_demo.c
+| ../z_demo.c
+|-
+| やっぱりここかいな
+| RIGHT HERE, HUH
+|-
+| game_info.mode=[%d] restart_flag
+| game_info.mode=[%d] restart_flag
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ../z_draw.c
+| ../z_draw.c
+|-
+| ?333../z_elf_message.c
+| ?333../z_elf_message.c
+|-
+| 企画外 条件 = %s
+| UNPLANNED CONDITION = %s
+|-
+| 企画外 条件
+| UNPLANNED CONDITION
+|-
+| 0
+| 0
+|-
+| ../z_elf_message.c
+| ../z_elf_message.c
+|-
+| ../z_elf_message.c
+| ../z_elf_message.c
+|-
+| 企画外 条件 = %s
+| UNPLANNED CONDITION = %s
+|-
+| 企画外 条件
+| UNPLANNED CONDITION
+|-
+| 0
+| 0
+|-
+| ../z_elf_message.c
+| ../z_elf_message.c
+|-
+| ../z_fcurve_data_skelanime.c
+| ../z_fcurve_data_skelanime.c
+|-
+| this-&gt;now_joint != NULL
+| this-&gt;now_joint != NULL
+|-
+| ../z_fcurve_data_skelanime.c
+| ../z_fcurve_data_skelanime.c
+|-
+| ../z_fcurve_data_skelanime.c
+| ../z_fcurve_data_skelanime.c
+|-
+| ../z_fcurve_data_skelanime.c
+| ../z_fcurve_data_skelanime.c
+|-
+| ../z_fcurve_data_skelanime.c
+| ../z_fcurve_data_skelanime.c
+|-
+| ../z_fcurve_data_skelanime.c
+| ../z_fcurve_data_skelanime.c
+|-
+| ../z_fcurve_data_skelanime.c
+| ../z_fcurve_data_skelanime.c
+|-
+| FcSkeletonInfo_draw_child():未対応
+| FcSkeletonInfo_draw_child(): INCOMPATIBLE
+|-
+| ../z_fcurve_data_skelanime.c
+| ../z_fcurve_data_skelanime.c
+|-
+| C6
+| C6
+|-
+| aplayer-&gt;ride.actor != NULL
+| aplayer-&gt;ride.actor != NULL
+|-
+| ../z_horse.c
+| ../z_horse.c
+|-
+| horse_actor != NULL
+| horse_actor != NULL
+|-
+| ../z_horse.c
+| ../z_horse.c
+|-
+| 馬存在によるセット %d %d %d
+| SET BY EXISTENCE OF HORSE %d %d %d
+|-
+| horse_actor != NULL
+| horse_actor != NULL
+|-
+| ../z_horse.c
+| ../z_horse.c
+|-
+| [41;37m
+| [41;37m
+|-
+| Horse_SetNormal():%d セットスポットまずいです。
+| Horse_SetNormal():%d SET SPOT IS NO GOOD.
+|-
+| [m
+| [m
+|-
+| horse_actor != NULL
+| horse_actor != NULL
+|-
+| ../z_horse.c
+| ../z_horse.c
+|-
+| horse_actor != NULL
+| horse_actor != NULL
+|-
+| ../z_horse.c
+| ../z_horse.c
+|-
+| player-&gt;ride.actor != NULL
+| player-&gt;ride.actor != NULL
+|-
+| ../z_horse.c
+| ../z_horse.c
+|-
+| player-&gt;ride.actor != NULL
+| player-&gt;ride.actor != NULL
+|-
+| ../z_horse.c
+| ../z_horse.c
+|-
+| player-&gt;ride.actor != NULL
+| player-&gt;ride.actor != NULL
+|-
+| ../z_horse.c
+| ../z_horse.c
+|-
+| player-&gt;ride.actor != NULL
+| player-&gt;ride.actor != NULL
+|-
+| ../z_horse.c
+| ../z_horse.c
+|-
+| [41;37m
+| [41;37m
+|-
+| Horse_Set_Check():%d セットスポットまずいです。
+| Horse_Set_Check():%d SET SPOT IS NO GOOD.
+|-
+| [m
+| [m
+|-
+| D°U+00A0
+| D°U+00A0
+|-
+| U+00C5@
+| U+00C5@
+|-
+| MARKER_SOI
+| MARKER_SOI
+|-
+| MARKER_APP0 %d
+| MARKER_APP0 %d
+|-
+| MARKER_APP1 %d
+| MARKER_APP1 %d
+|-
+| MARKER_APP2 %d
+| MARKER_APP2 %d
+|-
+| MARKER_DQT %d %d %02x
+| MARKER_DQT %d %d %02x
+|-
+| MARKER_DHT %d %d %02x
+| MARKER_DHT %d %d %02x
+|-
+| MARKER_DRI %d
+| MARKER_DRI %d
+|-
+| MARKER_SOF   %d 精度%02x 垂直%d 水平%d compo%02x (1:Y)%d (H0=2,V0=1(422) or 2(420))%02x (量子化テーブル)%02x (2:Cb)%d (H1=1,V1=1)%02x (量子化テーブル)%02x (3:Cr)%d (H2=1,V2=1)%02x (量子化テーブル)%02x
+| MARKER_SOF   %d ACCURACY %02x VERTICAL %d HORIZONTAL%d compo%02x (1:Y)%d (H0=2,V0=1(422) or 2(420))%02x (QUANTIZATION TABLE)%02x (2:Cb)%d (H1=1,V1=1)%02x (QUANTIZATION TABLE)%02x (3:Cr)%d (H2=1,V2=1)%02x (QUANTIZATION TABLE)%02x
+|-
+| MARKER_SOS %d
+| MARKER_SOS %d
+|-
+| MARKER_EOI
+| MARKER_EOI
+|-
+| マーカー不明 %02x
+| MARKER UNCLEAR %02x
+|-
+| worksize &gt;= sizeof(JPEGWork) + MB_SIZE * (PROC_OF_MBS - 1)
+| worksize &gt;= sizeof(JPEGWork) + MB_SIZE * (PROC_OF_MBS - 1)
+|-
+| ../z_jpeg.c
+| ../z_jpeg.c
+|-
+| *** fifoバッファの同期待ち time = %6.3f ms ***
+| *** fifo BUFFER SYNCHRONIZATION WAIT time = %6.3f ms ***
+|-
+| *** 各セグメントのマーカーのチェック time = %6.3f ms ***
+| *** INDIVIDUAL SEGMENT MARKER CHECK time = %6.3f ms ***
+|-
+| *** 量子化テーブル作成 time = %6.3f ms ***
+| *** QUANTIZATION TABLE CREATION time = %6.3f ms ***
+|-
+| Error : Cant' make huffman table.
+| Error : Cant' make huffman table.
+|-
+| Error : Cant' make huffman table.
+| Error : Cant' make huffman table.
+|-
+| Error : Cant' make huffman table.
+| Error : Cant' make huffman table.
+|-
+| Error : Cant' make huffman table.
+| Error : Cant' make huffman table.
+|-
+| Error : Cant' make huffman table.
+| Error : Cant' make huffman table.
+|-
+| *** ハフマンテーブル作成 time = %6.3f ms ***
+| *** HUFFMAN TABLE CREATION time = %6.3f ms ***
+|-
+| [31m
+| [31m
+|-
+| Error : Can't decode jpeg
+| Error : Can't decode jpeg
+|-
+| [m
+| [m
+|-
+| *** 展開 &amp; 描画 time = %6.3f ms ***
+| *** EXPANSION &amp; DRAW time = %6.3f ms ***
+|-
+| Ｍｏｄｅ=%d  eye.x=%f,  eye.z=%f  kscp_pos=%d
+| Ｍｏｄｅ=%d  eye.x=%f,  eye.z=%f  kscp_pos=%d
+|-
+| ../z_kanfont.c
+| ../z_kanfont.c
+|-
+| ../z_kanfont.c
+| ../z_kanfont.c
+|-
+| ../z_kanfont.c
+| ../z_kanfont.c
+|-
+| msg_data=%x,  msg_data0=%x   jj=%x
+| msg_data=%x,  msg_data0=%x   jj=%x
+|-
+| ＥＲＲＯＲ！！  エラー！！！  error───！！！！
+| ＥＲＲＯＲ！！  ERROR！！！  error───！！！！
+|-
+| nes_mes_buf[%d]=%d
+| nes_mes_buf[%d]=%d
+|-
+| ../z_kanfont.c
+| ../z_kanfont.c
+|-
+| [43;30m
+| [43;30m
+|-
+| フィールド常駐以外、太陽設定！よって強制解除！
+| SUN SETTINGS OUTSIDE OF STATIONARY FIELD! FORCED TO CANCEL ACCORDINGLY!
+|-
+| [m
+| [m
+|-
+| [41;37m
+| [41;37m
+|-
+| end_frameとstart_frameのフレーム関係がおかしい!!![m
+| FRAME RELATION BETWEEN end_frame AND start_frame IS OFF!!![m
+|-
+| [41;37m
+| [41;37m
+|-
+| by get_parcent_forAccelBrake!!!!!!!!![m
+| by get_parcent_forAccelBrake!!!!!!!!![m
+|-
+| [41;37m
+| [41;37m
+|-
+| 環境ＶＲデータ取得失敗！ ささきまでご報告を！[m
+| FAILURE TO OBTAIN ENVIRONMENT VR DATA! REPORT TO SASAKI![m
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| [43;30m
+| [43;30m
+|-
+| 水ポリゴンデータに水中カラーが設定されておりません![m
+| WATER COLOURS NOT SET IN WATER POLYGON DATA![m
+|-
+| T%03d 
+| T%03d 
+|-
+| E%03d
+| E%03d
+|-
+| %s
+| %s
+|-
+| ZELDATIME 
+| ZELDATIME 
+|-
+| %02d
+| %02d
+|-
+| %s
+| %s
+|-
+| :
+| :
+|-
+| %s
+| %s
+|-
+|  
+|  
+|-
+| %02d
+| %02d
+|-
+| %s
+| %s
+|-
+| VRBOXTIME 
+| VRBOXTIME 
+|-
+| %02d
+| %02d
+|-
+| %s
+| %s
+|-
+| :
+| :
+|-
+| %s
+| %s
+|-
+|  
+|  
+|-
+| %02d
+| %02d
+|-
+| %s
+| %s
+|-
+| YORU
+| YORU
+|-
+| %s
+| %s
+|-
+| HIRU
+| HIRU
+|-
+| next_zelda_time=[%x]
+| next_zelda_time=[%x]
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| [41;37m
+| [41;37m
+|-
+| カラーパレットの設定がおかしいようです！[m
+| LOOKS LIKE THE COLOUR PALETTE SETTINGS ARE OFF![m
+|-
+| [41;37m
+| [41;37m
+|-
+| 設定パレット＝[%d] 最後パレット番号＝[%d]
+| SETTINGS PALETTE＝[%d] FINAL PALETTE NUMBER＝[%d]
+|-
+| [m
+| [m
+|-
+| [31mカラーパレットがおかしいようです！
+| [31m LOOKS LIKE THE COLOUR PALETTE IS OFF!
+|-
+| [33m設定パレット＝[%d] パレット数＝[%d]
+| [33m SETTINGS PALETTE＝[%d] PALETTE NUMBER＝[%d]
+|-
+| [m
+| [m
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| BGM設定game_play-&gt;sound_info.BGM=[%d] old_bgm=[%d]
+| BGM SETTINGS game_play-&gt;sound_info.BGM=[%d] old_bgm=[%d]
+|-
+| -----------------
+| -----------------
+|-
+|  強制ＢＧＭ=[%d]
+|  OBLIGATORY ＢＧＭ=[%d]
+|-
+|      ＢＧＭ=[%d]
+|      ＢＧＭ=[%d]
+|-
+|      エンブ=[%d]
+|      エンブ=[%d]
+|-
+|      status=[%d]
+|      status=[%d]
+|-
+| Na_StartMorinigBgm
+| Na_StartMorinigBgm
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| ../z_kankyo.c
+| ../z_kankyo.c
+|-
+| pp=%x data=%f
+| pp=%x data=%f
+|-
+| ../z_lifemeter.c
+| ../z_lifemeter.c
+|-
+| ../z_lifemeter.c
+| ../z_lifemeter.c
+|-
+| ../z_lights.c
+| ../z_lights.c
+|-
+| ../z_lights.c
+| ../z_lights.c
+|-
+| ../z_lights.c
+| ../z_lights.c
+|-
+| ../z_lights.c
+| ../z_lights.c
+|-
+| ../z_lights.c
+| ../z_lights.c
+|-
+| %s: %u バイトの%sに失敗しました
+| %s: FAILURE AT %u BYTES' %s
+|-
+| %s: %u バイトの%sに成功しました
+| %s: SUCCESS AT %u BYTES' %s
+|-
+| zelda_malloc
+| zelda_malloc
+|-
+| 確保
+| RESERVED
+|-
+| zelda_malloc_DEBUG
+| zelda_malloc_DEBUG
+|-
+| 確保
+| RESERVED
+|-
+| zelda_malloc_r
+| zelda_malloc_r
+|-
+| 確保
+| RESERVED
+|-
+| zelda_malloc_r_DEBUG
+| zelda_malloc_r_DEBUG
+|-
+| 確保
+| RESERVED
+|-
+| zelda_realloc
+| zelda_realloc
+|-
+| 再確保
+| RE-RESERVED
+|-
+| zelda_realloc_DEBUG
+| zelda_realloc_DEBUG
+|-
+| 再確保
+| RE-RESERVED
+|-
+| zelda_calloc
+| zelda_calloc
+|-
+| 確保
+| RESERVED
+|-
+| ゼルダヒープ表示
+| ZELDA HEAP DISPLAY
+|-
+| ../z_map_mark.c
+| ../z_map_mark.c
+|-
+| dlftbl-&gt;allocp
+| dlftbl-&gt;allocp
+|-
+| ../z_map_mark.c
+| ../z_map_mark.c
+|-
+| [41;37m部屋番号がオーバーしてるで,ヤバイで %d/%d  
+| [41;37m ROOM NUMBER EXCEEDED, YIKES %d/%d  
+|-
+| MapMarkDraw の処理を中断します
+| MapMarkDraw PROCESSING INTERRUPTED
+|-
+| [m
+| [m
+|-
+| ../z_map_mark.c
+| ../z_map_mark.c
+|-
+| ../z_map_mark.c
+| ../z_map_mark.c
+|-
+| ../z_moji.c
+| ../z_moji.c
+|-
+| moji_tlut --&gt; %X
+| moji_tlut --&gt; %X
+|-
+| ../z_moji.c
+| ../z_moji.c
+|-
+| ../z_moji.c
+| ../z_moji.c
+|-
+| font_ff --&gt; %X
+| font_ff --&gt; %X
+|-
+| ../z_moji.c
+| ../z_moji.c
+|-
+| s(%d): xyz_t: %s (%f %f %f)
+| s(%d): xyz_t: %s (%f %f %f)
+|-
+| ../z_onepointdemo.c
+| ../z_onepointdemo.c
+|-
+| &amp;cp
+| &amp;cp
+|-
+| [41;37monepointdemo camera: demo number not found !! (%d)
+| [41;37monepointdemo camera: demo number not found !! (%d)
+|-
+| [m
+| [m
+|-
+| [41;37monepoint demo: error: too many cameras ... give up! type=%d
+| [41;37monepoint demo: error: too many cameras ... give up! type=%d
+|-
+| [m
+| [m
+|-
+| [43;30monepointdemo camera[%d]: killed 'coz low priority (%d &lt; %d)
+| [43;30monepointdemo camera[%d]: killed 'coz low priority (%d &lt; %d)
+|-
+| [m
+| [m
+|-
+| onepointdemo camera[%d]: delete timer=%d next=%d
+| onepointdemo camera[%d]: delete timer=%d next=%d
+|-
+| [43;30mactor attention demo camera: canceled by other camera
+| [43;30mactor attention demo camera: canceled by other camera
+|-
+| [m
+| [m
+|-
+| [43;30mactor attention demo camera: change mode BOOKEEPON -&gt; NORMAL
+| [43;30mactor attention demo camera: change mode BOOKEEPON -&gt; NORMAL
+|-
+| [m
+| [m
+|-
+| [43;30mactor attention demo camera: %d: unkown part of actor %d
+| [43;30mactor attention demo camera: %d: unkown part of actor %d
+|-
+| [m
+| [m
+|-
+| [36m%06u:[m actor attention demo camera: request %d 
+| [36m%06u:[m actor attention demo camera: request %d 
+|-
+| → [35m×[m (%d)
+| → [35m×[m (%d)
+|-
+| → [34m○[m (%d)
+| → [34m○[m (%d)
+|-
+| [41;37mactor attention demo: give up! 
+| [41;37mactor attention demo: give up! 
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| ＰＡＬＥＴＥセット 【 i=%x : room=%x 】Room_Inf[%d][4]=%x  ( map_palete_no = %d )
+| ＰＡＬＥＴＥ SET 【 i=%x : room=%x 】Room_Inf[%d][4]=%x  ( map_palete_no = %d )
+|-
+| [m
+| [m
+|-
+| [34m
+| [34m
+|-
+| ＫＫＫ＝%d
+| ＫＫＫ＝%d
+|-
+| [m
+| [m
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| [33m
+| [33m
+|-
+| デクの樹ダンジョンＭＡＰ テクスチャＤＭＡ(%x) scene_id_offset=%d  VREG(30)=%d
+| DEKU TREE DUNGEON MAP TEXTURE ＤＭＡ(%x) scene_id_offset=%d  VREG(30)=%d
+|-
+| [m
+| [m
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| ＭＡＰ 各階ＯＮチェック
+| ＭＡＰ INDIVIDUAL FLOOR ＯＮ CHECK
+|-
+| ＊＊＊＊＊＊＊
+| ＊＊＊＊＊＊＊
+|-
+| ＊＊＊＊＊＊＊
+| ＊＊＊＊＊＊＊
+|-
+| room_no=%d (%d)(%d)
+| room_no=%d (%d)(%d)
+|-
+| ＊＊＊＊＊＊＊
+| ＊＊＊＊＊＊＊
+|-
+| ＊＊＊＊＊＊＊
+| ＊＊＊＊＊＊＊
+|-
+| ＲＯＯＭ＿ＩＮＦ＝%d
+| ＲＯＯＭ＿ＩＮＦ＝%d
+|-
+| [33m
+| [33m
+|-
+| 部屋部屋＝%d
+| ROOM ROOM＝%d
+|-
+| [m
+| [m
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| ＭＡＰ テクスチャ初期化   scene_data_ID=%d
+| ＭＡＰ TEXTURE INITIALIZATION   scene_data_ID=%d
+|-
+| mapSegment=%x
+| mapSegment=%x
+|-
+| parameter-&gt;mapSegment != NULL
+| parameter-&gt;mapSegment != NULL
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| Game_play_demo_mode_check=%d
+| Game_play_demo_mode_check=%d
+|-
+| ../z_map_exp.c
+| ../z_map_exp.c
+|-
+| 現在階＝%d  現在部屋＝%x  部屋数＝%d
+| CURRENT FLOOR＝%d  CURRENT ROOM＝%x  ROOM NUMBER＝%d
+|-
+| [33m
+| [33m
+|-
+| 階層切替＝%x
+| LAYER CONVERSION＝%x
+|-
+| [m
+| [m
+|-
+| ＡＬＰＨＡーＴＹＰＥ＝%d  LAST_TIME_TYPE=%d
+| ＡＬＰＨＡーＴＹＰＥ＝%d  LAST_TIME_TYPE=%d
+|-
+| a_alpha=%d, c_alpha=%d   →   
+| a_alpha=%d, c_alpha=%d   →   
+|-
+| a_alpha=%d, c_alpha=%d
+| a_alpha=%d, c_alpha=%d
+|-
+| ***(i=%d)***  
+| ***(i=%d)***  
+|-
+| ????????  alpha_change( 50 );  ?????
+| ????????  alpha_change( 50 );  ?????
+|-
+| game_play-&gt;fade_direction &#124;&#124; game_play-&gt;fbdemo_wipe_modem
+| game_play-&gt;fade_direction &#124;&#124; game_play-&gt;fbdemo_wipe_modem
+|-
+| ボタン表示関係データ設定 scene_data_ID=%d
+| DATA SETTINGS RELATED TO BUTTON DISPLAY scene_data_ID=%d
+|-
+| [33m
+| [33m
+|-
+| parameter-&gt;button_status = %x,%x,%x
+| parameter-&gt;button_status = %x,%x,%x
+|-
+| h_gage=%d, b_button=%d, a_button=%d, c_bottle=%d
+| h_gage=%d, b_button=%d, a_button=%d, c_bottle=%d
+|-
+| c_warasibe=%d, c_hook=%d, c_ocarina=%d, c_warp=%d
+| c_trade=%d, c_hook=%d, c_ocarina=%d, c_warp=%d
+|-
+| c_sunmoon=%d, m_wind=%d, m_magic=%d, another=%d
+| c_sunmoon=%d, m_wind=%d, m_magic=%d, other=%d
+|-
+| [m
+| [m
+|-
+| Register_Item_Pt(%d)=%d
+| Register_Item_Pt(%d)=%d
+|-
+| Register_Item_Pt(%d)=%d
+| Register_Item_Pt(%d)=%d
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| [33m
+| [33m
+|-
+| item_get_setting=%d  pt=%d  z=%x
+| item_get_setting=%d  pt=%d  z=%x
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| 封印 = %x
+| MEDALLION = %x
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| 楽譜 = %x
+| MUSIC SCORE = %x
+|-
+| 楽譜 = %x (%x) (%x)
+| MUSIC SCORE = %x (%x) (%x)
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| 精霊石 = %x
+| SPIRITUAL STONE = %x
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| アイテム = %x
+| ITEM = %x
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| Ｎコイン = %x(%d)
+| N COIN = %x(%d)
+|-
+| [m
+| [m
+|-
+| デクの実 %d(%d)=%d  BS_count=%d
+| DEKU NUT %d(%d)=%d  BS_count=%d
+|-
+|  爆弾  爆弾  爆弾  爆弾 爆弾   爆弾 爆弾 
+|  BOMB  BOMB  BOMB  BOMB BOMB   BOMB BOMB 
+|-
+| %d本  Item_MaxGet=%d
+| %d本  Item_MaxGet=%d
+|-
+| 回復ハート回復ハート回復ハート
+| RECOVERY HEART RECOVERY HEART RECOVERY HEART
+|-
+| Item_Pt(1)=%d Item_Pt(2)=%d Item_Pt(3)=%d   空瓶=%d   中味=%d
+| Item_Pt(1)=%d Item_Pt(2)=%d Item_Pt(3)=%d   EMPTY BOTTLE=%d   CONTENTS=%d
+|-
+| Item_Register(%d)=%d  %d
+| Item_Register(%d)=%d  %d
+|-
+| [32m
+| [32m
+|-
+| item_get_non_setting=%d  pt=%d  z=%x
+| item_get_non_setting=%d  pt=%d  z=%x
+|-
+| [m
+| [m
+|-
+| 魔法の壷 Get_Inf_Table( 25, 0x0100)=%d
+| MAGIC JAR Get_Inf_Table( 25, 0x0100)=%d
+|-
+| Item_Register(%d)
+| Item_Register(%d)
+|-
+| アイテム消去(%d)
+| ITEM PURGE (%d)
+|-
+| item_no=%x,  c_no=%x,  Pt=%x  Item_Register=%x
+| item_no=%x,  c_no=%x,  Pt=%x  Item_Register=%x
+|-
+| 妖精使用＝%d
+| FAIRY USAGE＝%d
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ＊＊＊＊＊  増減=%d (now=%d, max=%d)  ＊＊＊
+| ＊＊＊＊＊  FLUCTUATION=%d (now=%d, max=%d)  ＊＊＊
+|-
+| ハート減少半分！！＝%d
+| HEART DECREASE HALVED!!＝%d
+|-
+|   ライフ=%d  ＊＊＊  %d  ＊＊＊＊＊＊
+|   LIFE=%d  ＊＊＊  %d  ＊＊＊＊＊＊
+|-
+| アイテム = (%d)    数 = (%d + %d)  
+| ITEM = (%d)    AMOUNT = (%d + %d)  
+|-
+| 合計 = (%d)
+| TOTAL = (%d)
+|-
+| 蓄電  MAGIC_NOW=%d (%d)
+| ENERGY STORAGE  MAGIC_NOW=%d (%d)
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| EVENT_INF=%x
+| EVENT_INF=%x
+|-
+| event_xp[1]=%d,  event_yp[1]=%d  TOTAL_EVENT_TM=%d
+| event_xp[1]=%d,  event_yp[1]=%d  TOTAL_EVENT_TM=%d
+|-
+| TOTAL_EVENT_TM=%d
+| TOTAL_EVENT_TM=%d
+|-
+| ../z_parameter.c
+| ../z_parameter.c
+|-
+| J_N=%x J_N=%x
+| J_N=%x J_N=%x
+|-
+| J_N=%x J_N=%x
+| J_N=%x J_N=%x
+|-
+| J_N=%x J_N=%x
+| J_N=%x J_N=%x
+|-
+| case 50 : alpha=%d  alpha1=%d
+| case 50 : alpha=%d  alpha1=%d
+|-
+| now_life=%d  max_life=%d
+| now_life=%d  max_life=%d
+|-
+| S_Private.now_life=%d  S_Private.max_life=%d
+| S_Private.now_life=%d  S_Private.max_life=%d
+|-
+| ルピー数ＭＡＸ = %d
+| RUPEE AMOUNT ＭＡＸ = %d
+|-
+| [33m
+| [33m
+|-
+| 魔法スター─────ト！！！！！！！！！
+| MAGIC STAAAAART!!!!!!!!!
+|-
+| MAGIC_MAX=%d
+| MAGIC_MAX=%d
+|-
+| MAGIC_NOW=%d
+| MAGIC_NOW=%d
+|-
+| Z_MAGIC_NOW_NOW=%d
+| Z_MAGIC_NOW_NOW=%d
+|-
+| Z_MAGIC_NOW_MAX=%d
+| Z_MAGIC_NOW_MAX=%d
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| ../z_player_lib.c
+| ../z_player_lib.c
+|-
+| [43;30mprenmi_move
+| [43;30mprenmi_move
+|-
+| [m
+| [m
+|-
+| ../z_prenmi.c
+| ../z_prenmi.c
+|-
+| (int)volume = %d
+| (int)volume = %d
+|-
+| [43;30mprenmi_draw
+| [43;30mprenmi_draw
+|-
+| [m
+| [m
+|-
+| ../z_prenmi.c
+| ../z_prenmi.c
+|-
+| ../z_prenmi.c
+| ../z_prenmi.c
+|-
+| [43;30mquake: too many request %d is changed new one !!
+| [43;30mquake: too many request %d is changed new one !!
+|-
+| [m
+| [m
+|-
+| [43;30mquake: stopped! 'coz camera [%d] killed!!
+| [43;30mquake: stopped! 'coz camera [%d] killed!!
+|-
+| [m
+| [m
+|-
+| n != f
+| n != f
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| n != f
+| n != f
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_rcp.c
+| ../z_rcp.c
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| polygon2-&gt;num &lt;= SHAPE_SORT_MAX
+| polygon2-&gt;num &lt;= SHAPE_SORT_MAX
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| JPEGデータを展開します
+| EXPANDING JPEG DATA
+|-
+| JPEGデータアドレス %08x
+| JPEG DATA ADDRESS %08x
+|-
+| ワークバッファアドレス（Ｚバッファ）%08x
+| WORK BUFFER ADDRESS (Z BUFFER) %08x
+|-
+| 成功…だと思う。 time = %6.3f ms 
+| SUCCESS... I THINK. time = %6.3f ms 
+|-
+| ワークバッファから元のアドレスに書き戻します。
+| WRITING BACK TO ORIGINAL ADDRESS FROM WORK BUFFER.
+|-
+| 元のバッファのサイズが150キロバイト無いと暴走するでしょう。
+| IF THE ORIGINAL BUFFER SIZE ISN'T AT LEAST 150KB, IT WILL BE OUT OF CONTROL.
+|-
+| 失敗！なんでU+301C
+| FAILURE! WHY IS IT U+301C
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| [41;37mz_room.c:カメラＩＤに一致するデータが存在しません camid=%d
+| [41;37mz_room.c: DATA CONSISTENT WITH CAMERA ID DOES NOT EXIST camid=%d
+|-
+| [m
+| [m
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ROOM%d size=%d
+| ROOM%d size=%d
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| game_play-&gt;room_rom_address.num = %d
+| game_play-&gt;room_rom_address.num = %d
+|-
+| DOOR%d=&lt;%d&gt; ROOM1=&lt;%d, %d&gt; ROOM2=&lt;%d, %d&gt;
+| DOOR%d=&lt;%d&gt; ROOM1=&lt;%d, %d&gt; ROOM2=&lt;%d, %d&gt;
+|-
+| [33m
+| [33m
+|-
+| 部屋バッファサイズ=%08x(%5.1fK)
+| ROOM BUFFER SIZE=%08x(%5.1fK)
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| 部屋バッファ開始ポインタ=%08x
+| ROOM BUFFER INITIAL POINTER=%08x
+|-
+| 部屋バッファ終了ポインタ=%08x
+| ROOM BUFFER END POINTER=%08x
+|-
+| [m
+| [m
+|-
+| read_room_ID &lt; game_play-&gt;room_rom_address.num
+| read_room_ID &lt; game_play-&gt;room_rom_address.num
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| this-&gt;ground_shape-&gt;polygon.type &lt; number(Room_Draw_Proc)
+| this-&gt;ground_shape-&gt;polygon.type &lt; number(Room_Draw_Proc)
+|-
+| ../z_room.c
+| ../z_room.c
+|-
+| ../z_sample.c
+| ../z_sample.c
+|-
+| ../z_sample.c
+| ../z_sample.c
+|-
+| ../z_sample.c
+| ../z_sample.c
+|-
+| ../z_sample.c
+| ../z_sample.c
+|-
+| E;
+| E;
+|-
+| 装備アイテム抹消 = %d  zzz=%d
+| EQUIPPED ITEM ERASURE = %d  zzz=%d
+|-
+| OBJECT[%d] SIZE %fK SEG=%x
+| OBJECT[%d] SIZE %fK SEG=%x
+|-
+| num=%d adrs=%x end=%x
+| num=%d adrs=%x end=%x
+|-
+| this-&gt;num &lt; OBJECT_EXCHANGE_BANK_MAX &amp;&amp; (this-&gt;status[this-&gt;num].Segment + size) &lt; this-&gt;endSegment
+| this-&gt;num &lt; OBJECT_EXCHANGE_BANK_MAX &amp;&amp; (this-&gt;status[this-&gt;num].Segment + size) &lt; this-&gt;endSegment
+|-
+| ../z_scene.c
+| ../z_scene.c
+|-
+| ../z_scene.c
+| ../z_scene.c
+|-
+| [32m
+| [32m
+|-
+| オブジェクト入れ替えバンク情報 %8.3fKB
+| OBJECT EXCHANGE BANK DATA %8.3fKB
+|-
+| [m
+| [m
+|-
+| ../z_scene.c
+| ../z_scene.c
+|-
+| OBJECT EXCHANGE BANK-%2d SIZE %8.3fK SEG=%08x
+| OBJECT EXCHANGE BANK-%2d SIZE %8.3fK SEG=%08x
+|-
+| ../z_scene.c
+| ../z_scene.c
+|-
+| OBJECT[%d] SIZE %fK SEG=%x
+| OBJECT[%d] SIZE %fK SEG=%x
+|-
+| num=%d adrs=%x end=%x
+| num=%d adrs=%x end=%x
+|-
+| ../z_scene.c
+| ../z_scene.c
+|-
+| OBJECT EXCHANGE NO=%2d BANK=%3d SIZE=%8.3fK
+| OBJECT EXCHANGE NO=%2d BANK=%3d SIZE=%8.3fK
+|-
+| nextptr &lt; this-&gt;endSegment
+| nextptr &lt; this-&gt;endSegment
+|-
+| ../z_scene.c
+| ../z_scene.c
+|-
+| オブジェクト入れ替え空きサイズ=%08x
+| OBJECT EXCHANGE FREE SIZE=%08x
+|-
+| *** Scene_Word = { code=%d, data1=%02x, data2=%04x } ***
+| *** Scene_Word = { code=%d, data1=%02x, data2=%04x } ***
+|-
+| [31m
+| [31m
+|-
+| code の値が異常です
+| code VARIABLE IS ABNORMAL
+|-
+| [m
+| [m
+|-
+| scene_info-&gt;object_bank.num &lt;= OBJECT_EXCHANGE_BANK_MAX
+| scene_info-&gt;object_bank.num &lt;= OBJECT_EXCHANGE_BANK_MAX
+|-
+| ../z_scene.c
+| ../z_scene.c
+|-
+| [ZU]sceneset age    =[%X]
+| [ZU]sceneset age    =[%X]
+|-
+| [ZU]sceneset time   =[%X]
+| [ZU]sceneset time   =[%X]
+|-
+| [ZU]sceneset counter=[%X]
+| [ZU]sceneset counter=[%X]
+|-
+| げぼはっ！ 指定されたデータがないでええっす！
+| げぼはっ！ IT'S COOL IF THE DESIGNATED DATA DOESN'T EXIST!
+|-
+| そこで、大人の昼データを使用するでええっす！！
+| IT'S COOL IF YOU USE ADULT DAY DATA THERE!
+|-
+| game_play-&gt;demo_play.data=[%x]
+| game_play-&gt;demo_play.data=[%x]
+|-
+| ０００  ａｒｅａ＿ａｒｒｉｖａｌ＝%x (%d)
+| ０００  ａｒｅａ＿ａｒｒｉｖａｌ＝%x (%d)
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_scene_table.c
+| ../z_scene_table.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Si2_Lod_draw():skelがNULLです。
+| Si2_Lod_draw():skel IS NULL.
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Si2_Lod_draw_SV():skelがNULLです。
+| Si2_Lod_draw_SV():skel IS NULL.
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Si2_draw():skelがNULLです。
+| Si2_draw():skel IS NULL.
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Si2_draw_SV():skelがNULLです。
+| Si2_draw_SV():skel IS NULL.
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| out = %08x
+| out = %08x
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ref_tbl = %08x
+| ref_tbl = %08x
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| frame_tbl = %08x
+| frame_tbl = %08x
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| tbl = %08x
+| tbl = %08x
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Si2_draw2():skelがNULLです。NULLを返します。
+| Si2_draw2():skel IS NULL. RETURNING NULL.
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Si2_draw2_SV():skelがNULLです。NULLを返します。
+| Si2_draw2_SV():skel IS NULL. RETURNING NULL.
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| joint_buff_num == joint_num
+| joint_buff_num == joint_num
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Skeleton_Info_Rom_SV_ct メモリアロケーションエラー
+| Skeleton_Info_Rom_SV_ct MEMORY ALLOCATION ERROR
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| joint_buff_num == this-&gt;joint_num
+| joint_buff_num == this-&gt;joint_num
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Skeleton_Info2_ct メモリアロケーションエラー
+| Skeleton_Info2_ct MEMORY ALLOCATION ERROR
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| joint_buff_num == this-&gt;joint_num
+| joint_buff_num == this-&gt;joint_num
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Skeleton_Info_Rom_SV_ct メモリアロケーションエラー
+| Skeleton_Info_Rom_SV_ct MEMORY ALLOCATION ERROR
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| [31m
+| [31m
+|-
+| Skeleton_Info2_skin2_ct メモリアロケーションエラー
+| Skeleton_Info2_skin2_ct MEMORY ALLOCATION ERROR
+|-
+| [m
+| [m
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| now_joint あきまへん！！
+| now_joint WON'T OPEN!!
+|-
+| ../z_skelanime.c
+| ../z_skelanime.c
+|-
+| morf_joint あきまへん！！
+| morf_joint WON'T OPEN!!
+|-
+| ../z_skin.c
+| ../z_skin.c
+|-
+| ../z_skin.c
+| ../z_skin.c
+|-
+| ../z_skin.c
+| ../z_skin.c
+|-
+| ../z_skin.c
+| ../z_skin.c
+|-
+| ../z_skin.c
+| ../z_skin.c
+|-
+| ../z_skin.c
+| ../z_skin.c
+|-
+| ../z_skin.c
+| ../z_skin.c
+|-
+| ../z_skin.c
+| ../z_skin.c
+|-
+| ../z_skin_awb.c
+| ../z_skin_awb.c
+|-
+| pskin_awb-&gt;avb_tbl != NULL
+| pskin_awb-&gt;avb_tbl != NULL
+|-
+| ../z_skin_awb.c
+| ../z_skin_awb.c
+|-
+| ../z_skin_awb.c
+| ../z_skin_awb.c
+|-
+| psavb-&gt;buf[0] != NULL
+| psavb-&gt;buf[0] != NULL
+|-
+| ../z_skin_awb.c
+| ../z_skin_awb.c
+|-
+| ../z_skin_awb.c
+| ../z_skin_awb.c
+|-
+| psavb-&gt;buf[1] != NULL
+| psavb-&gt;buf[1] != NULL
+|-
+| ../z_skin_awb.c
+| ../z_skin_awb.c
+|-
+| ../z_skin_awb.c
+| ../z_skin_awb.c
+|-
+| ../z_skin_awb.c
+| ../z_skin_awb.c
+|-
+| ../z_skin_awb.c
+| ../z_skin_awb.c
+|-
+| [43;30m
+| [43;30m
+|-
+| Skin_Matrix_InverseMatrix():逆行列つくれません
+| Skin_Matrix_InverseMatrix(): CANNOT CREATE INVERSE MATRIX
+|-
+| [m
+| [m
+|-
+| Skin_Matrix_to_Mtx_new() 確保失敗:NULLを返して終了
+| Skin_Matrix_to_Mtx_new() RESERVATION FAILURE: NULL RETURNED, END
+|-
+| :o
+| :o
+|-
+| 個人Ｆｉｌｅ作成
+| INDIVIDUAL File CREATION
+|-
+| ぽいんと＝%x(%d)
+| POINT＝%x(%d)
+|-
+| [33m
+| [33m
+|-
+| SCENE_DATA_ID = %d   SceneNo = %d
+| SCENE_DATA_ID = %d   SceneNo = %d
+|-
+| scene_no = %d
+| scene_no = %d
+|-
+| [m
+| [m
+|-
+| [34m
+| [34m
+|-
+| #ERROR!
+| #ERROR!
+|-
+| %d, 
+| %d, 
+|-
+| #ERROR!
+| #ERROR!
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| #ERROR!
+| #ERROR!
+|-
+| %d, 
+| %d, 
+|-
+| #ERROR!
+| #ERROR!
+|-
+| [m
+| [m
+|-
+| ＳＲＡＭ ＳＴＡＲＴ─ＬＯＡＤ
+| ＳＲＡＭ ＳＴＡＲＴ─ＬＯＡＤ
+|-
+| ぽいんと＝%x(%d)    SAVE_MAX=%d
+| POINT＝%x(%d)    SAVE_MAX=%d
+|-
+| ＝＝＝＝＝＝＝＝＝＝＝＝＝  Ｓ（%d） ＝＝＝＝＝＝＝＝＝＝＝＝＝
+| ＝＝＝＝＝＝＝＝＝＝＝＝＝  Ｓ（%d） ＝＝＝＝＝＝＝＝＝＝＝＝＝
+|-
+| ＳＡＶＥチェックサム計算  j=%x  mmm=%x  
+| ＳＡＶＥ CHECKSUM CALCULATION  j=%x  mmm=%x  
+|-
+| ＥＲＲＯＲ！！！ ＝ %x(%d)
+| ＥＲＲＯＲ！！！ ＝ %x(%d)
+|-
+| #ERROR!
+| #ERROR!
+|-
+| （Ｂ）ＳＡＶＥチェックサム計算  j=%x  mmm=%x  
+| （Ｂ）ＳＡＶＥ CHECKSUM CALCULATION  j=%x  mmm=%x  
+|-
+| ＥＲＲＯＲ！！！ ＝ %x(%d+3)
+| ＥＲＲＯＲ！！！ ＝ %x(%d+3)
+|-
+| newf=%x,%x,%x,%x,%x,%x
+| newf=%x,%x,%x,%x,%x,%x
+|-
+| --------------------------------------------------------------
+| --------------------------------------------------------------
+|-
+| %x 
+| %x 
+|-
+| Check_Sum=%x(%x)
+| Check_Sum=%x(%x)
+|-
+| ????#%x,%x,%x,%x,%x,%x
+| ????#%x,%x,%x,%x,%x,%x
+|-
+| ぽいんと＝%x(%d+3)  check_sum=%x(%x)
+| POINT＝%x(%d+3)  check_sum=%x(%x)
+|-
+| ぽいんと＝%x(%d)  check_sum=%x(%x)
+| POINT＝%x(%d)  check_sum=%x(%x)
+|-
+| ＳＡＶＥデータ ＯＫ！！！！
+| SAVE DATA OK!!!!
+|-
+| SAVECT=%x, NAME=%x, LIFE=%x, ITEM=%x,  64DD=%x,  HEART=%x
+| SAVECT=%x, NAME=%x, LIFE=%x, ITEM=%x,  64DD=%x,  HEART=%x
+|-
+| f_64dd=%d, %d, %d
+| f_64dd=%d, %d, %d
+|-
+| heart_status=%d, %d, %d
+| heart_status=%d, %d, %d
+|-
+| now_life=%d, %d, %d
+| now_life=%d, %d, %d
+|-
+| ６４ＤＤフラグ=%d
+| 64DD FLAG=%d
+|-
+| newf=%x,%x,%x,%x,%x,%x
+| newf=%x,%x,%x,%x,%x,%x
+|-
+| $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+| $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+|-
+| %x 
+| %x 
+|-
+| チェックサム＝%x
+| CHECKSUM＝%x
+|-
+| I=%x no=%d
+| I=%x no=%d
+|-
+| I=%x no=%d
+| I=%x no=%d
+|-
+| ＳＡＶＥ終了
+| SAVE COMPLETE
+|-
+| z_common_data.file_no = %d
+| z_common_data.file_no = %d
+|-
+| SAVECT=%x, NAME=%x, LIFE=%x, ITEM=%x,  SAVE_64DD=%x
+| SAVECT=%x, NAME=%x, LIFE=%x, ITEM=%x,  SAVE_64DD=%x
+|-
+| f_64dd[%d]=%d
+| f_64dd[%d]=%d
+|-
+| heart_status[%d]=%d
+| heart_status[%d]=%d
+|-
+| now_life[%d]=%d
+| now_life[%d]=%d
+|-
+| ＣＬＥＡＲ終了
+| CLEAR COMPLETE
+|-
+| ＲＥＡＤ=%d(%x)  ＣＯＰＹ=%d(%x)
+| ＲＥＡＤ=%d(%x)  ＣＯＰＹ=%d(%x)
+|-
+| f_64dd[%d]=%d
+| f_64dd[%d]=%d
+|-
+| heart_status[%d]=%d
+| heart_status[%d]=%d
+|-
+| ＣＯＰＹ終了
+| COPY COMPLETE
+|-
+| sram_initialize( Game *game, Sram *sram )
+| sram_initialize( Game *game, Sram *sram )
+|-
+| ＳＲＡＭ破壊！！！！！！
+| SRAM CRASH!!!!!!
+|-
+| ＳＲＡＭ破壊！！！！！！
+| SRAM CRASH!!!!!!
+|-
+| ＧＯＯＤ！ＧＯＯＤ！ サイズ＝%d + %d ＝ %d
+| ＧＯＯＤ！ＧＯＯＤ！ SIZE＝%d + %d ＝ %d
+|-
+| [34m
+| [34m
+|-
+| Na_SetSoundOutputMode = %d
+| Na_SetSoundOutputMode = %d
+|-
+| Na_SetSoundOutputMode = %d
+| Na_SetSoundOutputMode = %d
+|-
+| Na_SetSoundOutputMode = %d
+| Na_SetSoundOutputMode = %d
+|-
+| [m
+| [m
+|-
+| ../z_sram.c
+| ../z_sram.c
+|-
+| sram-&gt;read_buff != NULL
+| sram-&gt;read_buff != NULL
+|-
+| ../z_sram.c
+| ../z_sram.c
+|-
+| 
+| 
+|-
+| ssSRAMReadWrite:%08x %08x %08x %d
+| ssSRAMReadWrite:%08x %08x %08x %d
+|-
+| It$
+| It$
+|-
+| It$
+| It$
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| view: initialize ---
+| view: initialize ---
+|-
+| ulx &gt;= 0
+| ulx &gt;= 0
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| uly &gt;= 0
+| uly &gt;= 0
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| lrx &lt;= SCREEN_WD
+| lrx &lt;= SCREEN_WD
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| lry &lt;= SCREEN_HT
+| lry &lt;= SCREEN_HT
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| vp
+| vp
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| projection
+| projection
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| fovy %f near %f far %f scale %f aspect %f normal %08x
+| fovy %f near %f far %f scale %f aspect %f normal %08x
+|-
+| projection
+| projection
+|-
+| %f %f %f
+| 
+|-
+| viewing
+| viewing
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| viewing
+| viewing
+|-
+| %f %f %f
+| 
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| vp
+| vp
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| projection
+| projection
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| vp
+| vp
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| projection
+| projection
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| vp
+| vp
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| projection
+| projection
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| viewing
+| viewing
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| vp
+| vp
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| projection
+| projection
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| projection
+| projection
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| viewing
+| viewing
+|-
+| ../z_view.c
+| ../z_view.c
+|-
+| [31m
+| [31m
+|-
+| eye が大きすぎます eye=[%8.3f %8.3f %8.3f] error=%d
+| eye IS TOO BIG eye=[%8.3f %8.3f %8.3f] error=%d
+|-
+| [m
+| [m
+|-
+| #ERROR!
+| #ERROR!
+|-
+| NU+00FC
+| NU+00FC
+|-
+| FU+0093¨
+| FU+0093¨
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep = %08x
+| osvimodep = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;comRegs.ctrl = %08x
+| osvimodep-&gt;comRegs.ctrl = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;comRegs.width = %08x
+| osvimodep-&gt;comRegs.width = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;comRegs.burst = %08x
+| osvimodep-&gt;comRegs.burst = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;comRegs.vSync = %08x
+| osvimodep-&gt;comRegs.vSync = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;comRegs.hSync = %08x
+| osvimodep-&gt;comRegs.hSync = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;comRegs.leap = %08x
+| osvimodep-&gt;comRegs.leap = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;comRegs.hStart = %08x
+| osvimodep-&gt;comRegs.hStart = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;comRegs.xScale = %08x
+| osvimodep-&gt;comRegs.xScale = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[0].vStart = %08x
+| osvimodep-&gt;fldRegs[0].vStart = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[0].vBurst = %08x
+| osvimodep-&gt;fldRegs[0].vBurst = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[0].origin = %08x
+| osvimodep-&gt;fldRegs[0].origin = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[0].yScale = %08x
+| osvimodep-&gt;fldRegs[0].yScale = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[0].vIntr = %08x
+| osvimodep-&gt;fldRegs[0].vIntr = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[1].vStart = %08x
+| osvimodep-&gt;fldRegs[1].vStart = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[1].vBurst = %08x
+| osvimodep-&gt;fldRegs[1].vBurst = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[1].origin = %08x
+| osvimodep-&gt;fldRegs[1].origin = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[1].yScale = %08x
+| osvimodep-&gt;fldRegs[1].yScale = %08x
+|-
+| ../z_vimode.c
+| ../z_vimode.c
+|-
+| osvimodep-&gt;fldRegs[1].vIntr = %08x
+| osvimodep-&gt;fldRegs[1].vIntr = %08x
+|-
+| osViModePalLan1
+| osViModePalLan1
+|-
+| osViModeFpalLan1
+| osViModeFpalLan1
+|-
+| Custom
+| Custom
+|-
+| ../z_vismono.c
+| ../z_vismono.c
+|-
+| ../z_vismono.c
+| ../z_vismono.c
+|-
+| glistp_end = %08x
+| glistp_end = %08x
+|-
+| ../z_vismono.c
+| ../z_vismono.c
+|-
+| mono_dl = %08x
+| mono_dl = %08x
+|-
+| ../z_vismono.c
+| ../z_vismono.c
+|-
+| mono_dl + (1+3+1+1+80*(7+2+2+3)+1) = %08x
+| mono_dl + (1+3+1+1+80*(7+2+2+3)+1) = %08x
+|-
+| ../z_vismono.c
+| ../z_vismono.c
+|-
+| (1+3+1+1+80*(7+2+2+3)+1) = %08x
+| (1+3+1+1+80*(7+2+2+3)+1) = %08x
+|-
+| glistp_end &lt;= mono_dl + DLSIZE
+| glistp_end &lt;= mono_dl + DLSIZE
+|-
+| ../z_vismono.c
+| ../z_vismono.c
+|-
+| ../z_vismono.c
+| ../z_vismono.c
+|-
+| ../z_vismono.c
+| ../z_vismono.c
+|-
+| glistp_end &lt;= this-&gt;mono_dl + DLSIZE
+| glistp_end &lt;= this-&gt;mono_dl + DLSIZE
+|-
+| ../z_vismono.c
+| ../z_vismono.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[1] != NULL
+| vr_box-&gt;vr_box_staticSegment[1] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[1] != NULL
+| vr_box-&gt;vr_box_staticSegment[1] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ＳＩＺＥ = %d
+| ＳＩＺＥ = %d
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[1] != NULL
+| vr_box-&gt;vr_box_staticSegment[1] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ＳＩＺＥ = %d
+| ＳＩＺＥ = %d
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+| vr_box-&gt;vr_box_staticSegment[0] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+| vr_box-&gt;vr_box_staticSegment[2] != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+| ＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+|-
+| ＴＹＰＥ＝%d
+| ＴＹＰＥ＝%d
+|-
+| ＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+| ＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+|-
+| [32m
+| [32m
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;dpList != NULL
+| vr_box-&gt;dpList != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;roomVtx != NULL
+| vr_box-&gt;roomVtx != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;dpList != NULL
+| vr_box-&gt;dpList != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;roomVtx != NULL
+| vr_box-&gt;roomVtx != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| vr_box-&gt;roomVtx != NULL
+| vr_box-&gt;roomVtx != NULL
+|-
+| ../z_vr_box.c
+| ../z_vr_box.c
+|-
+| [m
+| [m
+|-
+| 
+| 
+|-
+| ../z_vr_box_draw.c
+| ../z_vr_box_draw.c
+|-
+| ../z_vr_box_draw.c
+| ../z_vr_box_draw.c
+|-
+| ../z_vr_box_draw.c
+| ../z_vr_box_draw.c
+|-
+| ../z_vr_box_draw.c
+| ../z_vr_box_draw.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| this-&gt;col * (1 + this-&gt;row * (1 + 7 + 1)) + 1 + 1 = %d
+| this-&gt;col * (1 + this-&gt;row * (1 + 7 + 1)) + 1 + 1 = %d
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| gp - this-&gt;gfxtbl = %d
+| gp - this-&gt;gfxtbl = %d
+|-
+| fbdemo_cleanup(%08x)
+| fbdemo_cleanup(%08x)
+|-
+| msleep(100);
+| msleep(100);
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| fbdemo_init(%08x, %d, %d)
+| fbdemo_init(%08x, %d, %d)
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| fbdemo_init allocation error
+| fbdemo_init allocation error
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| ../z_fbdemo.c
+| ../z_fbdemo.c
+|-
+| rate=%f tx=%f ty=%f rotate=%f
+| rate=%f tx=%f ty=%f rotate=%f
+|-
+| [41;37m０除算! ZCommonGet fade_speed に０がはいってる[m
+| [41;37m 0 DIVISION! THERE'S A 0 IN ZCommonGet fade_speed [m
+|-
+| shrink_window_setval(%d)
+| shrink_window_setval(%d)
+|-
+| shrink_window_setnowval(%d)
+| shrink_window_setnowval(%d)
+|-
+| shrink_window_init()
+| shrink_window_init()
+|-
+| shrink_window_cleanup()
+| shrink_window_cleanup()
+|-
+| ?ｷ-ﾌﾚ-ﾑ?ｶﾞ
+| ?NOT ENOUGH?
+|-
+| ?ﾀﾘﾏｾﾝ｡
+| ?KEYFRAMES.
+|-
+| ?ｻｲｾｲﾃﾞｷﾏｾﾝ
+| ?CANNOT PLAYBACK
+|-
+| ?ｻｲｾｲｼｭｳﾘｮｳ
+| ?PLAYBACK COMPLETE
+|-
+| ?ｻｲｾｲﾁｭｳ!
+| ?PLAYING BACK!
+|-
+| DEMO CAMERA TOOL
+| DEMO CAMERA TOOL
+|-
+| ?ﾓｳﾊｲﾘﾏｾﾝ
+| ?DOESN'T FIT
+|-
+| ?ﾄｳﾛｸ   ﾃﾝﾒ
+| ?REGISTER   ﾃﾝﾒ
+|-
+| ?ﾍﾝｺｳ   /  
+| ?EDIT   /  
+|-
+| &gt;            &gt;
+| &gt;            &gt;
+|-
+| &lt;            &lt;
+| &lt;            &lt;
+|-
+| &lt;          &gt;
+| &lt;          &gt;
+|-
+| ?*ﾌﾟﾚｲﾔ-*
+| ?*PLAYER*
+|-
+| ?Eﾓ-ﾄﾞ? ｿｳﾀｲ
+| ?E MODE? RELATIVE
+|-
+| ?Eﾓ-ﾄﾞ?ｾﾞｯﾀｲ
+| ?E MODE? ABSOLUTE
+|-
+| ?ｶﾞﾒﾝ?   ﾃﾞﾓ
+| ?SCREEN?   CUTSCENE
+|-
+| ?ｶﾞﾒﾝ   ﾌﾂｳ
+| ?SCREEN   NORMAL
+|-
+| ?Pｼﾞｶﾝ  MAX
+| ?P TIME  MAX
+|-
+| ?ﾘﾝｸ?    ｷｵｸ
+| ?LINK?    REMEMBER
+|-
+| ?ﾘﾝｸ?     ﾑｼ
+| ?LINK?     IGNORE
+|-
+| ?*ﾐﾃﾙｲﾁ*
+| ?*VIEWPOINT*
+|-
+| ?*ｶﾒﾗ?ｲﾁ*
+| ?*CAMERA?VIEWPOINT*
+|-
+| DEBUG CAMERA
+| DEBUG CAMERA
+|-
+| ?ｾﾝﾀ-/ﾛｯｸ
+| ?CENTER/LOCK
+|-
+| ?ｾﾝﾀ-/ﾌﾘ-
+| ?CENTER/FREE
+|-
+| DEMO CONTROL
+| DEMO CONTROL
+|-
+| ?ﾒﾓﾘ?ｶﾞﾀﾘﾏｾﾝ
+| ?MEMORY?INSUFFICIENT
+|-
+| p
+| p
+|-
+| e
+| e
+|-
+| s
+| s
+|-
+| l
+| l
+|-
+| c
+| c
+|-
+| ?ﾒﾓﾘﾊﾟｯｸ
+| ?MEMORY PAK
+|-
+| ?ｾｰﾌﾞ
+| ?SAVE
+|-
+| ?ﾛｰﾄﾞ
+| ?LOAD
+|-
+| ?ｸﾘｱ-
+| ?CLEAR
+|-
+| ?ｦﾇｶﾅｲﾃﾞﾈ
+| ?PLEASE DON'T REMOVE [...]
+|-
+| FREE      BYTE
+| FREE      BYTE
+|-
+| NEED      BYTE
+| NEED      BYTE
+|-
+| ?*ﾒﾓﾘ-ﾊﾟｯｸ*
+| ?*MEMORY PAK*
+|-
+| ?ｦﾐﾂｹﾗﾚﾏｾﾝ
+| ?CANNOT FIND [...]
+|-
+| ?ﾌｧｲﾙ ?ｦ
+| ?IS IT OK ?TO
+|-
+| ?ｼﾃﾓｲｲﾃﾞｽｶ?
+| ?[...] FILE?
+|-
+| ?ｹﾞﾝｻﾞｲﾍﾝｼｭｳﾁｭｳﾉ
+| ?ｹﾞﾝｻﾞｲﾍﾝｼｭｳﾁｭｳﾉ
+|-
+| ?ﾌｧｲﾙ?ﾊﾊｷｻﾚﾏｽ
+| ?ﾌｧｲﾙ?ﾊﾊｷｻﾚﾏｽ
+|-
+| ?ﾊｲ
+| ?YES
+|-
+| ?ｲｲｴ
+| ?NO
+|-
+| ?ｼﾃｲﾏｽ
+| ?ｼﾃｲﾏｽ
+|-
+| ?ｳﾜｶﾞｷ
+| ?ADDRESS
+|-
+| ?ｼﾏｼﾀ
+| ?COMPLETE
+|-
+| USE       BYTE
+| USE       BYTE
+|-
+| ?ﾆｼｯﾊﾟｲ
+| ?FAILED TO [...]
+|-
+| ?Eﾓ-ﾄﾞ?  ｺﾃｲ
+| ?E MODE?  FIXED
+|-
+| @@@static SplinedatZ  %s[] = {
+| @@@static SplinedatZ  %s[] = {
+|-
+| @@@    /* key frame %2d */ {
+| @@@    /* key frame %2d */ {
+|-
+| @@@    /*     code     */ %d,
+| @@@    /*     code     */ %d,
+|-
+| @@@    /*     z        */ %d,
+| @@@    /*     z        */ %d,
+|-
+| @@@    /*     T        */ %d,
+| @@@    /*     T        */ %d,
+|-
+| @@@    /*     zoom     */ %f,
+| @@@    /*     zoom     */ %f,
+|-
+| @@@    /*     pos      */ { %d, %d, %d }
+| @@@    /*     pos      */ { %d, %d, %d }
+|-
+| @@@    },
+| @@@    },
+|-
+| @@@};
+| @@@};
+|-
+| @@@
+| @@@
+|-
+| @@@%d,%d,%d,%d,
+| @@@%d,%d,%d,%d,
+|-
+| @@@%d,%d,
+| @@@%d,%d,
+|-
+| @@@%d,%d,
+| @@@%d,%d,
+|-
+| @@@ 0,0,0,2,*/
+| @@@ 0,0,0,2,
+|-
+| @@@ 0,1,*/
+| @@@ 0,1,
+|-
+| @@@ 0,0,*/
+| @@@ 0,0,
+|-
+| */
+| 
+|-
+| @@@0,0,*/
+| @@@0,0,
+|-
+| @@@ 
+| @@@ 
+|-
+| @@@    %d, /*     code     */
+| @@@    %d, /*     code     */
+|-
+| @@@    %d,  /*     z        */
+| @@@    %d,  /*     z        */
+|-
+| */
+| 
+|-
+| */
+| 
+|-
+| */
+| 
+|-
+| */
+| 
+|-
+| */
+| 
+|-
+| @@@0,0,*/
+| @@@0,0,
+|-
+| @@@ 
+| @@@ 
+|-
+| @@@ 0,0,0,1,
+| @@@ 0,0,0,1,
+|-
+| @@@ 0,1,*/
+| @@@ 0,1,
+|-
+| @@@ 0,0,*/
+| @@@ 0,0,
+|-
+| */
+| 
+|-
+| @@@0,0,*/
+| @@@0,0,
+|-
+| @@@ 
+| @@@ 
+|-
+| @@@    %d, /*     code     */
+| @@@    %d, /*     code     */
+|-
+| @@@    %d, /*     z        */
+| @@@    %d, /*     z        */
+|-
+| */
+| 
+|-
+| */
+| 
+|-
+| */
+| 
+|-
+| */
+| 
+|-
+| */
+| 
+|-
+| @@@0,0,*/
+| @@@0,0,
+|-
+| @@@ 
+| @@@ 
+|-
+| @@@
+| @@@
+|-
+| @@@
+| @@@
+|-
+| @@@/* *** spline point data ** start here *** */
+| @@@/* *** spline point data ** start here *** */
+|-
+| @@@
+| @@@
+|-
+| Lookat
+| Lookat
+|-
+| Position
+| Position
+|-
+| @@@static short  nPoints = %d;
+| @@@static short  nPoints = %d;
+|-
+| @@@
+| @@@
+|-
+| @@@static short  nFrames = %d;
+| @@@static short  nFrames = %d;
+|-
+| @@@
+| @@@
+|-
+| @@@static short  Mode = %d;
+| @@@static short  Mode = %d;
+|-
+| @@@
+| @@@
+|-
+| @@@
+| @@@
+|-
+| @@@
+| @@@
+|-
+| @@@/* *** spline point data ** finish! *** */
+| @@@/* *** spline point data ** finish! *** */
+|-
+| @@@
+| @@@
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| %s: %d: デバッグカメラ メモリ確保失敗！！
+| %s: %d: DEBUG CAMERA MEMORY RESERVATION FAILURE!!
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| %s: %d: デバッグカメラ メモリ確保失敗！！
+| %s: %d: DEBUG CAMERA MEMORY RESERVATION FAILURE!!
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| %s: %d: デバッグカメラ メモリ確保失敗！！
+| %s: %d: DEBUG CAMERA MEMORY RESERVATION FAILURE!!
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| %s: %d: デバッグカメラ メモリ確保失敗！！
+| %s: %d: DEBUG CAMERA MEMORY RESERVATION FAILURE!!
+|-
+| ../db_camera.c
+| ../db_camera.c
+|-
+| @@@
+| @@@
+|-
+| @@@
+| @@@
+|-
+| @@@/* ****** spline point data ** start here ***** */
+| @@@/* ****** spline point data ** start here ***** */
+|-
+| @@@
+| @@@
+|-
+| @@@
+| @@@
+|-
+| @@@/* ** %d ** */
+| @@@/* ** %d ** */
+|-
+| @@@
+| @@@
+|-
+| Lookat
+| Lookat
+|-
+| Position
+| Position
+|-
+| @@@static short  nPoints = %d;
+| @@@static short  nPoints = %d;
+|-
+| @@@
+| @@@
+|-
+| @@@static short  nFrames = %d;
+| @@@static short  nFrames = %d;
+|-
+| @@@
+| @@@
+|-
+| @@@static short  Mode = %d;
+| @@@static short  Mode = %d;
+|-
+| @@@
+| @@@
+|-
+| @@@
+| @@@
+|-
+| @@@
+| @@@
+|-
+| @@@/* ****** spline point data ** finish! ***** */
+| @@@/* ****** spline point data ** finish! ***** */
+|-
+| @@@
+| @@@
+|-
+| PRESS B BUTTON
+| PRESS B BUTTON
+|-
+| PRESS B BUTTON
+| PRESS B BUTTON
+|-
+| PRESS B BUTTON
+| PRESS B BUTTON
+|-
+| _
+| _
+|-
+| &gt;
+| &gt;
+|-
+| ###%2d:(%c) (%d %d) %d %d %d
+| ###%2d:(%c) (%d %d) %d %d %d
+|-
+| @@@ /* CUT [%d]
+| @@@ /* CUT [%d]
+|-
+| mempak: find '%c' (%d)
+| mempak: find '%c' (%d)
+|-
+| mempak: find '%c' - '%c' %02x
+| mempak: find '%c' - '%c' %02x
+|-
+| mempak: write %d byte '%c' (%d)-&gt;%d
+| mempak: write %d byte '%c' (%d)-&gt;%d
+|-
+| mempak: read %d byte '%c' (%d)&lt;-%d
+| mempak: read %d byte '%c' (%d)&lt;-%d
+|-
+| mempak: alloc %d byte '%c' (%d)
+| mempak: alloc %d byte '%c' (%d)
+|-
+| mempak: resize %d byte '%c' (%d)
+| mempak: resize %d byte '%c' (%d)
+|-
+| mempak: alloc %d byte '%c' (%d) with search
+| mempak: alloc %d byte '%c' (%d) with search
+|-
+| mempak: delete '%c' (%d)
+| mempak: delete '%c' (%d)
+|-
+| kaleido_scope
+| kaleido_scope
+|-
+| player_actor
+| player_actor
+|-
+| KaleidoFIELD_allocp
+| KaleidoFIELD_allocp
+|-
+| ../z_kaleido_manager.c
+| ../z_kaleido_manager.c
+|-
+| [32m
+| [32m
+|-
+| OVL(k):Seg:%08x-%08x Ram:%08x-%08x Off:%08x %s
+| OVL(k):Seg:%08x-%08x Ram:%08x-%08x Off:%08x %s
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| KaleidoFIELD の最大サイズは %d バイトを確保します
+| %d BYTES WILL BE RESERVED FOR KaleidoFIELD MAXIMUM SIZE
+|-
+| [m
+| [m
+|-
+| ../z_kaleido_manager.c
+| ../z_kaleido_manager.c
+|-
+| KaleidoFIELD_allocp
+| KaleidoFIELD_allocp
+|-
+| ../z_kaleido_manager.c
+| ../z_kaleido_manager.c
+|-
+| [32m
+| [32m
+|-
+| KaleidoFIELD %08x - %08x
+| KaleidoFIELD %08x - %08x
+|-
+| [m
+| [m
+|-
+| 異常
+| 異常
+|-
+| [32m
+| [32m
+|-
+| カレイド領域 強制排除
+| KALEIDO FIELD FORCED EXCLUSION
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| プレイヤーアクター搬入
+| PLAYER ACTOR INCORPORATED
+|-
+| [m
+| [m
+|-
+| カレイド・スコープ入れ替え コンストラクト 
+| KALEIDO SCOPE EXCHANGE CONSTRUCT
+|-
+| ../z_kaleido_scope_call.c
+| ../z_kaleido_scope_call.c
+|-
+| kaleido_scope_move = %08x
+| kaleido_scope_move = %08x
+|-
+| ../z_kaleido_scope_call.c
+| ../z_kaleido_scope_call.c
+|-
+| kaleido_scope_move_func = %08x
+| kaleido_scope_move_func = %08x
+|-
+| ../z_kaleido_scope_call.c
+| ../z_kaleido_scope_call.c
+|-
+| kaleido_scope_draw = %08x
+| kaleido_scope_draw = %08x
+|-
+| ../z_kaleido_scope_call.c
+| ../z_kaleido_scope_call.c
+|-
+| kaleido_scope_draw_func = %08x
+| kaleido_scope_draw_func = %08x
+|-
+| カレイド・スコープ入れ替え デストラクト 
+| KALEIDO SCOPE EXCHANGE DESTRUCT
+|-
+| PR_KAREIDOSCOPE_MODE=%d
+| PR_KAREIDOSCOPE_MODE=%d
+|-
+| [32m
+| [32m
+|-
+| カレイド領域 プレイヤー 強制排除
+| KALEIDO FIELD  - PLAYER FORCED EXCLUSION
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| カレイド領域 カレイドスコープ搬入
+| KALEIDO FIELD - KALEIDO SCOPE INCORPORATED
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| カレイド領域 カレイドスコープ排出
+| KALEIDO FIELD - KALEIDO SCOPE EVACUATED
+|-
+| [m
+| [m
+|-
+| point == 1 &#124;&#124; point == 2
+| point == 1 &#124;&#124; point == 2
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| Game_play_shop_pr_vr_switch_set()
+| Game_play_shop_pr_vr_switch_set()
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| SCENE_NO=%d COUNTER=%d
+| SCENE_NO=%d COUNTER=%d
+|-
+| エンディングはじまるよー
+| THE ENDING IS STARTING!
+|-
+| 出戻り？
+| 出戻り？
+|-
+| ZELDA ALLOC SIZE=%x
+| ZELDA ALLOC SIZE=%x
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| ゼルダヒープ %08x-%08x
+| ZELDA HEAP %08x-%08x
+|-
+| player has start camera ID ([34m%d[m)
+| player has start camera ID ([34m%d[m)
+|-
+| kawauso_data=[%x]
+| kawauso_data=[%x]
+|-
+| object_exchange_rom_address %u
+| object_exchange_rom_address %u
+|-
+| RomStart RomEnd   Size
+| RomStart RomEnd   Size
+|-
+| %08x-%08x %08x(%8.3fKB)
+| %08x-%08x %08x(%8.3fKB)
+|-
+| fbdemo_init呼出し失敗！
+| fbdemo_init呼出し失敗！
+|-
+| サウンドイニシャル来ました。111
+| SOUND INITIAL IS HERE. 111
+|-
+| サウンドイニシャル来ました。222
+| SOUND INITIAL IS HERE. 222
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 来た!!!!!!!!!!!!!!!!!!!!! = %s
+| IT'S HERE!!!!!!!!!!!!!!!!!!!!! = %s
+|-
+| 来た!!!!!!!!!!!!!!!!!!!!!
+| IT'S HERE!!!!!!!!!!!!!!!!!!!!!
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| FINISH=%d
+| FINISH=%d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| [36mカレイドスコープ中につき視点変更を禁止しております
+| [36m VIEWPOINT CHANGE CEASED ON ACCOUNT OF BEING IN KALEIDOSCOPE
+|-
+| [m
+| [m
+|-
+| [36mデモ中につき視点変更を禁止しております
+| [36m VIEWPOINT CHANGE CEASED ON ACCOUNT OF BEING IN CUTSCENE
+|-
+| [m
+| [m
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| 1 = %d
+| 1 = %d
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| SCENE SIZE %fK
+| SCENE SIZE %fK
+|-
+| this-&gt;sceneSegment != NULL
+| this-&gt;sceneSegment != NULL
+|-
+| ../z_play.c
+| ../z_play.c
+|-
+| ROOM SIZE=%fK
+| ROOM SIZE=%fK
+|-
+| [41;37mcamera control: error: fulled sub camera system FIELD
+| [41;37mcamera control: error: fulled sub camera system FIELD
+|-
+| [m
+| [m
+|-
+| camera control: [46m [47;34m create new sub camera [%d] [46m [m
+| camera control: [46m [47;34m create new sub camera [%d] [46m [m
+|-
+| [41;37mcamera control: error: never clear camera !!
+| [41;37mcamera control: error: never clear camera !!
+|-
+| [m
+| [m
+|-
+| camera control: [46m [47;34m clear sub camera [%d] [46m [m
+| camera control: [46m [47;34m clear sub camera [%d] [46m [m
+|-
+| [41;37mcamera control: error: camera No.%d already cleared
+| [41;37mcamera control: error: camera No.%d already cleared
+|-
+| [m
+| [m
+|-
+| [41;37mcamera control: error: return to main, other camera left. %d cleared!!
+| [41;37mcamera control: error: return to main, other camera left. %d cleared!!
+|-
+| [m
+| [m
+|-
+| this
+| this
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistpp
+| glistpp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistp
+| glistp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| this
+| this
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistpp
+| glistpp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistp
+| glistp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| this
+| this
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistpp
+| glistpp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistp
+| glistp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| this
+| this
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistpp
+| glistpp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistp
+| glistp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| this-&gt;zbuf_save
+| this-&gt;zbuf_save
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| this-&gt;zbuf
+| this-&gt;zbuf
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| this-&gt;fbuf_save
+| this-&gt;fbuf_save
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| this-&gt;fbuf
+| this-&gt;fbuf
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| this-&gt;cvg_save
+| this-&gt;cvg_save
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| this
+| this
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistpp
+| glistpp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| glistp
+| glistp
+|-
+| ../PreRender.c
+| ../PreRender.c
+|-
+| Error, should not be in here 
+| Error, should not be in here 
+|-
+| red=%3d %3d %3d %3d grn=%3d %3d %3d %3d blu=%3d %3d %3d %3d 
+| red=%3d %3d %3d %3d grn=%3d %3d %3d %3d blu=%3d %3d %3d %3d 
+|-
+| オーディオマネージャが OS_SC_PRE_NMI_MSG を受け取りました
+| AUDIO MANAGER RECEIVED OS_SC_PRE_NMI_MSG
+|-
+| オーディオマネージャスレッド実行開始
+| AUDIO MANAGER THREAD EXECUTION START
+|-
+| ゼルダ共通データ初期化
+| ZELDA COMMON DATA INITIALIZED
+|-
+| last_button=%04x
+| last_button=%04x
+|-
+| %08x
+| %08x
+|-
+| %c
+| %c
+|-
+| ../game.c
+| ../game.c
+|-
+| ハイラル滅亡まであと %08x バイト(game_alloc)
+| HYRULE WILL BE DESTROYED IN %08x BYTES (game_alloc)
+|-
+| ../game.c
+| ../game.c
+|-
+| ../game.c
+| ../game.c
+|-
+| ../game.c
+| ../game.c
+|-
+| ../game.c
+| ../game.c
+|-
+| ../game.c
+| ../game.c
+|-
+| ハイラル確保 サイズ＝%u バイト
+| SIZE RESERVED FOR HYRULE＝%u BYTES
+|-
+| ../game.c
+| ../game.c
+|-
+| ハイラル確保成功
+| HYRULE RESERVATION SUCCESS
+|-
+| ハイラル確保失敗
+| HYRULE RESERVATION FAILURE
+|-
+| ../game.c
+| ../game.c
+|-
+| ハイラル一時解放!!
+| HYRULE TEMPORARILY DEALLOCATED
+|-
+| %c
+| %c
+|-
+| [31m
+| [31m
+|-
+| メモリが足りません。ハイラルサイズを可能な最大値に変更します
+| INSUFFICIENT MEMORY. CHANGING HYRULE SIZE TO MAXIMUM VALUE.
+|-
+| (hyral=%08x max=%08x free=%08x alloc=%08x)
+| (hyral=%08x max=%08x free=%08x alloc=%08x)
+|-
+| [m
+| [m
+|-
+| ハイラル再確保 サイズ＝%u バイト
+| HYRULE RE-RESERVATION SIZE＝%u BYTES
+|-
+| ../game.c
+| ../game.c
+|-
+| ハイラル再確保成功
+| HYRULE RE-RESERVATION SUCCESS
+|-
+| ハイラル再確保失敗
+| HYRULE RE-RESERVATION FAILURE
+|-
+| ../game.c
+| ../game.c
+|-
+| game コンストラクタ開始
+| game CONSTRUCTOR START
+|-
+| game_set_next_game_null 処理時間 %d us
+| game_set_next_game_null PROCESSING TIME %d us
+|-
+| gamealloc_init 処理時間 %d us
+| gamealloc_init PROCESSING TIME %d us
+|-
+| init 処理時間 %d us
+| init PROCESSING TIME %d us
+|-
+| this-&gt;cleanup
+| this-&gt;cleanup
+|-
+| ../game.c
+| ../game.c
+|-
+| その他初期化 処理時間 %d us
+| OTHER INITIALIZATION PROCESSING TIME %d us
+|-
+| game コンストラクタ終了
+| game CONSTRUCTOR COMPLETE
+|-
+| game デストラクタ開始
+| game DESTRUCTOR START
+|-
+| this-&gt;cleanup
+| this-&gt;cleanup
+|-
+| ../game.c
+| ../game.c
+|-
+| game デストラクタ終了
+| game DESTRUCTOR COMPLETE
+|-
+| ハイラルは滅亡している
+| HYRULE UNDER DESTRUCTION
+|-
+| 滅亡寸前のハイラルには %d バイトの余力もない（滅亡まであと %d バイト）
+| HYRULE IS ON THE VERGE OF DESTRUCTION. NOT EVEN %d BYTES REMAIN.（DESTRUCTION IN %d BYTES）
+|-
+| ハイラルは滅亡してしまった
+| HYRULE DESTROYED
+|-
+| [32m
+| [32m
+|-
+| game_alloc(%08x) %08x-%08x [%s:%d]
+| game_alloc(%08x) %08x-%08x [%s:%d]
+|-
+| [m
+| [m
+|-
+| ?U?}
+| ?U?}
+|-
+| this = %08x
+| this = %08x
+|-
+| ptr = %08x size = %d
+| ptr = %08x size = %d
+|-
+| ../gamealloc.c
+| ../gamealloc.c
+|-
+| ptr-&gt;prev
+| ptr-&gt;prev
+|-
+| ../gamealloc.c
+| ../gamealloc.c
+|-
+| ptr-&gt;next
+| ptr-&gt;next
+|-
+| ../gamealloc.c
+| ../gamealloc.c
+|-
+| ../gamealloc.c
+| ../gamealloc.c
+|-
+| ../gamealloc.c
+| ../gamealloc.c
+|-
+| vtx_cnt=%d
+| vtx_cnt=%d
+|-
+| spvtx_cnt=%d
+| spvtx_cnt=%d
+|-
+| tri1_cnt=%d
+| tri1_cnt=%d
+|-
+| tri2_cnt=%d
+| tri2_cnt=%d
+|-
+| quad_cnt=%d
+| quad_cnt=%d
+|-
+| line_cnt=%d
+| line_cnt=%d
+|-
+| sync_err=%d
+| sync_err=%d
+|-
+| loaducode_cnt=%d
+| loaducode_cnt=%d
+|-
+| dl_depth=%d
+| dl_depth=%d
+|-
+| dl_cnt=%d
+| dl_cnt=%d
+|-
+| ../graph.c
+| ../graph.c
+|-
+| game_init_func = %08x
+| game_init_func = %08x
+|-
+| [31m
+| [31m
+|-
+| RCPが帰ってきませんでした。
+| RCP HAS NOT RETURNED.
+|-
+| [m
+| [m
+|-
+| RCP is HUNG UP!!
+| RCP is HUNG UP!!
+|-
+| Oh! MY GOD!!
+| Oh! MY GOD!!
+|-
+| ../graph.c
+| ../graph.c
+|-
+| ../graph.c
+| ../graph.c
+|-
+| ../graph.c
+| ../graph.c
+|-
+| WORK_DISP 開始
+| WORK_DISP START
+|-
+| POLY_OPA_DISP 開始
+| POLY_OPA_DISP START
+|-
+| POLY_XLU_DISP 開始
+| POLY_XLU_DISP START
+|-
+| OVERLAY_DISP 開始
+| OVERLAY_DISP START
+|-
+| ../graph.c
+| ../graph.c
+|-
+| ../graph.c
+| ../graph.c
+|-
+| WORK_DISP 終了
+| WORK_DISP COMPLETE
+|-
+| POLY_OPA_DISP 終了
+| POLY_OPA_DISP COMPLETE
+|-
+| POLY_XLU_DISP 終了
+| POLY_XLU_DISP COMPLETE
+|-
+| OVERLAY_DISP 終了
+| OVERLAY_DISP COMPLETE
+|-
+| ../graph.c
+| ../graph.c
+|-
+| ../graph.c
+| ../graph.c
+|-
+| ../graph.c
+| ../graph.c
+|-
+| do_count_fault
+| do_count_fault
+|-
+| %c
+| %c
+|-
+| [41;37mダイナミック領域先頭が破壊されています
+| [41;37m DYNAMIC FIELD BEGINNING UNDER DESTRUCTION
+|-
+| [m
+| [m
+|-
+| ../graph.c
+| ../graph.c
+|-
+| %c
+| %c
+|-
+| [41;37mダイナミック領域末尾が破壊されています
+| [41;37m DYNAMIC FIELD END UNDER DESTRUCTION
+|-
+| [m
+| [m
+|-
+| ../graph.c
+| ../graph.c
+|-
+| %c
+| %c
+|-
+| [41;37mゼルダ0は死んでしまった(graph_alloc is empty)
+| [41;37m ZELDA 0 IS DEAD (graph_alloc is empty)
+|-
+| [m
+| [m
+|-
+| %c
+| %c
+|-
+| [41;37mゼルダ1は死んでしまった(graph_alloc is empty)
+| [41;37m ZELDA 1 IS DEAD (graph_alloc is empty)
+|-
+| [m
+| [m
+|-
+| %c
+| %c
+|-
+| [41;37mゼルダ4は死んでしまった(graph_alloc is empty)
+| [41;37m ZELDA 4 IS DEAD (graph_alloc is empty)
+|-
+| [m
+| [m
+|-
+| [43;30mPRE-NMIによりリセットモードに移行します
+| [43;30m TRANSITIONING TO SET MODE VIA PRE-NMI
+|-
+| [m
+| [m
+|-
+| グラフィックスレッド実行開始
+| GRAPHIC THREAD EXECUTION START
+|-
+| クラスサイズ＝%dバイト
+| CLASS SIZE＝%d BYTES
+|-
+| ../graph.c
+| ../graph.c
+|-
+| 確保失敗
+| RESERVATION FAILURE
+|-
+| CLASS SIZE= %d bytes
+| CLASS SIZE= %d bytes
+|-
+| GAME CLASS MALLOC FAILED
+| GAME CLASS MALLOC FAILED
+|-
+| ../graph.c
+| ../graph.c
+|-
+| グラフィックスレッド実行終了
+| GRAPHIC THREAD EXECUTION END
+|-
+| graph_alloc siz=%d thga size=%08x bufp=%08x head=%08x tail=%08x
+| graph_alloc siz=%d thga size=%08x bufp=%08x head=%08x tail=%08x
+|-
+| graph_alloc siz=%d thga size=%08x bufp=%08x head=%08x tail=%08x
+| graph_alloc siz=%d thga size=%08x bufp=%08x head=%08x tail=%08x
+|-
+| ../listalloc.c
+| ../listalloc.c
+|-
+| ../listalloc.c
+| ../listalloc.c
+|-
+| [32m
+| [32m
+|-
+| システムヒープサイズ %08x(%dKB) 開始アドレス %08x
+| SYSTEM HEAP SIZE %08x(%dKB) START ADDRESS %08x
+|-
+| [m
+| [m
+|-
+| mainproc 実行開始
+| mainproc EXECUTION START
+|-
+| システムヒープ初期化 %08x-%08x %08x
+| SYSTEM HEAP INITIALIZATION %08x-%08x %08x
+|-
+| ../main.c
+| ../main.c
+|-
+| debug_InitArena(%08x, %08x)
+| debug_InitArena(%08x, %08x)
+|-
+| irqmgr
+| irqmgr
+|-
+| タスクスケジューラの初期化
+| TASK SCHEDULER INITIALIZATION
+|-
+| sched
+| sched
+|-
+| audio
+| audio
+|-
+| padmgr
+| padmgr
+|-
+| graph
+| graph
+|-
+| main.c: リセットされたみたいだよ
+| main.c: LOOKS LIKE IT'S BEEN RESET.
+|-
+| mainproc 後始末
+| mainproc SETTLED
+|-
+| mainproc 実行終了
+| mainproc EXECUTION COMPLETE
+|-
+| %2d %d serialMsgQロック待ち         %08x %08x          %08x
+| %2d %d serialMsgQ WAITING FOR LOCK         %08x %08x          %08x
+|-
+| %2d %d serialMsgQをロックしました                     %08x
+| %2d %d serialMsgQ LOCKED                     %08x
+|-
+| %2d %d serialMsgQロック解除します   %08x %08x %08x
+| %2d %d serialMsgQ LOCK CANCELLED   %08x %08x %08x
+|-
+| %2d %d serialMsgQロック解除しました %08x %08x %08x
+| %2d %d serialMsgQ LOCK CANCELLED %08x %08x %08x
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 振動パック ぶるぶるぶるぶる
+| RUMBLE PAK - RUMBLE RUMBLE RUMBLE RUMBLE
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 振動パックで通信エラーが発生しました
+| TRANSMISSION ERROR PRODUCED BY RUMBLE PAK
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 振動パック 停止
+| RUMBLE PAK STOP
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 振動パックで通信エラーが発生しました
+| TRANSMISSION ERROR PRODUCED BY RUMBLE PAK
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 振動パックが抜かれたようです
+| SEEMS LIKE THE RUMBLE PAK HAS BEEN REMOVED
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 振動パックではないコントローラパックが抜かれたようです
+| SEEMS LIKE A NON-RUMBLE CONTROLLER PAK HAS BEEN REMOVED
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 振動パックを認識しました
+| RUMBLE PAK RECOGNIZED
+|-
+| [m
+| [m
+|-
+| ../padmgr.c
+| ../padmgr.c
+|-
+| #ERROR!
+| #ERROR!
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| コントローラパックの通信エラー
+| CONTROLLER PAK TRANSMISSION ERROR
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 振動パック 停止
+| RUMBLE PAK STOP
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 認識しました
+| RECOGNIZED
+|-
+| [m
+| [m
+|-
+| ../padmgr.c
+| ../padmgr.c
+|-
+| this-&gt;Key_switch[i] = %d
+| this-&gt;Key_switch[i] = %d
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| オーバーランエラーが発生
+| OVERRUN ERROR PRODUCED
+|-
+| [m
+| [m
+|-
+| [33m
+| [33m
+|-
+| padmgr: %dコン: %s
+| padmgr: %d CONTROLLER: %s
+|-
+| 応答しません
+| NO RESPONSE
+|-
+| [m
+| [m
+|-
+| ../padmgr.c
+| ../padmgr.c
+|-
+| padnow1-&gt;errno = %x
+| padnow1-&gt;errno = %x
+|-
+| ../padmgr.c
+| ../padmgr.c
+|-
+| ../padmgr.c
+| ../padmgr.c
+|-
+| this-&gt;pad_status[i].type = %x
+| this-&gt;pad_status[i].type = %x
+|-
+| 知らない種類のコントローラが接続されています
+| UNKNOWN CONTROLLER TYPE CONNECTED
+|-
+| padmgr_HandlePreNMI()
+| padmgr_HandlePreNMI()
+|-
+| コントローラスレッド実行開始
+| CONTROLLER THREAD EXECUTION START
+|-
+| コントローラスレッドイベント待ち %lld
+| WAITING FOR CONTROLLER THREAD EVENT %lld
+|-
+| msg
+| msg
+|-
+| ../padmgr.c
+| ../padmgr.c
+|-
+| padmgr_HandleRetraceMsg START %lld
+| padmgr_HandleRetraceMsg START %lld
+|-
+| padmgr_HandleRetraceMsg END   %lld
+| padmgr_HandleRetraceMsg END   %lld
+|-
+| コントローラスレッド実行終了
+| CONTROLLER THREAD EXECUTION COMPLETE
+|-
+| パッドマネージャ作成 padmgr_Create()
+| PAD MANAGER CREATION padmgr_Create()
+|-
+| cfbinfo-&gt;swapbuffer
+| cfbinfo-&gt;swapbuffer
+|-
+| ../sched.c
+| ../sched.c
+|-
+| osViSwapBuffer %08x %08x %08x
+| osViSwapBuffer %08x %08x %08x
+|-
+| ../sched.c
+| ../sched.c
+|-
+| (((u64)(now - audio_rsp_start_time)*(1000000LL/15625LL))/((62500000LL*3/4)/15625LL)) = %lld
+| (((u64)(now - audio_rsp_start_time)*(1000000LL/15625LL))/((62500000LL*3/4)/15625LL)) = %lld
+|-
+| ../sched.c
+| ../sched.c
+|-
+| (((u64)(now - graph_rsp_start_time)*(1000000LL/15625LL))/((62500000LL*3/4)/15625LL)) = %lld
+| (((u64)(now - graph_rsp_start_time)*(1000000LL/15625LL))/((62500000LL*3/4)/15625LL)) = %lld
+|-
+| ../sched.c
+| ../sched.c
+|-
+| (((u64)(now - rdp_start_time)*(1000000LL/15625LL))/((62500000LL*3/4)/15625LL)) = %lld
+| (((u64)(now - rdp_start_time)*(1000000LL/15625LL))/((62500000LL*3/4)/15625LL)) = %lld
+|-
+| (type == M_AUDTASK) &#124;&#124; (type == M_GFXTASK) &#124;&#124; (type == M_NJPEGTASK) &#124;&#124; (type == M_NULTASK)
+| (type == M_AUDTASK) &#124;&#124; (type == M_GFXTASK) &#124;&#124; (type == M_NJPEGTASK) &#124;&#124; (type == M_NULTASK)
+|-
+| ../sched.c
+| ../sched.c
+|-
+| オーディオタスクをエントリしました
+| ENTERED AUDIO TASK
+|-
+| グラフタスクをエントリしました
+| ENTERED GRAPH TASK
+|-
+| sc-&gt;curRSPTask-&gt;list.t.type != M_AUDTASK
+| sc-&gt;curRSPTask-&gt;list.t.type != M_AUDTASK
+|-
+| ../sched.c
+| ../sched.c
+|-
+| %08d:osSpTaskYield
+| %08d:osSpTaskYield
+|-
+| sc-&gt;pending_swapbuffer1
+| sc-&gt;pending_swapbuffer1
+|-
+| ../sched.c
+| ../sched.c
+|-
+| sc-&gt;pending_swapbuffer2
+| sc-&gt;pending_swapbuffer2
+|-
+| ../sched.c
+| ../sched.c
+|-
+| sc-&gt;pending_swapbuffer1
+| sc-&gt;pending_swapbuffer1
+|-
+| ../sched.c
+| ../sched.c
+|-
+| sc-&gt;curRSPTask == NULL
+| sc-&gt;curRSPTask == NULL
+|-
+| ../sched.c
+| ../sched.c
+|-
+| %08d:osSpTaskStartGo(%08x) %s
+| %08d:osSpTaskStartGo(%08x) %s
+|-
+| AUDIO
+| AUDIO
+|-
+| GRAPH
+| GRAPH
+|-
+| OTHER
+| OTHER
+|-
+| [YIELD B]
+| [YIELD B]
+|-
+| EN sc:%08x sp:%08x dp:%08x state:%x
+| EN sc:%08x sp:%08x dp:%08x state:%x
+|-
+| %08d:scHandleRetrace %08x
+| %08d:scHandleRetrace %08x
+|-
+| %08x %08x %08x %d
+| %08x %08x %08x %d
+|-
+| sc-&gt;curRSPTask
+| sc-&gt;curRSPTask
+|-
+| ../sched.c
+| ../sched.c
+|-
+| RSP DONE %d %d
+| RSP DONE %d %d
+|-
+| [YIELDED]
+| [YIELDED]
+|-
+| [NOT YIELDED]
+| [NOT YIELDED]
+|-
+| SP sc:%08x sp:%08x dp:%08x state:%x
+| SP sc:%08x sp:%08x dp:%08x state:%x
+|-
+| sc-&gt;curRDPTask
+| sc-&gt;curRDPTask
+|-
+| ../sched.c
+| ../sched.c
+|-
+| sc-&gt;curRDPTask-&gt;list.t.type == M_GFXTASK
+| sc-&gt;curRDPTask-&gt;list.t.type == M_GFXTASK
+|-
+| ../sched.c
+| ../sched.c
+|-
+| DP sc:%08x sp:%08x dp:%08x state:%x
+| DP sc:%08x sp:%08x dp:%08x state:%x
+|-
+| osScKickEntryMsg
+| osScKickEntryMsg
+|-
+| %08d:待機中
+| %08d: ON STANDBY
+|-
+| %08d:ENTRY_MSG
+| %08d:ENTRY_MSG
+|-
+| %08d:RSP_DONE_MSG
+| %08d:RSP_DONE_MSG
+|-
+| %08d:RDP_DONE_MSG
+| %08d:RDP_DONE_MSG
+|-
+| this
+| this
+|-
+| ../speed_meter.c
+| ../speed_meter.c
+|-
+| ../speed_meter.c
+| ../speed_meter.c
+|-
+| ../speed_meter.c
+| ../speed_meter.c
+|-
+| [31m
+| [31m
+|-
+| ../speed_meter.c
+| ../speed_meter.c
+|-
+| this-&gt;maxval = %d
+| this-&gt;maxval = %d
+|-
+| [m
+| [m
+|-
+| ../speed_meter.c
+| ../speed_meter.c
+|-
+| ../speed_meter.c
+| ../speed_meter.c
+|-
+| ８Ｍバイト以上のメモリが搭載されています
+| OVER 8 MB OF MEMORY EQUIPPED
+|-
+| RAM 8M mode (N64DD対応)
+| RAM 8M mode (N64DD COMPATIBLE)
+|-
+| このバージョンのマージンは %dK バイトです
+| THE MARGINS OF THIS VERSION ARE %dK BYTES
+|-
+| RAM4M mode
+| RAM4M mode
+|-
+| ../sys_cfb.c
+| ../sys_cfb.c
+|-
+| システムが使用する最終アドレスは %08x です
+| LAST ADDRESS USED BY SYSTEM WAS %08x
+|-
+| フレームバッファのアドレスは %08x と %08x です
+| FRAME BUFFER ADDRESSES ARE %08x AND %08x
+|-
+| [43;30m
+| [43;30m
+|-
+| Math3D_lineVsPosSuisenCross():直線の長さがありません
+| Math3D_lineVsPosSuisenCross(): NO LENGTH FOR STRAIGHT LINE
+|-
+| cross = pos を返します。
+| cross = pos RETURNED
+|-
+| [m
+| [m
+|-
+| [43;30m
+| [43;30m
+|-
+| Math3DLengthPlaneAndPos():法線size がゼロ近いです%f %f %f
+| Math3DLengthPlaneAndPos(): NORMAL VECTOR size APPROACHING ZERO %f %f %f
+|-
+| [m
+| [m
+|-
+| [43;30m
+| [43;30m
+|-
+| Math3DSignedLengthPlaneAndPos():法線size がゼロ近いです%f %f %f
+| Math3DSignedLengthPlaneAndPos(): NORMAL VECTOR SIZE APPROACHING ZERO %f %f %f
+|-
+| [m
+| [m
+|-
+| ../sys_matrix.c
+| ../sys_matrix.c
+|-
+| Matrix_now &gt;= Matrix_stack
+| Matrix_now &gt;= Matrix_stack
+|-
+| ../sys_matrix.c
+| ../sys_matrix.c
+|-
+| %s %d: [%s] =
+| %s %d: [%s] =
+|-
+| / %12.6f %12.6f %12.6f %12.6f \
+| / %12.6f %12.6f %12.6f %12.6f \
+|-
+| &#124; %12.6f %12.6f %12.6f %12.6f &#124;
+| &#124; %12.6f %12.6f %12.6f %12.6f &#124;
+|-
+| &#124; %12.6f %12.6f %12.6f %12.6f &#124;
+| &#124; %12.6f %12.6f %12.6f %12.6f &#124;
+|-
+| \ %12.6f %12.6f %12.6f %12.6f /
+| \ %12.6f %12.6f %12.6f %12.6f /
+|-
+| [31m
+| [31m
+|-
+| **** Freeze!! ****
+| **** Freeze!! ****
+|-
+| [m
+| [m
+|-
+| this
+| this
+|-
+| ../irqmgr.c
+| ../irqmgr.c
+|-
+| c
+| c
+|-
+| ../irqmgr.c
+| ../irqmgr.c
+|-
+| msgQ
+| msgQ
+|-
+| ../irqmgr.c
+| ../irqmgr.c
+|-
+| this
+| this
+|-
+| ../irqmgr.c
+| ../irqmgr.c
+|-
+| c
+| c
+|-
+| ../irqmgr.c
+| ../irqmgr.c
+|-
+| [41;37mirqmgr_SendMesgForClient:メッセージキューがあふれています mq=%08x cnt=%d
+| [41;37mirqmgr_SendMesgForClient: MESSAGE QUEUE OVERFLOW mq=%08x cnt=%d
+|-
+| [m
+| [m
+|-
+| [41;37mirqmgr_JamMesgForClient:メッセージキューがあふれています mq=%08x cnt=%d
+| [41;37mirqmgr_JamMesgForClient: MESSAGE QUEUE OVERFLOW mq=%08x cnt=%d
+|-
+| [m
+| [m
+|-
+| irqmgr.c: PRENMIから0.5秒経過
+| irqmgr.c: 0.5 SECONDS SINCE PRENMI
+|-
+| スタックは大丈夫みたいです
+| LOOKS LIKE THE STACK'S ALRIGHT
+|-
+| %c
+| %c
+|-
+| [31m
+| [31m
+|-
+| スタックがオーバーフローしたか危険な状態です
+| DANGEROUS SITUATION: STACK OVERFLOW MAY HAVE OCCURRED
+|-
+| 早々にスタックサイズを増やすか、スタックを消費しないようにしてください
+| PLEASE INCREASE THE STACK SIZE QUICKLY, OR BE SURE IT'S NOT CONSUMED
+|-
+| [m
+| [m
+|-
+| osAfterPreNMIが %d を返しました！？
+| %d RETURNED BY osAfterPreNMI?!
+|-
+| ＩＲＱマネージャスレッド実行開始
+| ＩＲＱ MANAGER THREAD EXECUTION START
+|-
+| PRE_NMI_MSG
+| PRE_NMI_MSG
+|-
+| スケジューラ：PRE_NMIメッセージを受信
+| SCHEDULER：PRE_NMI MESSAGE RECEIVED
+|-
+| PRENMI450_MSG
+| PRENMI450_MSG
+|-
+| スケジューラ：PRENMI450メッセージを受信
+| SCHEDULER：PRENMI450 MESSAGE RECEIVED
+|-
+| PRENMI480_MSG
+| PRENMI480_MSG
+|-
+| スケジューラ：PRENMI480メッセージを受信
+| SCHEDULER：PRENMI480 MESSAGE RECEIVED
+|-
+| PRENMI500_MSG
+| PRENMI500_MSG
+|-
+| スケジューラ：PRENMI500メッセージを受信
+| SCHEDULER：PRENMI500 MESSAGE RECEIVED
+|-
+| irqmgr.c:予期しないメッセージを受け取りました(%08x)
+| irqmgr.c: UNEXPECTED MESSAGE RECEIVED (%08x)
+|-
+| ＩＲＱマネージャスレッド実行終了
+| ＩＲＱ MANAGER THREAD EXECUTION COMPLETE
+|-
+| this
+| this
+|-
+| ../irqmgr.c
+| ../irqmgr.c
+|-
+| stack
+| stack
+|-
+| ../irqmgr.c
+| ../irqmgr.c
+|-
+| 
+| 
+|-
+| %s: %u バイトの%sに失敗しました
+| %s: FAILED AT %u BYTES' %s
+|-
+| %s: %u バイトの%sに成功しました
+| %s: SUCCEEDED AT %u BYTES' %s
+|-
+| debug_malloc
+| debug_malloc
+|-
+| 確保
+| RESERVED
+|-
+| debug_malloc_DEBUG
+| debug_malloc_DEBUG
+|-
+| 確保
+| RESERVED
+|-
+| debug_malloc_r
+| debug_malloc_r
+|-
+| 確保
+| RESERVED
+|-
+| debug_malloc_r_DEBUG
+| debug_malloc_r_DEBUG
+|-
+| 確保
+| RESERVED
+|-
+| debug_realloc
+| debug_realloc
+|-
+| 再確保
+| RE-RESERVED
+|-
+| debug_realloc_DEBUG
+| debug_realloc_DEBUG
+|-
+| 再確保
+| RE-RESERVED
+|-
+| debug_calloc
+| debug_calloc
+|-
+| 確保
+| RESERVED
+|-
+| ゼルダヒープ表示
+| ZELDA HEAP DISPLAY
+|-
+| Interrupt
+| Interrupt
+|-
+| TLB modification
+| TLB modification
+|-
+| TLB exception on load
+| TLB exception on load
+|-
+| TLB exception on store
+| TLB exception on store
+|-
+| Address error on load
+| Address error on load
+|-
+| Address error on store
+| Address error on store
+|-
+| Bus error on inst.
+| Bus error on inst.
+|-
+| Bus error on data
+| Bus error on data
+|-
+| System call exception
+| System call exception
+|-
+| Breakpoint exception
+| Breakpoint exception
+|-
+| Reserved instruction
+| Reserved instruction
+|-
+| Coprocessor unusable
+| Coprocessor unusable
+|-
+| Arithmetic overflow
+| Arithmetic overflow
+|-
+| Trap exception
+| Trap exception
+|-
+| Virtual coherency on inst.
+| Virtual coherency on inst.
+|-
+| Floating point exception
+| Floating point exception
+|-
+| Watchpoint exception
+| Watchpoint exception
+|-
+| Virtual coherency on data
+| Virtual coherency on data
+|-
+| Unimplemented operation
+| Unimplemented operation
+|-
+| Invalid operation
+| Invalid operation
+|-
+| Division by zero
+| Division by zero
+|-
+| Overflow
+| Overflow
+|-
+| Underflow
+| Underflow
+|-
+| Inexact operation
+| Inexact operation
+|-
+| [41;37mfault_AddClient: %08x は既にリスト中にある
+| [41;37mfault_AddClient: %08x ALREADY IN LIST
+|-
+| [m
+| [m
+|-
+| [41;37mfault_RemoveClient: %08x リスト不整合です
+| [41;37mfault_RemoveClient: %08x DOES NOT CONFORM TO LIST
+|-
+| [m
+| [m
+|-
+| [41;37mfault_AddressConverterAddClient: %08x は既にリスト中にある
+| [41;37mfault_AddressConverterAddClient: %08x ALREADY IN LIST
+|-
+| [m
+| [m
+|-
+| [41;37mfault_AddressConverterRemoveClient: %08x は既にリスト中にある
+| [41;37mfault_AddressConverterRemoveClient: %08x ALREADY IN LIST
+|-
+| [m
+| [m
+|-
+| F%02d:%14.7e 
+| F%02d:%14.7e 
+|-
+| F%02d:  %08x(16) 
+| F%02d:  %08x(16) 
+|-
+| F%02d:%14.7e 
+| F%02d:%14.7e 
+|-
+| F%02d:  %08x(16) 
+| F%02d:  %08x(16) 
+|-
+| FPCSR:%08xH 
+| FPCSR:%08xH 
+|-
+| (%s)
+| (%s)
+|-
+| FPCSR:%08xH  
+| FPCSR:%08xH  
+|-
+| (%s)
+| (%s)
+|-
+| THREAD:%d (%d:%s)
+| THREAD:%d (%d:%s)
+|-
+| PC:%08xH SR:%08xH VA:%08xH
+| PC:%08xH SR:%08xH VA:%08xH
+|-
+| AT:%08xH V0:%08xH V1:%08xH
+| AT:%08xH V0:%08xH V1:%08xH
+|-
+| A0:%08xH A1:%08xH A2:%08xH
+| A0:%08xH A1:%08xH A2:%08xH
+|-
+| A3:%08xH T0:%08xH T1:%08xH
+| A3:%08xH T0:%08xH T1:%08xH
+|-
+| T2:%08xH T3:%08xH T4:%08xH
+| T2:%08xH T3:%08xH T4:%08xH
+|-
+| T5:%08xH T6:%08xH T7:%08xH
+| T5:%08xH T6:%08xH T7:%08xH
+|-
+| S0:%08xH S1:%08xH S2:%08xH
+| S0:%08xH S1:%08xH S2:%08xH
+|-
+| S3:%08xH S4:%08xH S5:%08xH
+| S3:%08xH S4:%08xH S5:%08xH
+|-
+| S6:%08xH S7:%08xH T8:%08xH
+| S6:%08xH S7:%08xH T8:%08xH
+|-
+| T9:%08xH GP:%08xH SP:%08xH
+| T9:%08xH GP:%08xH SP:%08xH
+|-
+| S8:%08xH RA:%08xH LO:%08xH
+| S8:%08xH RA:%08xH LO:%08xH
+|-
+| THREAD ID:%d (%d:%s)
+| THREAD ID:%d (%d:%s)
+|-
+| PC:%08xH   SR:%08xH   VA:%08xH
+| PC:%08xH   SR:%08xH   VA:%08xH
+|-
+| AT:%08xH   V0:%08xH   V1:%08xH
+| AT:%08xH   V0:%08xH   V1:%08xH
+|-
+| A0:%08xH   A1:%08xH   A2:%08xH
+| A0:%08xH   A1:%08xH   A2:%08xH
+|-
+| A3:%08xH   T0:%08xH   T1:%08xH
+| A3:%08xH   T0:%08xH   T1:%08xH
+|-
+| T2:%08xH   T3:%08xH   T4:%08xH
+| T2:%08xH   T3:%08xH   T4:%08xH
+|-
+| T5:%08xH   T6:%08xH   T7:%08xH
+| T5:%08xH   T6:%08xH   T7:%08xH
+|-
+| S0:%08xH   S1:%08xH   S2:%08xH
+| S0:%08xH   S1:%08xH   S2:%08xH
+|-
+| S3:%08xH   S4:%08xH   S5:%08xH
+| S3:%08xH   S4:%08xH   S5:%08xH
+|-
+| S6:%08xH   S7:%08xH   T8:%08xH
+| S6:%08xH   S7:%08xH   T8:%08xH
+|-
+| T9:%08xH   GP:%08xH   SP:%08xH
+| T9:%08xH   GP:%08xH   SP:%08xH
+|-
+| S8:%08xH   RA:%08xH   LO:%08xH
+| S8:%08xH   RA:%08xH   LO:%08xH
+|-
+| [37mKeyWaitB (ＬＲＺ [37m上[33m下 [33m上[37m下 [37m左[33m左 [33m右[37m右 [32mＢ[34mＡ[31mSTART[37m)[m
+| [37mKeyWaitB (ＬＲＺ [37m上[33m下 [33m上[37m下 [37m左[33m左 [33m右[37m右 [32mＢ[34mＡ[31mSTART[37m)[m
+|-
+| [37mKeyWaitB'(ＬＲ左[33m右 +[31mSTART[37m)[m
+| [37mKeyWaitB'(ＬＲ左[33m右 +[31mSTART[37m)[m
+|-
+| %s %08x
+| %s %08x
+|-
+| PrintDump
+| PrintDump
+|-
+| %06x
+| %06x
+|-
+| %08x
+| %08x
+|-
+| Dump
+| Dump
+|-
+| SP       PC       (VPC)
+| SP       PC       (VPC)
+|-
+| %08x %08x
+| %08x %08x
+|-
+|  -&gt; %08x
+|  -&gt; %08x
+|-
+| STACK TRACE
+| STACK TRACE
+|-
+| SP       PC       (VPC)
+| SP       PC       (VPC)
+|-
+| %08x %08x
+| %08x %08x
+|-
+|  -&gt; %08x
+|  -&gt; %08x
+|-
+| 8CallBack (%d) %08x %08x %08x
+| 8CallBack (%d) %08x %08x %08x
+|-
+| 7
+| 7
+|-
+| フォルトマネージャ:OS_EVENT_CPU_BREAKを受信しました
+| FAULT MANAGER: OS_EVENT_CPU_BREAK RECEIVED
+|-
+| フォルトマネージャ:OS_EVENT_FAULTを受信しました
+| FAULT MANAGER: OS_EVENT_FAULT RECEIVED
+|-
+| フォルトマネージャ:不明なメッセージを受信しました
+| FAULT MANAGER: UNCLEAR MESSAGE RECEIVED
+|-
+| __osGetCurrFaultedThread()=%08x
+| __osGetCurrFaultedThread()=%08x
+|-
+| FindFaultedThread()=%08x
+| FindFaultedThread()=%08x
+|-
+| STACK TRACE
+| STACK TRACE
+|-
+|     CONGRATURATIONS!    
+|     CONGRATURATIONS!    
+|-
+| All Pages are displayed.
+| All Pages are displayed.
+|-
+|        THANK YOU!       
+|        THANK YOU!       
+|-
+|  You are great debugger!
+|  You are great debugger!
+|-
+| fault
+| fault
+|-
+| HungUp on Thread %d
+| HungUp on Thread %d
+|-
+| %s
+| %s
+|-
+| (NULL)
+| (NULL)
+|-
+| %s
+| %s
+|-
+| (NULL)
+| (NULL)
+|-
+| HungUp on Thread %d
+| HungUp on Thread %d
+|-
+| %s
+| %s
+|-
+| (NULL)
+| (NULL)
+|-
+| %s
+| %s
+|-
+| (NULL)
+| (NULL)
+|-
+| HungUp %s:%d
+| HungUp %s:%d
+|-
+| [m
+| [m
+|-
+| [3%dm
+| [3%dm
+|-
+| [4%dm
+| [4%dm
+|-
+| [%d;%dH
+| [%d;%dH
+|-
+| [2J
+| [2J
+|-
+| %c
+| %c
+|-
+| G_ZBUFFER
+| G_ZBUFFER
+|-
+| G_TEXTURE_ENABLE
+| G_TEXTURE_ENABLE
+|-
+| G_SHADE
+| G_SHADE
+|-
+| G_SHADING_SMOOTH
+| G_SHADING_SMOOTH
+|-
+| G_CULL_FRONT
+| G_CULL_FRONT
+|-
+| G_CULL_BACK
+| G_CULL_BACK
+|-
+| G_FOG
+| G_FOG
+|-
+| G_LIGHTING
+| G_LIGHTING
+|-
+| G_TEXTURE_GEN
+| G_TEXTURE_GEN
+|-
+| G_TEXTURE_GEN_LINEAR
+| G_TEXTURE_GEN_LINEAR
+|-
+| G_LOD
+| G_LOD
+|-
+| G_MTX_PROJECTION
+| G_MTX_PROJECTION
+|-
+| G_MTX_MODELVIEW
+| G_MTX_MODELVIEW
+|-
+| G_MTX_LOAD
+| G_MTX_LOAD
+|-
+| G_MTX_MUL
+| G_MTX_MUL
+|-
+| G_MTX_PUSH
+| G_MTX_PUSH
+|-
+| G_MTX_NOPUSH
+| G_MTX_NOPUSH
+|-
+| ?
+| ?
+|-
+| COMBINED
+| COMBINED
+|-
+| TEXEL0
+| TEXEL0
+|-
+| TEXEL1
+| TEXEL1
+|-
+| PRIMITIVE
+| PRIMITIVE
+|-
+| SHADE
+| SHADE
+|-
+| ENVIRONMENT
+| ENVIRONMENT
+|-
+| CENTER
+| CENTER
+|-
+| SCALE
+| SCALE
+|-
+| 1
+| 1
+|-
+| NOISE
+| NOISE
+|-
+| K4
+| K4
+|-
+| COMBINED_ALPHA
+| COMBINED_ALPHA
+|-
+| 0
+| 0
+|-
+| TEXEL0_ALPHA
+| TEXEL0_ALPHA
+|-
+| TEXEL1_ALPHA
+| TEXEL1_ALPHA
+|-
+| PRIMITIVE_ALPHA
+| PRIMITIVE_ALPHA
+|-
+| SHADE_ALPHA
+| SHADE_ALPHA
+|-
+| ENV_ALPHA
+| ENV_ALPHA
+|-
+| LOD_FRACTION
+| LOD_FRACTION
+|-
+| PRIM_LOD_FRAC
+| PRIM_LOD_FRAC
+|-
+| K5
+| K5
+|-
+| 0
+| 0
+|-
+| 0
+| 0
+|-
+| ?
+| ?
+|-
+| LOD_FRACTION
+| LOD_FRACTION
+|-
+| COMBINED
+| COMBINED
+|-
+| TEXEL0
+| TEXEL0
+|-
+| TEXEL1
+| TEXEL1
+|-
+| PRIMITIVE
+| PRIMITIVE
+|-
+| SHADE
+| SHADE
+|-
+| ENVIRONMENT
+| ENVIRONMENT
+|-
+| PRIM_LOD_FRAC
+| PRIM_LOD_FRAC
+|-
+| 1
+| 1
+|-
+| 0
+| 0
+|-
+| マイクロコードが一致しなかった
+| MICROCODE DOESN'T MATCH
+|-
+| &#124;
+| &#124;
+|-
+| %s
+| %s
+|-
+| AA_EN
+| AA_EN
+|-
+| Z_CMP
+| Z_CMP
+|-
+| Z_UPD
+| Z_UPD
+|-
+| IM_RD
+| IM_RD
+|-
+| CLR_ON_CVG
+| CLR_ON_CVG
+|-
+| CVG_DST_CLAMP
+| CVG_DST_CLAMP
+|-
+| CVG_DST_WRAP
+| CVG_DST_WRAP
+|-
+| CVG_DST_FULL
+| CVG_DST_FULL
+|-
+| CVG_DST_SAVE
+| CVG_DST_SAVE
+|-
+| ZMODE_OPA
+| ZMODE_OPA
+|-
+| ZMODE_INTER
+| ZMODE_INTER
+|-
+| ZMODE_XLU
+| ZMODE_XLU
+|-
+| ZMODE_DEC
+| ZMODE_DEC
+|-
+| CVG_X_ALPHA
+| CVG_X_ALPHA
+|-
+| ALPHA_CVG_SEL
+| ALPHA_CVG_SEL
+|-
+| FORCE_BL
+| FORCE_BL
+|-
+| G_BL_CLR_IN
+| G_BL_CLR_IN
+|-
+| G_BL_CLR_MEM
+| G_BL_CLR_MEM
+|-
+| G_BL_CLR_BL
+| G_BL_CLR_BL
+|-
+| G_BL_CLR_FOG
+| G_BL_CLR_FOG
+|-
+| G_BL_A_IN
+| G_BL_A_IN
+|-
+| G_BL_A_FOG
+| G_BL_A_FOG
+|-
+| G_BL_A_SHADE
+| G_BL_A_SHADE
+|-
+| G_BL_0
+| G_BL_0
+|-
+| G_BL_CLR_IN
+| G_BL_CLR_IN
+|-
+| G_BL_CLR_MEM
+| G_BL_CLR_MEM
+|-
+| G_BL_CLR_BL
+| G_BL_CLR_BL
+|-
+| G_BL_CLR_FOG
+| G_BL_CLR_FOG
+|-
+| G_BL_1MA
+| G_BL_1MA
+|-
+| G_BL_A_MEM
+| G_BL_A_MEM
+|-
+| G_BL_1
+| G_BL_1
+|-
+| G_BL_0
+| G_BL_0
+|-
+| %s&#124;
+| %s&#124;
+|-
+| GBL_c1(%s, %s, %s, %s)&#124;
+| GBL_c1(%s, %s, %s, %s)&#124;
+|-
+| GBL_c2(%s, %s, %s, %s)
+| GBL_c2(%s, %s, %s, %s)
+|-
+| {{%6d, %6d, %6d, %d, %6d, %6d, %3d, %3d, %3d, %3d}}, /* vc%d */
+| {{%6d, %6d, %6d, %d, %6d, %6d, %3d, %3d, %3d, %3d}}, /* vc%d */
+|-
+| {{%6d, %6d, %6d, %d, %6d, %6d, %3d, %3d, %3d, %3d}}, /* vn%d */
+| {{%6d, %6d, %6d, %d, %6d, %6d, %3d, %3d, %3d, %3d}}, /* vn%d */
+|-
+| %08x:
+| %08x:
+|-
+| %08x-%08x:
+| %08x-%08x:
+|-
+|  
+|  
+|-
+| gsSPNoOp(),
+| gsSPNoOp(),
+|-
+| gsSPDisplayList(0x%08x),
+| gsSPDisplayList(0x%08x),
+|-
+| gsSPBranchList(0x%08x),
+| gsSPBranchList(0x%08x),
+|-
+| RDPHALF_1(0x%08x),
+| RDPHALF_1(0x%08x),
+|-
+| gsSPTextureRectangle(%d,%d,%d,%d,%d,%d,%d,%d,%d),
+| gsSPTextureRectangle(%d,%d,%d,%d,%d,%d,%d,%d,%d),
+|-
+| gsSPLoadUcode(0x%08x, 0x%08x),
+| gsSPLoadUcode(0x%08x, 0x%08x),
+|-
+| gsSPLoadUcodeEx(0x%08x, 0x%08x, 0x%05x),
+| gsSPLoadUcodeEx(0x%08x, 0x%08x, 0x%05x),
+|-
+| gsSPEndDisplayList(),
+| gsSPEndDisplayList(),
+|-
+| gsDPSetTile(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d),
+| gsDPSetTile(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d),
+|-
+| ### TileSyncが必要です。
+| ### TileSync NECESSARY.
+|-
+| gsDPLoadTile(%d,%d,%d,%d,%d),
+| gsDPLoadTile(%d,%d,%d,%d,%d),
+|-
+| gsDPLoadBlock(%d,%d,%d,%d,%d),
+| gsDPLoadBlock(%d,%d,%d,%d,%d),
+|-
+| ### LoadSyncが必要です。
+| ### LoadSync NECESSARY.
+|-
+| gsDPSetTileSize(%d,%d,%d,%d,%d),
+| gsDPSetTileSize(%d,%d,%d,%d,%d),
+|-
+| gsDPLoadTLUTCmd(%d,%d),
+| gsDPLoadTLUTCmd(%d,%d),
+|-
+| gsDPSetCombineLERP(%s,%s,%s,%s, %s,%s,%s,%s, %s,%s,%s,%s, %s,%s,%s,%s),
+| gsDPSetCombineLERP(%s,%s,%s,%s, %s,%s,%s,%s, %s,%s,%s,%s, %s,%s,%s,%s),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| SetAlphaDither
+| SetAlphaDither
+|-
+| G_AD_PATTERN
+| G_AD_PATTERN
+|-
+| G_AD_NOTPATTERN
+| G_AD_NOTPATTERN
+|-
+| G_AD_NOISE
+| G_AD_NOISE
+|-
+| G_AD_DISABLE
+| G_AD_DISABLE
+|-
+| SetColorDither
+| SetColorDither
+|-
+| G_CD_MAGICSQ
+| G_CD_MAGICSQ
+|-
+| G_CD_BAYER
+| G_CD_BAYER
+|-
+| G_CD_NOISE
+| G_CD_NOISE
+|-
+| -1
+| -1
+|-
+| SetCombineKey
+| SetCombineKey
+|-
+| G_CK_NONE
+| G_CK_NONE
+|-
+| G_CK_KEY
+| G_CK_KEY
+|-
+| -1
+| -1
+|-
+| -1
+| -1
+|-
+| SetTextureConvert
+| SetTextureConvert
+|-
+| G_TC_CONV
+| G_TC_CONV
+|-
+| G_TC_FILTCONV
+| G_TC_FILTCONV
+|-
+| G_TC_FILT
+| G_TC_FILT
+|-
+| -1
+| -1
+|-
+| SetTextureFilter
+| SetTextureFilter
+|-
+| G_TF_POINT
+| G_TF_POINT
+|-
+| G_TF_AVERAGE
+| G_TF_AVERAGE
+|-
+| G_TF_BILERP
+| G_TF_BILERP
+|-
+| -1
+| -1
+|-
+| SetTextureLUT
+| SetTextureLUT
+|-
+| G_TT_NONE
+| G_TT_NONE
+|-
+| G_TT_RGBA16
+| G_TT_RGBA16
+|-
+| G_TT_IA16
+| G_TT_IA16
+|-
+| -1
+| -1
+|-
+| SetTextureLOD
+| SetTextureLOD
+|-
+| G_TL_TILE
+| G_TL_TILE
+|-
+| G_TL_LOD
+| G_TL_LOD
+|-
+| -1
+| -1
+|-
+| -1
+| -1
+|-
+| SetTextureDetail
+| SetTextureDetail
+|-
+| G_TD_CLAMP
+| G_TD_CLAMP
+|-
+| G_TD_SHARPEN
+| G_TD_SHARPEN
+|-
+| G_TD_DETAIL
+| G_TD_DETAIL
+|-
+| -1
+| -1
+|-
+| SetTexturePersp
+| SetTexturePersp
+|-
+| G_TP_PERSP
+| G_TP_PERSP
+|-
+| G_TP_NONE
+| G_TP_NONE
+|-
+| -1
+| -1
+|-
+| -1
+| -1
+|-
+| SetCycleType
+| SetCycleType
+|-
+| G_CYC_1CYCLE
+| G_CYC_1CYCLE
+|-
+| G_CYC_2CYCLE
+| G_CYC_2CYCLE
+|-
+| G_CYC_COPY
+| G_CYC_COPY
+|-
+| G_CYC_FILL
+| G_CYC_FILL
+|-
+| SetColorDither
+| SetColorDither
+|-
+| G_CD_MAGICSQ
+| G_CD_MAGICSQ
+|-
+| G_CD_BAYER
+| G_CD_BAYER
+|-
+| G_CD_NOISE
+| G_CD_NOISE
+|-
+| -1
+| -1
+|-
+| PipelineMode
+| PipelineMode
+|-
+| G_PM_1PRIMITIVE
+| G_PM_1PRIMITIVE
+|-
+| G_PM_NPRIMITIVE
+| G_PM_NPRIMITIVE
+|-
+| -1
+| -1
+|-
+| -1
+| -1
+|-
+| gsDP%s(%s),
+| gsDP%s(%s),
+|-
+| gsSPSetOtherModeH(%d, %d, 0x%08x),
+| gsSPSetOtherModeH(%d, %d, 0x%08x),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPSetAlphaCompare
+| gsDPSetAlphaCompare
+|-
+| G_AC_NONE
+| G_AC_NONE
+|-
+| G_AC_THRESHOLD
+| G_AC_THRESHOLD
+|-
+| G_AC_DITHER
+| G_AC_DITHER
+|-
+| -1
+| -1
+|-
+| gsDPSetDepthSource
+| gsDPSetDepthSource
+|-
+| G_ZS_PIXEL
+| G_ZS_PIXEL
+|-
+| G_ZS_PRIM
+| G_ZS_PRIM
+|-
+| -1
+| -1
+|-
+| -1
+| -1
+|-
+| gsDPSetRenderBlender(
+| gsDPSetRenderBlender(
+|-
+| ),
+| ),
+|-
+| gsDP%s(%s),
+| gsDP%s(%s),
+|-
+| gsSPSetOtherModeL(%d, %d, 0x%08x),
+| gsSPSetOtherModeL(%d, %d, 0x%08x),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPSetOtherMode(0x%08x, 0x%08x),
+| gsDPSetOtherMode(0x%08x, 0x%08x),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| G_SC_NON_INTERLACE
+| G_SC_NON_INTERLACE
+|-
+| G_SC_ODD_INTERLACE
+| G_SC_ODD_INTERLACE
+|-
+| G_SC_EVEN_INTERLACE
+| G_SC_EVEN_INTERLACE
+|-
+| ???
+| ???
+|-
+| gsDPSetScissorFrac(%s, %d, %d, %d, %d),
+| gsDPSetScissorFrac(%s, %d, %d, %d, %d),
+|-
+| gsDPSetScissor(%s, %d, %d, %d, %d),
+| gsDPSetScissor(%s, %d, %d, %d, %d),
+|-
+| gsDPFillRectangle(%d, %d, %d, %d),
+| gsDPFillRectangle(%d, %d, %d, %d),
+|-
+| gsDPSetColorImage(G_IM_FMT_%s, G_IM_SIZ_%s, %d, 0x%08x(0x%08x) ),
+| gsDPSetColorImage(G_IM_FMT_%s, G_IM_SIZ_%s, %d, 0x%08x(0x%08x) ),
+|-
+| RGBA
+| RGBA
+|-
+| YUV
+| YUV
+|-
+| CI
+| CI
+|-
+| IA
+| IA
+|-
+| I
+| I
+|-
+| 4b
+| 4b
+|-
+| 8b
+| 8b
+|-
+| 16b
+| 16b
+|-
+| 32b
+| 32b
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPSetDepthImage(0x%08x(0x%08x)),
+| gsDPSetDepthImage(0x%08x(0x%08x)),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPSetTextureImage(G_IM_FMT_%s, G_IM_SIZ_%s, %d, 0x%08x(0x%08x)),
+| gsDPSetTextureImage(G_IM_FMT_%s, G_IM_SIZ_%s, %d, 0x%08x(0x%08x)),
+|-
+| RGBA
+| RGBA
+|-
+| YUV
+| YUV
+|-
+| CI
+| CI
+|-
+| IA
+| IA
+|-
+| I
+| I
+|-
+| 4b
+| 4b
+|-
+| 8b
+| 8b
+|-
+| 16b
+| 16b
+|-
+| 32b
+| 32b
+|-
+| gsDPSetEnvColor(%d, %d, %d, %d),
+| gsDPSetEnvColor(%d, %d, %d, %d),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPSetBlendColor(%d, %d, %d, %d),
+| gsDPSetBlendColor(%d, %d, %d, %d),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPSetFogColor(%d, %d, %d, %d),
+| gsDPSetFogColor(%d, %d, %d, %d),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPSetFillColor(0x%08x),
+| gsDPSetFillColor(0x%08x),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPSetPrimDepth(%d, %d),
+| gsDPSetPrimDepth(%d, %d),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPSetPrimColor(%d, %d, %d, %d, %d, %d),
+| gsDPSetPrimColor(%d, %d, %d, %d, %d, %d),
+|-
+| gsDPFullSync(),
+| gsDPFullSync(),
+|-
+| ### PipeSyncが必要です。
+| ### PipeSync NECESSARY.
+|-
+| gsDPTileSync(),
+| gsDPTileSync(),
+|-
+| gsDPPipeSync(),
+| gsDPPipeSync(),
+|-
+| gsDPLoadSync(),
+| gsDPLoadSync(),
+|-
+| gsDPNoOp(),
+| gsDPNoOp(),
+|-
+| gsDPNoOpTag(%08x),
+| gsDPNoOpTag(%08x),
+|-
+| count_gsDPNoOpHere([%s:%d]),
+| count_gsDPNoOpHere([%s:%d]),
+|-
+| count_gsDPNoOpOpenDisp([%s:%d]),
+| count_gsDPNoOpOpenDisp([%s:%d]),
+|-
+| count_gsDPNoOpCloseDisp([%s:%d]),
+| count_gsDPNoOpCloseDisp([%s:%d]),
+|-
+| count_gsDPNoOpString(%c%s%c, %d),
+| count_gsDPNoOpString(%c%s%c, %d),
+|-
+| count_gsDPNoOpWord(0x%08x, %d),
+| count_gsDPNoOpWord(0x%08x, %d),
+|-
+| count_gsDPNoOpFloat(%8.3f, %d),
+| count_gsDPNoOpFloat(%8.3f, %d),
+|-
+| count_gsDPNoOpQuiet(),
+| count_gsDPNoOpQuiet(),
+|-
+| count_gsDPNoOpVerbose(),
+| count_gsDPNoOpVerbose(),
+|-
+| count_gsDPNoOpCallBack(%08x,%d),
+| count_gsDPNoOpCallBack(%08x,%d),
+|-
+| gsDPNoOpTag3(%02x, %08x, %04x),
+| gsDPNoOpTag3(%02x, %08x, %04x),
+|-
+| gsSPMatrix(0x%08x(%08x), 0
+| gsSPMatrix(0x%08x(%08x), 0
+|-
+| &#124;%s
+| &#124;%s
+|-
+| ),
+| ),
+|-
+| / %04x.%04x %04x.%04x %04x.%04x %.04x.%04x \/ %12.6f %12.6f %12.6f %12.6f \
+| / %04x.%04x %04x.%04x %04x.%04x %.04x.%04x \/ %12.6f %12.6f %12.6f %12.6f \
+|-
+| &#124; %04x.%04x %04x.%04x %04x.%04x %.04x.%04x &#124;&#124; %12.6f %12.6f %12.6f %12.6f &#124;
+| &#124; %04x.%04x %04x.%04x %04x.%04x %.04x.%04x &#124;&#124; %12.6f %12.6f %12.6f %12.6f &#124;
+|-
+| &#124; %04x.%04x %04x.%04x %04x.%04x %.04x.%04x &#124;&#124; %12.6f %12.6f %12.6f %12.6f &#124;
+| &#124; %04x.%04x %04x.%04x %04x.%04x %.04x.%04x &#124;&#124; %12.6f %12.6f %12.6f %12.6f &#124;
+|-
+| \ %04x.%04x %04x.%04x %04x.%04x %.04x.%04x /\ %12.6f %12.6f %12.6f %12.6f /
+| \ %04x.%04x %04x.%04x %04x.%04x %.04x.%04x /\ %12.6f %12.6f %12.6f %12.6f /
+|-
+| gsSPVertex(0x%08x(0x%08x), %d, %d),
+| gsSPVertex(0x%08x(0x%08x), %d, %d),
+|-
+| gsSPModifyVertex(%d, %s, %08x),
+| gsSPModifyVertex(%d, %s, %08x),
+|-
+| G_MWO_POINT_RGBA
+| G_MWO_POINT_RGBA
+|-
+| G_MWO_POINT_ST
+| G_MWO_POINT_ST
+|-
+| G_MWO_POINT_XYSCREEN
+| G_MWO_POINT_XYSCREEN
+|-
+| G_MWO_POINT_ZSCREEN
+| G_MWO_POINT_ZSCREEN
+|-
+| G_MWO_POINT_????
+| G_MWO_POINT_????
+|-
+| gsSP1Triangle(%d, %d, %d),
+| gsSP1Triangle(%d, %d, %d),
+|-
+| gsSPLine3D(%d, %d),
+| gsSPLine3D(%d, %d),
+|-
+| gsSPLineW3D(%d, %d, %d),
+| gsSPLineW3D(%d, %d, %d),
+|-
+| gsSP2Triangles(%d, %d, %d, 0, %d, %d, %d, 0),
+| gsSP2Triangles(%d, %d, %d, 0, %d, %d, %d, 0),
+|-
+| gsSP1Quadrangle(%d, %d, %d, %d, 0),
+| gsSP1Quadrangle(%d, %d, %d, %d, 0),
+|-
+| gsSPCullDisplayList(%d, %d),
+| gsSPCullDisplayList(%d, %d),
+|-
+| gsSPBranchLessZraw(0x%08x(0x%08x), %d, 0x%08x),
+| gsSPBranchLessZraw(0x%08x(0x%08x), %d, 0x%08x),
+|-
+| gsSPTexture(%d, %d, %d, %d, %s),
+| gsSPTexture(%d, %d, %d, %d, %s),
+|-
+| G_ON
+| G_ON
+|-
+| G_OFF
+| G_OFF
+|-
+| gsSPTextureL(%d, %d, %d, %d, %d, %s),
+| gsSPTextureL(%d, %d, %d, %d, %d, %s),
+|-
+| G_ON
+| G_ON
+|-
+| G_OFF
+| G_OFF
+|-
+| gsSPPopMatrix(G_MTX_MODELVIEW),
+| gsSPPopMatrix(G_MTX_MODELVIEW),
+|-
+| gsSPPopMatrixN(G_MTX_MODELVIEW, %d),
+| gsSPPopMatrixN(G_MTX_MODELVIEW, %d),
+|-
+| gsSPLoadGeometryMode(
+| gsSPLoadGeometryMode(
+|-
+| ),
+| ),
+|-
+| gsSPClearGeometryMode(
+| gsSPClearGeometryMode(
+|-
+| ),
+| ),
+|-
+| gsSPSetGeometryMode(
+| gsSPSetGeometryMode(
+|-
+| ),
+| ),
+|-
+| gsSPGeometryMode(
+| gsSPGeometryMode(
+|-
+| , 
+| , 
+|-
+| ),
+| ),
+|-
+| gsSPSegment(%d, 0x%08x),
+| gsSPSegment(%d, 0x%08x),
+|-
+| gsSPClipRatio(FRUSTRATIO_%d), 
+| gsSPClipRatio(FRUSTRATIO_%d), 
+|-
+| gsSPNumLights(%d), 
+| gsSPNumLights(%d), 
+|-
+| gsSPLightColor(%d, %d), 
+| gsSPLightColor(%d, %d), 
+|-
+| gsSPFogFactor(%d, %d),
+| gsSPFogFactor(%d, %d),
+|-
+| gsSPPerspNormalize(%d),
+| gsSPPerspNormalize(%d),
+|-
+| gsMoveWd(%d, %d, %d), 
+| gsMoveWd(%d, %d, %d), 
+|-
+| gsSPViewport(0x%08x(0x%08x)),
+| gsSPViewport(0x%08x(0x%08x)),
+|-
+| vtrans=[%d %d %d %d] 
+| vtrans=[%d %d %d %d] 
+|-
+| gsSPForceMatrix(0x%08x),
+| gsSPForceMatrix(0x%08x),
+|-
+| gsSPLookAtX(0x%08x),
+| gsSPLookAtX(0x%08x),
+|-
+| gsSPLookAtY(0x%08x),
+| gsSPLookAtY(0x%08x),
+|-
+| gsSPLight(0x%08x,%d),
+| gsSPLight(0x%08x,%d),
+|-
+| gsMoveMem(0x%08x, %d, %d, %d),
+| gsMoveMem(0x%08x, %d, %d, %d),
+|-
+| AnyDisplayList(),
+| AnyDisplayList(),
+|-
+| gsSPBgRectCopy(0x%08x(0x%08x)),
+| gsSPBgRectCopy(0x%08x(0x%08x)),
+|-
+| gsSPBgRect1Cyc(0x%08x(0x%08x)),
+| gsSPBgRect1Cyc(0x%08x(0x%08x)),
+|-
+| gsSPObjSprite(0x%08x(0x%08x)),
+| gsSPObjSprite(0x%08x(0x%08x)),
+|-
+| gsSPObjRectangle(0x%08x(0x%08x)),
+| gsSPObjRectangle(0x%08x(0x%08x)),
+|-
+| gsSPObjRectangleR(0x%08x(0x%08x)),
+| gsSPObjRectangleR(0x%08x(0x%08x)),
+|-
+| RDPHALF_0(0x%02x, 0x%08x, 0x%04x),
+| RDPHALF_0(0x%02x, 0x%08x, 0x%04x),
+|-
+| gsSPObjMatrix(0x%08x(0x%08x)),
+| gsSPObjMatrix(0x%08x(0x%08x)),
+|-
+| gsSPObjSubMatrix(0x%08x(0x%08x)),
+| gsSPObjSubMatrix(0x%08x(0x%08x)),
+|-
+| gsSPObjLoadTxtr(0x%08x(0x%08x)),
+| gsSPObjLoadTxtr(0x%08x(0x%08x)),
+|-
+| gsSPObjLoadTxSprite(0x%08x(0x%08x)),
+| gsSPObjLoadTxSprite(0x%08x(0x%08x)),
+|-
+| gsSPObjLoadTxRect(0x%08x(0x%08x)),
+| gsSPObjLoadTxRect(0x%08x(0x%08x)),
+|-
+| gsSPObjLoadTxRectR(0x%08x(0x%08x)),
+| gsSPObjLoadTxRectR(0x%08x(0x%08x)),
+|-
+| gsSPSelectDL(0x%08x, %d, 0x%08x, 0x%08x),
+| gsSPSelectDL(0x%08x, %d, 0x%08x, 0x%08x),
+|-
+| gsSPSelectBranchDL(0x%08x, %d, 0x%08x, 0x%08x),
+| gsSPSelectBranchDL(0x%08x, %d, 0x%08x, 0x%08x),
+|-
+| gsSPSegment(%d, 0x%08x),
+| gsSPSegment(%d, 0x%08x),
+|-
+| gsSPSetStatus(0x%08x, 0x%08x),
+| gsSPSetStatus(0x%08x, 0x%08x),
+|-
+| gsMoveWd(%d, %d, %d), 
+| gsMoveWd(%d, %d, %d), 
+|-
+| gsSPObjRenderMode(0x%08x),
+| gsSPObjRenderMode(0x%08x),
+|-
+| AnyDisplayList(),
+| AnyDisplayList(),
+|-
+| SUPERDMA
+| SUPERDMA
+|-
+| FastCopy
+| FastCopy
+|-
+| FastCopy
+| FastCopy
+|-
+| SLOWCOPY
+| SLOWCOPY
+|-
+| BGCOPY
+| BGCOPY
+|-
+| AUDIO : Ocarina Control Assign Normal
+| AUDIO : Ocarina Control Assign Normal
+|-
+| AUDIO : Ocarina Control Assign Custom
+| AUDIO : Ocarina Control Assign Custom
+|-
+| Presss NA_KEY_D4 %08x
+| Presss NA_KEY_D4 %08x
+|-
+| Presss NA_KEY_F4 %08x
+| Presss NA_KEY_F4 %08x
+|-
+| Presss NA_KEY_A4 %08x
+| Presss NA_KEY_A4 %08x
+|-
+| Presss NA_KEY_B4 %08x
+| Presss NA_KEY_B4 %08x
+|-
+| Presss NA_KEY_D5 %08x
+| Presss NA_KEY_D5 %08x
+|-
+| 1
+| 1
+|-
+| Audio Debug Mode
+| Audio Debug Mode
+|-
+| - %s -
+| - %s -
+|-
+| Audio ScrPrt
+| Audio ScrPrt
+|-
+| %s
+| %s
+|-
+| %04X
+| %04X
+|-
+| BGM CANCEL:%s
+| BGM CANCEL:%s
+|-
+| SE MUTE:%s
+| SE MUTE:%s
+|-
+| PUSH CONT-4 A-BTN
+| PUSH CONT-4 A-BTN
+|-
+| SE HANDLE:%s
+| SE HANDLE:%s
+|-
+| %02x %04x %02x %08x
+| %02x %04x %02x %08x
+|-
+| *
+| *
+|-
+| Seq 0  : %2x
+| Seq 0  : %2x
+|-
+| Seq 1  : %2x
+| Seq 1  : %2x
+|-
+| SE HD  : %2x %s
+| SE HD  : %2x %s
+|-
+| SE No. :%3x
+| SE No. :%3x
+|-
+| S-Out  : %2x %s
+| S-Out  : %2x %s
+|-
+| BGM Ent: %2x
+| BGM Ent: %2x
+|-
+| Spec   : %2x
+| Spec   : %2x
+|-
+| Na Snd : %2x
+| Na Snd : %2x
+|-
+| Cam Wt : %s
+| Cam Wt : %s
+|-
+| Lnk Wt : %s
+| Lnk Wt : %s
+|-
+| SE Ent : %2x
+| SE Ent : %2x
+|-
+| %s &lt;%d&gt;
+| %s &lt;%d&gt;
+|-
+| %2X %5d %5d %5d %02X %04X %04X
+| %2X %5d %5d %5d %02X %04X %04X
+|-
+| FF ----- ----- ----- -- ---- ----
+| FF ----- ----- ----- -- ---- ----
+|-
+| %2X %5d %5d %5d %3d %3d %04X
+| %2X %5d %5d %5d %3d %3d %04X
+|-
+| FF ----- ----- ----- --- --- ----
+| FF ----- ----- ----- --- --- ----
+|-
+| %2X %5d %5d %5d %3d %3d %04X
+| %2X %5d %5d %5d %3d %3d %04X
+|-
+| FF ----- ----- ----- --- --- ----
+| FF ----- ----- ----- --- --- ----
+|-
+| %2X %04X
+| %2X %04X
+|-
+| FF ----
+| FF ----
+|-
+| *
+| *
+|-
+| Swicth  : %d
+| Swicth  : %d
+|-
+| Lines   : %d
+| Lines   : %d
+|-
+| Color   : %d
+| Color   : %d
+|-
+| %s  : %d
+| %s  : %d
+|-
+| %s    : %d
+| %s    : %d
+|-
+| ENVRONM : %d
+| ENVRONM : %d
+|-
+| %s   : %d
+| %s   : %d
+|-
+| %s  : %d
+| %s  : %d
+|-
+| %s : %d
+| %s : %d
+|-
+| %s    : %d
+| %s    : %d
+|-
+| SEQ ENT : %d
+| SEQ ENT : %d
+|-
+| SWAP OFF
+| SWAP OFF
+|-
+| *
+| *
+|-
+| V
+| V
+|-
+| %04x %04x %s
+| %04x %04x %s
+|-
+| Group Track:%d
+| Group Track:%d
+|-
+| Sub Track  :%d
+| Sub Track  :%d
+|-
+| TRK NO. 
+| TRK NO. 
+|-
+| ENTRY   
+| ENTRY   
+|-
+| MUTE    
+| MUTE    
+|-
+| OPENNOTE
+| OPENNOTE
+|-
+| %1X
+| %1X
+|-
+| O
+| O
+|-
+| X
+| X
+|-
+| O
+| O
+|-
+| X
+| X
+|-
+| %1X
+| %1X
+|-
+| %2d,%2d
+| %2d,%2d
+|-
+| VOL     
+| VOL     
+|-
+| E VOL   
+| E VOL   
+|-
+| BANK ID 
+| BANK ID 
+|-
+| PROG    
+| PROG    
+|-
+| PAN    
+| PAN    
+|-
+| PANPOW  
+| PANPOW  
+|-
+| FXMIX   
+| FXMIX   
+|-
+| PRIO    
+| PRIO    
+|-
+| VIB PIT 
+| VIB PIT 
+|-
+| VIB DEP 
+| VIB DEP 
+|-
+| TUNE    
+| TUNE    
+|-
+| TUNE    
+| TUNE    
+|-
+| %02X 
+| %02X 
+|-
+| %d
+| %d
+|-
+| %d
+| %d
+|-
+| %X
+| %X
+|-
+| %d
+| %d
+|-
+| %d
+| %d
+|-
+| %d
+| %d
+|-
+| %d
+| %d
+|-
+| %d
+| %d
+|-
+| %d
+| %d
+|-
+| %d
+| %d
+|-
+| %d
+| %d
+|-
+| TOTAL  %d
+| TOTAL  %d
+|-
+| DRIVER %05X / %05X
+| DRIVER %05X / %05X
+|-
+| AT-SEQ %02X-%02X (%05X-%05X / %05X)
+| AT-SEQ %02X-%02X (%05X-%05X / %05X)
+|-
+| AT-BNK %02X-%02X (%05X-%05X / %05X)
+| AT-BNK %02X-%02X (%05X-%05X / %05X)
+|-
+| ST-SEQ %02Xseqs  (%05X / %06X)
+| ST-SEQ %02Xseqs  (%05X / %06X)
+|-
+| %02x
+| %02x
+|-
+| ST-BNK %02Xbanks (%05X / %06X)
+| ST-BNK %02Xbanks (%05X / %06X)
+|-
+| %02x
+| %02x
+|-
+| E-MEM  %05X / %05X
+| E-MEM  %05X / %05X
+|-
+| BGM No.    %02X
+| BGM No.    %02X
+|-
+| SCENE SET  %02X %s
+| SCENE SET  %02X %s
+|-
+| *
+| *
+|-
+| NEXT SCENE %02X %s
+| NEXT SCENE %02X %s
+|-
+| NOW SCENE  %02X %s
+| NOW SCENE  %02X %s
+|-
+| NOW BLOCK  %02X
+| NOW BLOCK  %02X
+|-
+| PORT
+| PORT
+|-
+| %02X %02X %02X %02X
+| %02X %02X %02X %02X
+|-
+| %02X %02X %02X %02X
+| %02X %02X %02X %02X
+|-
+| SEQ INFO  : %2d %02x %d
+| SEQ INFO  : %2d %02x %d
+|-
+| PLAY INFO : %2d %02x %d
+| PLAY INFO : %2d %02x %d
+|-
+| 8note REC POINTER : %08x
+| 8note REC POINTER : %08x
+|-
+| %02x
+| %02x
+|-
+| OCA:%02x SEQ:%04x PLAY:%02x REC:%02x
+| OCA:%02x SEQ:%04x PLAY:%02x REC:%02x
+|-
+| *
+| *
+|-
+| SE HD  : %02x %s
+| SE HD  : %02x %s
+|-
+| SE No. : %02x
+| SE No. : %02x
+|-
+|        : %04x
+|        : %04x
+|-
+| SE SW    %s
+| SE SW    %s
+|-
+| %s
+| %s
+|-
+| SE PR  : %02x
+| SE PR  : %02x
+|-
+| env_fx %d code_fx %d SPEC %d
+| env_fx %d code_fx %d SPEC %d
+|-
+| SOUND GAME FRAME NOW %f
+| SOUND GAME FRAME NOW %f
+|-
+| SOUND GAME FRAME MAX %f
+| SOUND GAME FRAME MAX %f
+|-
+| SWITCH BGM MODE %d %d %d (FLAG %d)
+| SWITCH BGM MODE %d %d %d (FLAG %d)
+|-
+| ENEMY DIST %f VOL %3d
+| ENEMY DIST %f VOL %3d
+|-
+| GANON DIST VOL %3d
+| GANON DIST VOL %3d
+|-
+| DEMO FLAG %d
+| DEMO FLAG %d
+|-
+| MARON BGM DIST %f
+| MALON BGM DIST %f
+|-
+| NATURE FAILED %01x
+| NATURE FAILED %01x
+|-
+| SARIA BGM PTR %08x
+| SARIA BGM PTR %08x
+|-
+| POLI %d(%d)
+| POLI %d(%d)
+|-
+| %d
+| %d
+|-
+| Middle Boss BGM Start not stack 
+| Mini Boss BGM Start not stack 
+|-
+| gfxprint_open:２重オープンです
+| gfxprint_open: DOUBLE OPEN
+|-
+| osSpGetStatus=%08x: 
+| osSpGetStatus=%08x: 
+|-
+| HALT 
+| HALT 
+|-
+| BROKE 
+| BROKE 
+|-
+| DMA_BUSY 
+| DMA_BUSY 
+|-
+| DMA_FULL 
+| DMA_FULL 
+|-
+| IO_FULL 
+| IO_FULL 
+|-
+| SSTEP 
+| SSTEP 
+|-
+| INTR_BREAK 
+| INTR_BREAK 
+|-
+| YIELD 
+| YIELD 
+|-
+| YIELDED 
+| YIELDED 
+|-
+| TASKDONE 
+| TASKDONE 
+|-
+| SIG3 
+| SIG3 
+|-
+| SIG4 
+| SIG4 
+|-
+| SIG5 
+| SIG5 
+|-
+| SIG6 
+| SIG6 
+|-
+| SIG7 
+| SIG7 
+|-
+| osDpGetStatus=%08x:
+| osDpGetStatus=%08x:
+|-
+| XBUS_DMEM_DMA 
+| XBUS_DMEM_DMA 
+|-
+| FREEZE 
+| FREEZE 
+|-
+| FLUSH 
+| FLUSH 
+|-
+| START_GCLK 
+| START_GCLK 
+|-
+| TMEM_BUSY 
+| TMEM_BUSY 
+|-
+| PIPE_BUSY 
+| PIPE_BUSY 
+|-
+| CMD_BUSY 
+| CMD_BUSY 
+|-
+| CBUF_READY 
+| CBUF_READY 
+|-
+| DMA_BUSY 
+| DMA_BUSY 
+|-
+| END_VALID 
+| END_VALID 
+|-
+| START_VALID 
+| START_VALID 
+|-
+| ../loadfragment2.c
+| ../loadfragment2.c
+|-
+| OVL:SPEC(%08x-%08x) REAL(%08x-%08x) OFFSET(%08x)
+| OVL:SPEC(%08x-%08x) REAL(%08x-%08x) OFFSET(%08x)
+|-
+| m1
+| m1
+|-
+| ../mtxuty-cvt.c
+| ../mtxuty-cvt.c
+|-
+| m2
+| m2
+|-
+| ../mtxuty-cvt.c
+| ../mtxuty-cvt.c
+|-
+| m1
+| m1
+|-
+| ../mtxuty-cvt.c
+| ../mtxuty-cvt.c
+|-
+| m2
+| m2
+|-
+| ../mtxuty-cvt.c
+| ../mtxuty-cvt.c
+|-
+| DoRelocation(%08x, %08x, %08x)
+| DoRelocation(%08x, %08x, %08x)
+|-
+| text=%08x, data=%08x, rodata=%08x, bss=%08x
+| text=%08x, data=%08x, rodata=%08x, bss=%08x
+|-
+| %02d %08x %08x %08x 
+| %02d %08x %08x %08x 
+|-
+|  %08x %08x %08x %08x
+|  %08x %08x %08x %08x
+|-
+| ダイナミックリンクファンクションのロードを開始します
+| DYNAMIC LINK FUNCTION LOADING START
+|-
+| TEXT,DATA,RODATA+relをＤＭＡ転送します(%08x-%08x)
+| TEXT,DATA,RODATA+relをＤＭＡ TRANSFERRED (%08x-%08x)
+|-
+| TEXT(%08x), DATA(%08x), RODATA(%08x), BSS(%08x)
+| TEXT(%08x), DATA(%08x), RODATA(%08x), BSS(%08x)
+|-
+| リロケーションします
+| RELOCATING
+|-
+| BSS領域をクリアします(%08x-%08x)
+| BSS FIELD CLEARED (%08x-%08x)
+|-
+| REL領域をクリアします(%08x-%08x)
+| REL FIELD CLEARED (%08x-%08x)
+|-
+| ダイナミックリンクファンクションのロードを終了します
+| DYNAMIC LINK FUNCTION LOADING COMPLETE
+|-
+| %s: %u バイトの%sに失敗しました
+| %s: FAILURE AT %u BYTES' %s
+|-
+| %s: %u バイトの%sに成功しました
+| %s: SUCCESS AT %u BYTES' %s
+|-
+| malloc
+| malloc
+|-
+| 確保
+| RESERVED
+|-
+| malloc_DEBUG
+| malloc_DEBUG
+|-
+| 確保
+| RESERVED
+|-
+| malloc_r
+| malloc_r
+|-
+| 確保
+| RESERVED
+|-
+| malloc_r_DEBUG
+| malloc_r_DEBUG
+|-
+| 確保
+| RESERVED
+|-
+| realloc
+| realloc
+|-
+| 再確保
+| RE-RESERVED
+|-
+| realloc_DEBUG
+| realloc_DEBUG
+|-
+| 再確保
+| RE-RESERVED
+|-
+| calloc
+| calloc
+|-
+| 確保
+| RESERVED
+|-
+| システムヒープ表示
+| SYSTEM HEAP DISPLAY
+|-
+| [41;37m緊急事態！メモリリーク発見！ (block=%08x)
+| [41;37m EMERGENCY! MEMORY LEAK DISCOVERED! (block=%08x)
+|-
+| [m
+| [m
+|-
+| [41;37m緊急事態！メモリリーク発見！ (block=%08x)
+| [41;37m EMERGENCY! MEMORY LEAK DISCOVERED! (block=%08x)
+|-
+| [m
+| [m
+|-
+| [41;37m緊急事態！メモリリーク検出！ (block=%08x s=%08x e=%08x p=%08x)
+| [41;37m EMERGENCY! MEMORY LEAK DETECTED! (block=%08x s=%08x e=%08x p=%08x)
+|-
+| [m
+| [m
+|-
+| [41;37m__osFree:不正解放(%08x)
+| [41;37m__osFree: ILLEGAL DEALLOCATION(%08x)
+|-
+| [m
+| [m
+|-
+| [41;37m__osFree:二重解放(%08x)
+| [41;37m__osFree: DOUBLE DEALLOCATION (%08x)
+|-
+| [m
+| [m
+|-
+| [41;37m__osFree:確保時と違う方法で解放しようとした (%08x:%08x)
+| [41;37m__osFree: DEALLOCATED VIA A DIFFERENT METHOD THAN WHEN IT WAS RESERVED (%08x:%08x)
+|-
+| [m
+| [m
+|-
+| [41;37m__osFree:不正解放(%08x) [%s:%d ]
+| [41;37m__osFree: ILLEGAL DEALLOCATION (%08x) [%s:%d ]
+|-
+| [m
+| [m
+|-
+| [41;37m__osFree:二重解放(%08x) [%s:%d ]
+| [41;37m__osFree: DOUBLE DEALLOCATION (%08x) [%s:%d ]
+|-
+| [m
+| [m
+|-
+| [41;37m__osFree:確保時と違う方法で解放しようとした (%08x:%08x)
+| [41;37m__osFree: DEALLOCATED VIA A DIFFERENT METHOD THAN WHEN IT WAS RESERVED (%08x:%08x)
+|-
+| [m
+| [m
+|-
+| __osRealloc(%08x, %d)
+| __osRealloc(%08x, %d)
+|-
+| メモリブロックサイズが変わらないためなにもしません
+| NO ACTION TAKEN IN ORDER TO PRESERVE MEMORY BLOCK SIZE
+|-
+| 現メモリブロックの後ろにフリーブロックがあるので結合します
+| FREE BLOCKS CURRENTLY EXIST AT THE END OF THE MEMORY BLOCK, SO THEY WILL BE COMBINED.
+|-
+| 新たにメモリブロックを確保して内容を移動します
+| CONTENTS MOVED TO RESERVE MEMORY BLOCK AGAIN
+|-
+| 現メモリブロックの後ろのフリーブロックを大きくしました
+| INCREASED CURRENTLY EXISTING FREE BLOCKS AT THE END OF THE MEMORY BLOCK
+|-
+| 現メモリブロックの後ろにフリーブロックがないので生成します
+| NO FREE BLOCKS CURRENTLY EXIST AT THE END OF THE MEMORY BLOCK, SO THEY WILL BE PRODUCED.
+|-
+| フリーブロック生成するだけの空きがありません
+| NO SPACE TO CREATE FREE BLOCKS
+|-
+| アリーナは初期化されていません
+| ARENA NOT INITIALIZED
+|-
+| アリーナの内容 (0x%08x)
+| ARENA CONTENTS (0x%08x)
+|-
+| メモリブロック範囲 status サイズ  [時刻  s ms us ns: TID:src:行]
+| MEMORY BLOCK RANGE status SIZE  [TIME  s ms us ns: TID:src:LINE]
+|-
+| %08x-%08x%c %s %08x
+| %08x-%08x%c %s %08x
+|-
+| 空き
+| FREE
+|-
+| 確保
+| RESERVED
+|-
+|  [%016llu:%2d:%s:%d]
+|  [%016llu:%2d:%s:%d]
+|-
+| **NULL**
+| **NULL**
+|-
+| %08x Block Invalid
+| %08x Block Invalid
+|-
+| 確保ブロックサイズの合計 0x%08x バイト
+| TOTAL RESERVED BLOCK SIZE - 0x%08x BYTES
+|-
+| 空きブロックサイズの合計 0x%08x バイト
+| TOTAL FREE BLOCK SIZE - 0x%08x BYTES
+|-
+| 最大空きブロックサイズ   0x%08x バイト
+| MAXIMUM FREE BLOCK SIZE -   0x%08x BYTES
+|-
+| ARENA INFO (0x%08x)
+| ARENA INFO (0x%08x)
+|-
+| Arena is uninitalized
+| Arena is uninitalized
+|-
+| Memory Block Region status size
+| Memory Block Region status size
+|-
+| %08x-%08x%c %s %08x
+| %08x-%08x%c %s %08x
+|-
+| F
+| F
+|-
+| A
+| A
+|-
+| %08x Block Invalid
+| %08x Block Invalid
+|-
+| Total Alloc Block Size  %08x
+| Total Alloc Block Size  %08x
+|-
+| Total Free Block Size   %08x
+| Total Free Block Size   %08x
+|-
+| Largest Free Block Size %08x
+| Largest Free Block Size %08x
+|-
+| アリーナの内容をチェックしています．．． (%08x)
+| CHECKING ARENA CONTENT... (%08x)
+|-
+| [41;37mおおっと！！ (%08x %08x)
+| [41;37m OOPS!! (%08x %08x)
+|-
+| [m
+| [m
+|-
+| アリーナはまだ、いけそうです
+| ARENA STILL SEEMS POSSIBLE
+|-
+|  メッセージが,見つかった！！！ = %x  (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)
+| MESSAGE FOUND!!! = %x  (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)
+|-
+|  メッセージが,見つかった！！！ = %x  (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)
+| MESSAGE FOUND!!! = %x  (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)
+|-
+|  メッセージが,見つからなかった！！！ = %x
+| MESSAGE NOT FOUND!!! = %x
+|-
+|  メッセージが,見つかった！！！ = %x  (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)
+| MESSAGE FOUND!!! = %x  (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)
+|-
+| 録音開始 録音開始 録音開始 録音開始  -&gt; 
+| RECORDING INITIALIZED RECORDING INITIALIZED RECORDING INITIALIZED RECORDING INITIALIZED  -&gt; 
+|-
+| 録音再生 録音再生 録音再生 録音再生  -&gt; 
+| RECORDING PLAYBACK RECORDING PLAYBACK RECORDING PLAYBACK RECORDING PLAYBACK  -&gt; 
+|-
+| ８音録音開始 ８音録音開始 ８音録音開始  -&gt; 
+| 8 CHANNEL RECORDING INITIALIZED 8 CHANNEL RECORDING INITIALIZED 8 CHANNEL RECORDING INITIALIZED -&gt; 
+|-
+| ８音再生 ８音再生 ８音再生  -&gt; 
+| 8 CHANNEL PLAYBACK 8 CHANNEL PLAYBACK 8 CHANNEL PLAYBACK  -&gt; 
+|-
+| 輪唱開始 輪唱開始 輪唱開始 輪唱開始  -&gt; 
+| ROUND INITIALIZED ROUND INITIALIZED ROUND INITIALIZED ROUND INITIALIZED  -&gt; 
+|-
+| カエルの合唱 カエルの合唱  -&gt; 
+| FROG ROUND FROG ROUND  -&gt; 
+|-
+| オカリナ（%d） 
+| OCARINA（%d） 
+|-
+| 000000000000  -&gt; 
+| 000000000000  -&gt; 
+|-
+| 111111111111  -&gt; 
+| 111111111111  -&gt; 
+|-
+| 222222222222  -&gt; 
+| 222222222222  -&gt; 
+|-
+| msg_mode=%d
+| msg_mode=%d
+|-
+| タイマー (%x) (%x)
+| TIMER (%x) (%x)
+|-
+| 合計wct=%x(%d)
+| TOTAL wct=%x(%d)
+|-
+| サウンド（ＳＥ）
+| SOUND（SFX）
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| アイテム32-0
+| ITEM 32-0
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| アイテム24＝%d (%d) {%d}
+| ITEM 24＝%d (%d) {%d}
+|-
+| ＪＪ＝%d
+| ＪＪ＝%d
+|-
+| NZ_NEXTMSG=%x, %x, %x
+| NZ_NEXTMSG=%x, %x, %x
+|-
+| 名前 ＝ 
+| 名前 ＝ 
+|-
+| %x 
+| %x 
+|-
+| ＥＶＥＮＴタイマー ＝ 
+| ＥＶＥＮＴ TIMER ＝ 
+|-
+| 流鏑馬スコア ＝ %d
+| HORSEBACK ARCHERY SCORE ＝ %d
+|-
+| 金スタ合計数 ＝ %d
+| TOTAL # OF GOLD SKULLTULAS ＝ %d
+|-
+| %x(%x) 
+| %x(%x) 
+|-
+| 釣り堀魚サイズ ＝ 
+| FISHING POND FISH SIZE ＝ 
+|-
+| %x(%x) 
+| %x(%x) 
+|-
+| ランキング＝%d
+| RANKING＝%d
+|-
+| HI_SCORE( kanfont-&gt;mbuff.nes_mes_buf[message-&gt;rdp] &amp; 0xff000000 ) = %x
+| HI_SCORE( kanfont-&gt;mbuff.nes_mes_buf[message-&gt;rdp] &amp; 0xff000000 ) = %x
+|-
+| score=%d
+| score=%d
+|-
+| ゼルダ時間 ＝ 
+| ZELDA TIME ＝ 
+|-
+| ITEM_NO=(%d) (%d)
+| ITEM_NO=(%d) (%d)
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| NZ_TIMER_END (key_off_flag=%d)
+| NZ_TIMER_END (key_off_flag=%d)
+|-
+| NZ_BGM (key_off_flag=%d)
+| NZ_BGM (key_off_flag=%d)
+|-
+| [33m
+| [33m
+|-
+| ？？？？？？？？？？？？？？？？  z_message.c  ？？？？？？？？？？？？？？？？？？
+| ？？？？？？？？？？？？？？？？  z_message.c  ？？？？？？？？？？？？？？？？？？
+|-
+| [m
+| [m
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| 吹き出し種類＝%d
+| SPEECH BUBBLE TYPE＝%d
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| [34m
+| [34m
+|-
+| めっせーじ＝%x(%d)
+| MESSAGE＝%x(%d)
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| めっせーじ＝%x  message-&gt;msg_data
+| MESSAGE＝%x  message-&gt;msg_data
+|-
+| [m
+| [m
+|-
+| [32m
+| [32m
+|-
+| ocarina_check_bit[%d]=%x
+| ocarina_check_bit[%d]=%x
+|-
+| ocarina_bit = %x
+| ocarina_bit = %x
+|-
+| [m
+| [m
+|-
+| [31m☆☆☆☆☆ オカリナ番号＝%d(%d) ☆☆☆☆☆
+| [31m☆☆☆☆☆ OCARINA NUMBER＝%d(%d) ☆☆☆☆☆
+|-
+| [m
+| [m
+|-
+| ocarina_set 000000000000000000  = %d
+| ocarina_set 000000000000000000  = %d
+|-
+| 222222222
+| 222222222
+|-
+| 333333333
+| 333333333
+|-
+| オカリナモード = %d  (%x)
+| OCARINA MODE = %d  (%x)
+|-
+| 演奏開始
+| MUSICAL PERFORMANCE INITIALIZED
+|-
+| ?????録音再生 録音再生 録音再生 録音再生  -&gt; 
+| ?????RECORDING PLAYBACK RECORDING PLAYBACK RECORDING PLAYBACK RECORDING PLAYBACK  -&gt; 
+|-
+| 台上演奏
+| MUSICAL PERFORMANCE ATOP PEDESTAL
+|-
+| Na_StartOcarinaSinglePlayCheck2( message-&gt;ocarina_no );
+| Na_StartOcarinaSinglePlayCheck2( message-&gt;ocarina_no );
+|-
+| 演奏チェック=%d
+| MUSICAL PERFORMANCE CHECK=%d
+|-
+| locate=%d  onpu_pt=%d
+| locate=%d  onpu_pt=%d
+|-
+| Ocarina_Flog 正解模範演奏=%x
+| Ocarina_Frog CORRECT DEMONSTRATION PERFORMANCE=%x
+|-
+| Ocarina_Flog 正解模範演奏=%x
+| Ocarina_Frog CORRECT DEMONSTRATION PERFORMANCE=%x
+|-
+| Ocarina_Free 正解模範演奏=%x
+| Ocarina_Free CORRECT DEMONSTRATION PERFORMANCE=%x
+|-
+| 正解模範演奏=%x
+| CORRECT DEMONSTRATION PERFORMANCE=%x
+|-
+| ここここここ
+| KOKOKOKOKOKO
+|-
+| キャンセル
+| CANCEL
+|-
+| [32m
+| [32m
+|-
+| Na_StopOcarinaMode();
+| Na_StopOcarinaMode();
+|-
+| Na_StopOcarinaMode();
+| Na_StopOcarinaMode();
+|-
+| Na_StopOcarinaMode();
+| Na_StopOcarinaMode();
+|-
+| [m
+| [m
+|-
+| ocarina_no=%d  選曲=%d
+| ocarina_no=%d  SONG CHOSEN=%d
+|-
+| 模範演奏=%x
+| DEMONSTRATION PERFORMANCE=%x
+|-
+| [33m
+| [33m
+|-
+| ☆☆☆ocarina=%d   message-&gt;ocarina_no=%d  
+| ☆☆☆ocarina=%d   message-&gt;ocarina_no=%d  
+|-
+| [33m
+| [33m
+|-
+| Ocarina_PC_Wind=%d(%d) ☆☆☆   
+| Ocarina_PC_Wind=%d(%d) ☆☆☆   
+|-
+| [32m
+| [32m
+|-
+| Ocarina_C_Wind=%d(%d) ☆☆☆   
+| Ocarina_C_Wind=%d(%d) ☆☆☆   
+|-
+| [m
+| [m
+|-
+| →  OCARINA_MODE=%d
+| →  OCARINA_MODE=%d
+|-
+| onpu_buff[%d]=%x
+| note_buff[%d]=%x
+|-
+| M_OCARINA20 : ocarina_no=%x    status=%x
+| M_OCARINA20 : ocarina_no=%x    status=%x
+|-
+| [33m
+| [33m
+|-
+| z_message.c 取得メロディ＝%d
+| z_message.c ACQUIRE MELODY＝%d
+|-
+| [m
+| [m
+|-
+| 案山子録音 初期化
+| INITIALIZE SCARECROW RECORDING
+|-
+| onpu_pt=%d, locate=%d
+| onpu_pt=%d, locate=%d
+|-
+|     入力ボタン【%d】=%d
+|     INPUT BUTTON【%d】=%d
+|-
+| 録音終了！！！！！！！！！  message-&gt;info-&gt;status=%d 
+| RECORDING COMPLETE!!!!!!!!!  message-&gt;info-&gt;status=%d 
+|-
+| aaaaaaaaaaaaaa
+| aaaaaaaaaaaaaa
+|-
+| 録音終了！！！！！！！！！録音終了
+| RECORDING COMPLETE!!!!!!!!! RECORDING COMPLETE
+|-
+| [33m
+| [33m
+|-
+| #ERROR!
+| #ERROR!
+|-
+| %d, 
+| %d, 
+|-
+| [m
+| [m
+|-
+| #ERROR!
+| #ERROR!
+|-
+| status=%d (%d)
+| status=%d (%d)
+|-
+| bbbbbbbbbbb
+| bbbbbbbbbbb
+|-
+| ８音録音ＯＫ！
+| 8 CHANNEL RECORDING OK!
+|-
+| [33m
+| [33m
+|-
+| #ERROR!
+| #ERROR!
+|-
+| %d, 
+| %d, 
+|-
+| [m
+| [m
+|-
+| #ERROR!
+| #ERROR!
+|-
+| すでに存在する曲吹いた！！！ 
+| PLAYED ALREADY EXISTING SONG!!!
+|-
+| cccccccccccc
+| cccccccccccc
+|-
+| 輪唱失敗！！！！！！！！！
+| SONG ROUND FAILURE!!!!!!!!!
+|-
+| 輪唱成功！！！！！！！！！
+| SONG ROUND SUCCESS!!!!!!!!!
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| %s
+| %s
+|-
+| MESSAGE
+| MESSAGE
+|-
+| %s
+| %s
+|-
+| #ERROR!
+| #ERROR!
+|-
+| %x
+| %x
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| ../z_message_PAL.c
+| ../z_message_PAL.c
+|-
+| msgno=%d
+| msgno=%d
+|-
+|  メッセージが,見つかった！！！ = %x
+|  MESSAGE FOUND!!! = %x
+|-
+| dxpos=%d   dypos=%d  dypos1  dypos2=%d
+| dxpos=%d   dypos=%d  dypos1  dypos2=%d
+|-
+| message-&gt;msg_disp_type=%x
+| message-&gt;msg_disp_type=%x
+|-
+| OCARINA_MODE=%d -&gt; 
+| OCARINA_MODE=%d -&gt; 
+|-
+| InRaceSeq=%d(%d) OCARINA_MODE=%d  --&gt;  
+| InRaceSeq=%d(%d) OCARINA_MODE=%d  --&gt;  
+|-
+| OCARINA_MODE=%d
+| OCARINA_MODE=%d
+|-
+| select=%d
+| select=%d
+|-
+| [32m
+| [32m
+|-
+| day_time=%x  active_camera=%d  
+| day_time=%x  active_camera=%d  
+|-
+| #ERROR!
+| #ERROR!
+|-
+| [m
+| [m
+|-
+| OCARINA_MODE=%d   chk_ocarina_no=%d
+| OCARINA_MODE=%d   chk_ocarina_no=%d
+|-
+| 常駐ＰＡＲＡＭＥＴＥＲセグメント=%x
+| STATIONARY PARAMETER SEGMENT=%x
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| parameter-&gt;parameterSegment=%x
+| parameter-&gt;parameterSegment=%x
+|-
+| parameter-&gt;parameterSegment != NULL
+| parameter-&gt;parameterSegment != NULL
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ＤＯアクション テクスチャ初期=%x
+| DO ACTION TEXTURE INITIAL=%x
+|-
+| parameter-&gt;do_actionSegment=%x
+| parameter-&gt;do_actionSegment=%x
+|-
+| parameter-&gt;do_actionSegment != NULL
+| parameter-&gt;do_actionSegment != NULL
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| アイコンアイテム テクスチャ初期=%x
+| ICON ITEM TEXTURE INITIAL=%x
+|-
+| parameter-&gt;icon_itemSegment=%x
+| parameter-&gt;icon_itemSegment=%x
+|-
+| parameter-&gt;icon_itemSegment != NULL
+| parameter-&gt;icon_itemSegment != NULL
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| Register_Item[%x, %x, %x, %x]
+| Register_Item[%x, %x, %x, %x]
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| ＥＶＥＮＴ＝%d
+| ＥＶＥＮＴ＝%d
+|-
+| restart_flag=%d
+| restart_flag=%d
+|-
+| タイマー停止！！！！！！！！！！！！！！！！！！！！！  = %d
+| TIMER STOPPED!!!!!!!!!!!!!!!!!!!!!  = %d
+|-
+| ＰＡＲＡＭＥＴＥＲ領域＝%x
+| PARAMETER FIELD＝%x
+|-
+| ../z_construct.c
+| ../z_construct.c
+|-
+| message-&gt;fukidashiSegment=%x
+| message-&gt;fukidashiSegment=%x
+|-
+| 吹き出しgame_alloc=%x
+| SPEECH BUBBLE game_alloc=%x
+|-
+| message-&gt;fukidashiSegment != NULL
+| message-&gt;fukidashiSegment != NULL
+|-
+| ../z_construct.c
+| ../z_construct.c
+|}

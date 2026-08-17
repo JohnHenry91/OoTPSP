@@ -1,0 +1,3 @@
+{{actor|name=ovl_Elf_Msg2}}
+'''ovl_Elf_Msg2''' is the targetable [[Navi]] infospot actor. It's purpose is to display text dialogs with an id of 0x01xx. It is similar in behavior to actor {{actor ref|011B}}
+[[Category:Navi]]

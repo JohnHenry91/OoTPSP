@@ -1,0 +1,23 @@
+{{Actor|name=ovl_En_Ik|ispage=true}}
+'''ovl_En_Ik''' is the [[Iron Knuckle]] enemy, notable for being one of the most destructive foes in Ocarina of Time. 
+{{clear}}
+== Debug Rom Notes ==
+<pre>
+Health
+0x00E2B067
+
+Health value to lose armor at, if you don't want him to lose his armor, simply enter a number past the health value.
+Write the same number on these two offsets:
+0x00E2C98F
+0x00E2C9A7
+
+Walking speed(armor on), going over 41 gives some pretty weird results
+0x00E2F5C0
+
+Attacks speed, same here; don't go over 41
+0x00E2C00A
+0x00E2BD86
+0x00E2BA6E
+</pre>
+
+[[Category:Iron Knuckles]]

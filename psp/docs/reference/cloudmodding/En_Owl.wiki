@@ -1,0 +1,49 @@
+{{Actor|name=ovl_En_Owl|ispage=true}}
+
+'''ovl_En_Owl''' is the [[Kaepora Gaebora]] [[actor]].
+{{clear}}
+== Console Output Strings ==
+
+{| class="wikitable"
+| Original Text||Translation
+|-
+| [36m 会話フクロウ %4x no = %d, sv = %d||[36mCONVERSATION OWL %4x no = %d, sv = %d
+|-
+| [msavebitでフクロウ退避||[mSAVING OWL IN savebit
+|-
+| フクロウ退避||OWL SAVING
+|-
+| フクロウ退避||OWL SAVING
+|-
+| フクロウ退避||OWL SAVING
+|-
+| フクロウ退避||OWL SAVING
+|-
+| フクロウ退避||OWL SAVING
+|-
+| [36mno = %d  ||[36mno = %d  
+|-
+| 未完成のフクロウ未完成のフクロウ未完成のフクロウ||OWL INCOMPLETE OWL INCOMPLETE OWL INCOMPLETE
+|-
+| [m||[m
+|-
+| [36m Actor_Environment_sw = %d||[36m Actor_Environment_sw = %d
+|-
+| [m||[m
+|-
+| [36m%dのフクロウ||[36m%d OWL
+|-
+| [m||[m
+|-
+| [36mSPOT 06 の デモがはしった||[36mSPOT 06 CUTSCENE HAS RUN
+|-
+| [m0||[m0
+|-
+| ../z_en_owl.cフクロウ消滅!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!||../z_en_owl.c OWL TERMINATED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+|-
+| ../z_en_owl.c||../z_en_owl.c
+|-
+| ../z_en_owl.c||../z_en_owl.c
+|}
+
+[[Category: Documentation]] [[Category: Kaepora Gaebora]]

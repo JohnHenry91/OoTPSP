@@ -1,0 +1,14 @@
+{{actor|name=ovl_En_Po_Field|isPage=true}}
+'''ovl_En_Po_Field''' is the [[Big Poe]] [[actor]] found in Hyrule Field as an adult.
+{{clear}}
+== Debug Notes ==
+
+ ROM: 0xE8BC44 (2405001E) Big Poe in Bottle (Receiving Big Poe item from dead Big Poes)
+ ROM: 0xE8BC4C (24050020) Poe in Bottle (Receiving Poe Item from dead Field Poes.)
+
+== NTSC 1.0 Notes ==
+
+ ROM: 0xE77134 (2405001E) Big Poe in Bottle (Receiving Big Poe item from dead Big Poes)
+ ROM: 0xE7713C (24050020) Poe in Bottle (Receiving Poe Item from dead Field Poes.)
+
+[[Category: Poes]]

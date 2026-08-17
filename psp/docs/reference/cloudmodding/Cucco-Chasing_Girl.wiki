@@ -1,0 +1,4 @@
+{{todo|Object, check to see if combined with Market npcs}}
+==Actor==
+* {{actor ref|ovl_En_Niw_Girl}}
+[[Category: Cucco-Chasing Girl| ]]

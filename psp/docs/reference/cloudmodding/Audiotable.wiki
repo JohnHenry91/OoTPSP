@@ -1,0 +1,37 @@
+'''Audiotable''' possibly contains the raw sound samples used to create the sound effects and music of Ocarina of Time
+
+== Moving Audiotable ==
+To move the Audiotable file to another location in ROM, you will need to correct its entry in the file table, update the assembly code used to load sounds from the file, and update the [[CRC]]. This can be found at 0xB5A4D4 (Debug ROM) and looks like:
+ 
+<tt>3C05 xxxx 24A5 yyyy</tt>
+ 
+In [[MIPS]] assembly:
+ LUI       $A1,xxxx
+ ADDIU     $A1,$A1,yyyy
+
+* '''x''' = upper half of address
+* '''y''' = lower half of address
+
+== Audiotable Pointer Table ==
+
+{{address3|space=code|name=Audiobank Pointer Table
+|ver1=Debug|ref1=rom|start1=BCCD90
+|ver2=NTSC 1.0|ref2=ram|start2=114260
+|ver3=NTSC 1.1|ref3=rom|start3=B8A380|size3=80
+|ver4=NTSC 1.2|ref4=rom|start4=B8A230|size4=80
+|ver5=PAL 1.0|ref5=rom|start5=B89980|size5=80
+|ver6=PAL 1.1|ref6=rom|start6=B899C0|size6=80
+|ver7=JP GC|ref7=rom|start7=B888E0|size7=80
+|ver8=JP MQ|ref8=rom|start8=B888C0|size8=80
+|ver9=USA GC|ref9=rom|start9=B888C0|size9=80
+|ver10=USA MQ|ref10=rom|start10=B888A0|size10=80
+|ver11=PAL GC|ref11=rom|start11=B880B0|size11=80
+|ver12=PAL MQ|ref12=rom|start12=B88090|size12=80
+|ver13=JP Collection|ref13=rom|start13=B888C0|size13=80}}
+
+== Notes ==
+
+The third byte is an index for a list at 0xBCCD90 which gives the base address to load samples from. What is the purpose of this? Well apparently just to be a pain in the arse, because taking these numbers and adding them to sample pointers will load that sample perfectly if the index is changed to 1, which has a base address of zero and is what most instrument sets use. Only four sets seem to actually do this though, namely the Deku Tree, Jabu-Jabu's belly, Goron City and the Spirit Temple. Super Mario 64 does something similar but it affects every single instrument set in the game.
+
+[[Category:Audio]]
+[[Category:File Formats]]

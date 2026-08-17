@@ -2,8 +2,15 @@
 #include "gfx_setupdl.h"
 #include "sys_matrix.h"
 #include "skybox.h"
+#if TARGET_PSP
+#include "gfx/psp_bg_rect.h"
+#endif
 
 Mtx* sSkyboxDrawMatrix;
+#if TARGET_PSP
+u32 gPspSkyCall[8] = { 0 };
+u32 gPspSkyVtx[8] = { 0 };
+#endif
 
 Mtx* Skybox_UpdateMatrix(SkyboxContext* skyboxCtx, f32 x, f32 y, f32 z) {
     Matrix_Translate(x, y, z, MTXMODE_NEW);
@@ -16,6 +23,51 @@ Mtx* Skybox_UpdateMatrix(SkyboxContext* skyboxCtx, f32 x, f32 y, f32 z) {
 
 void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId, s16 blend, f32 x, f32 y, f32 z) {
     OPEN_DISPS(gfxCtx, "../z_vr_box_draw.c", 52);
+
+#if TARGET_PSP
+    /* Was this function even reached, and with what? Answers the question the
+     * triangle attribution alone cannot: zero skybox triangles means either
+     * "not called" or "called but emitted nothing", and those need different
+     * fixes. */
+    gPspSkyCall[0]++;
+    gPspSkyCall[1] = (u32)skyboxId;
+    gPspSkyCall[2] = (u32)skyboxCtx->drawType;
+    gPspSkyCall[3] = (u32)(uintptr_t)skyboxCtx->dListBuf;
+    gPspSkyCall[4] = (u32)(uintptr_t)skyboxCtx->roomVtx;
+    /* The skybox renders but is TILTED, and Link is upright -- so the camera is
+     * innocent and the fault is the skybox's own transform or its vertices.
+     * rot is 0 for both SKYBOX_MARKET_CHILD_DAY and SKYBOX_HOUSE_LINK, so the
+     * matrix should be a PURE TRANSLATION to the eye, which cannot tilt
+     * anything. These two groups separate the remaining possibilities:
+     * eye position wrong -> matrix; vertex positions off the expected grid ->
+     * Skybox_CalculateFace256's output. Expected first face corner is
+     * (xStart, yStart, zStart) = (-126, 124, -126), steps 63 / -31. */
+    gPspSkyCall[5] = (u32)(s32)x;
+    gPspSkyCall[6] = (u32)(s32)y;
+    gPspSkyCall[7] = (u32)(s32)z;
+    if (skyboxCtx->roomVtx != NULL) {
+        gPspSkyVtx[0] = (u32)(s32)skyboxCtx->roomVtx[0].v.ob[0];
+        gPspSkyVtx[1] = (u32)(s32)skyboxCtx->roomVtx[0].v.ob[1];
+        gPspSkyVtx[2] = (u32)(s32)skyboxCtx->roomVtx[0].v.ob[2];
+        gPspSkyVtx[3] = (u32)(s32)skyboxCtx->roomVtx[1].v.ob[0];
+        gPspSkyVtx[4] = (u32)(s32)skyboxCtx->roomVtx[1].v.ob[1];
+        gPspSkyVtx[5] = (u32)(s32)skyboxCtx->roomVtx[1].v.ob[2];
+        gPspSkyVtx[6] = (u32)(s32)skyboxCtx->roomVtx[0].v.tc[0];
+        gPspSkyVtx[7] = (u32)(s32)skyboxCtx->roomVtx[0].v.tc[1];
+    }
+
+    /* Bracket the skybox so its triangles can be told apart from the room's and
+     * Link's in the per-frame counters -- see G_PSP_MARK in psp_bg_rect.h. */
+    /* NOT gSPNoOp + [-1]: gDma0p writes at the pointer WITHOUT advancing it
+     * (include/ultra64/gbi.h:2046), so that pattern overwrites the PREVIOUS
+     * command and corrupts the list -- which is exactly what it did. */
+    {
+        Gfx* mark = POLY_OPA_DISP++;
+
+        mark->words.w0 = _SHIFTL(G_PSP_MARK, 24, 8);
+        mark->words.w1 = PSP_MARK_SKYBOX_BEGIN;
+    }
+#endif
 
     Gfx_SetupDL_40Opa(gfxCtx);
 
@@ -95,6 +147,15 @@ void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId
     }
 
     gDPPipeSync(POLY_OPA_DISP++);
+
+    #if TARGET_PSP
+    {
+        Gfx* mark = POLY_OPA_DISP++;
+
+        mark->words.w0 = _SHIFTL(G_PSP_MARK, 24, 8);
+        mark->words.w1 = PSP_MARK_SKYBOX_END;
+    }
+#endif
 
     CLOSE_DISPS(gfxCtx, "../z_vr_box_draw.c", 125);
 }

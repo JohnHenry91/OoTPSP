@@ -1,0 +1,12 @@
+'''Business Scrubs''' are a type of [[Deku Scrub]] enemy that will sell you things once defeated. 
+== Actors ==
+* {{actor ref|ovl_En_Shopnuts}}
+* {{actor ref|ovl_En_Dns}}
+
+=== Shared Actors ===
+* {{actor ref|ovl_En_Nutsball}}
+
+== Objects ==
+* {{object ref|object_shopnuts}}
+
+[[Category:Deku Scrubs| Business Scrub]]

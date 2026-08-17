@@ -1,0 +1,47 @@
+{{Actor|name=ovl_En_Ta}}
+
+'''ovl_En_Ta''' is the [[actor]] for [[Talon]], the owner of Lon Lon Ranch. He also manages the [[minigame]] known as the [[Super Cucco Game]].
+
+== Debug Rom Notes ==
+<pre>ROM: 0xECBD9C - (24060050) - Buy Lon Lon Milk for 30 Rupees
+ROM: 0xECBE5C - (24060014) - Receive Lon-Lon Milk Bottle
+
+ROM: 0xECBFA4 - (24060050) - Receive Lon Lon Milk (Super Cucco Game)
+ROM: 0xECC34C - (24060050) - As above?
+
+ROM: 0xECAC78 - (29C1001E) - The Check to see if you have 30 Rupees to buy Milk.
+ROM: 0xECBF88 - (2404FFE2) - The Price of Lon Lon Milk (30 Rupees)
+
+ROM: 0xECBFC0 - (2B01000A) - The Check to see if you have 10 Rupees to play the game.
+ROM: 0xECBFF8 - (2404FFF6) - The Price to play Cucco-findin' Game (10 Rupees)
+ROM: 0xECBA0C - (2404006C) - Music Played during mini-game.
+ROM: 0xECBA04 - (2404001E) - Time given to play the mini-game (1E=30 Second)
+
+ROM: 0xECAF60 - (24010019) - Actor Number that needs to be *presumably* picked up in order to count as a "Super Cucco".
+
+ROM: 0xECB178 - (24A50004) - Worth of a Super Cucco
+ROM: 0xECB170 - (2402000C) - The Total Amount needed to win the mini-game. (4*3 in Hex is 0C)</pre>
+
+== Console Output Strings ==
+
+{{investigate|Where is Talon's actor in the evenings?}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [36m 追放タロン [m||[36m TALON IN EXILE [m
+|-
+| [36m 出戻りタロン [m||[36m TALON RETURNS [m
+|-
+| [36m 夜はいない [m||[36m EVENING ABSENCE [m
+|-
+| [36m その他のタロン [m||[36m TALON ETC. [m
+|-
+| [36m ロンロン牧場の倉庫 の タロン[m||[36m LON LON RANCH STOREHOUSE TALON[m
+|-
+| ../z_en_ta.c||../z_en_ta.c
+|-
+| ../z_en_ta.c||../z_en_ta.c
+|}
+
+[[Category: Talon]] [[Category: Super Cucco Game]]

@@ -1,0 +1,11335 @@
+{{subpage}}
+The original releases of ''Ocarina of Time'' contain relatively few file names. In order to compile the list below, additional names have been procured by cross-referencing data from the ''Ocarina of Time'' Debug ROM, and then applied to the files retroactively.
+
+[[Category: File Listings]]
+
+==File 0000 to 0035 (Various)==
+{| class="wikitable sortable" {{ts|ac|ml5|font-family: monospace}}
+! rowspan=2 | Dec.
+! rowspan=2 | Hex
+! colspan=2 | VROM
+! rowspan=2 | Size
+! rowspan=2 | File Name
+! rowspan=2 | Contents
+|-
+! Start
+! End
+|-
+| 0000
+| 0000
+| 00000000
+| 00001060
+| 001060
+| {{ts|al}} | [[makerom]]
+| {{ts|al}} | System - ROM Header
+|-
+| 0001
+| 0001
+| 00001060
+| 00007A40
+| 0069E0
+| {{ts|al}} | [[boot]]
+| {{ts|al}} | System - Boot Code
+|-
+| 0002
+| 0002
+| 00007A40
+| 0000D9B0
+| 005F70
+| {{ts|al}} | [[dmadata]]
+| {{ts|al}} | System - File Table
+|-
+| 0003
+| 0003
+| 0000D9B0
+| 00039770
+| 02BDC0
+| {{ts|al}} | [[Audiobank]]
+| {{ts|al}} | Audio - Audio Bank
+|-
+| 0004
+| 0004
+| 00039770
+| 000891F0
+| 04FA80
+| {{ts|al}} | [[Audioseq]]
+| {{ts|al}} | Audio - Audio Sequences
+|-
+| 0005
+| 0005
+| 000891F0
+| 004DA580
+| 451390
+| {{ts|al}} | [[Audiotable]]
+| {{ts|al}} | Audio - Audio Table
+|-
+| 0006
+| 0006
+| 004DA580
+| 00556880
+| 07C300
+| {{ts|al}} | [[kanji]]
+| {{ts|al}} | Textures - Fonts (JP)
+|-
+| 0007
+| 0007
+| 00557000
+| 007BCC30
+| 265C30
+| {{ts|al}} | [[link_animetion]]
+| {{ts|al}} | Animations - Link
+|-
+| 0008
+| 0008
+| 007BD000
+| 008458A0
+| 0888A0
+| {{ts|al}} | [[icon_item_static]]
+| {{ts|al}} | Textures - Pause Menu Global Assets & Inventory Icons
+|-
+| 0009
+| 0009
+| 00846000
+| 00851400
+| 00B400
+| {{ts|al}} | [[icon_item_24_static]]
+| {{ts|al}} | Textures - Pause Menu Quest Status & Dungeon Map Icons I
+|-
+| 0010
+| 000A
+| 00852000
+| 0085D930
+| 00B930
+| {{ts|al}} | [[icon_item_field_static]]
+| {{ts|al}} | Textures - Pause Menu World Map Assets
+|-
+| 0011
+| 000B
+| 0085E000
+| 0085FD80
+| 001D80
+| {{ts|al}} | [[icon_item_dungeon_static]]
+| {{ts|al}} | Textures - Pause Menu Dungeon Map Floor Labels & Icons II
+|-
+| 0012
+| 000C
+| 00860000
+| 00863300
+| 003300
+| {{ts|al}} | [[icon_item_gameover_static]]
+| {{ts|al}} | Textures - Game Over Screen Assets (JP & EN)
+|-
+| 0013
+| 000D
+| 00864000
+| 00871C80
+| 00DC80
+| {{ts|al}} | [[icon_item_jpn_static]]
+| {{ts|al}} | Textures - Pause Menu Labels & Dungeon Names (JP)
+|-
+| 0014
+| 000E
+| 00872000
+| 0087FC80
+| 00DC80
+| {{ts|al}} | [[icon_item_nes_static]]
+| {{ts|al}} | Textures - Pause Menu Labels & Dungeon Names (EN)
+|-
+| 0015
+| 000F
+| 00880000
+| 008BD800
+| 03D800
+| {{ts|al}} | [[item_name_static]]
+| {{ts|al}} | Textures - Pause Menu Inventory Item Names (JP & EN)
+|-
+| 0016
+| 0010
+| 008BE000
+| 008DF800
+| 021800
+| {{ts|al}} | [[map_name_static]]
+| {{ts|al}} | Textures - Pause Menu Overworld Location Names (JP & EN)
+|-
+| 0017
+| 0011
+| 008E0000
+| 008E5700
+| 005700
+| {{ts|al}} | [[do_action_static]]
+| {{ts|al}} | Textures - Action Button Labels (JP & EN)
+|-
+| 0018
+| 0012
+| 008E6000
+| 008EA180
+| 004180
+| {{ts|al}} | [[message_static]]
+| {{ts|al}} | Textures - Message Window Backgrounds
+|-
+| 0019
+| 0013
+| 008EB000
+| 008EC200
+| 001200
+| {{ts|al}} | [[message_texture_static]]
+| {{ts|al}} | Textures - Red X for incorrect ocarina song
+|-
+| 0020
+| 0014
+| 008ED000
+| 008F1580
+| 004580
+| {{ts|al}} | [[nes_font_static]]
+| {{ts|al}} | Textures - Fonts (EN)
+|-
+| 0021
+| 0015
+| 008F2000
+| 0092C350
+| 03A350
+| {{ts|al}} | [[message_data_static]]
+| {{ts|al}} | Text - In-Game Messages (JP)
+|-
+| 0022
+| 0016
+| 0092D000
+| 009650E0
+| 0380E0
+| {{ts|al}} | [[nes_message_data_static]]
+| {{ts|al}} | Text - In-Game Messages (EN)
+|-
+| 0023
+| 0017
+| 00966000
+| 00966F60
+| 000F60
+| {{ts|al}} | [[staff_message_data_static]]
+| {{ts|al}} | Text - Staff Names
+|-
+| 0024
+| 0018
+| 00967000
+| 00975350
+| 00E350
+| {{ts|al}} | [[map_grand_static]]
+| {{ts|al}} | Textures - Overworld Mini-Maps
+|-
+| 0025
+| 0019
+| 00976000
+| 00A64110
+| 0EE110
+| {{ts|al}} | [[map_i_static]]
+| {{ts|al}} | Textures - Dungeon Mini-Maps
+|-
+| 0026
+| 001A
+| 00A65000
+| 00A86DE0
+| 021DE0
+| {{ts|al}} | [[map_48x85_static]]
+| {{ts|al}} | Textures - Pause Menu Dungeon Maps
+|-
+| 0027
+| 001B
+| 00A87000
+| 00B88F50
+| 101F50
+| {{ts|al}} | [[code]]
+| {{ts|al}} | Game - Game Code
+|-
+| 0028
+| 001C
+| 00B88F50
+| 00B9BC00
+| 012CB0
+| {{ts|al}} | [[n64dd]]
+| {{ts|al}} | Game - N64DD Boot Code
+|-
+| 0029
+| 001D
+| 00B9BC00
+| 00B9C5C0
+| 0009C0
+| {{ts|al}} | [[ovl_title]]
+| {{ts|al}} | Game - Nintendo Logo
+|-
+| 0030
+| 001E
+| 00B9C5C0
+| 00B9F320
+| 002D60
+| {{ts|al}} | [[ovl_select]]
+| {{ts|al}} | Game - Map Select Screen
+|-
+| 0031
+| 001F
+| 00B9F320
+| 00B9F480
+| 000160
+| {{ts|al}} | [[ovl_opening]]
+| {{ts|al}} | Game - Opening Demo Initializer
+|-
+| 0032
+| 0020
+| 00B9F480
+| 00BAEE50
+| 00F9D0
+| {{ts|al}} | [[ovl_file_choose]]
+| {{ts|al}} | Game - File Select Screen
+|-
+| 0033
+| 0021
+| 00BAEE50
+| 00BCB670
+| 01C820
+| {{ts|al}} | [[ovl_kaleido_scope]]
+| {{ts|al}} | Game - Pause Menu Screen
+|-
+| 0034
+| 0022
+| 00BCB670
+| 00BF1CE0
+| 026670
+| {{ts|al}} | [[ovl_player_actor]]
+| {{ts|al}} | Game - Player Actor
+|-
+| 0035
+| 0023
+| 00BF1CE0
+| 00BF8840
+| 006B60
+| {{ts|al}} | [[ovl_map_mark_data]]
+| {{ts|al}} | Game - Dungeon Minimap Icon Data
+|}
+
+==File 0036 to 0497 (Actors)==
+
+For further information on the actors below, please view the individual file pages, or see the [[Actor List]].
+
+{| class="wikitable sortable" {{ts|ac|ml5|font-family: monospace}}
+! rowspan=2 | Dec.
+! rowspan=2 | Hex
+! colspan=2 | VROM
+! rowspan=2 | Size
+! rowspan=2 | File Name
+|-
+! Start
+! End
+|-
+| 0036
+| 0024
+| 00BF8840
+| 00BFE0F0
+| 0058B0
+| {{ts|al}} | [[ovl_En_Test]]
+|-
+| 0037
+| 0025
+| 00BFE0F0
+| 00C00A10
+| 002920
+| {{ts|al}} | [[ovl_En_GirlA]]
+|-
+| 0038
+| 0026
+| 00C00A10
+| 00C02020
+| 001610
+| {{ts|al}} | [[ovl_En_Part]]
+|-
+| 0039
+| 0027
+| 00C02020
+| 00C02E10
+| 000DF0
+| {{ts|al}} | [[ovl_En_Light]]
+|-
+| 0040
+| 0028
+| 00C02E10
+| 00C03C50
+| 000E40
+| {{ts|al}} | [[ovl_En_Door]]
+|-
+| 0041
+| 0029
+| 00C03C50
+| 00C05780
+| 001B30
+| {{ts|al}} | [[ovl_En_Box]]
+|-
+| 0042
+| 002A
+| 00C05780
+| 00C09910
+| 004190
+| {{ts|al}} | [[ovl_En_Poh]]
+|-
+| 0043
+| 002B
+| 00C09910
+| 00C0BEF0
+| 0025E0
+| {{ts|al}} | [[ovl_En_Okuta]]
+|-
+| 0044
+| 002C
+| 00C0BEF0
+| 00C0CDC0
+| 000ED0
+| {{ts|al}} | [[ovl_En_Bom]]
+|-
+| 0045
+| 002D
+| 00C0CDC0
+| 00C0E7D0
+| 001A10
+| {{ts|al}} | [[ovl_En_Wallmas]]
+|-
+| 0046
+| 002E
+| 00C0E7D0
+| 00C11570
+| 002DA0
+| {{ts|al}} | [[ovl_En_Dodongo]]
+|-
+| 0047
+| 002F
+| 00C11570
+| 00C136E0
+| 002170
+| {{ts|al}} | [[ovl_En_Firefly]]
+|-
+| 0048
+| 0030
+| 00C136E0
+| 00C1F940
+| 00C260
+| {{ts|al}} | [[ovl_En_Horse]]
+|-
+| 0049
+| 0031
+| 00C1F940
+| 00C21030
+| 0016F0
+| {{ts|al}} | [[ovl_En_Arrow]]
+|-
+| 0050
+| 0032
+| 00C21030
+| 00C259F0
+| 0049C0
+| {{ts|al}} | [[ovl_En_Elf]]
+|-
+| 0051
+| 0033
+| 00C259F0
+| 00C28D20
+| 003330
+| {{ts|al}} | [[ovl_En_Niw]]
+|-
+| 0052
+| 0034
+| 00C28D20
+| 00C2BAC0
+| 002DA0
+| {{ts|al}} | [[ovl_En_Tite]]
+|-
+| 0053
+| 0035
+| 00C2BAC0
+| 00C2D530
+| 001A70
+| {{ts|al}} | [[ovl_En_Reeba]]
+|-
+| 0054
+| 0036
+| 00C2D530
+| 00C30C30
+| 003700
+| {{ts|al}} | [[ovl_En_Peehat]]
+|-
+| 0055
+| 0037
+| 00C30C30
+| 00C31C00
+| 000FD0
+| {{ts|al}} | [[ovl_En_Holl]]
+|-
+| 0056
+| 0038
+| 00C31C00
+| 00C31D30
+| 000130
+| {{ts|al}} | [[ovl_En_Scene_Change]]
+|-
+| 0057
+| 0039
+| 00C31D30
+| 00C38820
+| 006AF0
+| {{ts|al}} | [[ovl_En_Zf]]
+|-
+| 0058
+| 003A
+| 00C38820
+| 00C38DB0
+| 000590
+| {{ts|al}} | [[ovl_En_Hata]]
+|-
+| 0059
+| 003B
+| 00C38DB0
+| 00C42890
+| 009AE0
+| {{ts|al}} | [[ovl_Boss_Dodongo]]
+|-
+| 0060
+| 003C
+| 00C42890
+| 00C48810
+| 005F80
+| {{ts|al}} | [[ovl_Boss_Goma]]
+|-
+| 0061
+| 003D
+| 00C48810
+| 00C4C610
+| 003E00
+| {{ts|al}} | [[ovl_En_Zl1]]
+|-
+| 0062
+| 003E
+| 00C4C610
+| 00C4F4C0
+| 002EB0
+| {{ts|al}} | [[ovl_En_Viewer]]
+|-
+| 0063
+| 003F
+| 00C4F4C0
+| 00C52150
+| 002C90
+| {{ts|al}} | [[ovl_En_Goma]]
+|-
+| 0064
+| 0040
+| 00C52150
+| 00C52450
+| 000300
+| {{ts|al}} | [[ovl_Bg_Pushbox]]
+|-
+| 0065
+| 0041
+| 00C52450
+| 00C53870
+| 001420
+| {{ts|al}} | [[ovl_En_Bubble]]
+|-
+| 0066
+| 0042
+| 00C53870
+| 00C55AF0
+| 002280
+| {{ts|al}} | [[ovl_Door_Shutter]]
+|-
+| 0067
+| 0043
+| 00C55AF0
+| 00C57990
+| 001EA0
+| {{ts|al}} | [[ovl_En_Dodojr]]
+|-
+| 0068
+| 0044
+| 00C57990
+| 00C58520
+| 000B90
+| {{ts|al}} | [[ovl_En_Bdfire]]
+|-
+| 0069
+| 0045
+| 00C58520
+| 00C58DE0
+| 0008C0
+| {{ts|al}} | [[ovl_En_Boom]]
+|-
+| 0070
+| 0046
+| 00C58DE0
+| 00C5B540
+| 002760
+| {{ts|al}} | [[ovl_En_Torch2]]
+|-
+| 0071
+| 0047
+| 00C5B540
+| 00C5D810
+| 0022D0
+| {{ts|al}} | [[ovl_En_Bili]]
+|-
+| 0072
+| 0048
+| 00C5D810
+| 00C5F660
+| 001E50
+| {{ts|al}} | [[ovl_En_Tp]]
+|-
+| 0073
+| 0049
+| 00C5F660
+| 00C622D0
+| 002C70
+| {{ts|al}} | [[ovl_En_St]]
+|-
+| 0074
+| 004A
+| 00C622D0
+| 00C65640
+| 003370
+| {{ts|al}} | [[ovl_En_Bw]]
+|-
+| 0075
+| 004B
+| 00C65640
+| 00C672A0
+| 001C60
+| {{ts|al}} | [[ovl_En_Eiyer]]
+|-
+| 0076
+| 004C
+| 00C672A0
+| 00C67C30
+| 000990
+| {{ts|al}} | [[ovl_En_River_Sound]]
+|-
+| 0077
+| 004D
+| 00C67C30
+| 00C6A250
+| 002620
+| {{ts|al}} | [[ovl_En_Horse_Normal]]
+|-
+| 0078
+| 004E
+| 00C6A250
+| 00C70830
+| 0065E0
+| {{ts|al}} | [[ovl_En_Ossan]]
+|-
+| 0079
+| 004F
+| 00C70830
+| 00C71E90
+| 001660
+| {{ts|al}} | [[ovl_Bg_Treemouth]]
+|-
+| 0080
+| 0050
+| 00C71E90
+| 00C72BD0
+| 000D40
+| {{ts|al}} | [[ovl_Bg_Dodoago]]
+|-
+| 0081
+| 0051
+| 00C72BD0
+| 00C73420
+| 000850
+| {{ts|al}} | [[ovl_Bg_Hidan_Dalm]]
+|-
+| 0082
+| 0052
+| 00C73420
+| 00C73C50
+| 000830
+| {{ts|al}} | [[ovl_Bg_Hidan_Hrock]]
+|-
+| 0083
+| 0053
+| 00C73C50
+| 00C749D0
+| 000D80
+| {{ts|al}} | [[ovl_En_Horse_Ganon]]
+|-
+| 0084
+| 0054
+| 00C749D0
+| 00C75AC0
+| 0010F0
+| {{ts|al}} | [[ovl_Bg_Hidan_Rock]]
+|-
+| 0085
+| 0055
+| 00C75AC0
+| 00C766A0
+| 000BE0
+| {{ts|al}} | [[ovl_Bg_Hidan_Rsekizou]]
+|-
+| 0086
+| 0056
+| 00C766A0
+| 00C77AF0
+| 001450
+| {{ts|al}} | [[ovl_Bg_Hidan_Sekizou]]
+|-
+| 0087
+| 0057
+| 00C77AF0
+| 00C78A10
+| 000F20
+| {{ts|al}} | [[ovl_Bg_Hidan_Sima]]
+|-
+| 0088
+| 0058
+| 00C78A10
+| 00C78E70
+| 000460
+| {{ts|al}} | [[ovl_Bg_Hidan_Syoku]]
+|-
+| 0089
+| 0059
+| 00C78E70
+| 00C7F5D0
+| 006760
+| {{ts|al}} | [[ovl_En_Xc]]
+|-
+| 0090
+| 005A
+| 00C7F5D0
+| 00C80070
+| 000AA0
+| {{ts|al}} | [[ovl_Bg_Hidan_Curtain]]
+|-
+| 0091
+| 005B
+| 00C80070
+| 00C81180
+| 001110
+| {{ts|al}} | [[ovl_Bg_Spot00_Hanebasi]]
+|-
+| 0092
+| 005C
+| 00C81180
+| 00C853B0
+| 004230
+| {{ts|al}} | [[ovl_En_Mb]]
+|-
+| 0093
+| 005D
+| 00C853B0
+| 00C86820
+| 001470
+| {{ts|al}} | [[ovl_En_Bombf]]
+|-
+| 0094
+| 005E
+| 00C86820
+| 00C86F80
+| 000760
+| {{ts|al}} | [[ovl_Bg_Hidan_Firewall]]
+|-
+| 0095
+| 005F
+| 00C86F80
+| 00C89D80
+| 002E00
+| {{ts|al}} | [[ovl_Bg_Dy_Yoseizo]]
+|-
+| 0096
+| 0060
+| 00C89D80
+| 00C8E480
+| 004700
+| {{ts|al}} | [[ovl_En_Zl2]]
+|-
+| 0097
+| 0061
+| 00C8E480
+| 00C8E950
+| 0004D0
+| {{ts|al}} | [[ovl_Bg_Hidan_Fslift]]
+|-
+| 0098
+| 0062
+| 00C8E950
+| 00C8EA30
+| 0000E0
+| {{ts|al}} | [[ovl_En_OE2]]
+|-
+| 0099
+| 0063
+| 00C8EA30
+| 00C8F1E0
+| 0007B0
+| {{ts|al}} | [[ovl_Bg_Ydan_Hasi]]
+|-
+| 0100
+| 0064
+| 00C8F1E0
+| 00C8F8C0
+| 0006E0
+| {{ts|al}} | [[ovl_Bg_Ydan_Maruta]]
+|-
+| 0101
+| 0065
+| 00C8F8C0
+| 00C94630
+| 004D70
+| {{ts|al}} | [[ovl_Boss_Ganondrof]]
+|-
+| 0102
+| 0066
+| 00C94630
+| 00C96A30
+| 002400
+| {{ts|al}} | [[ovl_En_Am]]
+|-
+| 0103
+| 0067
+| 00C96A30
+| 00C9A4D0
+| 003AA0
+| {{ts|al}} | [[ovl_En_Dekubaba]]
+|-
+| 0104
+| 0068
+| 00C9A4D0
+| 00C9A670
+| 0001A0
+| {{ts|al}} | [[ovl_En_M_Fire1]]
+|-
+| 0105
+| 0069
+| 00C9A670
+| 00C9BC60
+| 0015F0
+| {{ts|al}} | [[ovl_En_M_Thunder]]
+|-
+| 0106
+| 006A
+| 00C9BC60
+| 00C9C2B0
+| 000650
+| {{ts|al}} | [[ovl_Bg_Ddan_Jd]]
+|-
+| 0107
+| 006B
+| 00C9C2B0
+| 00C9D120
+| 000E70
+| {{ts|al}} | [[ovl_Bg_Breakwall]]
+|-
+| 0108
+| 006C
+| 00C9D120
+| 00C9E6F0
+| 0015D0
+| {{ts|al}} | [[ovl_En_Jj]]
+|-
+| 0109
+| 006D
+| 00C9E6F0
+| 00C9F1E0
+| 000AF0
+| {{ts|al}} | [[ovl_En_Horse_Zelda]]
+|-
+| 0110
+| 006E
+| 00C9F1E0
+| 00C9FAD0
+| 0008F0
+| {{ts|al}} | [[ovl_Bg_Ddan_Kd]]
+|-
+| 0111
+| 006F
+| 00C9FAD0
+| 00CA3D70
+| 0042A0
+| {{ts|al}} | [[ovl_Door_Warp1]]
+|-
+| 0112
+| 0070
+| 00CA3D70
+| 00CA49A0
+| 000C30
+| {{ts|al}} | [[ovl_Obj_Syokudai]]
+|-
+| 0113
+| 0071
+| 00CA49A0
+| 00CA4D90
+| 0003F0
+| {{ts|al}} | [[ovl_Item_B_Heart]]
+|-
+| 0114
+| 0072
+| 00CA4D90
+| 00CA6590
+| 001800
+| {{ts|al}} | [[ovl_En_Dekunuts]]
+|-
+| 0115
+| 0073
+| 00CA6590
+| 00CA6720
+| 000190
+| {{ts|al}} | [[ovl_Bg_Menkuri_Kaiten]]
+|-
+| 0116
+| 0074
+| 00CA6720
+| 00CA6BB0
+| 000490
+| {{ts|al}} | [[ovl_Bg_Menkuri_Eye]]
+|-
+| 0117
+| 0075
+| 00CA6BB0
+| 00CA9250
+| 0026A0
+| {{ts|al}} | [[ovl_En_Vali]]
+|-
+| 0118
+| 0076
+| 00CA9250
+| 00CAA3E0
+| 001190
+| {{ts|al}} | [[ovl_Bg_Mizu_Movebg]]
+|-
+| 0119
+| 0077
+| 00CAA3E0
+| 00CAB0B0
+| 000CD0
+| {{ts|al}} | [[ovl_Bg_Mizu_Water]]
+|-
+| 0120
+| 0078
+| 00CAB0B0
+| 00CABE10
+| 000D60
+| {{ts|al}} | [[ovl_Arms_Hook]]
+|-
+| 0121
+| 0079
+| 00CABE10
+| 00CAE740
+| 002930
+| {{ts|al}} | [[ovl_En_fHG]]
+|-
+| 0122
+| 007A
+| 00CAE740
+| 00CAF440
+| 000D00
+| {{ts|al}} | [[ovl_Bg_Mori_Hineri]]
+|-
+| 0123
+| 007B
+| 00CAF440
+| 00CB3110
+| 003CD0
+| {{ts|al}} | [[ovl_En_Bb]]
+|-
+| 0124
+| 007C
+| 00CB3110
+| 00CB3EB0
+| 000DA0
+| {{ts|al}} | [[ovl_Bg_Toki_Hikari]]
+|-
+| 0125
+| 007D
+| 00CB3EB0
+| 00CB44C0
+| 000610
+| {{ts|al}} | [[ovl_En_Yukabyun]]
+|-
+| 0126
+| 007E
+| 00CB44C0
+| 00CB5B10
+| 001650
+| {{ts|al}} | [[ovl_Bg_Toki_Swd]]
+|-
+| 0127
+| 007F
+| 00CB5B10
+| 00CB8130
+| 002620
+| {{ts|al}} | [[ovl_En_Fhg_Fire]]
+|-
+| 0128
+| 0080
+| 00CB8130
+| 00CB8510
+| 0003E0
+| {{ts|al}} | [[ovl_Bg_Mjin]]
+|-
+| 0129
+| 0081
+| 00CB8510
+| 00CB8A90
+| 000580
+| {{ts|al}} | [[ovl_Bg_Hidan_Kousi]]
+|-
+| 0130
+| 0082
+| 00CB8A90
+| 00CB8BF0
+| 000160
+| {{ts|al}} | [[ovl_Door_Toki]]
+|-
+| 0131
+| 0083
+| 00CB8BF0
+| 00CB9AA0
+| 000EB0
+| {{ts|al}} | [[ovl_Bg_Hidan_Hamstep]]
+|-
+| 0132
+| 0084
+| 00CB9AA0
+| 00CB9F60
+| 0004C0
+| {{ts|al}} | [[ovl_En_Bird]]
+|-
+| 0133
+| 0085
+| 00CB9F60
+| 00CBB130
+| 0011D0
+| {{ts|al}} | [[ovl_En_Wood02]]
+|-
+| 0134
+| 0086
+| 00CBB130
+| 00CBB5B0
+| 000480
+| {{ts|al}} | [[ovl_En_Lightbox]]
+|-
+| 0135
+| 0087
+| 00CBB5B0
+| 00CBB8F0
+| 000340
+| {{ts|al}} | [[ovl_En_Pu_box]]
+|-
+| 0136
+| 0088
+| 00CBB8F0
+| 00CBCB90
+| 0012A0
+| {{ts|al}} | [[ovl_En_Trap]]
+|-
+| 0137
+| 0089
+| 00CBCB90
+| 00CBCCE0
+| 000150
+| {{ts|al}} | [[ovl_En_Arow_Trap]]
+|-
+| 0138
+| 008A
+| 00CBCCE0
+| 00CBCDE0
+| 000100
+| {{ts|al}} | [[ovl_En_Vase]]
+|-
+| 0139
+| 008B
+| 00CBCDE0
+| 00CC07A0
+| 0039C0
+| {{ts|al}} | [[ovl_En_Ta]]
+|-
+| 0140
+| 008C
+| 00CC07A0
+| 00CC25D0
+| 001E30
+| {{ts|al}} | [[ovl_En_Tk]]
+|-
+| 0141
+| 008D
+| 00CC25D0
+| 00CC2F00
+| 000930
+| {{ts|al}} | [[ovl_Bg_Mori_Bigst]]
+|-
+| 0142
+| 008E
+| 00CC2F00
+| 00CC39F0
+| 000AF0
+| {{ts|al}} | [[ovl_Bg_Mori_Elevator]]
+|-
+| 0143
+| 008F
+| 00CC39F0
+| 00CC4050
+| 000660
+| {{ts|al}} | [[ovl_Bg_Mori_Kaitenkabe]]
+|-
+| 0144
+| 0090
+| 00CC4050
+| 00CC49C0
+| 000970
+| {{ts|al}} | [[ovl_Bg_Mori_Rakkatenjo]]
+|-
+| 0145
+| 0091
+| 00CC49C0
+| 00CC6270
+| 0018B0
+| {{ts|al}} | [[ovl_En_Vm]]
+|-
+| 0146
+| 0092
+| 00CC6270
+| 00CCBD60
+| 005AF0
+| {{ts|al}} | [[ovl_Demo_Effect]]
+|-
+| 0147
+| 0093
+| 00CCBD60
+| 00CCFA10
+| 003CB0
+| {{ts|al}} | [[ovl_Demo_Kankyo]]
+|-
+| 0148
+| 0094
+| 00CCFA10
+| 00CD06F0
+| 000CE0
+| {{ts|al}} | [[ovl_Bg_Hidan_Fwbig]]
+|-
+| 0149
+| 0095
+| 00CD06F0
+| 00CD3AD0
+| 0033E0
+| {{ts|al}} | [[ovl_En_Floormas]]
+|-
+| 0150
+| 0096
+| 00CD3AD0
+| 00CD4FE0
+| 001510
+| {{ts|al}} | [[ovl_En_Heishi1]]
+|-
+| 0151
+| 0097
+| 00CD4FE0
+| 00CD7890
+| 0028B0
+| {{ts|al}} | [[ovl_En_Rd]]
+|-
+| 0152
+| 0098
+| 00CD7890
+| 00CDC580
+| 004CF0
+| {{ts|al}} | [[ovl_En_Po_Sisters]]
+|-
+| 0153
+| 0099
+| 00CDC580
+| 00CDDE70
+| 0018F0
+| {{ts|al}} | [[ovl_Bg_Heavy_Block]]
+|-
+| 0154
+| 009A
+| 00CDDE70
+| 00CDFCA0
+| 001E30
+| {{ts|al}} | [[ovl_Bg_Po_Event]]
+|-
+| 0155
+| 009B
+| 00CDFCA0
+| 00CE0CB0
+| 001010
+| {{ts|al}} | [[ovl_Obj_Mure]]
+|-
+| 0156
+| 009C
+| 00CE0CB0
+| 00CE4420
+| 003770
+| {{ts|al}} | [[ovl_En_Sw]]
+|-
+| 0157
+| 009D
+| 00CE4420
+| 00CEB750
+| 007330
+| {{ts|al}} | [[ovl_Boss_Fd]]
+|-
+| 0158
+| 009E
+| 00CEB750
+| 00CEE970
+| 003220
+| {{ts|al}} | [[ovl_Object_Kankyo]]
+|-
+| 0159
+| 009F
+| 00CEE970
+| 00CF0410
+| 001AA0
+| {{ts|al}} | [[ovl_En_Du]]
+|-
+| 0160
+| 00A0
+| 00CF0410
+| 00CF30D0
+| 002CC0
+| {{ts|al}} | [[ovl_En_Fd]]
+|-
+| 0161
+| 00A1
+| 00CF30D0
+| 00CF4ED0
+| 001E00
+| {{ts|al}} | [[ovl_En_Horse_Link_Child]]
+|-
+| 0162
+| 00A2
+| 00CF4ED0
+| 00CF5540
+| 000670
+| {{ts|al}} | [[ovl_Door_Ana]]
+|-
+| 0163
+| 00A3
+| 00CF5540
+| 00CF6890
+| 001350
+| {{ts|al}} | [[ovl_Bg_Spot02_Objects]]
+|-
+| 0164
+| 00A4
+| 00CF6890
+| 00CF6F50
+| 0006C0
+| {{ts|al}} | [[ovl_Bg_Haka]]
+|-
+| 0165
+| 00A5
+| 00CF6F50
+| 00CF8C50
+| 001D00
+| {{ts|al}} | [[ovl_Magic_Wind]]
+|-
+| 0166
+| 00A6
+| 00CF8C50
+| 00CFAF20
+| 0022D0
+| {{ts|al}} | [[ovl_Magic_Fire]]
+|-
+| 0167
+| 00A7
+| 00CFAF20
+| 00D025C0
+| 0076A0
+| {{ts|al}} | [[ovl_En_Ru1]]
+|-
+| 0168
+| 00A8
+| 00D025C0
+| 00D062F0
+| 003D30
+| {{ts|al}} | [[ovl_Boss_Fd2]]
+|-
+| 0169
+| 00A9
+| 00D062F0
+| 00D07000
+| 000D10
+| {{ts|al}} | [[ovl_En_Fd_Fire]]
+|-
+| 0170
+| 00AA
+| 00D07000
+| 00D08AD0
+| 001AD0
+| {{ts|al}} | [[ovl_En_Dh]]
+|-
+| 0171
+| 00AB
+| 00D08AD0
+| 00D09AD0
+| 001000
+| {{ts|al}} | [[ovl_En_Dha]]
+|-
+| 0172
+| 00AC
+| 00D09AD0
+| 00D0A9B0
+| 000EE0
+| {{ts|al}} | [[ovl_En_Rl]]
+|-
+| 0173
+| 00AD
+| 00D0A9B0
+| 00D0B510
+| 000B60
+| {{ts|al}} | [[ovl_En_Encount1]]
+|-
+| 0174
+| 00AE
+| 00D0B510
+| 00D0ECF0
+| 0037E0
+| {{ts|al}} | [[ovl_Demo_Du]]
+|-
+| 0175
+| 00AF
+| 00D0ECF0
+| 00D12C60
+| 003F70
+| {{ts|al}} | [[ovl_Demo_Im]]
+|-
+| 0176
+| 00B0
+| 00D12C60
+| 00D13370
+| 000710
+| {{ts|al}} | [[ovl_Demo_Tre_Lgt]]
+|-
+| 0177
+| 00B1
+| 00D13370
+| 00D14B20
+| 0017B0
+| {{ts|al}} | [[ovl_En_Fw]]
+|-
+| 0178
+| 00B2
+| 00D14B20
+| 00D15230
+| 000710
+| {{ts|al}} | [[ovl_Bg_Vb_Sima]]
+|-
+| 0179
+| 00B3
+| 00D15230
+| 00D163D0
+| 0011A0
+| {{ts|al}} | [[ovl_En_Vb_Ball]]
+|-
+| 0180
+| 00B4
+| 00D163D0
+| 00D167D0
+| 000400
+| {{ts|al}} | [[ovl_Bg_Haka_Megane]]
+|-
+| 0181
+| 00B5
+| 00D167D0
+| 00D16E90
+| 0006C0
+| {{ts|al}} | [[ovl_Bg_Haka_MeganeBG]]
+|-
+| 0182
+| 00B6
+| 00D16E90
+| 00D178D0
+| 000A40
+| {{ts|al}} | [[ovl_Bg_Haka_Ship]]
+|-
+| 0183
+| 00B7
+| 00D178D0
+| 00D184F0
+| 000C20
+| {{ts|al}} | [[ovl_Bg_Haka_Sgami]]
+|-
+| 0184
+| 00B8
+| 00D184F0
+| 00D1A6F0
+| 002200
+| {{ts|al}} | [[ovl_En_Heishi2]]
+|-
+| 0185
+| 00B9
+| 00D1A6F0
+| 00D1B920
+| 001230
+| {{ts|al}} | [[ovl_En_Encount2]]
+|-
+| 0186
+| 00BA
+| 00D1B920
+| 00D1CA30
+| 001110
+| {{ts|al}} | [[ovl_En_Fire_Rock]]
+|-
+| 0187
+| 00BB
+| 00D1CA30
+| 00D1DB20
+| 0010F0
+| {{ts|al}} | [[ovl_En_Brob]]
+|-
+| 0188
+| 00BC
+| 00D1DB20
+| 00D1F3E0
+| 0018C0
+| {{ts|al}} | [[ovl_Mir_Ray]]
+|-
+| 0189
+| 00BD
+| 00D1F3E0
+| 00D1F8F0
+| 000510
+| {{ts|al}} | [[ovl_Bg_Spot09_Obj]]
+|-
+| 0190
+| 00BE
+| 00D1F8F0
+| 00D201C0
+| 0008D0
+| {{ts|al}} | [[ovl_Bg_Spot18_Obj]]
+|-
+| 0191
+| 00BF
+| 00D201C0
+| 00D2E9B0
+| 00E7F0
+| {{ts|al}} | [[ovl_Boss_Va]]
+|-
+| 0192
+| 00C0
+| 00D2E9B0
+| 00D2F3D0
+| 000A20
+| {{ts|al}} | [[ovl_Bg_Haka_Tubo]]
+|-
+| 0193
+| 00C1
+| 00D2F3D0
+| 00D309A0
+| 0015D0
+| {{ts|al}} | [[ovl_Bg_Haka_Trap]]
+|-
+| 0194
+| 00C2
+| 00D309A0
+| 00D31440
+| 000AA0
+| {{ts|al}} | [[ovl_Bg_Haka_Huta]]
+|-
+| 0195
+| 00C3
+| 00D31440
+| 00D32630
+| 0011F0
+| {{ts|al}} | [[ovl_Bg_Haka_Zou]]
+|-
+| 0196
+| 00C4
+| 00D32630
+| 00D32880
+| 000250
+| {{ts|al}} | [[ovl_Bg_Spot17_Funen]]
+|-
+| 0197
+| 00C5
+| 00D32880
+| 00D33620
+| 000DA0
+| {{ts|al}} | [[ovl_En_Syateki_Itm]]
+|-
+| 0198
+| 00C6
+| 00D33620
+| 00D343E0
+| 000DC0
+| {{ts|al}} | [[ovl_En_Syateki_Man]]
+|-
+| 0199
+| 00C7
+| 00D343E0
+| 00D34680
+| 0002A0
+| {{ts|al}} | [[ovl_En_Tana]]
+|-
+| 0200
+| 00C8
+| 00D34680
+| 00D38C50
+| 0045D0
+| {{ts|al}} | [[ovl_En_Nb]]
+|-
+| 0201
+| 00C9
+| 00D38C50
+| 00D441F0
+| 00B5A0
+| {{ts|al}} | [[ovl_Boss_Mo]]
+|-
+| 0202
+| 00CA
+| 00D441F0
+| 00D45630
+| 001440
+| {{ts|al}} | [[ovl_En_Sb]]
+|-
+| 0203
+| 00CB
+| 00D45630
+| 00D48140
+| 002B10
+| {{ts|al}} | [[ovl_En_Bigokuta]]
+|-
+| 0204
+| 00CC
+| 00D48140
+| 00D49A30
+| 0018F0
+| {{ts|al}} | [[ovl_En_Karebaba]]
+|-
+| 0205
+| 00CD
+| 00D49A30
+| 00D4AD00
+| 0012D0
+| {{ts|al}} | [[ovl_Bg_Bdan_Objects]]
+|-
+| 0206
+| 00CE
+| 00D4AD00
+| 00D4D820
+| 002B20
+| {{ts|al}} | [[ovl_Demo_Sa]]
+|-
+| 0207
+| 00CF
+| 00D4D820
+| 00D4E580
+| 000D60
+| {{ts|al}} | [[ovl_Demo_Go]]
+|-
+| 0208
+| 00D0
+| 00D4E580
+| 00D51320
+| 002DA0
+| {{ts|al}} | [[ovl_En_In]]
+|-
+| 0209
+| 00D1
+| 00D51320
+| 00D52C20
+| 001900
+| {{ts|al}} | [[ovl_En_Tr]]
+|-
+| 0210
+| 00D2
+| 00D52C20
+| 00D54160
+| 001540
+| {{ts|al}} | [[ovl_Bg_Spot16_Bombstone]]
+|-
+| 0211
+| 00D3
+| 00D54160
+| 00D55030
+| 000ED0
+| {{ts|al}} | [[ovl_Bg_Hidan_Kowarerukabe]]
+|-
+| 0212
+| 00D4
+| 00D55030
+| 00D558F0
+| 0008C0
+| {{ts|al}} | [[ovl_Bg_Bombwall]]
+|-
+| 0213
+| 00D5
+| 00D558F0
+| 00D58670
+| 002D80
+| {{ts|al}} | [[ovl_En_Ru2]]
+|-
+| 0214
+| 00D6
+| 00D58670
+| 00D58CB0
+| 000640
+| {{ts|al}} | [[ovl_Obj_Dekujr]]
+|-
+| 0215
+| 00D7
+| 00D58CB0
+| 00D58E80
+| 0001D0
+| {{ts|al}} | [[ovl_Bg_Mizu_Uzu]]
+|-
+| 0216
+| 00D8
+| 00D58E80
+| 00D5A290
+| 001410
+| {{ts|al}} | [[ovl_Bg_Spot06_Objects]]
+|-
+| 0217
+| 00D9
+| 00D5A290
+| 00D5B1D0
+| 000F40
+| {{ts|al}} | [[ovl_Bg_Ice_Objects]]
+|-
+| 0218
+| 00DA
+| 00D5B1D0
+| 00D5B9B0
+| 0007E0
+| {{ts|al}} | [[ovl_Bg_Haka_Water]]
+|-
+| 0219
+| 00DB
+| 00D5B9B0
+| 00D5CA10
+| 001060
+| {{ts|al}} | [[ovl_En_Ma2]]
+|-
+| 0220
+| 00DC
+| 00D5CA10
+| 00D5E0B0
+| 0016A0
+| {{ts|al}} | [[ovl_En_Bom_Chu]]
+|-
+| 0221
+| 00DD
+| 00D5E0B0
+| 00D5F180
+| 0010D0
+| {{ts|al}} | [[ovl_En_Horse_Game_Check]]
+|-
+| 0222
+| 00DE
+| 00D5F180
+| 00D72200
+| 013080
+| {{ts|al}} | [[ovl_Boss_Tw]]
+|-
+| 0223
+| 00DF
+| 00D72200
+| 00D74730
+| 002530
+| {{ts|al}} | [[ovl_En_Rr]]
+|-
+| 0224
+| 00E0
+| 00D74730
+| 00D76600
+| 001ED0
+| {{ts|al}} | [[ovl_En_Ba]]
+|-
+| 0225
+| 00E1
+| 00D76600
+| 00D770F0
+| 000AF0
+| {{ts|al}} | [[ovl_En_Bx]]
+|-
+| 0226
+| 00E2
+| 00D770F0
+| 00D783A0
+| 0012B0
+| {{ts|al}} | [[ovl_En_Anubice]]
+|-
+| 0227
+| 00E3
+| 00D783A0
+| 00D79160
+| 000DC0
+| {{ts|al}} | [[ovl_En_Anubice_Fire]]
+|-
+| 0228
+| 00E4
+| 00D79160
+| 00D79A20
+| 0008C0
+| {{ts|al}} | [[ovl_Bg_Mori_Hashigo]]
+|-
+| 0229
+| 00E5
+| 00D79A20
+| 00D79FA0
+| 000580
+| {{ts|al}} | [[ovl_Bg_Mori_Hashira4]]
+|-
+| 0230
+| 00E6
+| 00D79FA0
+| 00D7A5E0
+| 000640
+| {{ts|al}} | [[ovl_Bg_Mori_Idomizu]]
+|-
+| 0231
+| 00E7
+| 00D7A5E0
+| 00D7AB90
+| 0005B0
+| {{ts|al}} | [[ovl_Bg_Spot16_Doughnut]]
+|-
+| 0232
+| 00E8
+| 00D7AB90
+| 00D7BFC0
+| 001430
+| {{ts|al}} | [[ovl_Bg_Bdan_Switch]]
+|-
+| 0233
+| 00E9
+| 00D7BFC0
+| 00D7D2A0
+| 0012E0
+| {{ts|al}} | [[ovl_En_Ma1]]
+|-
+| 0234
+| 00EA
+| 00D7D2A0
+| 00D9F500
+| 022260
+| {{ts|al}} | [[ovl_Boss_Ganon]]
+|-
+| 0235
+| 00EB
+| 00D9F500
+| 00DABA80
+| 00C580
+| {{ts|al}} | [[ovl_Boss_Sst]]
+|-
+| 0236
+| 00EC
+| 00DABA80
+| 00DAD3B0
+| 001930
+| {{ts|al}} | [[ovl_En_Ny]]
+|-
+| 0237
+| 00ED
+| 00DAD3B0
+| 00DAFE40
+| 002A90
+| {{ts|al}} | [[ovl_En_Fr]]
+|-
+| 0238
+| 00EE
+| 00DAFE40
+| 00DB0850
+| 000A10
+| {{ts|al}} | [[ovl_Item_Shield]]
+|-
+| 0239
+| 00EF
+| 00DB0850
+| 00DB1A80
+| 001230
+| {{ts|al}} | [[ovl_Bg_Ice_Shelter]]
+|-
+| 0240
+| 00F0
+| 00DB1A80
+| 00DB2C70
+| 0011F0
+| {{ts|al}} | [[ovl_En_Ice_Hono]]
+|-
+| 0241
+| 00F1
+| 00DB2C70
+| 00DB3440
+| 0007D0
+| {{ts|al}} | [[ovl_Item_Ocarina]]
+|-
+| 0242
+| 00F2
+| 00DB3440
+| 00DB4C90
+| 001850
+| {{ts|al}} | [[ovl_Magic_Dark]]
+|-
+| 0243
+| 00F3
+| 00DB4C90
+| 00DB79A0
+| 002D10
+| {{ts|al}} | [[ovl_Demo_6K]]
+|-
+| 0244
+| 00F4
+| 00DB79A0
+| 00DB7C70
+| 0002D0
+| {{ts|al}} | [[ovl_En_Anubice_Tag]]
+|-
+| 0245
+| 00F5
+| 00DB7C70
+| 00DB8CF0
+| 001080
+| {{ts|al}} | [[ovl_Bg_Haka_Gate]]
+|-
+| 0246
+| 00F6
+| 00DB8CF0
+| 00DB9030
+| 000340
+| {{ts|al}} | [[ovl_Bg_Spot15_Saku]]
+|-
+| 0247
+| 00F7
+| 00DB9030
+| 00DB97B0
+| 000780
+| {{ts|al}} | [[ovl_Bg_Jya_Goroiwa]]
+|-
+| 0248
+| 00F8
+| 00DB97B0
+| 00DB9E60
+| 0006B0
+| {{ts|al}} | [[ovl_Bg_Jya_Zurerukabe]]
+|-
+| 0249
+| 00F9
+| 00DB9E60
+| 00DBBB80
+| 001D20
+| {{ts|al}} | [[ovl_Bg_Jya_Cobra]]
+|-
+| 0250
+| 00FA
+| 00DBBB80
+| 00DBBF30
+| 0003B0
+| {{ts|al}} | [[ovl_Bg_Jya_Kanaami]]
+|-
+| 0251
+| 00FB
+| 00DBBF30
+| 00DCF8E0
+| 0139B0
+| {{ts|al}} | [[ovl_Fishing]]
+|-
+| 0252
+| 00FC
+| 00DCF8E0
+| 00DD1390
+| 001AB0
+| {{ts|al}} | [[ovl_Obj_Oshihiki]]
+|-
+| 0253
+| 00FD
+| 00DD1390
+| 00DD1810
+| 000480
+| {{ts|al}} | [[ovl_Bg_Gate_Shutter]]
+|-
+| 0254
+| 00FE
+| 00DD1810
+| 00DD2BF0
+| 0013E0
+| {{ts|al}} | [[ovl_Eff_Dust]]
+|-
+| 0255
+| 00FF
+| 00DD2BF0
+| 00DD2E90
+| 0002A0
+| {{ts|al}} | [[ovl_Bg_Spot01_Fusya]]
+|-
+| 0256
+| 0100
+| 00DD2E90
+| 00DD3A90
+| 000C00
+| {{ts|al}} | [[ovl_Bg_Spot01_Idohashira]]
+|-
+| 0257
+| 0101
+| 00DD3A90
+| 00DD3DA0
+| 000310
+| {{ts|al}} | [[ovl_Bg_Spot01_Idomizu]]
+|-
+| 0258
+| 0102
+| 00DD3DA0
+| 00DD46F0
+| 000950
+| {{ts|al}} | [[ovl_Bg_Po_Syokudai]]
+|-
+| 0259
+| 0103
+| 00DD46F0
+| 00DD6D30
+| 002640
+| {{ts|al}} | [[ovl_Bg_Ganon_Otyuka]]
+|-
+| 0260
+| 0104
+| 00DD6D30
+| 00DD7B10
+| 000DE0
+| {{ts|al}} | [[ovl_Bg_Spot15_Rrbox]]
+|-
+| 0261
+| 0105
+| 00DD7B10
+| 00DD7CA0
+| 000190
+| {{ts|al}} | [[ovl_Bg_Umajump]]
+|-
+| 0262
+| 0106
+| 00DD7CA0
+| 00DDA1C0
+| 002520
+| {{ts|al}} | [[ovl_En_Insect]]
+|-
+| 0263
+| 0107
+| 00DDA1C0
+| 00DDB790
+| 0015D0
+| {{ts|al}} | [[ovl_En_Butte]]
+|-
+| 0264
+| 0108
+| 00DDB790
+| 00DDD8A0
+| 002110
+| {{ts|al}} | [[ovl_En_Fish]]
+|-
+| 0265
+| 0109
+| 00DDD8A0
+| 00DDE8E0
+| 001040
+| {{ts|al}} | [[ovl_Bg_Spot08_Iceblock]]
+|-
+| 0266
+| 010A
+| 00DDE8E0
+| 00DDF1B0
+| 0008D0
+| {{ts|al}} | [[ovl_Item_Etcetera]]
+|-
+| 0267
+| 010B
+| 00DDF1B0
+| 00DE1070
+| 001EC0
+| {{ts|al}} | [[ovl_Arrow_Fire]]
+|-
+| 0268
+| 010C
+| 00DE1070
+| 00DE2F50
+| 001EE0
+| {{ts|al}} | [[ovl_Arrow_Ice]]
+|-
+| 0269
+| 010D
+| 00DE2F50
+| 00DE4E40
+| 001EF0
+| {{ts|al}} | [[ovl_Arrow_Light]]
+|-
+| 0270
+| 010E
+| 00DE4E40
+| 00DE5B40
+| 000D00
+| {{ts|al}} | [[ovl_Obj_Kibako]]
+|-
+| 0271
+| 010F
+| 00DE5B40
+| 00DE6B30
+| 000FF0
+| {{ts|al}} | [[ovl_Obj_Tsubo]]
+|-
+| 0272
+| 0110
+| 00DE6B30
+| 00DE7780
+| 000C50
+| {{ts|al}} | [[ovl_En_Wonder_Item]]
+|-
+| 0273
+| 0111
+| 00DE7780
+| 00DEBDB0
+| 004630
+| {{ts|al}} | [[ovl_En_Ik]]
+|-
+| 0274
+| 0112
+| 00DEBDB0
+| 00DED2C0
+| 001510
+| {{ts|al}} | [[ovl_Demo_Ik]]
+|-
+| 0275
+| 0113
+| 00DED2C0
+| 00DF0BF0
+| 003930
+| {{ts|al}} | [[ovl_En_Skj]]
+|-
+| 0276
+| 0114
+| 00DF0BF0
+| 00DF0F00
+| 000310
+| {{ts|al}} | [[ovl_En_Skjneedle]]
+|-
+| 0277
+| 0115
+| 00DF0F00
+| 00DF2730
+| 001830
+| {{ts|al}} | [[ovl_En_G_Switch]]
+|-
+| 0278
+| 0116
+| 00DF2730
+| 00DF3070
+| 000940
+| {{ts|al}} | [[ovl_Demo_Ext]]
+|-
+| 0279
+| 0117
+| 00DF3070
+| 00DF5480
+| 002410
+| {{ts|al}} | [[ovl_Demo_Shd]]
+|-
+| 0280
+| 0118
+| 00DF5480
+| 00DF6810
+| 001390
+| {{ts|al}} | [[ovl_En_Dns]]
+|-
+| 0281
+| 0119
+| 00DF6810
+| 00DF6E00
+| 0005F0
+| {{ts|al}} | [[ovl_Elf_Msg]]
+|-
+| 0282
+| 011A
+| 00DF6E00
+| 00DF8350
+| 001550
+| {{ts|al}} | [[ovl_En_Honotrap]]
+|-
+| 0283
+| 011B
+| 00DF8350
+| 00DF8FF0
+| 000CA0
+| {{ts|al}} | [[ovl_En_Tubo_Trap]]
+|-
+| 0284
+| 011C
+| 00DF8FF0
+| 00DF99A0
+| 0009B0
+| {{ts|al}} | [[ovl_Obj_Ice_Poly]]
+|-
+| 0285
+| 011D
+| 00DF99A0
+| 00DFA290
+| 0008F0
+| {{ts|al}} | [[ovl_Bg_Spot03_Taki]]
+|-
+| 0286
+| 011E
+| 00DFA290
+| 00DFA850
+| 0005C0
+| {{ts|al}} | [[ovl_Bg_Spot07_Taki]]
+|-
+| 0287
+| 011F
+| 00DFA850
+| 00DFC860
+| 002010
+| {{ts|al}} | [[ovl_En_Fz]]
+|-
+| 0288
+| 0120
+| 00DFC860
+| 00DFDF70
+| 001710
+| {{ts|al}} | [[ovl_En_Po_Relay]]
+|-
+| 0289
+| 0121
+| 00DFDF70
+| 00DFE720
+| 0007B0
+| {{ts|al}} | [[ovl_Bg_Relay_Objects]]
+|-
+| 0290
+| 0122
+| 00DFE720
+| 00E000D0
+| 0019B0
+| {{ts|al}} | [[ovl_En_Diving_Game]]
+|-
+| 0291
+| 0123
+| 00E000D0
+| 00E015B0
+| 0014E0
+| {{ts|al}} | [[ovl_En_Kusa]]
+|-
+| 0292
+| 0124
+| 00E015B0
+| 00E03D40
+| 002790
+| {{ts|al}} | [[ovl_Obj_Bean]]
+|-
+| 0293
+| 0125
+| 00E03D40
+| 00E042B0
+| 000570
+| {{ts|al}} | [[ovl_Obj_Bombiwa]]
+|-
+| 0294
+| 0126
+| 00E042B0
+| 00E06070
+| 001DC0
+| {{ts|al}} | [[ovl_Obj_Switch]]
+|-
+| 0295
+| 0127
+| 00E06070
+| 00E06430
+| 0003C0
+| {{ts|al}} | [[ovl_Obj_Elevator]]
+|-
+| 0296
+| 0128
+| 00E06430
+| 00E06E50
+| 000A20
+| {{ts|al}} | [[ovl_Obj_Lift]]
+|-
+| 0297
+| 0129
+| 00E06E50
+| 00E07420
+| 0005D0
+| {{ts|al}} | [[ovl_Obj_Hsblock]]
+|-
+| 0298
+| 012A
+| 00E07420
+| 00E08920
+| 001500
+| {{ts|al}} | [[ovl_En_Okarina_Tag]]
+|-
+| 0299
+| 012B
+| 00E08920
+| 00E08FF0
+| 0006D0
+| {{ts|al}} | [[ovl_En_Yabusame_Mark]]
+|-
+| 0300
+| 012C
+| 00E08FF0
+| 00E0B3B0
+| 0023C0
+| {{ts|al}} | [[ovl_En_Goroiwa]]
+|-
+| 0301
+| 012D
+| 00E0B3B0
+| 00E0C470
+| 0010C0
+| {{ts|al}} | [[ovl_En_Ex_Ruppy]]
+|-
+| 0302
+| 012E
+| 00E0C470
+| 00E0D100
+| 000C90
+| {{ts|al}} | [[ovl_En_Toryo]]
+|-
+| 0303
+| 012F
+| 00E0D100
+| 00E0E840
+| 001740
+| {{ts|al}} | [[ovl_En_Daiku]]
+|-
+| 0304
+| 0130
+| 00E0E840
+| 00E0F280
+| 000A40
+| {{ts|al}} | [[ovl_En_Nwc]]
+|-
+| 0305
+| 0131
+| 00E0F280
+| 00E0F7E0
+| 000560
+| {{ts|al}} | [[ovl_En_Blkobj]]
+|-
+| 0306
+| 0132
+| 00E0F7E0
+| 00E0F940
+| 000160
+| {{ts|al}} | [[ovl_Item_Inbox]]
+|-
+| 0307
+| 0133
+| 00E0F940
+| 00E11970
+| 002030
+| {{ts|al}} | [[ovl_En_Ge1]]
+|-
+| 0308
+| 0134
+| 00E11970
+| 00E11B10
+| 0001A0
+| {{ts|al}} | [[ovl_Obj_Blockstop]]
+|-
+| 0309
+| 0135
+| 00E11B10
+| 00E13150
+| 001640
+| {{ts|al}} | [[ovl_En_Sda]]
+|-
+| 0310
+| 0136
+| 00E13150
+| 00E1BCC0
+| 008B70
+| {{ts|al}} | [[ovl_En_Clear_Tag]]
+|-
+| 0311
+| 0137
+| 00E1BCC0
+| 00E1D5C0
+| 001900
+| {{ts|al}} | [[ovl_En_Niw_Lady]]
+|-
+| 0312
+| 0138
+| 00E1D5C0
+| 00E1E2F0
+| 000D30
+| {{ts|al}} | [[ovl_En_Gm]]
+|-
+| 0313
+| 0139
+| 00E1E2F0
+| 00E1E9E0
+| 0006F0
+| {{ts|al}} | [[ovl_En_Ms]]
+|-
+| 0314
+| 013A
+| 00E1E9E0
+| 00E1F580
+| 000BA0
+| {{ts|al}} | [[ovl_En_Hs]]
+|-
+| 0315
+| 013B
+| 00E1F580
+| 00E1F910
+| 000390
+| {{ts|al}} | [[ovl_Bg_Ingate]]
+|-
+| 0316
+| 013C
+| 00E1F910
+| 00E22A60
+| 003150
+| {{ts|al}} | [[ovl_En_Kanban]]
+|-
+| 0317
+| 013D
+| 00E22A60
+| 00E23430
+| 0009D0
+| {{ts|al}} | [[ovl_En_Heishi3]]
+|-
+| 0318
+| 013E
+| 00E23430
+| 00E254C0
+| 002090
+| {{ts|al}} | [[ovl_En_Syateki_Niw]]
+|-
+| 0319
+| 013F
+| 00E254C0
+| 00E26720
+| 001260
+| {{ts|al}} | [[ovl_En_Attack_Niw]]
+|-
+| 0320
+| 0140
+| 00E26720
+| 00E26930
+| 000210
+| {{ts|al}} | [[ovl_Bg_Spot01_Idosoko]]
+|-
+| 0321
+| 0141
+| 00E26930
+| 00E28BA0
+| 002270
+| {{ts|al}} | [[ovl_En_Sa]]
+|-
+| 0322
+| 0142
+| 00E28BA0
+| 00E29230
+| 000690
+| {{ts|al}} | [[ovl_En_Wonder_Talk]]
+|-
+| 0323
+| 0143
+| 00E29230
+| 00E29730
+| 000500
+| {{ts|al}} | [[ovl_Bg_Gjyo_Bridge]]
+|-
+| 0324
+| 0144
+| 00E29730
+| 00E2A350
+| 000C20
+| {{ts|al}} | [[ovl_En_Ds]]
+|-
+| 0325
+| 0145
+| 00E2A350
+| 00E2B1E0
+| 000E90
+| {{ts|al}} | [[ovl_En_Mk]]
+|-
+| 0326
+| 0146
+| 00E2B1E0
+| 00E2C720
+| 001540
+| {{ts|al}} | [[ovl_En_Bom_Bowl_Man]]
+|-
+| 0327
+| 0147
+| 00E2C720
+| 00E2D090
+| 000970
+| {{ts|al}} | [[ovl_En_Bom_Bowl_Pit]]
+|-
+| 0328
+| 0148
+| 00E2D090
+| 00E30C30
+| 003BA0
+| {{ts|al}} | [[ovl_En_Owl]]
+|-
+| 0329
+| 0149
+| 00E30C30
+| 00E39D80
+| 009150
+| {{ts|al}} | [[ovl_En_Ishi]]
+|-
+| 0330
+| 014A
+| 00E39D80
+| 00E3A090
+| 000310
+| {{ts|al}} | [[ovl_Obj_Hana]]
+|-
+| 0331
+| 014B
+| 00E3A090
+| 00E3B4C0
+| 001430
+| {{ts|al}} | [[ovl_Obj_Lightswitch]]
+|-
+| 0332
+| 014C
+| 00E3B4C0
+| 00E3BEE0
+| 000A20
+| {{ts|al}} | [[ovl_Obj_Mure2]]
+|-
+| 0333
+| 014D
+| 00E3BEE0
+| 00E40520
+| 004640
+| {{ts|al}} | [[ovl_En_Go]]
+|-
+| 0334
+| 014E
+| 00E40520
+| 00E41260
+| 000D40
+| {{ts|al}} | [[ovl_En_Fu]]
+|-
+| 0335
+| 014F
+| 00E41260
+| 00E41C40
+| 0009E0
+| {{ts|al}} | [[ovl_En_Changer]]
+|-
+| 0336
+| 0150
+| 00E41C40
+| 00E42E20
+| 0011E0
+| {{ts|al}} | [[ovl_Bg_Jya_Megami]]
+|-
+| 0337
+| 0151
+| 00E42E20
+| 00E43370
+| 000550
+| {{ts|al}} | [[ovl_Bg_Jya_Lift]]
+|-
+| 0338
+| 0152
+| 00E43370
+| 00E43BB0
+| 000840
+| {{ts|al}} | [[ovl_Bg_Jya_Bigmirror]]
+|-
+| 0339
+| 0153
+| 00E43BB0
+| 00E446E0
+| 000B30
+| {{ts|al}} | [[ovl_Bg_Jya_Bombchuiwa]]
+|-
+| 0340
+| 0154
+| 00E446E0
+| 00E44A70
+| 000390
+| {{ts|al}} | [[ovl_Bg_Jya_Amishutter]]
+|-
+| 0341
+| 0155
+| 00E44A70
+| 00E45030
+| 0005C0
+| {{ts|al}} | [[ovl_Bg_Jya_Bombiwa]]
+|-
+| 0342
+| 0156
+| 00E45030
+| 00E46020
+| 000FF0
+| {{ts|al}} | [[ovl_Bg_Spot18_Basket]]
+|-
+| 0343
+| 0157
+| 00E46020
+| 00E4D020
+| 007000
+| {{ts|al}} | [[ovl_En_Ganon_Organ]]
+|-
+| 0344
+| 0158
+| 00E4D020
+| 00E4DDD0
+| 000DB0
+| {{ts|al}} | [[ovl_En_Siofuki]]
+|-
+| 0345
+| 0159
+| 00E4DDD0
+| 00E4E360
+| 000590
+| {{ts|al}} | [[ovl_En_Stream]]
+|-
+| 0346
+| 015A
+| 00E4E360
+| 00E4F980
+| 001620
+| {{ts|al}} | [[ovl_En_Mm]]
+|-
+| 0347
+| 015B
+| 00E4F980
+| 00E53AC0
+| 004140
+| {{ts|al}} | [[ovl_En_Ko]]
+|-
+| 0348
+| 015C
+| 00E53AC0
+| 00E55060
+| 0015A0
+| {{ts|al}} | [[ovl_En_Kz]]
+|-
+| 0349
+| 015D
+| 00E55060
+| 00E55F50
+| 000EF0
+| {{ts|al}} | [[ovl_En_Weather_Tag]]
+|-
+| 0350
+| 015E
+| 00E55F50
+| 00E564B0
+| 000560
+| {{ts|al}} | [[ovl_Bg_Sst_Floor]]
+|-
+| 0351
+| 015F
+| 00E564B0
+| 00E57220
+| 000D70
+| {{ts|al}} | [[ovl_En_Ani]]
+|-
+| 0352
+| 0160
+| 00E57220
+| 00E58390
+| 001170
+| {{ts|al}} | [[ovl_En_Ex_Item]]
+|-
+| 0353
+| 0161
+| 00E58390
+| 00E59140
+| 000DB0
+| {{ts|al}} | [[ovl_Bg_Jya_Ironobj]]
+|-
+| 0354
+| 0162
+| 00E59140
+| 00E59B10
+| 0009D0
+| {{ts|al}} | [[ovl_En_Js]]
+|-
+| 0355
+| 0163
+| 00E59B10
+| 00E5E8D0
+| 004DC0
+| {{ts|al}} | [[ovl_En_Jsjutan]]
+|-
+| 0356
+| 0164
+| 00E5E8D0
+| 00E5FB00
+| 001230
+| {{ts|al}} | [[ovl_En_Cs]]
+|-
+| 0357
+| 0165
+| 00E5FB00
+| 00E62170
+| 002670
+| {{ts|al}} | [[ovl_En_Md]]
+|-
+| 0358
+| 0166
+| 00E62170
+| 00E65AB0
+| 003940
+| {{ts|al}} | [[ovl_En_Hy]]
+|-
+| 0359
+| 0167
+| 00E65AB0
+| 00E69CD0
+| 004220
+| {{ts|al}} | [[ovl_En_Ganon_Mant]]
+|-
+| 0360
+| 0168
+| 00E69CD0
+| 00E6A090
+| 0003C0
+| {{ts|al}} | [[ovl_En_Okarina_Effect]]
+|-
+| 0361
+| 0169
+| 00E6A090
+| 00E6CFA0
+| 002F10
+| {{ts|al}} | [[ovl_En_Mag]]
+|-
+| 0362
+| 016A
+| 00E6CFA0
+| 00E6D590
+| 0005F0
+| {{ts|al}} | [[ovl_Door_Gerudo]]
+|-
+| 0363
+| 016B
+| 00E6D590
+| 00E6DA00
+| 000470
+| {{ts|al}} | [[ovl_Elf_Msg2]]
+|-
+| 0364
+| 016C
+| 00E6DA00
+| 00E73000
+| 005600
+| {{ts|al}} | [[ovl_Demo_Gt]]
+|-
+| 0365
+| 016D
+| 00E73000
+| 00E769E0
+| 0039E0
+| {{ts|al}} | [[ovl_En_Po_Field]]
+|-
+| 0366
+| 016E
+| 00E769E0
+| 00E774C0
+| 000AE0
+| {{ts|al}} | [[ovl_Efc_Erupc]]
+|-
+| 0367
+| 016F
+| 00E774C0
+| 00E77910
+| 000450
+| {{ts|al}} | [[ovl_Bg_Zg]]
+|-
+| 0368
+| 0170
+| 00E77910
+| 00E78810
+| 000F00
+| {{ts|al}} | [[ovl_En_Heishi4]]
+|-
+| 0369
+| 0171
+| 00E78810
+| 00E80660
+| 007E50
+| {{ts|al}} | [[ovl_En_Zl3]]
+|-
+| 0370
+| 0172
+| 00E80660
+| 00E91960
+| 011300
+| {{ts|al}} | [[ovl_Boss_Ganon2]]
+|-
+| 0371
+| 0173
+| 00E91960
+| 00E926A0
+| 000D40
+| {{ts|al}} | [[ovl_En_Kakasi]]
+|-
+| 0372
+| 0174
+| 00E926A0
+| 00E92F60
+| 0008C0
+| {{ts|al}} | [[ovl_En_Takara_Man]]
+|-
+| 0373
+| 0175
+| 00E92F60
+| 00E933F0
+| 000490
+| {{ts|al}} | [[ovl_Obj_Makeoshihiki]]
+|-
+| 0374
+| 0176
+| 00E933F0
+| 00E94320
+| 000F30
+| {{ts|al}} | [[ovl_Oceff_Spot]]
+|-
+| 0375
+| 0177
+| 00E94320
+| 00E98450
+| 004130
+| {{ts|al}} | [[ovl_End_Title]]
+|-
+| 0376
+| 0178
+| 00E98450
+| 00E98540
+| 0000F0
+| {{ts|al}} | [[ovl_En_Torch]]
+|-
+| 0377
+| 0179
+| 00E98540
+| 00E9BDA0
+| 003860
+| {{ts|al}} | [[ovl_Demo_Ec]]
+|-
+| 0378
+| 017A
+| 00E9BDA0
+| 00E9C460
+| 0006C0
+| {{ts|al}} | [[ovl_Shot_Sun]]
+|-
+| 0379
+| 017B
+| 00E9C460
+| 00E9C9E0
+| 000580
+| {{ts|al}} | [[ovl_En_Dy_Extra]]
+|-
+| 0380
+| 017C
+| 00E9C9E0
+| 00E9D080
+| 0006A0
+| {{ts|al}} | [[ovl_En_Wonder_Talk2]]
+|-
+| 0381
+| 017D
+| 00E9D080
+| 00E9EA20
+| 0019A0
+| {{ts|al}} | [[ovl_En_Ge2]]
+|-
+| 0382
+| 017E
+| 00E9EA20
+| 00E9EC70
+| 000250
+| {{ts|al}} | [[ovl_Obj_Roomtimer]]
+|-
+| 0383
+| 017F
+| 00E9EC70
+| 00EA1260
+| 0025F0
+| {{ts|al}} | [[ovl_En_Ssh]]
+|-
+| 0384
+| 0180
+| 00EA1260
+| 00EA5310
+| 0040B0
+| {{ts|al}} | [[ovl_En_Sth]]
+|-
+| 0385
+| 0181
+| 00EA5310
+| 00EA6060
+| 000D50
+| {{ts|al}} | [[ovl_Oceff_Wipe]]
+|-
+| 0386
+| 0182
+| 00EA6060
+| 00EA6890
+| 000830
+| {{ts|al}} | [[ovl_Effect_Ss_Dust]]
+|-
+| 0387
+| 0183
+| 00EA6890
+| 00EA6F00
+| 000670
+| {{ts|al}} | [[ovl_Effect_Ss_KiraKira]]
+|-
+| 0388
+| 0184
+| 00EA6F00
+| 00EA7320
+| 000420
+| {{ts|al}} | [[ovl_Effect_Ss_Bomb]]
+|-
+| 0389
+| 0185
+| 00EA7320
+| 00EA7C50
+| 000930
+| {{ts|al}} | [[ovl_Effect_Ss_Bomb2]]
+|-
+| 0390
+| 0186
+| 00EA7C50
+| 00EA7FE0
+| 000390
+| {{ts|al}} | [[ovl_Effect_Ss_Blast]]
+|-
+| 0391
+| 0187
+| 00EA7FE0
+| 00EA8590
+| 0005B0
+| {{ts|al}} | [[ovl_Effect_Ss_G_Spk]]
+|-
+| 0392
+| 0188
+| 00EA8590
+| 00EA8A80
+| 0004F0
+| {{ts|al}} | [[ovl_Effect_Ss_D_Fire]]
+|-
+| 0393
+| 0189
+| 00EA8A80
+| 00EA8F00
+| 000480
+| {{ts|al}} | [[ovl_Effect_Ss_Bubble]]
+|-
+| 0394
+| 018A
+| 00EA8F00
+| 00EA9460
+| 000560
+| {{ts|al}} | [[ovl_Effect_Ss_G_Ripple]]
+|-
+| 0395
+| 018B
+| 00EA9460
+| 00EA9910
+| 0004B0
+| {{ts|al}} | [[ovl_Effect_Ss_G_Splash]]
+|-
+| 0396
+| 018C
+| 00EA9910
+| 00EA9B70
+| 000260
+| {{ts|al}} | [[ovl_Effect_Ss_G_Magma]]
+|-
+| 0397
+| 018D
+| 00EA9B70
+| 00EA9E00
+| 000290
+| {{ts|al}} | [[ovl_Effect_Ss_G_Fire]]
+|-
+| 0398
+| 018E
+| 00EA9E00
+| 00EAA4D0
+| 0006D0
+| {{ts|al}} | [[ovl_Effect_Ss_Lightning]]
+|-
+| 0399
+| 018F
+| 00EAA4D0
+| 00EAAA60
+| 000590
+| {{ts|al}} | [[ovl_Effect_Ss_Dt_Bubble]]
+|-
+| 0400
+| 0190
+| 00EAAA60
+| 00EAB0A0
+| 000640
+| {{ts|al}} | [[ovl_Effect_Ss_Hahen]]
+|-
+| 0401
+| 0191
+| 00EAB0A0
+| 00EAB440
+| 0003A0
+| {{ts|al}} | [[ovl_Effect_Ss_Stick]]
+|-
+| 0402
+| 0192
+| 00EAB440
+| 00EABB10
+| 0006D0
+| {{ts|al}} | [[ovl_Effect_Ss_Sibuki]]
+|-
+| 0403
+| 0193
+| 00EABB10
+| 00EABE40
+| 000330
+| {{ts|al}} | [[ovl_Effect_Ss_Sibuki2]]
+|-
+| 0404
+| 0194
+| 00EABE40
+| 00EAC350
+| 000510
+| {{ts|al}} | [[ovl_Effect_Ss_G_Magma2]]
+|-
+| 0405
+| 0195
+| 00EAC350
+| 00EAC6E0
+| 000390
+| {{ts|al}} | [[ovl_Effect_Ss_Stone1]]
+|-
+| 0406
+| 0196
+| 00EAC6E0
+| 00EACC30
+| 000550
+| {{ts|al}} | [[ovl_Effect_Ss_HitMark]]
+|-
+| 0407
+| 0197
+| 00EACC30
+| 00EADBB0
+| 000F80
+| {{ts|al}} | [[ovl_Effect_Ss_Fhg_Flash]]
+|-
+| 0408
+| 0198
+| 00EADBB0
+| 00EADFE0
+| 000430
+| {{ts|al}} | [[ovl_Effect_Ss_K_Fire]]
+|-
+| 0409
+| 0199
+| 00EADFE0
+| 00EAE190
+| 0001B0
+| {{ts|al}} | [[ovl_Effect_Ss_Solder_Srch_Ball]]
+|-
+| 0410
+| 019A
+| 00EAE190
+| 00EAF220
+| 001090
+| {{ts|al}} | [[ovl_Effect_Ss_Kakera]]
+|-
+| 0411
+| 019B
+| 00EAF220
+| 00EAF660
+| 000440
+| {{ts|al}} | [[ovl_Effect_Ss_Ice_Piece]]
+|-
+| 0412
+| 019C
+| 00EAF660
+| 00EAFF20
+| 0008C0
+| {{ts|al}} | [[ovl_Effect_Ss_En_Ice]]
+|-
+| 0413
+| 019D
+| 00EAFF20
+| 00EB0620
+| 000700
+| {{ts|al}} | [[ovl_Effect_Ss_Fire_Tail]]
+|-
+| 0414
+| 019E
+| 00EB0620
+| 00EB0D60
+| 000740
+| {{ts|al}} | [[ovl_Effect_Ss_En_Fire]]
+|-
+| 0415
+| 019F
+| 00EB0D60
+| 00EB1120
+| 0003C0
+| {{ts|al}} | [[ovl_Effect_Ss_Extra]]
+|-
+| 0416
+| 01A0
+| 00EB1120
+| 00EB15D0
+| 0004B0
+| {{ts|al}} | [[ovl_Effect_Ss_Fcircle]]
+|-
+| 0417
+| 01A1
+| 00EB15D0
+| 00EB1AB0
+| 0004E0
+| {{ts|al}} | [[ovl_Effect_Ss_Dead_Db]]
+|-
+| 0418
+| 01A2
+| 00EB1AB0
+| 00EB2040
+| 000590
+| {{ts|al}} | [[ovl_Effect_Ss_Dead_Dd]]
+|-
+| 0419
+| 01A3
+| 00EB2040
+| 00EB24C0
+| 000480
+| {{ts|al}} | [[ovl_Effect_Ss_Dead_Ds]]
+|-
+| 0420
+| 01A4
+| 00EB24C0
+| 00EB2600
+| 000140
+| {{ts|al}} | [[ovl_Effect_Ss_Dead_Sound]]
+|-
+| 0421
+| 01A5
+| 00EB2600
+| 00EB41A0
+| 001BA0
+| {{ts|al}} | [[ovl_Oceff_Storm]]
+|-
+| 0422
+| 01A6
+| 00EB41A0
+| 00EB5BA0
+| 001A00
+| {{ts|al}} | [[ovl_En_Weiyer]]
+|-
+| 0423
+| 01A7
+| 00EB5BA0
+| 00EB5EC0
+| 000320
+| {{ts|al}} | [[ovl_Bg_Spot05_Soko]]
+|-
+| 0424
+| 01A8
+| 00EB5EC0
+| 00EB6550
+| 000690
+| {{ts|al}} | [[ovl_Bg_Jya_1flift]]
+|-
+| 0425
+| 01A9
+| 00EB6550
+| 00EB6D40
+| 0007F0
+| {{ts|al}} | [[ovl_Bg_Jya_Haheniron]]
+|-
+| 0426
+| 01AA
+| 00EB6D40
+| 00EB7150
+| 000410
+| {{ts|al}} | [[ovl_Bg_Spot12_Gate]]
+|-
+| 0427
+| 01AB
+| 00EB7150
+| 00EB7610
+| 0004C0
+| {{ts|al}} | [[ovl_Bg_Spot12_Saku]]
+|-
+| 0428
+| 01AC
+| 00EB7610
+| 00EB9040
+| 001A30
+| {{ts|al}} | [[ovl_En_Hintnuts]]
+|-
+| 0429
+| 01AD
+| 00EB9040
+| 00EB9660
+| 000620
+| {{ts|al}} | [[ovl_En_Nutsball]]
+|-
+| 0430
+| 01AE
+| 00EB9660
+| 00EB9800
+| 0001A0
+| {{ts|al}} | [[ovl_Bg_Spot00_Break]]
+|-
+| 0431
+| 01AF
+| 00EB9800
+| 00EBA710
+| 000F10
+| {{ts|al}} | [[ovl_En_Shopnuts]]
+|-
+| 0432
+| 01B0
+| 00EBA710
+| 00EBA8A0
+| 000190
+| {{ts|al}} | [[ovl_En_It]]
+|-
+| 0433
+| 01B1
+| 00EBA8A0
+| 00EBFC50
+| 0053B0
+| {{ts|al}} | [[ovl_En_GeldB]]
+|-
+| 0434
+| 01B2
+| 00EBFC50
+| 00EC13C0
+| 001770
+| {{ts|al}} | [[ovl_Oceff_Wipe2]]
+|-
+| 0435
+| 01B3
+| 00EC13C0
+| 00EC2B10
+| 001750
+| {{ts|al}} | [[ovl_Oceff_Wipe3]]
+|-
+| 0436
+| 01B4
+| 00EC2B10
+| 00EC35E0
+| 000AD0
+| {{ts|al}} | [[ovl_En_Niw_Girl]]
+|-
+| 0437
+| 01B5
+| 00EC35E0
+| 00EC4790
+| 0011B0
+| {{ts|al}} | [[ovl_En_Dog]]
+|-
+| 0438
+| 01B6
+| 00EC4790
+| 00EC4C90
+| 000500
+| {{ts|al}} | [[ovl_En_Si]]
+|-
+| 0439
+| 01B7
+| 00EC4C90
+| 00EC5150
+| 0004C0
+| {{ts|al}} | [[ovl_Bg_Spot01_Objects2]]
+|-
+| 0440
+| 01B8
+| 00EC5150
+| 00EC59B0
+| 000860
+| {{ts|al}} | [[ovl_Obj_Comb]]
+|-
+| 0441
+| 01B9
+| 00EC59B0
+| 00EC5FF0
+| 000640
+| {{ts|al}} | [[ovl_Bg_Spot11_Bakudankabe]]
+|-
+| 0442
+| 01BA
+| 00EC5FF0
+| 00EC66B0
+| 0006C0
+| {{ts|al}} | [[ovl_Obj_Kibako2]]
+|-
+| 0443
+| 01BB
+| 00EC66B0
+| 00EC73D0
+| 000D20
+| {{ts|al}} | [[ovl_En_Dnt_Demo]]
+|-
+| 0444
+| 01BC
+| 00EC73D0
+| 00EC88E0
+| 001510
+| {{ts|al}} | [[ovl_En_Dnt_Jiji]]
+|-
+| 0445
+| 01BD
+| 00EC88E0
+| 00ECB6F0
+| 002E10
+| {{ts|al}} | [[ovl_En_Dnt_Nomal]]
+|-
+| 0446
+| 01BE
+| 00ECB6F0
+| 00ECC090
+| 0009A0
+| {{ts|al}} | [[ovl_En_Guest]]
+|-
+| 0447
+| 01BF
+| 00ECC090
+| 00ECC2B0
+| 000220
+| {{ts|al}} | [[ovl_Bg_Bom_Guard]]
+|-
+| 0448
+| 01C0
+| 00ECC2B0
+| 00ECC890
+| 0005E0
+| {{ts|al}} | [[ovl_En_Hs2]]
+|-
+| 0449
+| 01C1
+| 00ECC890
+| 00ECDB70
+| 0012E0
+| {{ts|al}} | [[ovl_Demo_Kekkai]]
+|-
+| 0450
+| 01C2
+| 00ECDB70
+| 00ECE210
+| 0006A0
+| {{ts|al}} | [[ovl_Bg_Spot08_Bakudankabe]]
+|-
+| 0451
+| 01C3
+| 00ECE210
+| 00ECE8F0
+| 0006E0
+| {{ts|al}} | [[ovl_Bg_Spot17_Bakudankabe]]
+|-
+| 0452
+| 01C4
+| 00ECE8F0
+| 00ECF0C0
+| 0007D0
+| {{ts|al}} | [[ovl_Obj_Mure3]]
+|-
+| 0453
+| 01C5
+| 00ECF0C0
+| 00ECF790
+| 0006D0
+| {{ts|al}} | [[ovl_En_Tg]]
+|-
+| 0454
+| 01C6
+| 00ECF790
+| 00ED00B0
+| 000920
+| {{ts|al}} | [[ovl_En_Mu]]
+|-
+| 0455
+| 01C7
+| 00ED00B0
+| 00ED60F0
+| 006040
+| {{ts|al}} | [[ovl_En_Go2]]
+|-
+| 0456
+| 01C8
+| 00ED60F0
+| 00EDA400
+| 004310
+| {{ts|al}} | [[ovl_En_Wf]]
+|-
+| 0457
+| 01C9
+| 00EDA400
+| 00EDBCF0
+| 0018F0
+| {{ts|al}} | [[ovl_En_Skb]]
+|-
+| 0458
+| 01CA
+| 00EDBCF0
+| 00EDF9A0
+| 003CB0
+| {{ts|al}} | [[ovl_Demo_Gj]]
+|-
+| 0459
+| 01CB
+| 00EDF9A0
+| 00EE01C0
+| 000820
+| {{ts|al}} | [[ovl_Demo_Geff]]
+|-
+| 0460
+| 01CC
+| 00EE01C0
+| 00EE0700
+| 000540
+| {{ts|al}} | [[ovl_Bg_Gnd_Firemeiro]]
+|-
+| 0461
+| 01CD
+| 00EE0700
+| 00EE0EC0
+| 0007C0
+| {{ts|al}} | [[ovl_Bg_Gnd_Darkmeiro]]
+|-
+| 0462
+| 01CE
+| 00EE0EC0
+| 00EE1720
+| 000860
+| {{ts|al}} | [[ovl_Bg_Gnd_Soulmeiro]]
+|-
+| 0463
+| 01CF
+| 00EE1720
+| 00EE1890
+| 000170
+| {{ts|al}} | [[ovl_Bg_Gnd_Nisekabe]]
+|-
+| 0464
+| 01D0
+| 00EE1890
+| 00EE2980
+| 0010F0
+| {{ts|al}} | [[ovl_Bg_Gnd_Iceblock]]
+|-
+| 0465
+| 01D1
+| 00EE2980
+| 00EE40F0
+| 001770
+| {{ts|al}} | [[ovl_Bg_Ydan_Sp]]
+|-
+| 0466
+| 01D2
+| 00EE40F0
+| 00EE5820
+| 001730
+| {{ts|al}} | [[ovl_En_Gb]]
+|-
+| 0467
+| 01D3
+| 00EE5820
+| 00EE76C0
+| 001EA0
+| {{ts|al}} | [[ovl_En_Gs]]
+|-
+| 0468
+| 01D4
+| 00EE76C0
+| 00EE8B90
+| 0014D0
+| {{ts|al}} | [[ovl_Bg_Mizu_Bwall]]
+|-
+| 0469
+| 01D5
+| 00EE8B90
+| 00EE9390
+| 000800
+| {{ts|al}} | [[ovl_Bg_Mizu_Shutter]]
+|-
+| 0470
+| 01D6
+| 00EE9390
+| 00EEA750
+| 0013C0
+| {{ts|al}} | [[ovl_En_Daiku_Kakariko]]
+|-
+| 0471
+| 01D7
+| 00EEA750
+| 00EEB0D0
+| 000980
+| {{ts|al}} | [[ovl_Bg_Bowl_Wall]]
+|-
+| 0472
+| 01D8
+| 00EEB0D0
+| 00EEB5C0
+| 0004F0
+| {{ts|al}} | [[ovl_En_Wall_Tubo]]
+|-
+| 0473
+| 01D9
+| 00EEB5C0
+| 00EEC380
+| 000DC0
+| {{ts|al}} | [[ovl_En_Po_Desert]]
+|-
+| 0474
+| 01DA
+| 00EEC380
+| 00EEDA20
+| 0016A0
+| {{ts|al}} | [[ovl_En_Crow]]
+|-
+| 0475
+| 01DB
+| 00EEDA20
+| 00EEEF90
+| 001570
+| {{ts|al}} | [[ovl_Door_Killer]]
+|-
+| 0476
+| 01DC
+| 00EEEF90
+| 00EEF6C0
+| 000730
+| {{ts|al}} | [[ovl_Bg_Spot11_Oasis]]
+|-
+| 0477
+| 01DD
+| 00EEF6C0
+| 00EEF860
+| 0001A0
+| {{ts|al}} | [[ovl_Bg_Spot18_Futa]]
+|-
+| 0478
+| 01DE
+| 00EEF860
+| 00EEFDB0
+| 000550
+| {{ts|al}} | [[ovl_Bg_Spot18_Shutter]]
+|-
+| 0479
+| 01DF
+| 00EEFDB0
+| 00EF0D60
+| 000FB0
+| {{ts|al}} | [[ovl_En_Ma3]]
+|-
+| 0480
+| 01E0
+| 00EF0D60
+| 00EF21C0
+| 001460
+| {{ts|al}} | [[ovl_En_Cow]]
+|-
+| 0481
+| 01E1
+| 00EF21C0
+| 00EF29F0
+| 000830
+| {{ts|al}} | [[ovl_Bg_Ice_Turara]]
+|-
+| 0482
+| 01E2
+| 00EF29F0
+| 00EF2E60
+| 000470
+| {{ts|al}} | [[ovl_Bg_Ice_Shutter]]
+|-
+| 0483
+| 01E3
+| 00EF2E60
+| 00EF3580
+| 000720
+| {{ts|al}} | [[ovl_En_Kakasi2]]
+|-
+| 0484
+| 01E4
+| 00EF3580
+| 00EF4660
+| 0010E0
+| {{ts|al}} | [[ovl_En_Kakasi3]]
+|-
+| 0485
+| 01E5
+| 00EF4660
+| 00EF5640
+| 000FE0
+| {{ts|al}} | [[ovl_Oceff_Wipe4]]
+|-
+| 0486
+| 01E6
+| 00EF5640
+| 00EF57F0
+| 0001B0
+| {{ts|al}} | [[ovl_En_Eg]]
+|-
+| 0487
+| 01E7
+| 00EF57F0
+| 00EF5940
+| 000150
+| {{ts|al}} | [[ovl_Bg_Menkuri_Nisekabe]]
+|-
+| 0488
+| 01E8
+| 00EF5940
+| 00EF7EF0
+| 0025B0
+| {{ts|al}} | [[ovl_En_Zo]]
+|-
+| 0489
+| 01E9
+| 00EF7EF0
+| 00EF83B0
+| 0004C0
+| {{ts|al}} | [[ovl_Effect_Ss_Ice_Smoke]]
+|-
+| 0490
+| 01EA
+| 00EF83B0
+| 00EF8500
+| 000150
+| {{ts|al}} | [[ovl_Obj_Makekinsuta]]
+|-
+| 0491
+| 01EB
+| 00EF8500
+| 00EF9050
+| 000B50
+| {{ts|al}} | [[ovl_En_Ge3]]
+|-
+| 0492
+| 01EC
+| 00EF9050
+| 00EF9C90
+| 000C40
+| {{ts|al}} | [[ovl_Obj_Timeblock]]
+|-
+| 0493
+| 01ED
+| 00EF9C90
+| 00EFA4E0
+| 000850
+| {{ts|al}} | [[ovl_Obj_Hamishi]]
+|-
+| 0494
+| 01EE
+| 00EFA4E0
+| 00EFEF10
+| 004A30
+| {{ts|al}} | [[ovl_En_Zl4]]
+|-
+| 0495
+| 01EF
+| 00EFEF10
+| 00EFFCD0
+| 000DC0
+| {{ts|al}} | [[ovl_En_Mm2]]
+|-
+| 0496
+| 01F0
+| 00EFFCD0
+| 00EFFF40
+| 000270
+| {{ts|al}} | [[ovl_Bg_Jya_Block]]
+|-
+| 0497
+| 01F1
+| 00EFFF40
+| 00F00A70
+| 000B30
+| {{ts|al}} | [[ovl_Obj_Warp2block]]
+|}
+
+==File 0498 to 0879 (Objects)==
+
+For further information on the objects below, please view the individual file pages, or see the [[Object Table]].
+
+{| class="wikitable sortable" {{ts|ac|ml5|font-family: monospace}}
+! rowspan=2 | Dec.
+! rowspan=2 | Hex
+! colspan=2 | VROM
+! rowspan=2 | Size
+! rowspan=2 | File Name
+|-
+! Start
+! End
+|-
+| 0498
+| 01F2
+| 00F01000
+| 00F5CCE0
+| 05BCE0
+| {{ts|al}} | [[gameplay_keep]]
+|-
+| 0499
+| 01F3
+| 00F5D000
+| 00F6A330
+| 00D330
+| {{ts|al}} | [[gameplay_field_keep]]
+|-
+| 0500
+| 01F4
+| 00F6B000
+| 00F82AF0
+| 017AF0
+| {{ts|al}} | [[gameplay_dangeon_keep]]
+|-
+| 0501
+| 01F5
+| 00F83000
+| 00F83010
+| 000010
+| {{ts|al}} | [[gameplay_object_exchange_static]]
+|-
+| 0502
+| 01F6
+| 00F84000
+| 00FBB800
+| 037800
+| {{ts|al}} | [[object_link_boy]]
+|-
+| 0503
+| 01F7
+| 00FBC000
+| 00FE8F80
+| 02CF80
+| {{ts|al}} | [[object_link_child]]
+|-
+| 0504
+| 01F8
+| 00FE9000
+| 00FEF000
+| 006000
+| {{ts|al}} | [[object_box]]
+|-
+| 0505
+| 01F9
+| 00FEF000
+| 01002180
+| 013180
+| {{ts|al}} | [[object_human]]
+|-
+| 0506
+| 01FA
+| 01003000
+| 01006C80
+| 003C80
+| {{ts|al}} | [[object_okuta]]
+|-
+| 0507
+| 01FB
+| 01007000
+| 0100C0E0
+| 0050E0
+| {{ts|al}} | [[object_poh]]
+|-
+| 0508
+| 01FC
+| 0100D000
+| 01017070
+| 00A070
+| {{ts|al}} | [[object_wallmaster]]
+|-
+| 0509
+| 01FD
+| 01018000
+| 01035530
+| 01D530
+| {{ts|al}} | [[object_dy_obj]]
+|-
+| 0510
+| 01FE
+| 01036000
+| 010378C0
+| 0018C0
+| {{ts|al}} | [[object_firefly]]
+|-
+| 0511
+| 01FF
+| 01038000
+| 01041940
+| 009940
+| {{ts|al}} | [[object_dodongo]]
+|-
+| 0512
+| 0200
+| 01042000
+| 010460A0
+| 0040A0
+| {{ts|al}} | [[object_fire]]
+|-
+| 0513
+| 0201
+| 01047000
+| 01049540
+| 002540
+| {{ts|al}} | [[object_niw]]
+|-
+| 0514
+| 0202
+| 0104A000
+| 0104DA30
+| 003A30
+| {{ts|al}} | [[object_tite]]
+|-
+| 0515
+| 0203
+| 0104E000
+| 0104FEF0
+| 001EF0
+| {{ts|al}} | [[object_reeba]]
+|-
+| 0516
+| 0204
+| 01050000
+| 01051C90
+| 001C90
+| {{ts|al}} | [[object_peehat]]
+|-
+| 0517
+| 0205
+| 01052000
+| 010818E0
+| 02F8E0
+| {{ts|al}} | [[object_kingdodongo]]
+|-
+| 0518
+| 0206
+| 01082000
+| 0108FF10
+| 00DF10
+| {{ts|al}} | [[object_horse]]
+|-
+| 0519
+| 0207
+| 01090000
+| 010A63A0
+| 0163A0
+| {{ts|al}} | [[object_zf]]
+|-
+| 0520
+| 0208
+| 010A7000
+| 010C5200
+| 01E200
+| {{ts|al}} | [[object_goma]]
+|-
+| 0521
+| 0209
+| 010C6000
+| 010DA3C0
+| 0143C0
+| {{ts|al}} | [[object_zl1]]
+|-
+| 0522
+| 020A
+| 010DB000
+| 010DF220
+| 004220
+| {{ts|al}} | [[object_gol]]
+|-
+| 0523
+| 020B
+| 010E0000
+| 010E10C0
+| 0010C0
+| {{ts|al}} | [[object_bubble]]
+|-
+| 0524
+| 020C
+| 010E2000
+| 010E40F0
+| 0020F0
+| {{ts|al}} | [[object_dodojr]]
+|-
+| 0525
+| 020D
+| 010E5000
+| 010E9770
+| 004770
+| {{ts|al}} | [[object_torch2]]
+|-
+| 0526
+| 020E
+| 010EA000
+| 010EF850
+| 005850
+| {{ts|al}} | [[object_bl]]
+|-
+| 0527
+| 020F
+| 010F0000
+| 010F1CF0
+| 001CF0
+| {{ts|al}} | [[object_tp]]
+|-
+| 0528
+| 0210
+| 010F2000
+| 010F6710
+| 004710
+| {{ts|al}} | [[object_oA1]]
+|-
+| 0529
+| 0211
+| 010F7000
+| 010FCBB0
+| 005BB0
+| {{ts|al}} | [[object_st]]
+|-
+| 0530
+| 0212
+| 010FD000
+| 010FF260
+| 002260
+| {{ts|al}} | [[object_bw]]
+|-
+| 0531
+| 0213
+| 01100000
+| 01103420
+| 003420
+| {{ts|al}} | [[object_ei]]
+|-
+| 0532
+| 0214
+| 01104000
+| 0110DFC0
+| 009FC0
+| {{ts|al}} | [[object_horse_normal]]
+|-
+| 0533
+| 0215
+| 0110E000
+| 011146B0
+| 0066B0
+| {{ts|al}} | [[object_oB1]]
+|-
+| 0534
+| 0216
+| 01115000
+| 01117150
+| 002150
+| {{ts|al}} | [[object_o_anime]]
+|-
+| 0535
+| 0217
+| 01118000
+| 011196C0
+| 0016C0
+| {{ts|al}} | [[object_spot04_objects]]
+|-
+| 0536
+| 0218
+| 0111A000
+| 01122760
+| 008760
+| {{ts|al}} | [[object_ddan_objects]]
+|-
+| 0537
+| 0219
+| 01123000
+| 0113AD20
+| 017D20
+| {{ts|al}} | [[object_hidan_objects]]
+|-
+| 0538
+| 021A
+| 0113B000
+| 01147090
+| 00C090
+| {{ts|al}} | [[object_horse_ganon]]
+|-
+| 0539
+| 021B
+| 01148000
+| 0114D6D0
+| 0056D0
+| {{ts|al}} | [[object_oA2]]
+|-
+| 0540
+| 021C
+| 0114E000
+| 0114FC10
+| 001C10
+| {{ts|al}} | [[object_spot00_objects]]
+|-
+| 0541
+| 021D
+| 01150000
+| 011641A0
+| 0141A0
+| {{ts|al}} | [[object_mb]]
+|-
+| 0542
+| 021E
+| 01165000
+| 01166A00
+| 001A00
+| {{ts|al}} | [[object_bombf]]
+|-
+| 0543
+| 021F
+| 01167000
+| 01175800
+| 00E800
+| {{ts|al}} | [[object_sk2]]
+|-
+| 0544
+| 0220
+| 01176000
+| 0117C810
+| 006810
+| {{ts|al}} | [[object_oE1]]
+|-
+| 0545
+| 0221
+| 0117D000
+| 01182060
+| 005060
+| {{ts|al}} | [[object_oE_anime]]
+|-
+| 0546
+| 0222
+| 01183000
+| 01188A70
+| 005A70
+| {{ts|al}} | [[object_oE2]]
+|-
+| 0547
+| 0223
+| 01189000
+| 01192080
+| 009080
+| {{ts|al}} | [[object_ydan_objects]]
+|-
+| 0548
+| 0224
+| 01193000
+| 011A6000
+| 013000
+| {{ts|al}} | [[object_gnd]]
+|-
+| 0549
+| 0225
+| 011A6000
+| 011ABB50
+| 005B50
+| {{ts|al}} | [[object_am]]
+|-
+| 0550
+| 0226
+| 011AC000
+| 011AF9C0
+| 0039C0
+| {{ts|al}} | [[object_dekubaba]]
+|-
+| 0551
+| 0227
+| 011B0000
+| 011B2130
+| 002130
+| {{ts|al}} | [[object_oA3]]
+|-
+| 0552
+| 0228
+| 011B3000
+| 011B4730
+| 001730
+| {{ts|al}} | [[object_oA4]]
+|-
+| 0553
+| 0229
+| 011B5000
+| 011B66B0
+| 0016B0
+| {{ts|al}} | [[object_oA5]]
+|-
+| 0554
+| 022A
+| 011B7000
+| 011B8A00
+| 001A00
+| {{ts|al}} | [[object_oA6]]
+|-
+| 0555
+| 022B
+| 011B9000
+| 011BA550
+| 001550
+| {{ts|al}} | [[object_oA7]]
+|-
+| 0556
+| 022C
+| 011BB000
+| 011C6AC0
+| 00BAC0
+| {{ts|al}} | [[object_jj]]
+|-
+| 0557
+| 022D
+| 011C7000
+| 011C87B0
+| 0017B0
+| {{ts|al}} | [[object_oA8]]
+|-
+| 0558
+| 022E
+| 011C9000
+| 011C9520
+| 000520
+| {{ts|al}} | [[object_oA9]]
+|-
+| 0559
+| 022F
+| 011CA000
+| 011CE0E0
+| 0040E0
+| {{ts|al}} | [[object_oB2]]
+|-
+| 0560
+| 0230
+| 011CF000
+| 011D3490
+| 004490
+| {{ts|al}} | [[object_oB3]]
+|-
+| 0561
+| 0231
+| 011D4000
+| 011D5870
+| 001870
+| {{ts|al}} | [[object_oB4]]
+|-
+| 0562
+| 0232
+| 011D6000
+| 011DD160
+| 007160
+| {{ts|al}} | [[object_horse_zelda]]
+|-
+| 0563
+| 0233
+| 011DE000
+| 011E3060
+| 005060
+| {{ts|al}} | [[object_opening_demo1]]
+|-
+| 0564
+| 0234
+| 011E4000
+| 011E6CB0
+| 002CB0
+| {{ts|al}} | [[object_warp1]]
+|-
+| 0565
+| 0235
+| 011E7000
+| 011E7640
+| 000640
+| {{ts|al}} | [[object_b_heart]]
+|-
+| 0566
+| 0236
+| 011E8000
+| 011EB660
+| 003660
+| {{ts|al}} | [[object_dekunuts]]
+|-
+| 0567
+| 0237
+| 011EC000
+| 011F3120
+| 007120
+| {{ts|al}} | [[object_oE3]]
+|-
+| 0568
+| 0238
+| 011F4000
+| 011F8FD0
+| 004FD0
+| {{ts|al}} | [[object_oE4]]
+|-
+| 0569
+| 0239
+| 011F9000
+| 01201B10
+| 008B10
+| {{ts|al}} | [[object_menkuri_objects]]
+|-
+| 0570
+| 023A
+| 01202000
+| 012075C0
+| 0055C0
+| {{ts|al}} | [[object_oE5]]
+|-
+| 0571
+| 023B
+| 01208000
+| 0120AE50
+| 002E50
+| {{ts|al}} | [[object_oE6]]
+|-
+| 0572
+| 023C
+| 0120B000
+| 0120DA60
+| 002A60
+| {{ts|al}} | [[object_oE7]]
+|-
+| 0573
+| 023D
+| 0120E000
+| 012113D0
+| 0033D0
+| {{ts|al}} | [[object_oE8]]
+|-
+| 0574
+| 023E
+| 01212000
+| 01214F10
+| 002F10
+| {{ts|al}} | [[object_oE9]]
+|-
+| 0575
+| 023F
+| 01215000
+| 012179D0
+| 0029D0
+| {{ts|al}} | [[object_oE10]]
+|-
+| 0576
+| 0240
+| 01218000
+| 0121B1F0
+| 0031F0
+| {{ts|al}} | [[object_oE11]]
+|-
+| 0577
+| 0241
+| 0121C000
+| 0121F7C0
+| 0037C0
+| {{ts|al}} | [[object_oE12]]
+|-
+| 0578
+| 0242
+| 01220000
+| 01224850
+| 004850
+| {{ts|al}} | [[object_vali]]
+|-
+| 0579
+| 0243
+| 01225000
+| 01227EB0
+| 002EB0
+| {{ts|al}} | [[object_oA10]]
+|-
+| 0580
+| 0244
+| 01228000
+| 012295C0
+| 0015C0
+| {{ts|al}} | [[object_oA11]]
+|-
+| 0581
+| 0245
+| 0122A000
+| 01235320
+| 00B320
+| {{ts|al}} | [[object_mizu_objects]]
+|-
+| 0582
+| 0246
+| 01236000
+| 01246DE0
+| 010DE0
+| {{ts|al}} | [[object_fhg]]
+|-
+| 0583
+| 0247
+| 01247000
+| 01250B50
+| 009B50
+| {{ts|al}} | [[object_ossan]]
+|-
+| 0584
+| 0248
+| 01251000
+| 012564F0
+| 0054F0
+| {{ts|al}} | [[object_mori_hineri1]]
+|-
+| 0585
+| 0249
+| 01257000
+| 01258A40
+| 001A40
+| {{ts|al}} | [[object_Bb]]
+|-
+| 0586
+| 024A
+| 01259000
+| 01261450
+| 008450
+| {{ts|al}} | [[object_toki_objects]]
+|-
+| 0587
+| 024B
+| 01262000
+| 012634F0
+| 0014F0
+| {{ts|al}} | [[object_yukabyun]]
+|-
+| 0588
+| 024C
+| 01264000
+| 01274D80
+| 010D80
+| {{ts|al}} | [[object_zl2]]
+|-
+| 0589
+| 024D
+| 01275000
+| 01276290
+| 001290
+| {{ts|al}} | [[object_mjin]]
+|-
+| 0590
+| 024E
+| 01277000
+| 01278000
+| 001000
+| {{ts|al}} | [[object_mjin_flash]]
+|-
+| 0591
+| 024F
+| 01278000
+| 01279000
+| 001000
+| {{ts|al}} | [[object_mjin_dark]]
+|-
+| 0592
+| 0250
+| 01279000
+| 0127A000
+| 001000
+| {{ts|al}} | [[object_mjin_flame]]
+|-
+| 0593
+| 0251
+| 0127A000
+| 0127B000
+| 001000
+| {{ts|al}} | [[object_mjin_ice]]
+|-
+| 0594
+| 0252
+| 0127B000
+| 0127C000
+| 001000
+| {{ts|al}} | [[object_mjin_soul]]
+|-
+| 0595
+| 0253
+| 0127C000
+| 0127D000
+| 001000
+| {{ts|al}} | [[object_mjin_wind]]
+|-
+| 0596
+| 0254
+| 0127D000
+| 0127EB60
+| 001B60
+| {{ts|al}} | [[object_mjin_oka]]
+|-
+| 0597
+| 0255
+| 0127F000
+| 0129C6B0
+| 01D6B0
+| {{ts|al}} | [[object_haka_objects]]
+|-
+| 0598
+| 0256
+| 0129D000
+| 0129FDA0
+| 002DA0
+| {{ts|al}} | [[object_spot06_objects]]
+|-
+| 0599
+| 0257
+| 012A0000
+| 012A8D50
+| 008D50
+| {{ts|al}} | [[object_ice_objects]]
+|-
+| 0600
+| 0258
+| 012A9000
+| 012AC630
+| 003630
+| {{ts|al}} | [[object_relay_objects]]
+|-
+| 0601
+| 0259
+| 012AD000
+| 012B04C0
+| 0034C0
+| {{ts|al}} | [[object_mori_hineri1a]]
+|-
+| 0602
+| 025A
+| 012B1000
+| 012B5400
+| 004400
+| {{ts|al}} | [[object_mori_hineri2]]
+|-
+| 0603
+| 025B
+| 012B6000
+| 012BC0B0
+| 0060B0
+| {{ts|al}} | [[object_mori_hineri2a]]
+|-
+| 0604
+| 025C
+| 012BD000
+| 012C5A10
+| 008A10
+| {{ts|al}} | [[object_mori_objects]]
+|-
+| 0605
+| 025D
+| 012C6000
+| 012CFE00
+| 009E00
+| {{ts|al}} | [[object_mori_tex]]
+|-
+| 0606
+| 025E
+| 012D0000
+| 012D5600
+| 005600
+| {{ts|al}} | [[object_spot08_obj]]
+|-
+| 0607
+| 025F
+| 012D6000
+| 012D6010
+| 000010
+| {{ts|al}} | [[object_warp2]]
+|-
+| 0608
+| 0260
+| 012D7000
+| 012D9FE0
+| 002FE0
+| {{ts|al}} | [[object_hata]]
+|-
+| 0609
+| 0261
+| 012DA000
+| 012DC1A0
+| 0021A0
+| {{ts|al}} | [[object_bird]]
+|-
+| 0610
+| 0262
+| 012DD000
+| 012E57D0
+| 0087D0
+| {{ts|al}} | [[object_wood02]]
+|-
+| 0611
+| 0263
+| 012E6000
+| 012E7F40
+| 001F40
+| {{ts|al}} | [[object_lightbox]]
+|-
+| 0612
+| 0264
+| 012E8000
+| 012E9600
+| 001600
+| {{ts|al}} | [[object_pu_box]]
+|-
+| 0613
+| 0265
+| 012EA000
+| 012EC3E0
+| 0023E0
+| {{ts|al}} | [[object_trap]]
+|-
+| 0614
+| 0266
+| 012ED000
+| 012EE590
+| 001590
+| {{ts|al}} | [[object_vase]]
+|-
+| 0615
+| 0267
+| 012EF000
+| 01301230
+| 012230
+| {{ts|al}} | [[object_im]]
+|-
+| 0616
+| 0268
+| 01302000
+| 013103F0
+| 00E3F0
+| {{ts|al}} | [[object_ta]]
+|-
+| 0617
+| 0269
+| 01311000
+| 0131CE50
+| 00BE50
+| {{ts|al}} | [[object_tk]]
+|-
+| 0618
+| 026A
+| 0131D000
+| 01339B20
+| 01CB20
+| {{ts|al}} | [[object_xc]]
+|-
+| 0619
+| 026B
+| 0133A000
+| 0133DF70
+| 003F70
+| {{ts|al}} | [[object_vm]]
+|-
+| 0620
+| 026C
+| 0133E000
+| 0135BDB0
+| 01DDB0
+| {{ts|al}} | [[object_bv]]
+|-
+| 0621
+| 026D
+| 0135C000
+| 01362AF0
+| 006AF0
+| {{ts|al}} | [[object_hakach_objects]]
+|-
+| 0622
+| 026E
+| 01363000
+| 01363AA0
+| 000AA0
+| {{ts|al}} | [[object_efc_crystal_light]]
+|-
+| 0623
+| 026F
+| 01364000
+| 01364D00
+| 000D00
+| {{ts|al}} | [[object_efc_fire_ball]]
+|-
+| 0624
+| 0270
+| 01365000
+| 01365010
+| 000010
+| {{ts|al}} | [[object_efc_flash]]
+|-
+| 0625
+| 0271
+| 01366000
+| 013672D0
+| 0012D0
+| {{ts|al}} | [[object_efc_lgt_shower]]
+|-
+| 0626
+| 0272
+| 01368000
+| 013697D0
+| 0017D0
+| {{ts|al}} | [[object_efc_star_field]]
+|-
+| 0627
+| 0273
+| 0136A000
+| 0136E350
+| 004350
+| {{ts|al}} | [[object_god_lgt]]
+|-
+| 0628
+| 0274
+| 0136F000
+| 01370280
+| 001280
+| {{ts|al}} | [[object_light_ring]]
+|-
+| 0629
+| 0275
+| 01371000
+| 01373910
+| 002910
+| {{ts|al}} | [[object_triforce_spot]]
+|-
+| 0630
+| 0276
+| 01374000
+| 01379140
+| 005140
+| {{ts|al}} | [[object_medal]]
+|-
+| 0631
+| 0277
+| 0137A000
+| 01386D10
+| 00CD10
+| {{ts|al}} | [[object_bdan_objects]]
+|-
+| 0632
+| 0278
+| 01387000
+| 013936E0
+| 00C6E0
+| {{ts|al}} | [[object_sd]]
+|-
+| 0633
+| 0279
+| 01394000
+| 013A2FF0
+| 00EFF0
+| {{ts|al}} | [[object_rd]]
+|-
+| 0634
+| 027A
+| 013A3000
+| 013B13C0
+| 00E3C0
+| {{ts|al}} | [[object_po_sisters]]
+|-
+| 0635
+| 027B
+| 013B2000
+| 013B3AE0
+| 001AE0
+| {{ts|al}} | [[object_heavy_object]]
+|-
+| 0636
+| 027C
+| 013B4000
+| 013C5A00
+| 011A00
+| {{ts|al}} | [[object_gndd]]
+|-
+| 0637
+| 027D
+| 013C6000
+| 013D6270
+| 010270
+| {{ts|al}} | [[object_fd]]
+|-
+| 0638
+| 027E
+| 013D7000
+| 013E9630
+| 012630
+| {{ts|al}} | [[object_du]]
+|-
+| 0639
+| 027F
+| 013EA000
+| 013F1DE0
+| 007DE0
+| {{ts|al}} | [[object_fw]]
+|-
+| 0640
+| 0280
+| 013F2000
+| 013FAB20
+| 008B20
+| {{ts|al}} | [[object_horse_link_child]]
+|-
+| 0641
+| 0281
+| 013FB000
+| 01411620
+| 016620
+| {{ts|al}} | [[object_spot02_objects]]
+|-
+| 0642
+| 0282
+| 01412000
+| 01413460
+| 001460
+| {{ts|al}} | [[object_haka]]
+|-
+| 0643
+| 0283
+| 01414000
+| 01427A80
+| 013A80
+| {{ts|al}} | [[object_ru1]]
+|-
+| 0644
+| 0284
+| 01428000
+| 0142BC90
+| 003C90
+| {{ts|al}} | [[object_syokudai]]
+|-
+| 0645
+| 0285
+| 0142C000
+| 0143DA90
+| 011A90
+| {{ts|al}} | [[object_fd2]]
+|-
+| 0646
+| 0286
+| 0143E000
+| 014470C0
+| 0090C0
+| {{ts|al}} | [[object_dh]]
+|-
+| 0647
+| 0287
+| 01448000
+| 0144FB50
+| 007B50
+| {{ts|al}} | [[object_rl]]
+|-
+| 0648
+| 0288
+| 01450000
+| 014512F0
+| 0012F0
+| {{ts|al}} | [[object_efc_tw]]
+|-
+| 0649
+| 0289
+| 01452000
+| 01452010
+| 000010
+| {{ts|al}} | [[object_demo_tre_lgt]]
+|-
+| 0650
+| 028A
+| 01453000
+| 01453A20
+| 000A20
+| {{ts|al}} | [[object_gi_key]]
+|-
+| 0651
+| 028B
+| 01454000
+| 01455D00
+| 001D00
+| {{ts|al}} | [[object_mir_ray]]
+|-
+| 0652
+| 028C
+| 01456000
+| 01457AA0
+| 001AA0
+| {{ts|al}} | [[object_brob]]
+|-
+| 0653
+| 028D
+| 01458000
+| 0145B680
+| 003680
+| {{ts|al}} | [[object_gi_jewel]]
+|-
+| 0654
+| 028E
+| 0145C000
+| 01474890
+| 018890
+| {{ts|al}} | [[object_spot09_obj]]
+|-
+| 0655
+| 028F
+| 01475000
+| 01481A10
+| 00CA10
+| {{ts|al}} | [[object_spot18_obj]]
+|-
+| 0656
+| 0290
+| 01482000
+| 014895C0
+| 0075C0
+| {{ts|al}} | [[object_bdoor]]
+|-
+| 0657
+| 0291
+| 0148A000
+| 0148B830
+| 001830
+| {{ts|al}} | [[object_spot17_obj]]
+|-
+| 0658
+| 0292
+| 0148C000
+| 0148FA20
+| 003A20
+| {{ts|al}} | [[object_shop_dungen]]
+|-
+| 0659
+| 0293
+| 01490000
+| 014A81E0
+| 0181E0
+| {{ts|al}} | [[object_nb]]
+|-
+| 0660
+| 0294
+| 014A9000
+| 014B0C70
+| 007C70
+| {{ts|al}} | [[object_mo]]
+|-
+| 0661
+| 0295
+| 014B1000
+| 014B3CA0
+| 002CA0
+| {{ts|al}} | [[object_sb]]
+|-
+| 0662
+| 0296
+| 014B4000
+| 014B4D20
+| 000D20
+| {{ts|al}} | [[object_gi_melody]]
+|-
+| 0663
+| 0297
+| 014B5000
+| 014B51F0
+| 0001F0
+| {{ts|al}} | [[object_gi_heart]]
+|-
+| 0664
+| 0298
+| 014B6000
+| 014B6D10
+| 000D10
+| {{ts|al}} | [[object_gi_compass]]
+|-
+| 0665
+| 0299
+| 014B7000
+| 014B8010
+| 001010
+| {{ts|al}} | [[object_gi_bosskey]]
+|-
+| 0666
+| 029A
+| 014B9000
+| 014BE370
+| 005370
+| {{ts|al}} | [[object_gi_medal]]
+|-
+| 0667
+| 029B
+| 014BF000
+| 014C01C0
+| 0011C0
+| {{ts|al}} | [[object_gi_nuts]]
+|-
+| 0668
+| 029C
+| 014C1000
+| 014D6230
+| 015230
+| {{ts|al}} | [[object_sa]]
+|-
+| 0669
+| 029D
+| 014D7000
+| 014D87B0
+| 0017B0
+| {{ts|al}} | [[object_gi_hearts]]
+|-
+| 0670
+| 029E
+| 014D9000
+| 014D9CB0
+| 000CB0
+| {{ts|al}} | [[object_gi_arrowcase]]
+|-
+| 0671
+| 029F
+| 014DA000
+| 014DAE60
+| 000E60
+| {{ts|al}} | [[object_gi_bombpouch]]
+|-
+| 0672
+| 02A0
+| 014DB000
+| 014F3C50
+| 018C50
+| {{ts|al}} | [[object_in]]
+|-
+| 0673
+| 02A1
+| 014F4000
+| 01506E30
+| 012E30
+| {{ts|al}} | [[object_tr]]
+|-
+| 0674
+| 02A2
+| 01507000
+| 01508500
+| 001500
+| {{ts|al}} | [[object_spot16_obj]]
+|-
+| 0675
+| 02A3
+| 01509000
+| 0150F560
+| 006560
+| {{ts|al}} | [[object_oE1s]]
+|-
+| 0676
+| 02A4
+| 01510000
+| 01514E00
+| 004E00
+| {{ts|al}} | [[object_oE4s]]
+|-
+| 0677
+| 02A5
+| 01515000
+| 0151F640
+| 00A640
+| {{ts|al}} | [[object_os_anime]]
+|-
+| 0678
+| 02A6
+| 01520000
+| 015208F0
+| 0008F0
+| {{ts|al}} | [[object_gi_bottle]]
+|-
+| 0679
+| 02A7
+| 01521000
+| 015216C0
+| 0006C0
+| {{ts|al}} | [[object_gi_stick]]
+|-
+| 0680
+| 02A8
+| 01522000
+| 01523160
+| 001160
+| {{ts|al}} | [[object_gi_map]]
+|-
+| 0681
+| 02A9
+| 01524000
+| 015345A0
+| 0105A0
+| {{ts|al}} | [[object_oF1d_map]]
+|-
+| 0682
+| 02AA
+| 01535000
+| 015448D0
+| 00F8D0
+| {{ts|al}} | [[object_ru2]]
+|-
+| 0683
+| 02AB
+| 01545000
+| 01545D50
+| 000D50
+| {{ts|al}} | [[object_gi_shield_1]]
+|-
+| 0684
+| 02AC
+| 01546000
+| 01549510
+| 003510
+| {{ts|al}} | [[object_dekujr]]
+|-
+| 0685
+| 02AD
+| 0154A000
+| 0154B1D0
+| 0011D0
+| {{ts|al}} | [[object_gi_magicpot]]
+|-
+| 0686
+| 02AE
+| 0154C000
+| 0154CCB0
+| 000CB0
+| {{ts|al}} | [[object_gi_bomb_1]]
+|-
+| 0687
+| 02AF
+| 0154D000
+| 015558A0
+| 0088A0
+| {{ts|al}} | [[object_oF1s]]
+|-
+| 0688
+| 02B0
+| 01556000
+| 0155FEF0
+| 009EF0
+| {{ts|al}} | [[object_ma2]]
+|-
+| 0689
+| 02B1
+| 01560000
+| 01561B70
+| 001B70
+| {{ts|al}} | [[object_gi_purse]]
+|-
+| 0690
+| 02B2
+| 01562000
+| 0156CF70
+| 00AF70
+| {{ts|al}} | [[object_hni]]
+|-
+| 0691
+| 02B3
+| 0156D000
+| 015A6BB0
+| 039BB0
+| {{ts|al}} | [[object_tw]]
+|-
+| 0692
+| 02B4
+| 015A7000
+| 015A7E00
+| 000E00
+| {{ts|al}} | [[object_rr]]
+|-
+| 0693
+| 02B5
+| 015A8000
+| 015AABF0
+| 002BF0
+| {{ts|al}} | [[object_bxa]]
+|-
+| 0694
+| 02B6
+| 015AB000
+| 015AE9A0
+| 0039A0
+| {{ts|al}} | [[object_anubice]]
+|-
+| 0695
+| 02B7
+| 015AF000
+| 015B0340
+| 001340
+| {{ts|al}} | [[object_gi_gerudo]]
+|-
+| 0696
+| 02B8
+| 015B1000
+| 015B2B10
+| 001B10
+| {{ts|al}} | [[object_gi_arrow]]
+|-
+| 0697
+| 02B9
+| 015B3000
+| 015B36A0
+| 0006A0
+| {{ts|al}} | [[object_gi_bomb_2]]
+|-
+| 0698
+| 02BA
+| 015B4000
+| 015B5320
+| 001320
+| {{ts|al}} | [[object_gi_egg]]
+|-
+| 0699
+| 02BB
+| 015B6000
+| 015B6DF0
+| 000DF0
+| {{ts|al}} | [[object_gi_scale]]
+|-
+| 0700
+| 02BC
+| 015B7000
+| 015B8070
+| 001070
+| {{ts|al}} | [[object_gi_shield_2]]
+|-
+| 0701
+| 02BD
+| 015B9000
+| 015BA560
+| 001560
+| {{ts|al}} | [[object_gi_hookshot]]
+|-
+| 0702
+| 02BE
+| 015BB000
+| 015BBBB0
+| 000BB0
+| {{ts|al}} | [[object_gi_ocarina]]
+|-
+| 0703
+| 02BF
+| 015BC000
+| 015BD470
+| 001470
+| {{ts|al}} | [[object_gi_milk]]
+|-
+| 0704
+| 02C0
+| 015BE000
+| 015C6D80
+| 008D80
+| {{ts|al}} | [[object_ma1]]
+|-
+| 0705
+| 02C1
+| 015C7000
+| 015D7100
+| 010100
+| {{ts|al}} | [[object_ganon]]
+|-
+| 0706
+| 02C2
+| 015D8000
+| 015F17B0
+| 0197B0
+| {{ts|al}} | [[object_sst]]
+|-
+| 0707
+| 02C3
+| 015F2000
+| 015F4170
+| 002170
+| {{ts|al}} | [[object_ny]]
+|-
+| 0708
+| 02C4
+| 015F5000
+| 016004B0
+| 00B4B0
+| {{ts|al}} | [[object_fr]]
+|-
+| 0709
+| 02C5
+| 01601000
+| 01601C60
+| 000C60
+| {{ts|al}} | [[object_gi_pachinko]]
+|-
+| 0710
+| 02C6
+| 01602000
+| 01602DA0
+| 000DA0
+| {{ts|al}} | [[object_gi_boomerang]]
+|-
+| 0711
+| 02C7
+| 01603000
+| 01603D30
+| 000D30
+| {{ts|al}} | [[object_gi_bow]]
+|-
+| 0712
+| 02C8
+| 01604000
+| 01605180
+| 001180
+| {{ts|al}} | [[object_gi_glasses]]
+|-
+| 0713
+| 02C9
+| 01606000
+| 016078D0
+| 0018D0
+| {{ts|al}} | [[object_gi_liquid]]
+|-
+| 0714
+| 02CA
+| 01608000
+| 0160F700
+| 007700
+| {{ts|al}} | [[object_ani]]
+|-
+| 0715
+| 02CB
+| 01610000
+| 01613BA0
+| 003BA0
+| {{ts|al}} | [[object_demo_6k]]
+|-
+| 0716
+| 02CC
+| 01614000
+| 016152C0
+| 0012C0
+| {{ts|al}} | [[object_gi_shield_3]]
+|-
+| 0717
+| 02CD
+| 01616000
+| 01616E00
+| 000E00
+| {{ts|al}} | [[object_gi_letter]]
+|-
+| 0718
+| 02CE
+| 01617000
+| 01618D00
+| 001D00
+| {{ts|al}} | [[object_spot15_obj]]
+|-
+| 0719
+| 02CF
+| 01619000
+| 01635140
+| 01C140
+| {{ts|al}} | [[object_jya_obj]]
+|-
+| 0720
+| 02D0
+| 01636000
+| 01637860
+| 001860
+| {{ts|al}} | [[object_gi_clothes]]
+|-
+| 0721
+| 02D1
+| 01638000
+| 016388C0
+| 0008C0
+| {{ts|al}} | [[object_gi_bean]]
+|-
+| 0722
+| 02D2
+| 01639000
+| 01639950
+| 000950
+| {{ts|al}} | [[object_gi_fish]]
+|-
+| 0723
+| 02D3
+| 0163A000
+| 0163AB80
+| 000B80
+| {{ts|al}} | [[object_gi_saw]]
+|-
+| 0724
+| 02D4
+| 0163B000
+| 0163BCC0
+| 000CC0
+| {{ts|al}} | [[object_gi_hammer]]
+|-
+| 0725
+| 02D5
+| 0163C000
+| 0163CC10
+| 000C10
+| {{ts|al}} | [[object_gi_grass]]
+|-
+| 0726
+| 02D6
+| 0163D000
+| 0163D8C0
+| 0008C0
+| {{ts|al}} | [[object_gi_longsword]]
+|-
+| 0727
+| 02D7
+| 0163E000
+| 01640490
+| 002490
+| {{ts|al}} | [[object_spot01_objects]]
+|-
+| 0728
+| 02D8
+| 01641000
+| 0164B150
+| 00A150
+| {{ts|al}} | [[object_md]]
+|-
+| 0729
+| 02D9
+| 0164C000
+| 016519C0
+| 0059C0
+| {{ts|al}} | [[object_km1]]
+|-
+| 0730
+| 02DA
+| 01652000
+| 016588E0
+| 0068E0
+| {{ts|al}} | [[object_kw1]]
+|-
+| 0731
+| 02DB
+| 01659000
+| 01665040
+| 00C040
+| {{ts|al}} | [[object_zo]]
+|-
+| 0732
+| 02DC
+| 01666000
+| 0166E6E0
+| 0086E0
+| {{ts|al}} | [[object_kz]]
+|-
+| 0733
+| 02DD
+| 0166F000
+| 01670470
+| 001470
+| {{ts|al}} | [[object_umajump]]
+|-
+| 0734
+| 02DE
+| 01671000
+| 016714C0
+| 0004C0
+| {{ts|al}} | [[object_masterkokiri]]
+|-
+| 0735
+| 02DF
+| 01672000
+| 01674CA0
+| 002CA0
+| {{ts|al}} | [[object_masterkokirihead]]
+|-
+| 0736
+| 02E0
+| 01675000
+| 01675110
+| 000110
+| {{ts|al}} | [[object_mastergolon]]
+|-
+| 0737
+| 02E1
+| 01676000
+| 016767A0
+| 0007A0
+| {{ts|al}} | [[object_masterzoora]]
+|-
+| 0738
+| 02E2
+| 01677000
+| 0167C6B0
+| 0056B0
+| {{ts|al}} | [[object_aob]]
+|-
+| 0739
+| 02E3
+| 0167D000
+| 0169D5D0
+| 0205D0
+| {{ts|al}} | [[object_ik]]
+|-
+| 0740
+| 02E4
+| 0169E000
+| 016A39B0
+| 0059B0
+| {{ts|al}} | [[object_ahg]]
+|-
+| 0741
+| 02E5
+| 016A4000
+| 016A69D0
+| 0029D0
+| {{ts|al}} | [[object_cne]]
+|-
+| 0742
+| 02E6
+| 016A7000
+| 016A89F0
+| 0019F0
+| {{ts|al}} | [[object_gi_niwatori]]
+|-
+| 0743
+| 02E7
+| 016A9000
+| 016B1E30
+| 008E30
+| {{ts|al}} | [[object_skj]]
+|-
+| 0744
+| 02E8
+| 016B2000
+| 016B2C80
+| 000C80
+| {{ts|al}} | [[object_gi_bottle_letter]]
+|-
+| 0745
+| 02E9
+| 016B3000
+| 016B7190
+| 004190
+| {{ts|al}} | [[object_bji]]
+|-
+| 0746
+| 02EA
+| 016B8000
+| 016BC290
+| 004290
+| {{ts|al}} | [[object_bba]]
+|-
+| 0747
+| 02EB
+| 016BD000
+| 016BDC10
+| 000C10
+| {{ts|al}} | [[object_gi_ocarina_0]]
+|-
+| 0748
+| 02EC
+| 016BE000
+| 016C2780
+| 004780
+| {{ts|al}} | [[object_ds]]
+|-
+| 0749
+| 02ED
+| 016C3000
+| 016C9FB0
+| 006FB0
+| {{ts|al}} | [[object_ane]]
+|-
+| 0750
+| 02EE
+| 016CA000
+| 016CFCC0
+| 005CC0
+| {{ts|al}} | [[object_boj]]
+|-
+| 0751
+| 02EF
+| 016D0000
+| 016D1660
+| 001660
+| {{ts|al}} | [[object_spot03_object]]
+|-
+| 0752
+| 02F0
+| 016D2000
+| 016D8D30
+| 006D30
+| {{ts|al}} | [[object_spot07_object]]
+|-
+| 0753
+| 02F1
+| 016D9000
+| 016DC4D0
+| 0034D0
+| {{ts|al}} | [[object_fz]]
+|-
+| 0754
+| 02F2
+| 016DD000
+| 016E1F20
+| 004F20
+| {{ts|al}} | [[object_bob]]
+|-
+| 0755
+| 02F3
+| 016E2000
+| 016EC4B0
+| 00A4B0
+| {{ts|al}} | [[object_ge1]]
+|-
+| 0756
+| 02F4
+| 016ED000
+| 016EDE50
+| 000E50
+| {{ts|al}} | [[object_yabusame_point]]
+|-
+| 0757
+| 02F5
+| 016EE000
+| 016EFBC0
+| 001BC0
+| {{ts|al}} | [[object_gi_boots_2]]
+|-
+| 0758
+| 02F6
+| 016F0000
+| 016F0AC0
+| 000AC0
+| {{ts|al}} | [[object_gi_seed]]
+|-
+| 0759
+| 02F7
+| 016F1000
+| 016F2280
+| 001280
+| {{ts|al}} | [[object_gnd_magic]]
+|-
+| 0760
+| 02F8
+| 016F3000
+| 016F4390
+| 001390
+| {{ts|al}} | [[object_d_elevator]]
+|-
+| 0761
+| 02F9
+| 016F5000
+| 016F6760
+| 001760
+| {{ts|al}} | [[object_d_hsblock]]
+|-
+| 0762
+| 02FA
+| 016F7000
+| 016F8800
+| 001800
+| {{ts|al}} | [[object_d_lift]]
+|-
+| 0763
+| 02FB
+| 016F9000
+| 016FB6E0
+| 0026E0
+| {{ts|al}} | [[object_mamenoki]]
+|-
+| 0764
+| 02FC
+| 016FC000
+| 016FD8A0
+| 0018A0
+| {{ts|al}} | [[object_goroiwa]]
+|-
+| 0765
+| 02FD
+| 016FE000
+| 01705160
+| 007160
+| {{ts|al}} | [[object_toryo]]
+|-
+| 0766
+| 02FE
+| 01706000
+| 0170E870
+| 008870
+| {{ts|al}} | [[object_daiku]]
+|-
+| 0767
+| 02FF
+| 0170F000
+| 0170FDA0
+| 000DA0
+| {{ts|al}} | [[object_nwc]]
+|-
+| 0768
+| 0300
+| 01710000
+| 01723890
+| 013890
+| {{ts|al}} | [[object_blkobj]]
+|-
+| 0769
+| 0301
+| 01724000
+| 017242D0
+| 0002D0
+| {{ts|al}} | [[object_gm]]
+|-
+| 0770
+| 0302
+| 01725000
+| 01728DD0
+| 003DD0
+| {{ts|al}} | [[object_ms]]
+|-
+| 0771
+| 0303
+| 01729000
+| 0172F270
+| 006270
+| {{ts|al}} | [[object_hs]]
+|-
+| 0772
+| 0304
+| 01730000
+| 017311F0
+| 0011F0
+| {{ts|al}} | [[object_ingate]]
+|-
+| 0773
+| 0305
+| 01732000
+| 01734420
+| 002420
+| {{ts|al}} | [[object_lightswitch]]
+|-
+| 0774
+| 0306
+| 01735000
+| 01735380
+| 000380
+| {{ts|al}} | [[object_kusa]]
+|-
+| 0775
+| 0307
+| 01736000
+| 017379F0
+| 0019F0
+| {{ts|al}} | [[object_tsubo]]
+|-
+| 0776
+| 0308
+| 01738000
+| 01739960
+| 001960
+| {{ts|al}} | [[object_gi_gloves]]
+|-
+| 0777
+| 0309
+| 0173A000
+| 0173A850
+| 000850
+| {{ts|al}} | [[object_gi_coin]]
+|-
+| 0778
+| 030A
+| 0173B000
+| 0173C7B0
+| 0017B0
+| {{ts|al}} | [[object_kanban]]
+|-
+| 0779
+| 030B
+| 0173D000
+| 0173E5F0
+| 0015F0
+| {{ts|al}} | [[object_gjyo_objects]]
+|-
+| 0780
+| 030C
+| 0173F000
+| 0174F0C0
+| 0100C0
+| {{ts|al}} | [[object_owl]]
+|-
+| 0781
+| 030D
+| 01750000
+| 01755E00
+| 005E00
+| {{ts|al}} | [[object_mk]]
+|-
+| 0782
+| 030E
+| 01756000
+| 0175CCA0
+| 006CA0
+| {{ts|al}} | [[object_fu]]
+|-
+| 0783
+| 030F
+| 0175D000
+| 0175DDF0
+| 000DF0
+| {{ts|al}} | [[object_gi_ki_tan_mask]]
+|-
+| 0784
+| 0310
+| 0175E000
+| 0175EA90
+| 000A90
+| {{ts|al}} | [[object_gi_redead_mask]]
+|-
+| 0785
+| 0311
+| 0175F000
+| 0175FCE0
+| 000CE0
+| {{ts|al}} | [[object_gi_skj_mask]]
+|-
+| 0786
+| 0312
+| 01760000
+| 01760F00
+| 000F00
+| {{ts|al}} | [[object_gi_rabit_mask]]
+|-
+| 0787
+| 0313
+| 01761000
+| 01762860
+| 001860
+| {{ts|al}} | [[object_gi_truth_mask]]
+|-
+| 0788
+| 0314
+| 01763000
+| 01764170
+| 001170
+| {{ts|al}} | [[object_ganon_objects]]
+|-
+| 0789
+| 0315
+| 01765000
+| 01765DB0
+| 000DB0
+| {{ts|al}} | [[object_siofuki]]
+|-
+| 0790
+| 0316
+| 01766000
+| 01766A80
+| 000A80
+| {{ts|al}} | [[object_stream]]
+|-
+| 0791
+| 0317
+| 01767000
+| 0176F070
+| 008070
+| {{ts|al}} | [[object_mm]]
+|-
+| 0792
+| 0318
+| 01770000
+| 01773B90
+| 003B90
+| {{ts|al}} | [[object_fa]]
+|-
+| 0793
+| 0319
+| 01774000
+| 01778670
+| 004670
+| {{ts|al}} | [[object_os]]
+|-
+| 0794
+| 031A
+| 01779000
+| 01779970
+| 000970
+| {{ts|al}} | [[object_gi_eye_lotion]]
+|-
+| 0795
+| 031B
+| 0177A000
+| 0177AB80
+| 000B80
+| {{ts|al}} | [[object_gi_powder]]
+|-
+| 0796
+| 031C
+| 0177B000
+| 0177BCD0
+| 000CD0
+| {{ts|al}} | [[object_gi_mushroom]]
+|-
+| 0797
+| 031D
+| 0177C000
+| 0177D2A0
+| 0012A0
+| {{ts|al}} | [[object_gi_ticketstone]]
+|-
+| 0798
+| 031E
+| 0177E000
+| 0177E990
+| 000990
+| {{ts|al}} | [[object_gi_brokensword]]
+|-
+| 0799
+| 031F
+| 0177F000
+| 01784F30
+| 005F30
+| {{ts|al}} | [[object_js]]
+|-
+| 0800
+| 0320
+| 01785000
+| 0178D550
+| 008550
+| {{ts|al}} | [[object_cs]]
+|-
+| 0801
+| 0321
+| 0178E000
+| 0178EC20
+| 000C20
+| {{ts|al}} | [[object_gi_prescription]]
+|-
+| 0802
+| 0322
+| 0178F000
+| 0178FBF0
+| 000BF0
+| {{ts|al}} | [[object_gi_bracelet]]
+|-
+| 0803
+| 0323
+| 01790000
+| 017904D0
+| 0004D0
+| {{ts|al}} | [[object_gi_soldout]]
+|-
+| 0804
+| 0324
+| 01791000
+| 01792110
+| 001110
+| {{ts|al}} | [[object_gi_frog]]
+|-
+| 0805
+| 0325
+| 01793000
+| 017B2440
+| 01F440
+| {{ts|al}} | [[object_mag]]
+|-
+| 0806
+| 0326
+| 017B3000
+| 017B39A0
+| 0009A0
+| {{ts|al}} | [[object_door_gerudo]]
+|-
+| 0807
+| 0327
+| 017B4000
+| 017C75F0
+| 0135F0
+| {{ts|al}} | [[object_gt]]
+|-
+| 0808
+| 0328
+| 017C8000
+| 017CA8F0
+| 0028F0
+| {{ts|al}} | [[object_efc_erupc]]
+|-
+| 0809
+| 0329
+| 017CB000
+| 017D6610
+| 00B610
+| {{ts|al}} | [[object_zl2_anime1]]
+|-
+| 0810
+| 032A
+| 017D7000
+| 017E1AE0
+| 00AAE0
+| {{ts|al}} | [[object_zl2_anime2]]
+|-
+| 0811
+| 032B
+| 017E2000
+| 017E37B0
+| 0017B0
+| {{ts|al}} | [[object_gi_golonmask]]
+|-
+| 0812
+| 032C
+| 017E4000
+| 017E5630
+| 001630
+| {{ts|al}} | [[object_gi_zoramask]]
+|-
+| 0813
+| 032D
+| 017E6000
+| 017E7400
+| 001400
+| {{ts|al}} | [[object_gi_gerudomask]]
+|-
+| 0814
+| 032E
+| 017E8000
+| 0181C7F0
+| 0347F0
+| {{ts|al}} | [[object_ganon2]]
+|-
+| 0815
+| 032F
+| 0181D000
+| 018237C0
+| 0067C0
+| {{ts|al}} | [[object_ka]]
+|-
+| 0816
+| 0330
+| 01824000
+| 01828FF0
+| 004FF0
+| {{ts|al}} | [[object_ts]]
+|-
+| 0817
+| 0331
+| 01829000
+| 0182A200
+| 001200
+| {{ts|al}} | [[object_zg]]
+|-
+| 0818
+| 0332
+| 0182B000
+| 0182CE70
+| 001E70
+| {{ts|al}} | [[object_gi_hoverboots]]
+|-
+| 0819
+| 0333
+| 0182D000
+| 0182DE80
+| 000E80
+| {{ts|al}} | [[object_gi_m_arrow]]
+|-
+| 0820
+| 0334
+| 0182E000
+| 01832270
+| 004270
+| {{ts|al}} | [[object_ds2]]
+|-
+| 0821
+| 0335
+| 01833000
+| 0183F930
+| 00C930
+| {{ts|al}} | [[object_ec]]
+|-
+| 0822
+| 0336
+| 01840000
+| 018555F0
+| 0155F0
+| {{ts|al}} | [[object_fish]]
+|-
+| 0823
+| 0337
+| 01856000
+| 01856650
+| 000650
+| {{ts|al}} | [[object_gi_sutaru]]
+|-
+| 0824
+| 0338
+| 01857000
+| 01857C50
+| 000C50
+| {{ts|al}} | [[object_gi_goddess]]
+|-
+| 0825
+| 0339
+| 01858000
+| 0185DC00
+| 005C00
+| {{ts|al}} | [[object_ssh]]
+|-
+| 0826
+| 033A
+| 0185E000
+| 01864BD0
+| 006BD0
+| {{ts|al}} | [[object_bigokuta]]
+|-
+| 0827
+| 033B
+| 01865000
+| 0186C2C0
+| 0072C0
+| {{ts|al}} | [[object_bg]]
+|-
+| 0828
+| 033C
+| 0186D000
+| 0186E2F0
+| 0012F0
+| {{ts|al}} | [[object_spot05_objects]]
+|-
+| 0829
+| 033D
+| 0186F000
+| 018713C0
+| 0023C0
+| {{ts|al}} | [[object_spot12_obj]]
+|-
+| 0830
+| 033E
+| 01872000
+| 01872B00
+| 000B00
+| {{ts|al}} | [[object_bombiwa]]
+|-
+| 0831
+| 033F
+| 01873000
+| 01876140
+| 003140
+| {{ts|al}} | [[object_hintnuts]]
+|-
+| 0832
+| 0340
+| 01877000
+| 0187B880
+| 004880
+| {{ts|al}} | [[object_rs]]
+|-
+| 0833
+| 0341
+| 0187C000
+| 0187DE20
+| 001E20
+| {{ts|al}} | [[object_spot00_break]]
+|-
+| 0834
+| 0342
+| 0187E000
+| 01887EF0
+| 009EF0
+| {{ts|al}} | [[object_gla]]
+|-
+| 0835
+| 0343
+| 01888000
+| 0188C590
+| 004590
+| {{ts|al}} | [[object_shopnuts]]
+|-
+| 0836
+| 0344
+| 0188D000
+| 018986F0
+| 00B6F0
+| {{ts|al}} | [[object_geldb]]
+|-
+| 0837
+| 0345
+| 01899000
+| 018A2C90
+| 009C90
+| {{ts|al}} | [[object_gr]]
+|-
+| 0838
+| 0346
+| 018A3000
+| 018AA2A0
+| 0072A0
+| {{ts|al}} | [[object_dog]]
+|-
+| 0839
+| 0347
+| 018AB000
+| 018AD660
+| 002660
+| {{ts|al}} | [[object_jya_iron]]
+|-
+| 0840
+| 0348
+| 018AE000
+| 018B0280
+| 002280
+| {{ts|al}} | [[object_jya_door]]
+|-
+| 0841
+| 0349
+| 018B1000
+| 018B1010
+| 000010
+| {{ts|al}} | [[object_spot01_objects2]]
+|-
+| 0842
+| 034A
+| 018B2000
+| 018B3A90
+| 001A90
+| {{ts|al}} | [[object_spot11_obj]]
+|-
+| 0843
+| 034B
+| 018B4000
+| 018B50C0
+| 0010C0
+| {{ts|al}} | [[object_kibako2]]
+|-
+| 0844
+| 034C
+| 018B6000
+| 018B97D0
+| 0037D0
+| {{ts|al}} | [[object_dns]]
+|-
+| 0845
+| 034D
+| 018BA000
+| 018BCE30
+| 002E30
+| {{ts|al}} | [[object_dnk]]
+|-
+| 0846
+| 034E
+| 018BD000
+| 018BDFE0
+| 000FE0
+| {{ts|al}} | [[object_gi_fire]]
+|-
+| 0847
+| 034F
+| 018BE000
+| 018BEBF0
+| 000BF0
+| {{ts|al}} | [[object_gi_insect]]
+|-
+| 0848
+| 0350
+| 018BF000
+| 018BFBD0
+| 000BD0
+| {{ts|al}} | [[object_gi_butterfly]]
+|-
+| 0849
+| 0351
+| 018C0000
+| 018C0DB0
+| 000DB0
+| {{ts|al}} | [[object_gi_ghost]]
+|-
+| 0850
+| 0352
+| 018C1000
+| 018C1FB0
+| 000FB0
+| {{ts|al}} | [[object_gi_soul]]
+|-
+| 0851
+| 0353
+| 018C2000
+| 018C54F0
+| 0034F0
+| {{ts|al}} | [[object_bowl]]
+|-
+| 0852
+| 0354
+| 018C6000
+| 018CCA40
+| 006A40
+| {{ts|al}} | [[object_po_field]]
+|-
+| 0853
+| 0355
+| 018CD000
+| 018DBD10
+| 00ED10
+| {{ts|al}} | [[object_demo_kekkai]]
+|-
+| 0854
+| 0356
+| 018DC000
+| 018DD050
+| 001050
+| {{ts|al}} | [[object_efc_doughnut]]
+|-
+| 0855
+| 0357
+| 018DE000
+| 018DF050
+| 001050
+| {{ts|al}} | [[object_gi_dekupouch]]
+|-
+| 0856
+| 0358
+| 018E0000
+| 018EBC40
+| 00BC40
+| {{ts|al}} | [[object_ganon_anime1]]
+|-
+| 0857
+| 0359
+| 018EC000
+| 018FC530
+| 010530
+| {{ts|al}} | [[object_ganon_anime2]]
+|-
+| 0858
+| 035A
+| 018FD000
+| 019117F0
+| 0147F0
+| {{ts|al}} | [[object_ganon_anime3]]
+|-
+| 0859
+| 035B
+| 01912000
+| 01912800
+| 000800
+| {{ts|al}} | [[object_gi_rupy]]
+|-
+| 0860
+| 035C
+| 01913000
+| 01916C90
+| 003C90
+| {{ts|al}} | [[object_spot01_matoya]]
+|-
+| 0861
+| 035D
+| 01917000
+| 019191E0
+| 0021E0
+| {{ts|al}} | [[object_spot01_matoyab]]
+|-
+| 0862
+| 035E
+| 0191A000
+| 01920FA0
+| 006FA0
+| {{ts|al}} | [[object_po_composer]]
+|-
+| 0863
+| 035F
+| 01921000
+| 0192BE50
+| 00AE50
+| {{ts|al}} | [[object_mu]]
+|-
+| 0864
+| 0360
+| 0192C000
+| 01936500
+| 00A500
+| {{ts|al}} | [[object_wf]]
+|-
+| 0865
+| 0361
+| 01937000
+| 0193B810
+| 004810
+| {{ts|al}} | [[object_skb]]
+|-
+| 0866
+| 0362
+| 0193C000
+| 01946720
+| 00A720
+| {{ts|al}} | [[object_gj]]
+|-
+| 0867
+| 0363
+| 01947000
+| 01947FB0
+| 000FB0
+| {{ts|al}} | [[object_geff]]
+|-
+| 0868
+| 0364
+| 01948000
+| 0194B970
+| 003970
+| {{ts|al}} | [[object_haka_door]]
+|-
+| 0869
+| 0365
+| 0194C000
+| 0194CA80
+| 000A80
+| {{ts|al}} | [[object_gs]]
+|-
+| 0870
+| 0366
+| 0194D000
+| 01959900
+| 00C900
+| {{ts|al}} | [[object_ps]]
+|-
+| 0871
+| 0367
+| 0195A000
+| 0195B150
+| 001150
+| {{ts|al}} | [[object_bwall]]
+|-
+| 0872
+| 0368
+| 0195C000
+| 0195D0D0
+| 0010D0
+| {{ts|al}} | [[object_crow]]
+|-
+| 0873
+| 0369
+| 0195E000
+| 01962EB0
+| 004EB0
+| {{ts|al}} | [[object_cow]]
+|-
+| 0874
+| 036A
+| 01963000
+| 01965210
+| 002210
+| {{ts|al}} | [[object_cob]]
+|-
+| 0875
+| 036B
+| 01966000
+| 01966D20
+| 000D20
+| {{ts|al}} | [[object_gi_sword_1]]
+|-
+| 0876
+| 036C
+| 01967000
+| 01968BE0
+| 001BE0
+| {{ts|al}} | [[object_door_killer]]
+|-
+| 0877
+| 036D
+| 01969000
+| 01969970
+| 000970
+| {{ts|al}} | [[object_ouke_haka]]
+|-
+| 0878
+| 036E
+| 0196A000
+| 0196AB60
+| 000B60
+| {{ts|al}} | [[object_timeblock]]
+|-
+| 0879
+| 036F
+| 0196B000
+| 01987E20
+| 01CE20
+| {{ts|al}} | [[object_zl4]]
+|}
+
+==File 0880 to 1007 (Various)==
+
+{| class="wikitable sortable" {{ts|ac|ml5|font-family: monospace}}
+! rowspan=2 | Dec.
+! rowspan=2 | Hex
+! colspan=2 | VROM
+! rowspan=2 | Size
+! rowspan=2 | File Name
+! rowspan=2 | Contents
+|-
+! Start
+! End
+|-
+| 0880
+| 0370
+| 01988000
+| 01989B00
+| 001B00
+| {{ts|al}} | [[g_pn_01]]
+| {{ts|al}} | Textures - Place Name - Forest Temple (JP & EN)
+|-
+| 0881
+| 0371
+| 0198A000
+| 0198BB00
+| 001B00
+| {{ts|al}} | [[g_pn_02]]
+| {{ts|al}} | Textures - Place Name - Shadow Temple (JP & EN)
+|-
+| 0882
+| 0372
+| 0198C000
+| 0198DB00
+| 001B00
+| {{ts|al}} | [[g_pn_03]]
+| {{ts|al}} | Textures - Place Name - Fire Temple (JP & EN)
+|-
+| 0883
+| 0373
+| 0198E000
+| 0198FB00
+| 001B00
+| {{ts|al}} | [[g_pn_04]]
+| {{ts|al}} | Textures - Place Name - Water Temple (JP & EN)
+|-
+| 0884
+| 0374
+| 01990000
+| 01991B00
+| 001B00
+| {{ts|al}} | [[g_pn_05]]
+| {{ts|al}} | Textures - Place Name - Spirit Temple (JP & EN)
+|-
+| 0885
+| 0375
+| 01992000
+| 01993B00
+| 001B00
+| {{ts|al}} | [[g_pn_06]]
+| {{ts|al}} | Textures - Place Name - Inside the Deku Tree (JP & EN)
+|-
+| 0886
+| 0376
+| 01994000
+| 01995B00
+| 001B00
+| {{ts|al}} | [[g_pn_07]]
+| {{ts|al}} | Textures - Place Name - Inside Jabu-Jabu's Belly (JP & EN)
+|-
+| 0887
+| 0377
+| 01996000
+| 01997B00
+| 001B00
+| {{ts|al}} | [[g_pn_08]]
+| {{ts|al}} | Textures - Place Name - Dodongo's Cavern (JP & EN)
+|-
+| 0888
+| 0378
+| 01998000
+| 01999B00
+| 001B00
+| {{ts|al}} | [[g_pn_09]]
+| {{ts|al}} | Textures - Place Name - Inside Ganon's Castle (JP & EN)
+|-
+| 0889
+| 0379
+| 0199A000
+| 0199BB00
+| 001B00
+| {{ts|al}} | [[g_pn_10]]
+| {{ts|al}} | Textures - Place Name - Ice Cavern (JP & EN)
+|-
+| 0890
+| 037A
+| 0199C000
+| 0199DB00
+| 001B00
+| {{ts|al}} | [[g_pn_11]]
+| {{ts|al}} | Textures - Place Name - Gerudo Training Ground (JP & EN)
+|-
+| 0891
+| 037B
+| 0199E000
+| 0199FB00
+| 001B00
+| {{ts|al}} | [[g_pn_12]]
+| {{ts|al}} | Textures - Place Name - Castle Courtyard (JP & EN)
+|-
+| 0892
+| 037C
+| 019A0000
+| 019A1B00
+| 001B00
+| {{ts|al}} | [[g_pn_13]]
+| {{ts|al}} | Textures - Place Name - Great Fairy's Fountain (JP & EN)
+|-
+| 0893
+| 037D
+| 019A2000
+| 019A3B00
+| 001B00
+| {{ts|al}} | [[g_pn_14]]
+| {{ts|al}} | Textures - Place Name - Chamber of the Sages (JP & EN)
+|-
+| 0894
+| 037E
+| 019A4000
+| 019A5B00
+| 001B00
+| {{ts|al}} | [[g_pn_15]]
+| {{ts|al}} | Textures - Place Name - Shooting Gallery (JP & EN)
+|-
+| 0895
+| 037F
+| 019A6000
+| 019A7B00
+| 001B00
+| {{ts|al}} | [[g_pn_16]]
+| {{ts|al}} | Textures - Place Name - Temple of Time (JP & EN)
+|-
+| 0896
+| 0380
+| 019A8000
+| 019A9B00
+| 001B00
+| {{ts|al}} | [[g_pn_17]]
+| {{ts|al}} | Textures - Place Name - Market (JP & EN)
+|-
+| 0897
+| 0381
+| 019AA000
+| 019ABB00
+| 001B00
+| {{ts|al}} | [[g_pn_18]]
+| {{ts|al}} | Textures - Place Name - Back Alley (JP & EN)
+|-
+| 0898
+| 0382
+| 019AC000
+| 019ADB00
+| 001B00
+| {{ts|al}} | [[g_pn_19]]
+| {{ts|al}} | Textures - Place Name - Kokiri Shop (JP & EN)
+|-
+| 0899
+| 0383
+| 019AE000
+| 019AFB00
+| 001B00
+| {{ts|al}} | [[g_pn_20]]
+| {{ts|al}} | Textures - Place Name - Goron Shop (JP & EN)
+|-
+| 0900
+| 0384
+| 019B0000
+| 019B1B00
+| 001B00
+| {{ts|al}} | [[g_pn_21]]
+| {{ts|al}} | Textures - Place Name - Zora Shop (JP & EN)
+|-
+| 0901
+| 0385
+| 019B2000
+| 019B3B00
+| 001B00
+| {{ts|al}} | [[g_pn_22]]
+| {{ts|al}} | Textures - Place Name - House of Skulltula (JP & EN)
+|-
+| 0902
+| 0386
+| 019B4000
+| 019B5B00
+| 001B00
+| {{ts|al}} | [[g_pn_23]]
+| {{ts|al}} | Textures - Place Name - Bazaar (JP & EN)
+|-
+| 0903
+| 0387
+| 019B6000
+| 019B7B00
+| 001B00
+| {{ts|al}} | [[g_pn_24]]
+| {{ts|al}} | Textures - Place Name - Potion Shop (JP & EN)
+|-
+| 0904
+| 0388
+| 019B8000
+| 019B9B00
+| 001B00
+| {{ts|al}} | [[g_pn_25]]
+| {{ts|al}} | Textures - Place Name - Gravekeeper's Hut (JP & EN)
+|-
+| 0905
+| 0389
+| 019BA000
+| 019BBB00
+| 001B00
+| {{ts|al}} | [[g_pn_26]]
+| {{ts|al}} | Textures - Place Name - Lakeside Laboratory (JP & EN)
+|-
+| 0906
+| 038A
+| 019BC000
+| 019BDB00
+| 001B00
+| {{ts|al}} | [[g_pn_27]]
+| {{ts|al}} | Textures - Place Name - Hyrule Field (JP & EN)
+|-
+| 0907
+| 038B
+| 019BE000
+| 019BFB00
+| 001B00
+| {{ts|al}} | [[g_pn_28]]
+| {{ts|al}} | Textures - Place Name - Kakariko Village (JP & EN)
+|-
+| 0908
+| 038C
+| 019C0000
+| 019C1B00
+| 001B00
+| {{ts|al}} | [[g_pn_29]]
+| {{ts|al}} | Textures - Place Name - Graveyard (JP & EN)
+|-
+| 0909
+| 038D
+| 019C2000
+| 019C3B00
+| 001B00
+| {{ts|al}} | [[g_pn_30]]
+| {{ts|al}} | Textures - Place Name - Zora's River (JP & EN)
+|-
+| 0910
+| 038E
+| 019C4000
+| 019C5B00
+| 001B00
+| {{ts|al}} | [[g_pn_31]]
+| {{ts|al}} | Textures - Place Name - Kokiri Forest (JP & EN)
+|-
+| 0911
+| 038F
+| 019C6000
+| 019C7B00
+| 001B00
+| {{ts|al}} | [[g_pn_32]]
+| {{ts|al}} | Textures - Place Name - Lake Hylia (JP & EN)
+|-
+| 0912
+| 0390
+| 019C8000
+| 019C9B00
+| 001B00
+| {{ts|al}} | [[g_pn_33]]
+| {{ts|al}} | Textures - Place Name - Zora's Domain (JP & EN)
+|-
+| 0913
+| 0391
+| 019CA000
+| 019CBB00
+| 001B00
+| {{ts|al}} | [[g_pn_34]]
+| {{ts|al}} | Textures - Place Name - Zora's Fountain (JP & EN)
+|-
+| 0914
+| 0392
+| 019CC000
+| 019CDB00
+| 001B00
+| {{ts|al}} | [[g_pn_35]]
+| {{ts|al}} | Textures - Place Name - Gerudo Valley (JP & EN)
+|-
+| 0915
+| 0393
+| 019CE000
+| 019CFB00
+| 001B00
+| {{ts|al}} | [[g_pn_36]]
+| {{ts|al}} | Textures - Place Name - Lost Woods (JP & EN)
+|-
+| 0916
+| 0394
+| 019D0000
+| 019D1B00
+| 001B00
+| {{ts|al}} | [[g_pn_37]]
+| {{ts|al}} | Textures - Place Name - Haunted Wasteland (JP & EN)
+|-
+| 0917
+| 0395
+| 019D2000
+| 019D3B00
+| 001B00
+| {{ts|al}} | [[g_pn_38]]
+| {{ts|al}} | Textures - Place Name - Hyrule Castle (JP & EN)
+|-
+| 0918
+| 0396
+| 019D4000
+| 019D5B00
+| 001B00
+| {{ts|al}} | [[g_pn_39]]
+| {{ts|al}} | Textures - Place Name - Death Mountain Trail (JP & EN)
+|-
+| 0919
+| 0397
+| 019D6000
+| 019D7B00
+| 001B00
+| {{ts|al}} | [[g_pn_40]]
+| {{ts|al}} | Textures - Place Name - Death Mountain Crater (JP & EN)
+|-
+| 0920
+| 0398
+| 019D8000
+| 019D9B00
+| 001B00
+| {{ts|al}} | [[g_pn_41]]
+| {{ts|al}} | Textures - Place Name - Goron City (JP & EN)
+|-
+| 0921
+| 0399
+| 019DA000
+| 019DBB00
+| 001B00
+| {{ts|al}} | [[g_pn_42]]
+| {{ts|al}} | Textures - Place Name - Lon Lon Ranch (JP & EN)
+|-
+| 0922
+| 039A
+| 019DC000
+| 019DDB00
+| 001B00
+| {{ts|al}} | [[g_pn_43]]
+| {{ts|al}} | Textures - Place Name - Ganon's Castle (JP & EN)
+|-
+| 0923
+| 039B
+| 019DE000
+| 019DFB00
+| 001B00
+| {{ts|al}} | [[g_pn_44]]
+| {{ts|al}} | Textures - Place Name - Royal Family's Tomb (JP & EN)
+|-
+| 0924
+| 039C
+| 019E0000
+| 019E1B00
+| 001B00
+| {{ts|al}} | [[g_pn_45]]
+| {{ts|al}} | Textures - Place Name - Fairy's Fountain (JP & EN)
+|-
+| 0925
+| 039D
+| 019E2000
+| 019E3B00
+| 001B00
+| {{ts|al}} | [[g_pn_46]]
+| {{ts|al}} | Textures - Place Name - Fishing Pond (JP & EN)
+|-
+| 0926
+| 039E
+| 019E4000
+| 019E5B00
+| 001B00
+| {{ts|al}} | [[g_pn_47]]
+| {{ts|al}} | Textures - Place Name - Bombchu Bowling Alley (JP & EN)
+|-
+| 0927
+| 039F
+| 019E6000
+| 019E7B00
+| 001B00
+| {{ts|al}} | [[g_pn_48]]
+| {{ts|al}} | Textures - Place Name - Stable (JP & EN)
+|-
+| 0928
+| 03A0
+| 019E8000
+| 019E9B00
+| 001B00
+| {{ts|al}} | [[g_pn_49]]
+| {{ts|al}} | Textures - Place Name - Thieves' Hideout (JP & EN)
+|-
+| 0929
+| 03A1
+| 019EA000
+| 019EBB00
+| 001B00
+| {{ts|al}} | [[g_pn_50]]
+| {{ts|al}} | Textures - Place Name - Happy Mask Shop (JP & EN)
+|-
+| 0930
+| 03A2
+| 019EC000
+| 019EDB00
+| 001B00
+| {{ts|al}} | [[g_pn_51]]
+| {{ts|al}} | Textures - Place Name - Treasure Box Shop (JP & EN)
+|-
+| 0931
+| 03A3
+| 019EE000
+| 019EFB00
+| 001B00
+| {{ts|al}} | [[g_pn_52]]
+| {{ts|al}} | Textures - Place Name - Sacred Forest Meadow (JP & EN)
+|-
+| 0932
+| 03A4
+| 019F0000
+| 019F1B00
+| 001B00
+| {{ts|al}} | [[g_pn_53]]
+| {{ts|al}} | Textures - Place Name - Gerudo's Fortress (JP & EN)
+|-
+| 0933
+| 03A5
+| 019F2000
+| 019F3B00
+| 001B00
+| {{ts|al}} | [[g_pn_54]]
+| {{ts|al}} | Textures - Place Name - Bottom of the Well (JP & EN)
+|-
+| 0934
+| 03A6
+| 019F4000
+| 019F5B00
+| 001B00
+| {{ts|al}} | [[g_pn_55]]
+| {{ts|al}} | Textures - Place Name - Desert Colossus (JP & EN)
+|-
+| 0935
+| 03A7
+| 019F6000
+| 019F7B00
+| 001B00
+| {{ts|al}} | [[g_pn_56]]
+| {{ts|al}} | Textures - Place Name - Bombchu Shop (JP & EN)
+|-
+| 0936
+| 03A8
+| 019F8000
+| 019F9B00
+| 001B00
+| {{ts|al}} | [[g_pn_57]]
+| {{ts|al}} | Textures - Place Name - ? (JP & EN)
+|-
+| 0937
+| 03A9
+| 019FA000
+| 019FC200
+| 002200
+| {{ts|al}} | [[z_select_static]]
+| {{ts|al}} | [?]
+|-
+| 0938
+| 03AA
+| 019FD000
+| 019FFDC0
+| 002DC0
+| {{ts|al}} | [[nintendo_rogo_static]]
+| {{ts|al}} | Textures - Nintendo 64 Logo Assets
+|-
+| 0939
+| 03AB
+| 01A00000
+| 01A395C0
+| 0395C0
+| {{ts|al}} | [[title_static]]
+| {{ts|al}} | Textures - File Select & Option Screen Assets
+|-
+| 0940
+| 03AC
+| 01A3A000
+| 01A3C200
+| 002200
+| {{ts|al}} | [[parameter_static]]
+| {{ts|al}} | Textures - HUD Icons
+|-
+| 0941
+| 03AD
+| 01A3D000
+| 01A40B00
+| 003B00
+| {{ts|al}} | [[gateway_title_static]]
+| {{ts|al}} | Textures - Gateway Stuff
+|-
+| 0942
+| 03AE
+| 01A41000
+| 01A4D000
+| 00C000
+| {{ts|al}} | [[vr_fine0_static]]
+| {{ts|al}} | Textures - Clear Skybox (Sunrise)
+|-
+| 0943
+| 03AF
+| 01A4D000
+| 01A4D100
+| 000100
+| {{ts|al}} | [[vr_fine0_pal_static]]
+| {{ts|al}} | Textures - Clear Skybox (Sunrise) Palettes
+|-
+| 0944
+| 03B0
+| 01A4E000
+| 01A5A000
+| 00C000
+| {{ts|al}} | [[vr_fine1_static]]
+| {{ts|al}} | Textures - Clear Skybox (Day)
+|-
+| 0945
+| 03B1
+| 01A5A000
+| 01A5A100
+| 000100
+| {{ts|al}} | [[vr_fine1_pal_static]]
+| {{ts|al}} | Textures - Clear Skybox (Day) Palettes
+|-
+| 0946
+| 03B2
+| 01A5B000
+| 01A67000
+| 00C000
+| {{ts|al}} | [[vr_fine2_static]]
+| {{ts|al}} | Textures - Clear Skybox (Sunset)
+|-
+| 0947
+| 03B3
+| 01A67000
+| 01A67100
+| 000100
+| {{ts|al}} | [[vr_fine2_pal_static]]
+| {{ts|al}} | Textures - Clear Skybox (Sunset) Palettes
+|-
+| 0948
+| 03B4
+| 01A68000
+| 01A74000
+| 00C000
+| {{ts|al}} | [[vr_fine3_static]]
+| {{ts|al}} | Textures - Clear Skybox (Night)
+|-
+| 0949
+| 03B5
+| 01A74000
+| 01A74100
+| 000100
+| {{ts|al}} | [[vr_fine3_pal_static]]
+| {{ts|al}} | Textures - Clear Skybox (Night) Palettes
+|-
+| 0950
+| 03B6
+| 01A75000
+| 01A81000
+| 00C000
+| {{ts|al}} | [[vr_cloud0_static]]
+| {{ts|al}} | Textures - Overcast Skybox (Sunrise)
+|-
+| 0951
+| 03B7
+| 01A81000
+| 01A81100
+| 000100
+| {{ts|al}} | [[vr_cloud0_pal_static]]
+| {{ts|al}} | Textures - Overcast Skybox (Sunrise) Palettes
+|-
+| 0952
+| 03B8
+| 01A82000
+| 01A8E000
+| 00C000
+| {{ts|al}} | [[vr_cloud1_static]]
+| {{ts|al}} | Textures - Overcast Skybox (Day)
+|-
+| 0953
+| 03B9
+| 01A8E000
+| 01A8E100
+| 000100
+| {{ts|al}} | [[vr_cloud1_pal_static]]
+| {{ts|al}} | Textures - Overcast Skybox (Day) Palettes
+|-
+| 0954
+| 03BA
+| 01A8F000
+| 01A9B000
+| 00C000
+| {{ts|al}} | [[vr_cloud2_static]]
+| {{ts|al}} | Textures - Overcast Skybox (Sunset)
+|-
+| 0955
+| 03BB
+| 01A9B000
+| 01A9B100
+| 000100
+| {{ts|al}} | [[vr_cloud2_pal_static]]
+| {{ts|al}} | Textures - Overcast Skybox (Sunset) Palettes
+|-
+| 0956
+| 03BC
+| 01A9C000
+| 01AA8000
+| 00C000
+| {{ts|al}} | [[vr_cloud3_static]]
+| {{ts|al}} | Textures - Overcast Skybox (Night)
+|-
+| 0957
+| 03BD
+| 01AA8000
+| 01AA8100
+| 000100
+| {{ts|al}} | [[vr_cloud3_pal_static]]
+| {{ts|al}} | Textures - Overcast Skybox (Night) Palettes
+|-
+| 0958
+| 03BE
+| 01AA9000
+| 01AB9000
+| 010000
+| {{ts|al}} | [[vr_holy0_static]]
+| {{ts|al}} | Textures - [?] Skybox
+|-
+| 0959
+| 03BF
+| 01AB9000
+| 01AB9100
+| 000100
+| {{ts|al}} | [[vr_holy0_pal_static]]
+| {{ts|al}} | Textures - [?] Skybox Palettes
+|-
+| 0960
+| 03C0
+| 01ABA000
+| 01ACA000
+| 010000
+| {{ts|al}} | [[vr_holy1_static]]
+| {{ts|al}} | Textures - [?] Skybox
+|-
+| 0961
+| 03C1
+| 01ACA000
+| 01ACA100
+| 000100
+| {{ts|al}} | [[vr_holy1_pal_static]]
+| {{ts|al}} | Textures - [?] Skybox Palettes
+|-
+| 0962
+| 03C2
+| 01ACB000
+| 01B0B000
+| 040000
+| {{ts|al}} | [[vr_MDVR_static]]
+| {{ts|al}} | Textures - Market (Child - Day) Prerenders
+|-
+| 0963
+| 03C3
+| 01B0B000
+| 01B0B800
+| 000800
+| {{ts|al}} | [[vr_MDVR_pal_static]]
+| {{ts|al}} | Textures - Market (Child - Day) Palettes
+|-
+| 0964
+| 03C4
+| 01B0C000
+| 01B4C000
+| 040000
+| {{ts|al}} | [[vr_MNVR_static]]
+| {{ts|al}} | Textures - Market (Child - Night) Prerenders
+|-
+| 0965
+| 03C5
+| 01B4C000
+| 01B4C800
+| 000800
+| {{ts|al}} | [[vr_MNVR_pal_static]]
+| {{ts|al}} | Textures - Market (Child - Night) Palettes
+|-
+| 0966
+| 03C6
+| 01B4D000
+| 01B8D000
+| 040000
+| {{ts|al}} | [[vr_RUVR_static]]
+| {{ts|al}} | Textures - Market (Ruins) Prerenders
+|-
+| 0967
+| 03C7
+| 01B8D000
+| 01B8D800
+| 000800
+| {{ts|al}} | [[vr_RUVR_pal_static]]
+| {{ts|al}} | Textures - Market (Ruins) Palettes
+|-
+| 0968
+| 03C8
+| 01B8E000
+| 01BCE000
+| 040000
+| {{ts|al}} | [[vr_LHVR_static]]
+| {{ts|al}} | Textures - Link's House Prerenders
+|-
+| 0969
+| 03C9
+| 01BCE000
+| 01BCE800
+| 000800
+| {{ts|al}} | [[vr_LHVR_pal_static]]
+| {{ts|al}} | Textures - Link's House Palettes
+|-
+| 0970
+| 03CA
+| 01BCF000
+| 01C0F000
+| 040000
+| {{ts|al}} | [[vr_KHVR_static]]
+| {{ts|al}} | Textures - Know-It-All Brothers' House Prerenders
+|-
+| 0971
+| 03CB
+| 01C0F000
+| 01C0F800
+| 000800
+| {{ts|al}} | [[vr_KHVR_pal_static]]
+| {{ts|al}} | Textures - Know-It-All Brothers' House Palettes
+|-
+| 0972
+| 03CC
+| 01C10000
+| 01C40000
+| 030000
+| {{ts|al}} | [[vr_K3VR_static]]
+| {{ts|al}} | Textures - House of Twins Prerenders
+|-
+| 0973
+| 03CD
+| 01C40000
+| 01C40600
+| 000600
+| {{ts|al}} | [[vr_K3VR_pal_static]]
+| {{ts|al}} | Textures - House of Twins Palettes
+|-
+| 0974
+| 03CE
+| 01C41000
+| 01C71000
+| 030000
+| {{ts|al}} | [[vr_K4VR_static]]
+| {{ts|al}} | Textures - Mido's House Prerenders
+|-
+| 0975
+| 03CF
+| 01C71000
+| 01C71600
+| 000600
+| {{ts|al}} | [[vr_K4VR_pal_static]]
+| {{ts|al}} | Textures - Mido's House Palettes
+|-
+| 0976
+| 03D0
+| 01C72000
+| 01CA2000
+| 030000
+| {{ts|al}} | [[vr_K5VR_static]]
+| {{ts|al}} | Textures - Saria's House Prerenders
+|-
+| 0977
+| 03D1
+| 01CA2000
+| 01CA2600
+| 000600
+| {{ts|al}} | [[vr_K5VR_pal_static]]
+| {{ts|al}} | Textures - Saria's House Palettes
+|-
+| 0978
+| 03D2
+| 01CA3000
+| 01CC3000
+| 020000
+| {{ts|al}} | [[vr_SP1a_static]]
+| {{ts|al}} | Textures - Bazaar Prerenders
+|-
+| 0979
+| 03D3
+| 01CC3000
+| 01CC3400
+| 000400
+| {{ts|al}} | [[vr_SP1a_pal_static]]
+| {{ts|al}} | Textures - Bazaar Palettes
+|-
+| 0980
+| 03D4
+| 01CC4000
+| 01D04000
+| 040000
+| {{ts|al}} | [[vr_MLVR_static]]
+| {{ts|al}} | Textures - Stable Prerenders
+|-
+| 0981
+| 03D5
+| 01D04000
+| 01D04800
+| 000800
+| {{ts|al}} | [[vr_MLVR_pal_static]]
+| {{ts|al}} | Textures - Stable Palettes
+|-
+| 0982
+| 03D6
+| 01D05000
+| 01D45000
+| 040000
+| {{ts|al}} | [[vr_KKRVR_static]]
+| {{ts|al}} | Textures - Carpenter Boss's House Prerenders
+|-
+| 0983
+| 03D7
+| 01D45000
+| 01D45800
+| 000800
+| {{ts|al}} | [[vr_KKRVR_pal_static]]
+| {{ts|al}} | Textures - Carpenter Boss's House Palettes
+|-
+| 0984
+| 03D8
+| 01D46000
+| 01D76000
+| 030000
+| {{ts|al}} | [[vr_KR3VR_static]]
+| {{ts|al}} | Textures - Back Alley House (Man in Green) Prerenders
+|-
+| 0985
+| 03D9
+| 01D76000
+| 01D76600
+| 000600
+| {{ts|al}} | [[vr_KR3VR_pal_static]]
+| {{ts|al}} | Textures - Back Alley House (Man in Green) Palettes
+|-
+| 0986
+| 03DA
+| 01D77000
+| 01DB7000
+| 040000
+| {{ts|al}} | [[vr_IPVR_static]]
+| {{ts|al}} | Textures - Back Alley House (Dog Lady) Prerenders
+|-
+| 0987
+| 03DB
+| 01DB7000
+| 01DB7800
+| 000800
+| {{ts|al}} | [[vr_IPVR_pal_static]]
+| {{ts|al}} | Textures - Back Alley House (Dog Lady) Palettes
+|-
+| 0988
+| 03DC
+| 01DB8000
+| 01DD8000
+| 020000
+| {{ts|al}} | [[vr_KSVR_static]]
+| {{ts|al}} | Textures - Kokiri Shop Prerenders
+|-
+| 0989
+| 03DD
+| 01DD8000
+| 01DD8400
+| 000400
+| {{ts|al}} | [[vr_KSVR_pal_static]]
+| {{ts|al}} | Textures - Kokiri Shop Palettes
+|-
+| 0990
+| 03DE
+| 01DD9000
+| 01DF9000
+| 020000
+| {{ts|al}} | [[vr_GLVR_static]]
+| {{ts|al}} | Textures - Goron Shop Prerenders
+|-
+| 0991
+| 03DF
+| 01DF9000
+| 01DF9400
+| 000400
+| {{ts|al}} | [[vr_GLVR_pal_static]]
+| {{ts|al}} | Textures - Goron Shop Palettes
+|-
+| 0992
+| 03E0
+| 01DFA000
+| 01E1A000
+| 020000
+| {{ts|al}} | [[vr_ZRVR_static]]
+| {{ts|al}} | Textures - Zora Shop Prerenders
+|-
+| 0993
+| 03E1
+| 01E1A000
+| 01E1A400
+| 000400
+| {{ts|al}} | [[vr_ZRVR_pal_static]]
+| {{ts|al}} | Textures - Zora Shop Palettes
+|-
+| 0994
+| 03E2
+| 01E1B000
+| 01E3B000
+| 020000
+| {{ts|al}} | [[vr_DGVR_static]]
+| {{ts|al}} | Textures - Kakariko Potion Shop Prerenders
+|-
+| 0995
+| 03E3
+| 01E3B000
+| 01E3B400
+| 000400
+| {{ts|al}} | [[vr_DGVR_pal_static]]
+| {{ts|al}} | Textures - Kakariko Potion Shop Palettes
+|-
+| 0996
+| 03E4
+| 01E3C000
+| 01E5C000
+| 020000
+| {{ts|al}} | [[vr_ALVR_static]]
+| {{ts|al}} | Textures - Market Potion Shop Prerenders
+|-
+| 0997
+| 03E5
+| 01E5C000
+| 01E5C400
+| 000400
+| {{ts|al}} | [[vr_ALVR_pal_static]]
+| {{ts|al}} | Textures - Market Potion Shop Palettes
+|-
+| 0998
+| 03E6
+| 01E5D000
+| 01E7D000
+| 020000
+| {{ts|al}} | [[vr_NSVR_static]]
+| {{ts|al}} | Textures - Bombchu Shop Prerenders
+|-
+| 0999
+| 03E7
+| 01E7D000
+| 01E7D400
+| 000400
+| {{ts|al}} | [[vr_NSVR_pal_static]]
+| {{ts|al}} | Textures - Bombchu Shop Palettes
+|-
+| 1000
+| 03E8
+| 01E7E000
+| 01EBE000
+| 040000
+| {{ts|al}} | [[vr_LBVR_static]]
+| {{ts|al}} | Textures - Impa's House Prerenders
+|-
+| 1001
+| 03E9
+| 01EBE000
+| 01EBE800
+| 000800
+| {{ts|al}} | [[vr_LBVR_pal_static]]
+| {{ts|al}} | Textures - Impa's House Palettes
+|-
+| 1002
+| 03EA
+| 01EBF000
+| 01EEF000
+| 030000
+| {{ts|al}} | [[vr_TTVR_static]]
+| {{ts|al}} | Textures - Carpenters' Tent Prerenders
+|-
+| 1003
+| 03EB
+| 01EEF000
+| 01EEF600
+| 000600
+| {{ts|al}} | [[vr_TTVR_pal_static]]
+| {{ts|al}} | Textures - Carpenters' Tent Palettes
+|-
+| 1004
+| 03EC
+| 01EF0000
+| 01F10000
+| 020000
+| {{ts|al}} | [[vr_FCVR_static]]
+| {{ts|al}} | Textures - Happy Mask Shop Prerenders
+|-
+| 1005
+| 03ED
+| 01F10000
+| 01F10400
+| 000400
+| {{ts|al}} | [[vr_FCVR_pal_static]]
+| {{ts|al}} | Textures - Happy Mask Shop Palettes
+|-
+| 1006
+| 03EE
+| 01F11000
+| 01F11070
+| 000070
+| {{ts|al}} | [[elf_message_field]]
+| {{ts|al}} | Game - Navi C-Up Hint Data (Overworld)
+|-
+| 1007
+| 03EF
+| 01F12000
+| 01F12010
+| 000010
+| {{ts|al}} | [[elf_message_ydan]]
+| {{ts|al}} | Game - Navi C-Up Hint Data (Dungeons)
+|}
+
+==File 1008 to 1496 (Scenes & Rooms)==
+
+For further information on the scenes below, please view the individual file pages, or see the [[Scene List]].
+
+{| class="wikitable sortable" {{ts|ac|ml5|font-family: monospace}}
+! rowspan=2 | Dec.
+! rowspan=2 | Hex
+! colspan=2 | VROM
+! rowspan=2 | Size
+! rowspan=2 | File Name
+! rowspan=2 | Contents
+|-
+! Start
+! End
+|-
+| 1008
+| 03F0
+| 01F13000
+| 01F28140
+| 015140
+| {{ts|al}} | [[ddan_scene]]
+| {{ts|al}} | Scene File - Dodongo's Cavern
+|-
+| 1009
+| 03F1
+| 01F29000
+| 01F448A0
+| 01B8A0
+| {{ts|al}} | [[ddan_room_0]]
+| {{ts|al}} | 
+|-
+| 1010
+| 03F2
+| 01F45000
+| 01F4EB00
+| 009B00
+| {{ts|al}} | [[ddan_room_1]]
+| {{ts|al}} | 
+|-
+| 1011
+| 03F3
+| 01F4F000
+| 01F56DA0
+| 007DA0
+| {{ts|al}} | [[ddan_room_2]]
+| {{ts|al}} | 
+|-
+| 1012
+| 03F4
+| 01F57000
+| 01F64DC0
+| 00DDC0
+| {{ts|al}} | [[ddan_room_3]]
+| {{ts|al}} | 
+|-
+| 1013
+| 03F5
+| 01F65000
+| 01F6E850
+| 009850
+| {{ts|al}} | [[ddan_room_4]]
+| {{ts|al}} | 
+|-
+| 1014
+| 03F6
+| 01F6F000
+| 01F74EE0
+| 005EE0
+| {{ts|al}} | [[ddan_room_5]]
+| {{ts|al}} | 
+|-
+| 1015
+| 03F7
+| 01F75000
+| 01F77400
+| 002400
+| {{ts|al}} | [[ddan_room_6]]
+| {{ts|al}} | 
+|-
+| 1016
+| 03F8
+| 01F78000
+| 01F7F6D0
+| 0076D0
+| {{ts|al}} | [[ddan_room_7]]
+| {{ts|al}} | 
+|-
+| 1017
+| 03F9
+| 01F80000
+| 01F89400
+| 009400
+| {{ts|al}} | [[ddan_room_8]]
+| {{ts|al}} | 
+|-
+| 1018
+| 03FA
+| 01F8A000
+| 01F95550
+| 00B550
+| {{ts|al}} | [[ddan_room_9]]
+| {{ts|al}} | 
+|-
+| 1019
+| 03FB
+| 01F96000
+| 01F9DE50
+| 007E50
+| {{ts|al}} | [[ddan_room_10]]
+| {{ts|al}} | 
+|-
+| 1020
+| 03FC
+| 01F9E000
+| 01FA0080
+| 002080
+| {{ts|al}} | [[ddan_room_11]]
+| {{ts|al}} | 
+|-
+| 1021
+| 03FD
+| 01FA1000
+| 01FA9730
+| 008730
+| {{ts|al}} | [[ddan_room_12]]
+| {{ts|al}} | 
+|-
+| 1022
+| 03FE
+| 01FAA000
+| 01FAC480
+| 002480
+| {{ts|al}} | [[ddan_room_13]]
+| {{ts|al}} | 
+|-
+| 1023
+| 03FF
+| 01FAD000
+| 01FAF490
+| 002490
+| {{ts|al}} | [[ddan_room_14]]
+| {{ts|al}} | 
+|-
+| 1024
+| 0400
+| 01FB0000
+| 01FB2850
+| 002850
+| {{ts|al}} | [[ddan_room_15]]
+| {{ts|al}} | 
+|-
+| 1025
+| 0401
+| 01FB3000
+| 01FB8550
+| 005550
+| {{ts|al}} | [[ddan_room_16]]
+| {{ts|al}} | 
+|-
+| 1026
+| 0402
+| 01FB9000
+| 01FE3220
+| 02A220
+| {{ts|al}} | [[spot00_scene]]
+| {{ts|al}} | Scene File - Spot 00 - Hyrule Field
+|-
+| 1027
+| 0403
+| 01FE4000
+| 01FF9230
+| 015230
+| {{ts|al}} | [[spot00_room_0]]
+| {{ts|al}} | 
+|-
+| 1028
+| 0404
+| 01FFA000
+| 02016150
+| 01C150
+| {{ts|al}} | [[spot01_scene]]
+| {{ts|al}} | Scene File - Spot 01 - Kakariko Village
+|-
+| 1029
+| 0405
+| 02017000
+| 02020EE0
+| 009EE0
+| {{ts|al}} | [[spot01_room_0]]
+| {{ts|al}} | 
+|-
+| 1030
+| 0406
+| 02021000
+| 0202CC80
+| 00BC80
+| {{ts|al}} | [[spot02_scene]]
+| {{ts|al}} | Scene File - Spot 02 - Graveyard
+|-
+| 1031
+| 0407
+| 0202D000
+| 0202F6E0
+| 0026E0
+| {{ts|al}} | [[spot02_room_0]]
+| {{ts|al}} | 
+|-
+| 1032
+| 0408
+| 02030000
+| 0204DF90
+| 01DF90
+| {{ts|al}} | [[spot02_room_1]]
+| {{ts|al}} | 
+|-
+| 1033
+| 0409
+| 0204E000
+| 02059560
+| 00B560
+| {{ts|al}} | [[spot03_scene]]
+| {{ts|al}} | Scene File - Spot 03 - Zora's River
+|-
+| 1034
+| 040A
+| 0205A000
+| 02067980
+| 00D980
+| {{ts|al}} | [[spot03_room_0]]
+| {{ts|al}} | 
+|-
+| 1035
+| 040B
+| 02068000
+| 0206F500
+| 007500
+| {{ts|al}} | [[spot03_room_1]]
+| {{ts|al}} | 
+|-
+| 1036
+| 040C
+| 02070000
+| 02081240
+| 011240
+| {{ts|al}} | [[spot04_scene]]
+| {{ts|al}} | Scene File - Spot 04 - Kokiri Forest
+|-
+| 1037
+| 040D
+| 02082000
+| 0209D490
+| 01B490
+| {{ts|al}} | [[spot04_room_0]]
+| {{ts|al}} | 
+|-
+| 1038
+| 040E
+| 0209E000
+| 020A6580
+| 008580
+| {{ts|al}} | [[spot04_room_1]]
+| {{ts|al}} | 
+|-
+| 1039
+| 040F
+| 020A7000
+| 020AC070
+| 005070
+| {{ts|al}} | [[spot04_room_2]]
+| {{ts|al}} | 
+|-
+| 1040
+| 0410
+| 020AD000
+| 020C1D60
+| 014D60
+| {{ts|al}} | [[spot05_scene]]
+| {{ts|al}} | Scene File - Spot 05 - Sacred Forest Meadow
+|-
+| 1041
+| 0411
+| 020C2000
+| 020CBF00
+| 009F00
+| {{ts|al}} | [[spot05_room_0]]
+| {{ts|al}} | 
+|-
+| 1042
+| 0412
+| 020CC000
+| 020E7430
+| 01B430
+| {{ts|al}} | [[spot06_scene]]
+| {{ts|al}} | Scene File - Spot 06 - Lake Hylia
+|-
+| 1043
+| 0413
+| 020E8000
+| 020F2620
+| 00A620
+| {{ts|al}} | [[spot06_room_0]]
+| {{ts|al}} | 
+|-
+| 1044
+| 0414
+| 020F3000
+| 020FC820
+| 009820
+| {{ts|al}} | [[spot07_scene]]
+| {{ts|al}} | Scene File - Spot 07 - Zora's Domain
+|-
+| 1045
+| 0415
+| 020FD000
+| 021032F0
+| 0062F0
+| {{ts|al}} | [[spot07_room_0]]
+| {{ts|al}} | 
+|-
+| 1046
+| 0416
+| 02104000
+| 021109A0
+| 00C9A0
+| {{ts|al}} | [[spot07_room_1]]
+| {{ts|al}} | 
+|-
+| 1047
+| 0417
+| 02111000
+| 021226A0
+| 0116A0
+| {{ts|al}} | [[spot08_scene]]
+| {{ts|al}} | Scene File - Spot 08 - Zora's Fountain
+|-
+| 1048
+| 0418
+| 02123000
+| 0212B160
+| 008160
+| {{ts|al}} | [[spot08_room_0]]
+| {{ts|al}} | 
+|-
+| 1049
+| 0419
+| 0212C000
+| 0213D160
+| 011160
+| {{ts|al}} | [[spot09_scene]]
+| {{ts|al}} | Scene File - Spot 09 - Gerudo Valley
+|-
+| 1050
+| 041A
+| 0213E000
+| 021467C0
+| 0087C0
+| {{ts|al}} | [[spot09_room_0]]
+| {{ts|al}} | 
+|-
+| 1051
+| 041B
+| 02147000
+| 02157430
+| 010430
+| {{ts|al}} | [[spot10_scene]]
+| {{ts|al}} | Scene File - Spot 10 - Lost Woods
+|-
+| 1052
+| 041C
+| 02158000
+| 0215A5F0
+| 0025F0
+| {{ts|al}} | [[spot10_room_0]]
+| {{ts|al}} | 
+|-
+| 1053
+| 041D
+| 0215B000
+| 02163430
+| 008430
+| {{ts|al}} | [[spot10_room_1]]
+| {{ts|al}} | 
+|-
+| 1054
+| 041E
+| 02164000
+| 02168BF0
+| 004BF0
+| {{ts|al}} | [[spot10_room_2]]
+| {{ts|al}} | 
+|-
+| 1055
+| 041F
+| 02169000
+| 0216EAB0
+| 005AB0
+| {{ts|al}} | [[spot10_room_3]]
+| {{ts|al}} | 
+|-
+| 1056
+| 0420
+| 0216F000
+| 021714D0
+| 0024D0
+| {{ts|al}} | [[spot10_room_4]]
+| {{ts|al}} | 
+|-
+| 1057
+| 0421
+| 02172000
+| 02178FF0
+| 006FF0
+| {{ts|al}} | [[spot10_room_5]]
+| {{ts|al}} | 
+|-
+| 1058
+| 0422
+| 02179000
+| 0217CAF0
+| 003AF0
+| {{ts|al}} | [[spot10_room_6]]
+| {{ts|al}} | 
+|-
+| 1059
+| 0423
+| 0217D000
+| 0217F5C0
+| 0025C0
+| {{ts|al}} | [[spot10_room_7]]
+| {{ts|al}} | 
+|-
+| 1060
+| 0424
+| 02180000
+| 02182670
+| 002670
+| {{ts|al}} | [[spot10_room_8]]
+| {{ts|al}} | 
+|-
+| 1061
+| 0425
+| 02183000
+| 02186BE0
+| 003BE0
+| {{ts|al}} | [[spot10_room_9]]
+| {{ts|al}} | 
+|-
+| 1062
+| 0426
+| 02187000
+| 021A04E0
+| 0194E0
+| {{ts|al}} | [[spot11_scene]]
+| {{ts|al}} | Scene File - Spot 11 - Desert Colossus
+|-
+| 1063
+| 0427
+| 021A1000
+| 021AD7C0
+| 00C7C0
+| {{ts|al}} | [[spot11_room_0]]
+| {{ts|al}} | 
+|-
+| 1064
+| 0428
+| 021AE000
+| 021BDE80
+| 00FE80
+| {{ts|al}} | [[spot12_scene]]
+| {{ts|al}} | Scene File - Spot 12 - Gerudo's Fortress
+|-
+| 1065
+| 0429
+| 021BE000
+| 021CF5C0
+| 0115C0
+| {{ts|al}} | [[spot12_room_0]]
+| {{ts|al}} | 
+|-
+| 1066
+| 042A
+| 021D0000
+| 021DC0A0
+| 00C0A0
+| {{ts|al}} | [[spot12_room_1]]
+| {{ts|al}} | 
+|-
+| 1067
+| 042B
+| 021DD000
+| 021E2E30
+| 005E30
+| {{ts|al}} | [[spot13_scene]]
+| {{ts|al}} | Scene File - Spot 13 - Haunted Wasteland
+|-
+| 1068
+| 042C
+| 021E3000
+| 021E3910
+| 000910
+| {{ts|al}} | [[spot13_room_0]]
+| {{ts|al}} | 
+|-
+| 1069
+| 042D
+| 021E4000
+| 021F6A40
+| 012A40
+| {{ts|al}} | [[spot13_room_1]]
+| {{ts|al}} | 
+|-
+| 1070
+| 042E
+| 021F7000
+| 0220F500
+| 018500
+| {{ts|al}} | [[spot15_scene]]
+| {{ts|al}} | Scene File - Spot 15 - Hyrule Castle
+|-
+| 1071
+| 042F
+| 02210000
+| 0221D1C0
+| 00D1C0
+| {{ts|al}} | [[spot15_room_0]]
+| {{ts|al}} | 
+|-
+| 1072
+| 0430
+| 0221E000
+| 0223CA90
+| 01EA90
+| {{ts|al}} | [[spot16_scene]]
+| {{ts|al}} | Scene File - Spot 16 - Death Mountain Trail
+|-
+| 1073
+| 0431
+| 0223D000
+| 02247D10
+| 00AD10
+| {{ts|al}} | [[spot16_room_0]]
+| {{ts|al}} | 
+|-
+| 1074
+| 0432
+| 02248000
+| 02257EE0
+| 00FEE0
+| {{ts|al}} | [[spot17_scene]]
+| {{ts|al}} | Scene File - Spot 17 - Death Mountain Crater
+|-
+| 1075
+| 0433
+| 02258000
+| 0225E880
+| 006880
+| {{ts|al}} | [[spot17_room_0]]
+| {{ts|al}} | 
+|-
+| 1076
+| 0434
+| 0225F000
+| 02271360
+| 012360
+| {{ts|al}} | [[spot17_room_1]]
+| {{ts|al}} | 
+|-
+| 1077
+| 0435
+| 02272000
+| 0227C450
+| 00A450
+| {{ts|al}} | [[spot18_scene]]
+| {{ts|al}} | Scene File - Spot 18 - Goron City
+|-
+| 1078
+| 0436
+| 0227D000
+| 0228F7D0
+| 0127D0
+| {{ts|al}} | [[spot18_room_0]]
+| {{ts|al}} | 
+|-
+| 1079
+| 0437
+| 02290000
+| 02296200
+| 006200
+| {{ts|al}} | [[spot18_room_1]]
+| {{ts|al}} | 
+|-
+| 1080
+| 0438
+| 02297000
+| 022A89B0
+| 0119B0
+| {{ts|al}} | [[spot18_room_2]]
+| {{ts|al}} | 
+|-
+| 1081
+| 0439
+| 022A9000
+| 022C6CF0
+| 01DCF0
+| {{ts|al}} | [[spot18_room_3]]
+| {{ts|al}} | 
+|-
+| 1082
+| 043A
+| 022C7000
+| 022C9670
+| 002670
+| {{ts|al}} | [[market_day_scene]]
+| {{ts|al}} | Scene File - Market (Child - Day)
+|-
+| 1083
+| 043B
+| 022CA000
+| 022CF870
+| 005870
+| {{ts|al}} | [[market_day_room_0]]
+| {{ts|al}} | 
+|-
+| 1084
+| 043C
+| 022D0000
+| 022D2630
+| 002630
+| {{ts|al}} | [[market_night_scene]]
+| {{ts|al}} | Scene File - Market (Child - Night)
+|-
+| 1085
+| 043D
+| 022D3000
+| 022D87A0
+| 0057A0
+| {{ts|al}} | [[market_night_room_0]]
+| {{ts|al}} | 
+|-
+| 1086
+| 043E
+| 022D9000
+| 022F3970
+| 01A970
+| {{ts|al}} | [[HIDAN_scene]]
+| {{ts|al}} | Scene File - Fire Temple
+|-
+| 1087
+| 043F
+| 022F4000
+| 022FB2C0
+| 0072C0
+| {{ts|al}} | [[HIDAN_room_0]]
+| {{ts|al}} | 
+|-
+| 1088
+| 0440
+| 022FC000
+| 023089E0
+| 00C9E0
+| {{ts|al}} | [[HIDAN_room_1]]
+| {{ts|al}} | 
+|-
+| 1089
+| 0441
+| 02309000
+| 02318FD0
+| 00FFD0
+| {{ts|al}} | [[HIDAN_room_2]]
+| {{ts|al}} | 
+|-
+| 1090
+| 0442
+| 02319000
+| 0231B4E0
+| 0024E0
+| {{ts|al}} | [[HIDAN_room_3]]
+| {{ts|al}} | 
+|-
+| 1091
+| 0443
+| 0231C000
+| 02323890
+| 007890
+| {{ts|al}} | [[HIDAN_room_4]]
+| {{ts|al}} | 
+|-
+| 1092
+| 0444
+| 02324000
+| 0232E230
+| 00A230
+| {{ts|al}} | [[HIDAN_room_5]]
+| {{ts|al}} | 
+|-
+| 1093
+| 0445
+| 0232F000
+| 02335FA0
+| 006FA0
+| {{ts|al}} | [[HIDAN_room_6]]
+| {{ts|al}} | 
+|-
+| 1094
+| 0446
+| 02336000
+| 023399E0
+| 0039E0
+| {{ts|al}} | [[HIDAN_room_7]]
+| {{ts|al}} | 
+|-
+| 1095
+| 0447
+| 0233A000
+| 02343AC0
+| 009AC0
+| {{ts|al}} | [[HIDAN_room_8]]
+| {{ts|al}} | 
+|-
+| 1096
+| 0448
+| 02344000
+| 0234C770
+| 008770
+| {{ts|al}} | [[HIDAN_room_9]]
+| {{ts|al}} | 
+|-
+| 1097
+| 0449
+| 0234D000
+| 023654A0
+| 0184A0
+| {{ts|al}} | [[HIDAN_room_10]]
+| {{ts|al}} | 
+|-
+| 1098
+| 044A
+| 02366000
+| 023697C0
+| 0037C0
+| {{ts|al}} | [[HIDAN_room_11]]
+| {{ts|al}} | 
+|-
+| 1099
+| 044B
+| 0236A000
+| 0236CB80
+| 002B80
+| {{ts|al}} | [[HIDAN_room_12]]
+| {{ts|al}} | 
+|-
+| 1100
+| 044C
+| 0236D000
+| 02379BE0
+| 00CBE0
+| {{ts|al}} | [[HIDAN_room_13]]
+| {{ts|al}} | 
+|-
+| 1101
+| 044D
+| 0237A000
+| 0237C260
+| 002260
+| {{ts|al}} | [[HIDAN_room_14]]
+| {{ts|al}} | 
+|-
+| 1102
+| 044E
+| 0237D000
+| 0237E1D0
+| 0011D0
+| {{ts|al}} | [[HIDAN_room_15]]
+| {{ts|al}} | 
+|-
+| 1103
+| 044F
+| 0237F000
+| 0238A970
+| 00B970
+| {{ts|al}} | [[HIDAN_room_16]]
+| {{ts|al}} | 
+|-
+| 1104
+| 0450
+| 0238B000
+| 02394140
+| 009140
+| {{ts|al}} | [[HIDAN_room_17]]
+| {{ts|al}} | 
+|-
+| 1105
+| 0451
+| 02395000
+| 02398B80
+| 003B80
+| {{ts|al}} | [[HIDAN_room_18]]
+| {{ts|al}} | 
+|-
+| 1106
+| 0452
+| 02399000
+| 0239D1E0
+| 0041E0
+| {{ts|al}} | [[HIDAN_room_19]]
+| {{ts|al}} | 
+|-
+| 1107
+| 0453
+| 0239E000
+| 023A4D10
+| 006D10
+| {{ts|al}} | [[HIDAN_room_20]]
+| {{ts|al}} | 
+|-
+| 1108
+| 0454
+| 023A5000
+| 023AD4C0
+| 0084C0
+| {{ts|al}} | [[HIDAN_room_21]]
+| {{ts|al}} | 
+|-
+| 1109
+| 0455
+| 023AE000
+| 023B4B00
+| 006B00
+| {{ts|al}} | [[HIDAN_room_22]]
+| {{ts|al}} | 
+|-
+| 1110
+| 0456
+| 023B5000
+| 023BBD20
+| 006D20
+| {{ts|al}} | [[HIDAN_room_23]]
+| {{ts|al}} | 
+|-
+| 1111
+| 0457
+| 023BC000
+| 023C1540
+| 005540
+| {{ts|al}} | [[HIDAN_room_24]]
+| {{ts|al}} | 
+|-
+| 1112
+| 0458
+| 023C2000
+| 023C8AE0
+| 006AE0
+| {{ts|al}} | [[HIDAN_room_25]]
+| {{ts|al}} | 
+|-
+| 1113
+| 0459
+| 023C9000
+| 023CF8A0
+| 0068A0
+| {{ts|al}} | [[HIDAN_room_26]]
+| {{ts|al}} | 
+|-
+| 1114
+| 045A
+| 023D0000
+| 023E5F90
+| 015F90
+| {{ts|al}} | [[Bmori1_scene]]
+| {{ts|al}} | Scene File - Forest Temple
+|-
+| 1115
+| 045B
+| 023E6000
+| 023F3BC0
+| 00DBC0
+| {{ts|al}} | [[Bmori1_room_0]]
+| {{ts|al}} | 
+|-
+| 1116
+| 045C
+| 023F4000
+| 023F9B60
+| 005B60
+| {{ts|al}} | [[Bmori1_room_1]]
+| {{ts|al}} | 
+|-
+| 1117
+| 045D
+| 023FA000
+| 02409A30
+| 00FA30
+| {{ts|al}} | [[Bmori1_room_2]]
+| {{ts|al}} | 
+|-
+| 1118
+| 045E
+| 0240A000
+| 0240DA10
+| 003A10
+| {{ts|al}} | [[Bmori1_room_3]]
+| {{ts|al}} | 
+|-
+| 1119
+| 045F
+| 0240E000
+| 024112B0
+| 0032B0
+| {{ts|al}} | [[Bmori1_room_4]]
+| {{ts|al}} | 
+|-
+| 1120
+| 0460
+| 02412000
+| 024155E0
+| 0035E0
+| {{ts|al}} | [[Bmori1_room_5]]
+| {{ts|al}} | 
+|-
+| 1121
+| 0461
+| 02416000
+| 0241F4C0
+| 0094C0
+| {{ts|al}} | [[Bmori1_room_6]]
+| {{ts|al}} | 
+|-
+| 1122
+| 0462
+| 02420000
+| 02433000
+| 013000
+| {{ts|al}} | [[Bmori1_room_7]]
+| {{ts|al}} | 
+|-
+| 1123
+| 0463
+| 02433000
+| 0244AB70
+| 017B70
+| {{ts|al}} | [[Bmori1_room_8]]
+| {{ts|al}} | 
+|-
+| 1124
+| 0464
+| 0244B000
+| 02455190
+| 00A190
+| {{ts|al}} | [[Bmori1_room_9]]
+| {{ts|al}} | 
+|-
+| 1125
+| 0465
+| 02456000
+| 0245B3E0
+| 0053E0
+| {{ts|al}} | [[Bmori1_room_10]]
+| {{ts|al}} | 
+|-
+| 1126
+| 0466
+| 0245C000
+| 02466BD0
+| 00ABD0
+| {{ts|al}} | [[Bmori1_room_11]]
+| {{ts|al}} | 
+|-
+| 1127
+| 0467
+| 02467000
+| 0246F3E0
+| 0083E0
+| {{ts|al}} | [[Bmori1_room_12]]
+| {{ts|al}} | 
+|-
+| 1128
+| 0468
+| 02470000
+| 02478AB0
+| 008AB0
+| {{ts|al}} | [[Bmori1_room_13]]
+| {{ts|al}} | 
+|-
+| 1129
+| 0469
+| 02479000
+| 0247EBB0
+| 005BB0
+| {{ts|al}} | [[Bmori1_room_14]]
+| {{ts|al}} | 
+|-
+| 1130
+| 046A
+| 0247F000
+| 02481690
+| 002690
+| {{ts|al}} | [[Bmori1_room_15]]
+| {{ts|al}} | 
+|-
+| 1131
+| 046B
+| 02482000
+| 02486FA0
+| 004FA0
+| {{ts|al}} | [[Bmori1_room_16]]
+| {{ts|al}} | 
+|-
+| 1132
+| 046C
+| 02487000
+| 02490150
+| 009150
+| {{ts|al}} | [[Bmori1_room_17]]
+| {{ts|al}} | 
+|-
+| 1133
+| 046D
+| 02491000
+| 02492340
+| 001340
+| {{ts|al}} | [[Bmori1_room_18]]
+| {{ts|al}} | 
+|-
+| 1134
+| 046E
+| 02493000
+| 02493510
+| 000510
+| {{ts|al}} | [[Bmori1_room_19]]
+| {{ts|al}} | 
+|-
+| 1135
+| 046F
+| 02494000
+| 02495300
+| 001300
+| {{ts|al}} | [[Bmori1_room_20]]
+| {{ts|al}} | 
+|-
+| 1136
+| 0470
+| 02496000
+| 02497780
+| 001780
+| {{ts|al}} | [[Bmori1_room_21]]
+| {{ts|al}} | 
+|-
+| 1137
+| 0471
+| 02498000
+| 02499DE0
+| 001DE0
+| {{ts|al}} | [[Bmori1_room_22]]
+| {{ts|al}} | 
+|-
+| 1138
+| 0472
+| 0249A000
+| 024A7A10
+| 00DA10
+| {{ts|al}} | [[ydan_scene]]
+| {{ts|al}} | Scene File - Inside the Deku Tree
+|-
+| 1139
+| 0473
+| 024A8000
+| 024BD2F0
+| 0152F0
+| {{ts|al}} | [[ydan_room_0]]
+| {{ts|al}} | 
+|-
+| 1140
+| 0474
+| 024BE000
+| 024C2150
+| 004150
+| {{ts|al}} | [[ydan_room_1]]
+| {{ts|al}} | 
+|-
+| 1141
+| 0475
+| 024C3000
+| 024C8E30
+| 005E30
+| {{ts|al}} | [[ydan_room_2]]
+| {{ts|al}} | 
+|-
+| 1142
+| 0476
+| 024C9000
+| 024DD1A0
+| 0141A0
+| {{ts|al}} | [[ydan_room_3]]
+| {{ts|al}} | 
+|-
+| 1143
+| 0477
+| 024DE000
+| 024E2BD0
+| 004BD0
+| {{ts|al}} | [[ydan_room_4]]
+| {{ts|al}} | 
+|-
+| 1144
+| 0478
+| 024E3000
+| 024EB320
+| 008320
+| {{ts|al}} | [[ydan_room_5]]
+| {{ts|al}} | 
+|-
+| 1145
+| 0479
+| 024EC000
+| 024F0EC0
+| 004EC0
+| {{ts|al}} | [[ydan_room_6]]
+| {{ts|al}} | 
+|-
+| 1146
+| 047A
+| 024F1000
+| 024F9910
+| 008910
+| {{ts|al}} | [[ydan_room_7]]
+| {{ts|al}} | 
+|-
+| 1147
+| 047B
+| 024FA000
+| 024FAD00
+| 000D00
+| {{ts|al}} | [[ydan_room_8]]
+| {{ts|al}} | 
+|-
+| 1148
+| 047C
+| 024FB000
+| 025048A0
+| 0098A0
+| {{ts|al}} | [[ydan_room_9]]
+| {{ts|al}} | 
+|-
+| 1149
+| 047D
+| 02505000
+| 02509D80
+| 004D80
+| {{ts|al}} | [[ydan_room_10]]
+| {{ts|al}} | 
+|-
+| 1150
+| 047E
+| 0250A000
+| 02511170
+| 007170
+| {{ts|al}} | [[ydan_room_11]]
+| {{ts|al}} | 
+|-
+| 1151
+| 047F
+| 02512000
+| 025158F0
+| 0038F0
+| {{ts|al}} | [[kenjyanoma_scene]]
+| {{ts|al}} | Scene File - Chamber of the Sages
+|-
+| 1152
+| 0480
+| 02516000
+| 02529110
+| 013110
+| {{ts|al}} | [[kenjyanoma_room_0]]
+| {{ts|al}} | 
+|-
+| 1153
+| 0481
+| 0252A000
+| 0253C7A0
+| 0127A0
+| {{ts|al}} | [[tokinoma_scene]]
+| {{ts|al}} | Scene File - Temple of Time
+|-
+| 1154
+| 0482
+| 0253D000
+| 025541E0
+| 0171E0
+| {{ts|al}} | [[tokinoma_room_0]]
+| {{ts|al}} | 
+|-
+| 1155
+| 0483
+| 02555000
+| 0255C0D0
+| 0070D0
+| {{ts|al}} | [[tokinoma_room_1]]
+| {{ts|al}} | 
+|-
+| 1156
+| 0484
+| 0255D000
+| 0255EB60
+| 001B60
+| {{ts|al}} | [[link_home_scene]]
+| {{ts|al}} | Scene File - Link's House
+|-
+| 1157
+| 0485
+| 0255F000
+| 02586C80
+| 027C80
+| {{ts|al}} | [[link_home_room_0]]
+| {{ts|al}} | 
+|-
+| 1158
+| 0486
+| 02587000
+| 02587980
+| 000980
+| {{ts|al}} | [[kokiri_shop_scene]]
+| {{ts|al}} | Scene File - Kokiri Shop
+|-
+| 1159
+| 0487
+| 02588000
+| 025B8C90
+| 030C90
+| {{ts|al}} | [[kokiri_shop_room_0]]
+| {{ts|al}} | 
+|-
+| 1160
+| 0488
+| 025B9000
+| 025CECF0
+| 015CF0
+| {{ts|al}} | [[MIZUsin_scene]]
+| {{ts|al}} | Scene File - Water Temple
+|-
+| 1161
+| 0489
+| 025CF000
+| 025E4C80
+| 015C80
+| {{ts|al}} | [[MIZUsin_room_0]]
+| {{ts|al}} | 
+|-
+| 1162
+| 048A
+| 025E5000
+| 025EF160
+| 00A160
+| {{ts|al}} | [[MIZUsin_room_1]]
+| {{ts|al}} | 
+|-
+| 1163
+| 048B
+| 025F0000
+| 025F5B90
+| 005B90
+| {{ts|al}} | [[MIZUsin_room_2]]
+| {{ts|al}} | 
+|-
+| 1164
+| 048C
+| 025F6000
+| 025FC710
+| 006710
+| {{ts|al}} | [[MIZUsin_room_3]]
+| {{ts|al}} | 
+|-
+| 1165
+| 048D
+| 025FD000
+| 02602FE0
+| 005FE0
+| {{ts|al}} | [[MIZUsin_room_4]]
+| {{ts|al}} | 
+|-
+| 1166
+| 048E
+| 02603000
+| 0260D5F0
+| 00A5F0
+| {{ts|al}} | [[MIZUsin_room_5]]
+| {{ts|al}} | 
+|-
+| 1167
+| 048F
+| 0260E000
+| 026192C0
+| 00B2C0
+| {{ts|al}} | [[MIZUsin_room_6]]
+| {{ts|al}} | 
+|-
+| 1168
+| 0490
+| 0261A000
+| 0261F550
+| 005550
+| {{ts|al}} | [[MIZUsin_room_7]]
+| {{ts|al}} | 
+|-
+| 1169
+| 0491
+| 02620000
+| 0262DCD0
+| 00DCD0
+| {{ts|al}} | [[MIZUsin_room_8]]
+| {{ts|al}} | 
+|-
+| 1170
+| 0492
+| 0262E000
+| 02635FE0
+| 007FE0
+| {{ts|al}} | [[MIZUsin_room_9]]
+| {{ts|al}} | 
+|-
+| 1171
+| 0493
+| 02636000
+| 0263BFB0
+| 005FB0
+| {{ts|al}} | [[MIZUsin_room_10]]
+| {{ts|al}} | 
+|-
+| 1172
+| 0494
+| 0263C000
+| 026409B0
+| 0049B0
+| {{ts|al}} | [[MIZUsin_room_11]]
+| {{ts|al}} | 
+|-
+| 1173
+| 0495
+| 02641000
+| 02647D90
+| 006D90
+| {{ts|al}} | [[MIZUsin_room_12]]
+| {{ts|al}} | 
+|-
+| 1174
+| 0496
+| 02648000
+| 02648A00
+| 000A00
+| {{ts|al}} | [[MIZUsin_room_13]]
+| {{ts|al}} | 
+|-
+| 1175
+| 0497
+| 02649000
+| 0264FE60
+| 006E60
+| {{ts|al}} | [[MIZUsin_room_14]]
+| {{ts|al}} | 
+|-
+| 1176
+| 0498
+| 02650000
+| 02657430
+| 007430
+| {{ts|al}} | [[MIZUsin_room_15]]
+| {{ts|al}} | 
+|-
+| 1177
+| 0499
+| 02658000
+| 0265BAD0
+| 003AD0
+| {{ts|al}} | [[MIZUsin_room_16]]
+| {{ts|al}} | 
+|-
+| 1178
+| 049A
+| 0265C000
+| 02664A20
+| 008A20
+| {{ts|al}} | [[MIZUsin_room_17]]
+| {{ts|al}} | 
+|-
+| 1179
+| 049B
+| 02665000
+| 026690C0
+| 0040C0
+| {{ts|al}} | [[MIZUsin_room_18]]
+| {{ts|al}} | 
+|-
+| 1180
+| 049C
+| 0266A000
+| 0266D930
+| 003930
+| {{ts|al}} | [[MIZUsin_room_19]]
+| {{ts|al}} | 
+|-
+| 1181
+| 049D
+| 0266E000
+| 02674740
+| 006740
+| {{ts|al}} | [[MIZUsin_room_20]]
+| {{ts|al}} | 
+|-
+| 1182
+| 049E
+| 02675000
+| 0267C4A0
+| 0074A0
+| {{ts|al}} | [[MIZUsin_room_21]]
+| {{ts|al}} | 
+|-
+| 1183
+| 049F
+| 0267D000
+| 026860F0
+| 0090F0
+| {{ts|al}} | [[MIZUsin_room_22]]
+| {{ts|al}} | 
+|-
+| 1184
+| 04A0
+| 02687000
+| 02687CC0
+| 000CC0
+| {{ts|al}} | [[kokiri_home_scene]]
+| {{ts|al}} | Scene File - Know-It-All Brothers' House
+|-
+| 1185
+| 04A1
+| 02688000
+| 026B3C30
+| 02BC30
+| {{ts|al}} | [[kokiri_home_room_0]]
+| {{ts|al}} | 
+|-
+| 1186
+| 04A2
+| 026B4000
+| 026C1820
+| 00D820
+| {{ts|al}} | [[kakusiana_scene]]
+| {{ts|al}} | Scene File - Grottos
+|-
+| 1187
+| 04A3
+| 026C2000
+| 026C92A0
+| 0072A0
+| {{ts|al}} | [[kakusiana_room_0]]
+| {{ts|al}} | 
+|-
+| 1188
+| 04A4
+| 026CA000
+| 026CF190
+| 005190
+| {{ts|al}} | [[kakusiana_room_1]]
+| {{ts|al}} | 
+|-
+| 1189
+| 04A5
+| 026D0000
+| 026D28C0
+| 0028C0
+| {{ts|al}} | [[kakusiana_room_2]]
+| {{ts|al}} | 
+|-
+| 1190
+| 04A6
+| 026D3000
+| 026D8130
+| 005130
+| {{ts|al}} | [[kakusiana_room_3]]
+| {{ts|al}} | 
+|-
+| 1191
+| 04A7
+| 026D9000
+| 026E0960
+| 007960
+| {{ts|al}} | [[kakusiana_room_4]]
+| {{ts|al}} | 
+|-
+| 1192
+| 04A8
+| 026E1000
+| 026E56E0
+| 0046E0
+| {{ts|al}} | [[kakusiana_room_5]]
+| {{ts|al}} | 
+|-
+| 1193
+| 04A9
+| 026E6000
+| 026EBA70
+| 005A70
+| {{ts|al}} | [[kakusiana_room_6]]
+| {{ts|al}} | 
+|-
+| 1194
+| 04AA
+| 026EC000
+| 026EFFD0
+| 003FD0
+| {{ts|al}} | [[kakusiana_room_7]]
+| {{ts|al}} | 
+|-
+| 1195
+| 04AB
+| 026F0000
+| 026F3630
+| 003630
+| {{ts|al}} | [[kakusiana_room_8]]
+| {{ts|al}} | 
+|-
+| 1196
+| 04AC
+| 026F4000
+| 026F9AD0
+| 005AD0
+| {{ts|al}} | [[kakusiana_room_9]]
+| {{ts|al}} | 
+|-
+| 1197
+| 04AD
+| 026FA000
+| 026FFA30
+| 005A30
+| {{ts|al}} | [[kakusiana_room_10]]
+| {{ts|al}} | 
+|-
+| 1198
+| 04AE
+| 02700000
+| 027086B0
+| 0086B0
+| {{ts|al}} | [[kakusiana_room_11]]
+| {{ts|al}} | 
+|-
+| 1199
+| 04AF
+| 02709000
+| 02710E50
+| 007E50
+| {{ts|al}} | [[kakusiana_room_12]]
+| {{ts|al}} | 
+|-
+| 1200
+| 04B0
+| 02711000
+| 02717ED0
+| 006ED0
+| {{ts|al}} | [[kakusiana_room_13]]
+| {{ts|al}} | 
+|-
+| 1201
+| 04B1
+| 02718000
+| 027183E0
+| 0003E0
+| {{ts|al}} | [[entra_scene]]
+| {{ts|al}} | Scene File - Market Entrance (Child - Day)
+|-
+| 1202
+| 04B2
+| 02719000
+| 0273EB70
+| 025B70
+| {{ts|al}} | [[entra_room_0]]
+| {{ts|al}} | 
+|-
+| 1203
+| 04B3
+| 0273F000
+| 027547C0
+| 0157C0
+| {{ts|al}} | [[bdan_scene]]
+| {{ts|al}} | Scene File - Inside Jabu-Jabu's Belly
+|-
+| 1204
+| 04B4
+| 02755000
+| 02759070
+| 004070
+| {{ts|al}} | [[bdan_room_0]]
+| {{ts|al}} | 
+|-
+| 1205
+| 04B5
+| 0275A000
+| 0275FE90
+| 005E90
+| {{ts|al}} | [[bdan_room_1]]
+| {{ts|al}} | 
+|-
+| 1206
+| 04B6
+| 02760000
+| 027691D0
+| 0091D0
+| {{ts|al}} | [[bdan_room_2]]
+| {{ts|al}} | 
+|-
+| 1207
+| 04B7
+| 0276A000
+| 02771160
+| 007160
+| {{ts|al}} | [[bdan_room_3]]
+| {{ts|al}} | 
+|-
+| 1208
+| 04B8
+| 02772000
+| 02776050
+| 004050
+| {{ts|al}} | [[bdan_room_4]]
+| {{ts|al}} | 
+|-
+| 1209
+| 04B9
+| 02777000
+| 0277D020
+| 006020
+| {{ts|al}} | [[bdan_room_5]]
+| {{ts|al}} | 
+|-
+| 1210
+| 04BA
+| 0277E000
+| 02782240
+| 004240
+| {{ts|al}} | [[bdan_room_6]]
+| {{ts|al}} | 
+|-
+| 1211
+| 04BB
+| 02783000
+| 02786520
+| 003520
+| {{ts|al}} | [[bdan_room_7]]
+| {{ts|al}} | 
+|-
+| 1212
+| 04BC
+| 02787000
+| 0278A880
+| 003880
+| {{ts|al}} | [[bdan_room_8]]
+| {{ts|al}} | 
+|-
+| 1213
+| 04BD
+| 0278B000
+| 0278EC70
+| 003C70
+| {{ts|al}} | [[bdan_room_9]]
+| {{ts|al}} | 
+|-
+| 1214
+| 04BE
+| 0278F000
+| 02792830
+| 003830
+| {{ts|al}} | [[bdan_room_10]]
+| {{ts|al}} | 
+|-
+| 1215
+| 04BF
+| 02793000
+| 02796800
+| 003800
+| {{ts|al}} | [[bdan_room_11]]
+| {{ts|al}} | 
+|-
+| 1216
+| 04C0
+| 02797000
+| 0279ACD0
+| 003CD0
+| {{ts|al}} | [[bdan_room_12]]
+| {{ts|al}} | 
+|-
+| 1217
+| 04C1
+| 0279B000
+| 0279DB50
+| 002B50
+| {{ts|al}} | [[bdan_room_13]]
+| {{ts|al}} | 
+|-
+| 1218
+| 04C2
+| 0279E000
+| 027A41E0
+| 0061E0
+| {{ts|al}} | [[bdan_room_14]]
+| {{ts|al}} | 
+|-
+| 1219
+| 04C3
+| 027A5000
+| 027A76E0
+| 0026E0
+| {{ts|al}} | [[bdan_room_15]]
+| {{ts|al}} | 
+|-
+| 1220
+| 04C4
+| 027A8000
+| 027C03C0
+| 0183C0
+| {{ts|al}} | [[HAKAdan_scene]]
+| {{ts|al}} | Scene File - Shadow Temple
+|-
+| 1221
+| 04C5
+| 027C1000
+| 027CC0C0
+| 00B0C0
+| {{ts|al}} | [[HAKAdan_room_0]]
+| {{ts|al}} | 
+|-
+| 1222
+| 04C6
+| 027CD000
+| 027CEAC0
+| 001AC0
+| {{ts|al}} | [[HAKAdan_room_1]]
+| {{ts|al}} | 
+|-
+| 1223
+| 04C7
+| 027CF000
+| 027D9910
+| 00A910
+| {{ts|al}} | [[HAKAdan_room_2]]
+| {{ts|al}} | 
+|-
+| 1224
+| 04C8
+| 027DA000
+| 027DC940
+| 002940
+| {{ts|al}} | [[HAKAdan_room_3]]
+| {{ts|al}} | 
+|-
+| 1225
+| 04C9
+| 027DD000
+| 027DEC40
+| 001C40
+| {{ts|al}} | [[HAKAdan_room_4]]
+| {{ts|al}} | 
+|-
+| 1226
+| 04CA
+| 027DF000
+| 027E4A60
+| 005A60
+| {{ts|al}} | [[HAKAdan_room_5]]
+| {{ts|al}} | 
+|-
+| 1227
+| 04CB
+| 027E5000
+| 027EC570
+| 007570
+| {{ts|al}} | [[HAKAdan_room_6]]
+| {{ts|al}} | 
+|-
+| 1228
+| 04CC
+| 027ED000
+| 027EEAB0
+| 001AB0
+| {{ts|al}} | [[HAKAdan_room_7]]
+| {{ts|al}} | 
+|-
+| 1229
+| 04CD
+| 027EF000
+| 027F4060
+| 005060
+| {{ts|al}} | [[HAKAdan_room_8]]
+| {{ts|al}} | 
+|-
+| 1230
+| 04CE
+| 027F5000
+| 02801B60
+| 00CB60
+| {{ts|al}} | [[HAKAdan_room_9]]
+| {{ts|al}} | 
+|-
+| 1231
+| 04CF
+| 02802000
+| 028097A0
+| 0077A0
+| {{ts|al}} | [[HAKAdan_room_10]]
+| {{ts|al}} | 
+|-
+| 1232
+| 04D0
+| 0280A000
+| 0280DD40
+| 003D40
+| {{ts|al}} | [[HAKAdan_room_11]]
+| {{ts|al}} | 
+|-
+| 1233
+| 04D1
+| 0280E000
+| 02813720
+| 005720
+| {{ts|al}} | [[HAKAdan_room_12]]
+| {{ts|al}} | 
+|-
+| 1234
+| 04D2
+| 02814000
+| 02814FB0
+| 000FB0
+| {{ts|al}} | [[HAKAdan_room_13]]
+| {{ts|al}} | 
+|-
+| 1235
+| 04D3
+| 02815000
+| 0281A940
+| 005940
+| {{ts|al}} | [[HAKAdan_room_14]]
+| {{ts|al}} | 
+|-
+| 1236
+| 04D4
+| 0281B000
+| 02822270
+| 007270
+| {{ts|al}} | [[HAKAdan_room_15]]
+| {{ts|al}} | 
+|-
+| 1237
+| 04D5
+| 02823000
+| 02825880
+| 002880
+| {{ts|al}} | [[HAKAdan_room_16]]
+| {{ts|al}} | 
+|-
+| 1238
+| 04D6
+| 02826000
+| 02828CD0
+| 002CD0
+| {{ts|al}} | [[HAKAdan_room_17]]
+| {{ts|al}} | 
+|-
+| 1239
+| 04D7
+| 02829000
+| 02836280
+| 00D280
+| {{ts|al}} | [[HAKAdan_room_18]]
+| {{ts|al}} | 
+|-
+| 1240
+| 04D8
+| 02837000
+| 02839D20
+| 002D20
+| {{ts|al}} | [[HAKAdan_room_19]]
+| {{ts|al}} | 
+|-
+| 1241
+| 04D9
+| 0283A000
+| 0283BE20
+| 001E20
+| {{ts|al}} | [[HAKAdan_room_20]]
+| {{ts|al}} | 
+|-
+| 1242
+| 04DA
+| 0283C000
+| 028474B0
+| 00B4B0
+| {{ts|al}} | [[HAKAdan_room_21]]
+| {{ts|al}} | 
+|-
+| 1243
+| 04DB
+| 02848000
+| 0284A9A0
+| 0029A0
+| {{ts|al}} | [[HAKAdan_room_22]]
+| {{ts|al}} | 
+|-
+| 1244
+| 04DC
+| 0284B000
+| 0284C900
+| 001900
+| {{ts|al}} | [[moribossroom_scene]]
+| {{ts|al}} | Scene File - Phantom Ganon's Lair
+|-
+| 1245
+| 04DD
+| 0284D000
+| 02852EC0
+| 005EC0
+| {{ts|al}} | [[moribossroom_room_0]]
+| {{ts|al}} | 
+|-
+| 1246
+| 04DE
+| 02853000
+| 02860AB0
+| 00DAB0
+| {{ts|al}} | [[moribossroom_room_1]]
+| {{ts|al}} | 
+|-
+| 1247
+| 04DF
+| 02861000
+| 0286D2C0
+| 00C2C0
+| {{ts|al}} | [[syatekijyou_scene]]
+| {{ts|al}} | Scene File - Shooting Gallery
+|-
+| 1248
+| 04E0
+| 0286E000
+| 028756F0
+| 0076F0
+| {{ts|al}} | [[syatekijyou_room_0]]
+| {{ts|al}} | 
+|-
+| 1249
+| 04E1
+| 02876000
+| 02887540
+| 011540
+| {{ts|al}} | [[men_scene]]
+| {{ts|al}} | Scene File - Gerudo Training Ground
+|-
+| 1250
+| 04E2
+| 02888000
+| 02897F90
+| 00FF90
+| {{ts|al}} | [[men_room_0]]
+| {{ts|al}} | 
+|-
+| 1251
+| 04E3
+| 02898000
+| 028A1290
+| 009290
+| {{ts|al}} | [[men_room_1]]
+| {{ts|al}} | 
+|-
+| 1252
+| 04E4
+| 028A2000
+| 028A6F80
+| 004F80
+| {{ts|al}} | [[men_room_2]]
+| {{ts|al}} | 
+|-
+| 1253
+| 04E5
+| 028A7000
+| 028AEC20
+| 007C20
+| {{ts|al}} | [[men_room_3]]
+| {{ts|al}} | 
+|-
+| 1254
+| 04E6
+| 028AF000
+| 028B9150
+| 00A150
+| {{ts|al}} | [[men_room_4]]
+| {{ts|al}} | 
+|-
+| 1255
+| 04E7
+| 028BA000
+| 028BF0E0
+| 0050E0
+| {{ts|al}} | [[men_room_5]]
+| {{ts|al}} | 
+|-
+| 1256
+| 04E8
+| 028C0000
+| 028C7F40
+| 007F40
+| {{ts|al}} | [[men_room_6]]
+| {{ts|al}} | 
+|-
+| 1257
+| 04E9
+| 028C8000
+| 028D0330
+| 008330
+| {{ts|al}} | [[men_room_7]]
+| {{ts|al}} | 
+|-
+| 1258
+| 04EA
+| 028D1000
+| 028D9210
+| 008210
+| {{ts|al}} | [[men_room_8]]
+| {{ts|al}} | 
+|-
+| 1259
+| 04EB
+| 028DA000
+| 028DD8F0
+| 0038F0
+| {{ts|al}} | [[men_room_9]]
+| {{ts|al}} | 
+|-
+| 1260
+| 04EC
+| 028DE000
+| 028E3C60
+| 005C60
+| {{ts|al}} | [[men_room_10]]
+| {{ts|al}} | 
+|-
+| 1261
+| 04ED
+| 028E4000
+| 028E42F0
+| 0002F0
+| {{ts|al}} | [[shop1_scene]]
+| {{ts|al}} | Scene File - Bazaar
+|-
+| 1262
+| 04EE
+| 028E5000
+| 0290E7B0
+| 0297B0
+| {{ts|al}} | [[shop1_room_0]]
+| {{ts|al}} | 
+|-
+| 1263
+| 04EF
+| 0290F000
+| 02920390
+| 011390
+| {{ts|al}} | [[hairal_niwa_scene]]
+| {{ts|al}} | Scene File - Castle Hedge Maze (Day)
+|-
+| 1264
+| 04F0
+| 02921000
+| 0292B8E0
+| 00A8E0
+| {{ts|al}} | [[hairal_niwa_room_0]]
+| {{ts|al}} | 
+|-
+| 1265
+| 04F1
+| 0292C000
+| 02930B70
+| 004B70
+| {{ts|al}} | [[ganon_tou_scene]]
+| {{ts|al}} | Scene File - Ganon's Castle Exterior
+|-
+| 1266
+| 04F2
+| 02931000
+| 02944AF0
+| 013AF0
+| {{ts|al}} | [[ganon_tou_room_0]]
+| {{ts|al}} | 
+|-
+| 1267
+| 04F3
+| 02945000
+| 02946250
+| 001250
+| {{ts|al}} | [[market_alley_scene]]
+| {{ts|al}} | Scene File - Back Alley (Day)
+|-
+| 1268
+| 04F4
+| 02947000
+| 029BC700
+| 075700
+| {{ts|al}} | [[market_alley_room_0]]
+| {{ts|al}} | 
+|-
+| 1269
+| 04F5
+| 029BD000
+| 029CEDC0
+| 011DC0
+| {{ts|al}} | [[spot20_scene]]
+| {{ts|al}} | Scene File - Spot 20 - Lon Lon Ranch
+|-
+| 1270
+| 04F6
+| 029CF000
+| 029D56D0
+| 0066D0
+| {{ts|al}} | [[spot20_room_0]]
+| {{ts|al}} | 
+|-
+| 1271
+| 04F7
+| 029D6000
+| 029D7630
+| 001630
+| {{ts|al}} | [[market_ruins_scene]]
+| {{ts|al}} | Scene File - Market (Ruins)
+|-
+| 1272
+| 04F8
+| 029D8000
+| 029DA820
+| 002820
+| {{ts|al}} | [[market_ruins_room_0]]
+| {{ts|al}} | 
+|-
+| 1273
+| 04F9
+| 029DB000
+| 029DB430
+| 000430
+| {{ts|al}} | [[entra_n_scene]]
+| {{ts|al}} | Scene File - Market Entrance (Child - Night)
+|-
+| 1274
+| 04FA
+| 029DC000
+| 02A01B70
+| 025B70
+| {{ts|al}} | [[entra_n_room_0]]
+| {{ts|al}} | 
+|-
+| 1275
+| 04FB
+| 02A02000
+| 02A023E0
+| 0003E0
+| {{ts|al}} | [[enrui_scene]]
+| {{ts|al}} | Scene File - Market Entrance (Ruins)
+|-
+| 1276
+| 04FC
+| 02A03000
+| 02A28B60
+| 025B60
+| {{ts|al}} | [[enrui_room_0]]
+| {{ts|al}} | 
+|-
+| 1277
+| 04FD
+| 02A29000
+| 02A2A2F0
+| 0012F0
+| {{ts|al}} | [[market_alley_n_scene]]
+| {{ts|al}} | Scene File - Back Alley (Night)
+|-
+| 1278
+| 04FE
+| 02A2B000
+| 02AA06F0
+| 0756F0
+| {{ts|al}} | [[market_alley_n_room_0]]
+| {{ts|al}} | 
+|-
+| 1279
+| 04FF
+| 02AA1000
+| 02AA4D50
+| 003D50
+| {{ts|al}} | [[hiral_demo_scene]]
+| {{ts|al}} | Scene File - Cutscene Map
+|-
+| 1280
+| 0500
+| 02AA5000
+| 02AA5640
+| 000640
+| {{ts|al}} | [[hiral_demo_room_0]]
+| {{ts|al}} | 
+|-
+| 1281
+| 0501
+| 02AA6000
+| 02AA77A0
+| 0017A0
+| {{ts|al}} | [[kokiri_home3_scene]]
+| {{ts|al}} | Scene File - House of Twins
+|-
+| 1282
+| 0502
+| 02AA8000
+| 02ADE610
+| 036610
+| {{ts|al}} | [[kokiri_home3_room_0]]
+| {{ts|al}} | 
+|-
+| 1283
+| 0503
+| 02ADF000
+| 02AF8B50
+| 019B50
+| {{ts|al}} | [[jyasinzou_scene]]
+| {{ts|al}} | Scene File - Spirit Temple
+|-
+| 1284
+| 0504
+| 02AF9000
+| 02B09F40
+| 010F40
+| {{ts|al}} | [[jyasinzou_room_0]]
+| {{ts|al}} | 
+|-
+| 1285
+| 0505
+| 02B0A000
+| 02B13300
+| 009300
+| {{ts|al}} | [[jyasinzou_room_1]]
+| {{ts|al}} | 
+|-
+| 1286
+| 0506
+| 02B14000
+| 02B19C10
+| 005C10
+| {{ts|al}} | [[jyasinzou_room_2]]
+| {{ts|al}} | 
+|-
+| 1287
+| 0507
+| 02B1A000
+| 02B1DB50
+| 003B50
+| {{ts|al}} | [[jyasinzou_room_3]]
+| {{ts|al}} | 
+|-
+| 1288
+| 0508
+| 02B1E000
+| 02B25270
+| 007270
+| {{ts|al}} | [[jyasinzou_room_4]]
+| {{ts|al}} | 
+|-
+| 1289
+| 0509
+| 02B26000
+| 02B3DF40
+| 017F40
+| {{ts|al}} | [[jyasinzou_room_5]]
+| {{ts|al}} | 
+|-
+| 1290
+| 050A
+| 02B3E000
+| 02B42800
+| 004800
+| {{ts|al}} | [[jyasinzou_room_6]]
+| {{ts|al}} | 
+|-
+| 1291
+| 050B
+| 02B43000
+| 02B48510
+| 005510
+| {{ts|al}} | [[jyasinzou_room_7]]
+| {{ts|al}} | 
+|-
+| 1292
+| 050C
+| 02B49000
+| 02B51070
+| 008070
+| {{ts|al}} | [[jyasinzou_room_8]]
+| {{ts|al}} | 
+|-
+| 1293
+| 050D
+| 02B52000
+| 02B57DF0
+| 005DF0
+| {{ts|al}} | [[jyasinzou_room_9]]
+| {{ts|al}} | 
+|-
+| 1294
+| 050E
+| 02B58000
+| 02B601A0
+| 0081A0
+| {{ts|al}} | [[jyasinzou_room_10]]
+| {{ts|al}} | 
+|-
+| 1295
+| 050F
+| 02B61000
+| 02B62010
+| 001010
+| {{ts|al}} | [[jyasinzou_room_11]]
+| {{ts|al}} | 
+|-
+| 1296
+| 0510
+| 02B63000
+| 02B65060
+| 002060
+| {{ts|al}} | [[jyasinzou_room_12]]
+| {{ts|al}} | 
+|-
+| 1297
+| 0511
+| 02B66000
+| 02B6B850
+| 005850
+| {{ts|al}} | [[jyasinzou_room_13]]
+| {{ts|al}} | 
+|-
+| 1298
+| 0512
+| 02B6C000
+| 02B70C90
+| 004C90
+| {{ts|al}} | [[jyasinzou_room_14]]
+| {{ts|al}} | 
+|-
+| 1299
+| 0513
+| 02B71000
+| 02B79470
+| 008470
+| {{ts|al}} | [[jyasinzou_room_15]]
+| {{ts|al}} | 
+|-
+| 1300
+| 0514
+| 02B7A000
+| 02B80190
+| 006190
+| {{ts|al}} | [[jyasinzou_room_16]]
+| {{ts|al}} | 
+|-
+| 1301
+| 0515
+| 02B81000
+| 02B8A610
+| 009610
+| {{ts|al}} | [[jyasinzou_room_17]]
+| {{ts|al}} | 
+|-
+| 1302
+| 0516
+| 02B8B000
+| 02B90CB0
+| 005CB0
+| {{ts|al}} | [[jyasinzou_room_18]]
+| {{ts|al}} | 
+|-
+| 1303
+| 0517
+| 02B91000
+| 02B96DE0
+| 005DE0
+| {{ts|al}} | [[jyasinzou_room_19]]
+| {{ts|al}} | 
+|-
+| 1304
+| 0518
+| 02B97000
+| 02B9F1C0
+| 0081C0
+| {{ts|al}} | [[jyasinzou_room_20]]
+| {{ts|al}} | 
+|-
+| 1305
+| 0519
+| 02BA0000
+| 02BA4650
+| 004650
+| {{ts|al}} | [[jyasinzou_room_21]]
+| {{ts|al}} | 
+|-
+| 1306
+| 051A
+| 02BA5000
+| 02BA80D0
+| 0030D0
+| {{ts|al}} | [[jyasinzou_room_22]]
+| {{ts|al}} | 
+|-
+| 1307
+| 051B
+| 02BA9000
+| 02BB2190
+| 009190
+| {{ts|al}} | [[jyasinzou_room_23]]
+| {{ts|al}} | 
+|-
+| 1308
+| 051C
+| 02BB3000
+| 02BB94B0
+| 0064B0
+| {{ts|al}} | [[jyasinzou_room_24]]
+| {{ts|al}} | 
+|-
+| 1309
+| 051D
+| 02BBA000
+| 02BCFB70
+| 015B70
+| {{ts|al}} | [[jyasinzou_room_25]]
+| {{ts|al}} | 
+|-
+| 1310
+| 051E
+| 02BD0000
+| 02BDCB20
+| 00CB20
+| {{ts|al}} | [[jyasinzou_room_26]]
+| {{ts|al}} | 
+|-
+| 1311
+| 051F
+| 02BDD000
+| 02BE26C0
+| 0056C0
+| {{ts|al}} | [[jyasinzou_room_27]]
+| {{ts|al}} | 
+|-
+| 1312
+| 0520
+| 02BE3000
+| 02BEBA20
+| 008A20
+| {{ts|al}} | [[jyasinzou_room_28]]
+| {{ts|al}} | 
+|-
+| 1313
+| 0521
+| 02BEC000
+| 02BFD5F0
+| 0115F0
+| {{ts|al}} | [[ice_doukutu_scene]]
+| {{ts|al}} | Scene File - Ice Cavern
+|-
+| 1314
+| 0522
+| 02BFE000
+| 02C06660
+| 008660
+| {{ts|al}} | [[ice_doukutu_room_0]]
+| {{ts|al}} | 
+|-
+| 1315
+| 0523
+| 02C07000
+| 02C13540
+| 00C540
+| {{ts|al}} | [[ice_doukutu_room_1]]
+| {{ts|al}} | 
+|-
+| 1316
+| 0524
+| 02C14000
+| 02C19AF0
+| 005AF0
+| {{ts|al}} | [[ice_doukutu_room_2]]
+| {{ts|al}} | 
+|-
+| 1317
+| 0525
+| 02C1A000
+| 02C22080
+| 008080
+| {{ts|al}} | [[ice_doukutu_room_3]]
+| {{ts|al}} | 
+|-
+| 1318
+| 0526
+| 02C23000
+| 02C2A670
+| 007670
+| {{ts|al}} | [[ice_doukutu_room_4]]
+| {{ts|al}} | 
+|-
+| 1319
+| 0527
+| 02C2B000
+| 02C33890
+| 008890
+| {{ts|al}} | [[ice_doukutu_room_5]]
+| {{ts|al}} | 
+|-
+| 1320
+| 0528
+| 02C34000
+| 02C38260
+| 004260
+| {{ts|al}} | [[ice_doukutu_room_6]]
+| {{ts|al}} | 
+|-
+| 1321
+| 0529
+| 02C39000
+| 02C3E8F0
+| 0058F0
+| {{ts|al}} | [[ice_doukutu_room_7]]
+| {{ts|al}} | 
+|-
+| 1322
+| 052A
+| 02C3F000
+| 02C40950
+| 001950
+| {{ts|al}} | [[ice_doukutu_room_8]]
+| {{ts|al}} | 
+|-
+| 1323
+| 052B
+| 02C41000
+| 02C49650
+| 008650
+| {{ts|al}} | [[ice_doukutu_room_9]]
+| {{ts|al}} | 
+|-
+| 1324
+| 052C
+| 02C4A000
+| 02C4E3E0
+| 0043E0
+| {{ts|al}} | [[ice_doukutu_room_10]]
+| {{ts|al}} | 
+|-
+| 1325
+| 052D
+| 02C4F000
+| 02C54900
+| 005900
+| {{ts|al}} | [[ice_doukutu_room_11]]
+| {{ts|al}} | 
+|-
+| 1326
+| 052E
+| 02C55000
+| 02C55670
+| 000670
+| {{ts|al}} | [[malon_stable_scene]]
+| {{ts|al}} | Scene File - Stable
+|-
+| 1327
+| 052F
+| 02C56000
+| 02C84250
+| 02E250
+| {{ts|al}} | [[malon_stable_room_0]]
+| {{ts|al}} | 
+|-
+| 1328
+| 0530
+| 02C85000
+| 02C85EA0
+| 000EA0
+| {{ts|al}} | [[kakariko_scene]]
+| {{ts|al}} | Scene File - Carpenter Boss's House
+|-
+| 1329
+| 0531
+| 02C86000
+| 02CB0FC0
+| 02AFC0
+| {{ts|al}} | [[kakariko_room_0]]
+| {{ts|al}} | 
+|-
+| 1330
+| 0532
+| 02CB1000
+| 02CB1E40
+| 000E40
+| {{ts|al}} | [[bdan_boss_scene]]
+| {{ts|al}} | Scene File - Barinade's Lair
+|-
+| 1331
+| 0533
+| 02CB2000
+| 02CB5020
+| 003020
+| {{ts|al}} | [[bdan_boss_room_0]]
+| {{ts|al}} | 
+|-
+| 1332
+| 0534
+| 02CB6000
+| 02CBB0C0
+| 0050C0
+| {{ts|al}} | [[bdan_boss_room_1]]
+| {{ts|al}} | 
+|-
+| 1333
+| 0535
+| 02CBC000
+| 02CC0C00
+| 004C00
+| {{ts|al}} | [[FIRE_bs_scene]]
+| {{ts|al}} | Scene File - Volvagia's Lair
+|-
+| 1334
+| 0536
+| 02CC1000
+| 02CC5270
+| 004270
+| {{ts|al}} | [[FIRE_bs_room_0]]
+| {{ts|al}} | 
+|-
+| 1335
+| 0537
+| 02CC6000
+| 02CCCFE0
+| 006FE0
+| {{ts|al}} | [[FIRE_bs_room_1]]
+| {{ts|al}} | 
+|-
+| 1336
+| 0538
+| 02CCD000
+| 02CCD510
+| 000510
+| {{ts|al}} | [[hut_scene]]
+| {{ts|al}} | Scene File - Gravekeeper's Hut
+|-
+| 1337
+| 0539
+| 02CCE000
+| 02CF75A0
+| 0295A0
+| {{ts|al}} | [[hut_room_0]]
+| {{ts|al}} | 
+|-
+| 1338
+| 053A
+| 02CF8000
+| 02D06000
+| 00E000
+| {{ts|al}} | [[daiyousei_izumi_scene]]
+| {{ts|al}} | Scene File - Great Fairy's Fountain (Upgrades)
+|-
+| 1339
+| 053B
+| 02D06000
+| 02D09910
+| 003910
+| {{ts|al}} | [[daiyousei_izumi_room_0]]
+| {{ts|al}} | 
+|-
+| 1340
+| 053C
+| 02D0A000
+| 02D0AA90
+| 000A90
+| {{ts|al}} | [[hakaana_scene]]
+| {{ts|al}} | Scene File - Grave (Redead)
+|-
+| 1341
+| 053D
+| 02D0B000
+| 02D128D0
+| 0078D0
+| {{ts|al}} | [[hakaana_room_0]]
+| {{ts|al}} | 
+|-
+| 1342
+| 053E
+| 02D13000
+| 02D1B810
+| 008810
+| {{ts|al}} | [[yousei_izumi_tate_scene]]
+| {{ts|al}} | Scene File - Fairy's Fountain (Healing Fairies)
+|-
+| 1343
+| 053F
+| 02D1C000
+| 02D202D0
+| 0042D0
+| {{ts|al}} | [[yousei_izumi_tate_room_0]]
+| {{ts|al}} | 
+|-
+| 1344
+| 0540
+| 02D21000
+| 02D2DDA0
+| 00CDA0
+| {{ts|al}} | [[yousei_izumi_yoko_scene]]
+| {{ts|al}} | Scene File - Great Fairy's Fountain (Spells)
+|-
+| 1345
+| 0541
+| 02D2E000
+| 02D32010
+| 004010
+| {{ts|al}} | [[yousei_izumi_yoko_room_0]]
+| {{ts|al}} | 
+|-
+| 1346
+| 0542
+| 02D33000
+| 02D333A0
+| 0003A0
+| {{ts|al}} | [[golon_scene]]
+| {{ts|al}} | Scene File - Goron Shop
+|-
+| 1347
+| 0543
+| 02D34000
+| 02D5A1D0
+| 0261D0
+| {{ts|al}} | [[golon_room_0]]
+| {{ts|al}} | 
+|-
+| 1348
+| 0544
+| 02D5B000
+| 02D5B390
+| 000390
+| {{ts|al}} | [[zoora_scene]]
+| {{ts|al}} | Scene File - Zora Shop
+|-
+| 1349
+| 0545
+| 02D5C000
+| 02D821E0
+| 0261E0
+| {{ts|al}} | [[zoora_room_0]]
+| {{ts|al}} | 
+|-
+| 1350
+| 0546
+| 02D83000
+| 02D833F0
+| 0003F0
+| {{ts|al}} | [[drag_scene]]
+| {{ts|al}} | Scene File - Kakariko Potion Shop
+|-
+| 1351
+| 0547
+| 02D84000
+| 02DAFE60
+| 02BE60
+| {{ts|al}} | [[drag_room_0]]
+| {{ts|al}} | 
+|-
+| 1352
+| 0548
+| 02DB0000
+| 02DB05B0
+| 0005B0
+| {{ts|al}} | [[alley_shop_scene]]
+| {{ts|al}} | Scene File - Market Potion Shop
+|-
+| 1353
+| 0549
+| 02DB1000
+| 02DD7C30
+| 026C30
+| {{ts|al}} | [[alley_shop_room_0]]
+| {{ts|al}} | 
+|-
+| 1354
+| 054A
+| 02DD8000
+| 02DD8670
+| 000670
+| {{ts|al}} | [[night_shop_scene]]
+| {{ts|al}} | Scene File - Bombchu Shop
+|-
+| 1355
+| 054B
+| 02DD9000
+| 02E01960
+| 028960
+| {{ts|al}} | [[night_shop_room_0]]
+| {{ts|al}} | 
+|-
+| 1356
+| 054C
+| 02E02000
+| 02E02D10
+| 000D10
+| {{ts|al}} | [[impa_scene]]
+| {{ts|al}} | Scene File - Back Alley House (Dog Lady)
+|-
+| 1357
+| 054D
+| 02E03000
+| 02E29FA0
+| 026FA0
+| {{ts|al}} | [[impa_room_0]]
+| {{ts|al}} | 
+|-
+| 1358
+| 054E
+| 02E2A000
+| 02E2AEF0
+| 000EF0
+| {{ts|al}} | [[labo_scene]]
+| {{ts|al}} | Scene File - Impa's House
+|-
+| 1359
+| 054F
+| 02E2B000
+| 02E576F0
+| 02C6F0
+| {{ts|al}} | [[labo_room_0]]
+| {{ts|al}} | 
+|-
+| 1360
+| 0550
+| 02E58000
+| 02E58680
+| 000680
+| {{ts|al}} | [[tent_scene]]
+| {{ts|al}} | Scene File - Carpenters' Tent
+|-
+| 1361
+| 0551
+| 02E59000
+| 02E8C6A0
+| 0336A0
+| {{ts|al}} | [[tent_room_0]]
+| {{ts|al}} | 
+|-
+| 1362
+| 0552
+| 02E8D000
+| 02E90A20
+| 003A20
+| {{ts|al}} | [[nakaniwa_scene]]
+| {{ts|al}} | Scene File - Castle Courtyard
+|-
+| 1363
+| 0553
+| 02E91000
+| 02EA8EC0
+| 017EC0
+| {{ts|al}} | [[nakaniwa_room_0]]
+| {{ts|al}} | 
+|-
+| 1364
+| 0554
+| 02EA9000
+| 02EAB860
+| 002860
+| {{ts|al}} | [[ddan_boss_scene]]
+| {{ts|al}} | Scene File - King Dodongo's Lair
+|-
+| 1365
+| 0555
+| 02EAC000
+| 02EB0E30
+| 004E30
+| {{ts|al}} | [[ddan_boss_room_0]]
+| {{ts|al}} | 
+|-
+| 1366
+| 0556
+| 02EB1000
+| 02EB4DE0
+| 003DE0
+| {{ts|al}} | [[ddan_boss_room_1]]
+| {{ts|al}} | 
+|-
+| 1367
+| 0557
+| 02EB5000
+| 02EB6740
+| 001740
+| {{ts|al}} | [[ydan_boss_scene]]
+| {{ts|al}} | Scene File - Gohma's Lair
+|-
+| 1368
+| 0558
+| 02EB7000
+| 02EBDFF0
+| 006FF0
+| {{ts|al}} | [[ydan_boss_room_0]]
+| {{ts|al}} | 
+|-
+| 1369
+| 0559
+| 02EBE000
+| 02EC47F0
+| 0067F0
+| {{ts|al}} | [[ydan_boss_room_1]]
+| {{ts|al}} | 
+|-
+| 1370
+| 055A
+| 02EC5000
+| 02EC7780
+| 002780
+| {{ts|al}} | [[HAKAdan_bs_scene]]
+| {{ts|al}} | Scene File - Bongo Bongo's Lair
+|-
+| 1371
+| 055B
+| 02EC8000
+| 02ECA9E0
+| 0029E0
+| {{ts|al}} | [[HAKAdan_bs_room_0]]
+| {{ts|al}} | 
+|-
+| 1372
+| 055C
+| 02ECB000
+| 02ED0F50
+| 005F50
+| {{ts|al}} | [[HAKAdan_bs_room_1]]
+| {{ts|al}} | 
+|-
+| 1373
+| 055D
+| 02ED1000
+| 02ED2A60
+| 001A60
+| {{ts|al}} | [[MIZUsin_bs_scene]]
+| {{ts|al}} | Scene File - Morpha's Lair
+|-
+| 1374
+| 055E
+| 02ED3000
+| 02ED7470
+| 004470
+| {{ts|al}} | [[MIZUsin_bs_room_0]]
+| {{ts|al}} | 
+|-
+| 1375
+| 055F
+| 02ED8000
+| 02EE32F0
+| 00B2F0
+| {{ts|al}} | [[MIZUsin_bs_room_1]]
+| {{ts|al}} | 
+|-
+| 1376
+| 0560
+| 02EE4000
+| 02EF47B0
+| 0107B0
+| {{ts|al}} | [[ganon_scene]]
+| {{ts|al}} | Scene File - Ganon's Tower
+|-
+| 1377
+| 0561
+| 02EF5000
+| 02EFCED0
+| 007ED0
+| {{ts|al}} | [[ganon_room_0]]
+| {{ts|al}} | 
+|-
+| 1378
+| 0562
+| 02EFD000
+| 02F04770
+| 007770
+| {{ts|al}} | [[ganon_room_1]]
+| {{ts|al}} | 
+|-
+| 1379
+| 0563
+| 02F05000
+| 02F0C850
+| 007850
+| {{ts|al}} | [[ganon_room_2]]
+| {{ts|al}} | 
+|-
+| 1380
+| 0564
+| 02F0D000
+| 02F14730
+| 007730
+| {{ts|al}} | [[ganon_room_3]]
+| {{ts|al}} | 
+|-
+| 1381
+| 0565
+| 02F15000
+| 02F1E0D0
+| 0090D0
+| {{ts|al}} | [[ganon_room_4]]
+| {{ts|al}} | 
+|-
+| 1382
+| 0566
+| 02F1F000
+| 02F27B10
+| 008B10
+| {{ts|al}} | [[ganon_room_5]]
+| {{ts|al}} | 
+|-
+| 1383
+| 0567
+| 02F28000
+| 02F31BA0
+| 009BA0
+| {{ts|al}} | [[ganon_room_6]]
+| {{ts|al}} | 
+|-
+| 1384
+| 0568
+| 02F32000
+| 02F3C7A0
+| 00A7A0
+| {{ts|al}} | [[ganon_room_7]]
+| {{ts|al}} | 
+|-
+| 1385
+| 0569
+| 02F3D000
+| 02F43BE0
+| 006BE0
+| {{ts|al}} | [[ganon_room_8]]
+| {{ts|al}} | 
+|-
+| 1386
+| 056A
+| 02F44000
+| 02F49920
+| 005920
+| {{ts|al}} | [[ganon_room_9]]
+| {{ts|al}} | 
+|-
+| 1387
+| 056B
+| 02F4A000
+| 02F51C20
+| 007C20
+| {{ts|al}} | [[ganon_boss_scene]]
+| {{ts|al}} | Scene File - Ganondorf's Lair
+|-
+| 1388
+| 056C
+| 02F52000
+| 02F57E80
+| 005E80
+| {{ts|al}} | [[ganon_boss_room_0]]
+| {{ts|al}} | 
+|-
+| 1389
+| 056D
+| 02F58000
+| 02F60CF0
+| 008CF0
+| {{ts|al}} | [[jyasinboss_scene]]
+| {{ts|al}} | Scene File - Twinrova's Lair & Iron Knuckle's Lair
+|-
+| 1390
+| 056E
+| 02F61000
+| 02F61FD0
+| 000FD0
+| {{ts|al}} | [[jyasinboss_room_0]]
+| {{ts|al}} | 
+|-
+| 1391
+| 056F
+| 02F62000
+| 02F69E40
+| 007E40
+| {{ts|al}} | [[jyasinboss_room_1]]
+| {{ts|al}} | 
+|-
+| 1392
+| 0570
+| 02F6A000
+| 02F6DDC0
+| 003DC0
+| {{ts|al}} | [[jyasinboss_room_2]]
+| {{ts|al}} | 
+|-
+| 1393
+| 0571
+| 02F6E000
+| 02F79700
+| 00B700
+| {{ts|al}} | [[jyasinboss_room_3]]
+| {{ts|al}} | 
+|-
+| 1394
+| 0572
+| 02F7A000
+| 02F7BAB0
+| 001AB0
+| {{ts|al}} | [[kokiri_home4_scene]]
+| {{ts|al}} | Scene File - Mido's House
+|-
+| 1395
+| 0573
+| 02F7C000
+| 02FB4950
+| 038950
+| {{ts|al}} | [[kokiri_home4_room_0]]
+| {{ts|al}} | 
+|-
+| 1396
+| 0574
+| 02FB5000
+| 02FB6410
+| 001410
+| {{ts|al}} | [[kokiri_home5_scene]]
+| {{ts|al}} | Scene File - Saria's House
+|-
+| 1397
+| 0575
+| 02FB7000
+| 02FE7F60
+| 030F60
+| {{ts|al}} | [[kokiri_home5_room_0]]
+| {{ts|al}} | 
+|-
+| 1398
+| 0576
+| 02FE8000
+| 02FFA180
+| 012180
+| {{ts|al}} | [[ganon_final_scene]]
+| {{ts|al}} | Scene File - Ganondorf's Death Scene (Tower Escape Exterior)
+|-
+| 1399
+| 0577
+| 02FFB000
+| 03007EB0
+| 00CEB0
+| {{ts|al}} | [[ganon_final_room_0]]
+| {{ts|al}} | 
+|-
+| 1400
+| 0578
+| 03008000
+| 03008840
+| 000840
+| {{ts|al}} | [[kakariko3_scene]]
+| {{ts|al}} | Scene File - Back Alley House (Man in Green)
+|-
+| 1401
+| 0579
+| 03009000
+| 03033580
+| 02A580
+| {{ts|al}} | [[kakariko3_room_0]]
+| {{ts|al}} | 
+|-
+| 1402
+| 057A
+| 03034000
+| 03042270
+| 00E270
+| {{ts|al}} | [[hakasitarelay_scene]]
+| {{ts|al}} | Scene File - Dampé's Grave & Windmill
+|-
+| 1403
+| 057B
+| 03043000
+| 0304A310
+| 007310
+| {{ts|al}} | [[hakasitarelay_room_0]]
+| {{ts|al}} | 
+|-
+| 1404
+| 057C
+| 0304B000
+| 03051740
+| 006740
+| {{ts|al}} | [[hakasitarelay_room_1]]
+| {{ts|al}} | 
+|-
+| 1405
+| 057D
+| 03052000
+| 0305A4F0
+| 0084F0
+| {{ts|al}} | [[hakasitarelay_room_2]]
+| {{ts|al}} | 
+|-
+| 1406
+| 057E
+| 0305B000
+| 03063D20
+| 008D20
+| {{ts|al}} | [[hakasitarelay_room_3]]
+| {{ts|al}} | 
+|-
+| 1407
+| 057F
+| 03064000
+| 030684A0
+| 0044A0
+| {{ts|al}} | [[hakasitarelay_room_4]]
+| {{ts|al}} | 
+|-
+| 1408
+| 0580
+| 03069000
+| 0306D470
+| 004470
+| {{ts|al}} | [[hakasitarelay_room_5]]
+| {{ts|al}} | 
+|-
+| 1409
+| 0581
+| 0306E000
+| 03075AD0
+| 007AD0
+| {{ts|al}} | [[hakasitarelay_room_6]]
+| {{ts|al}} | 
+|-
+| 1410
+| 0582
+| 03076000
+| 030774E0
+| 0014E0
+| {{ts|al}} | [[shrine_scene]]
+| {{ts|al}} | Scene File - Temple of Time Exterior (Day)
+|-
+| 1411
+| 0583
+| 03078000
+| 030CAAF0
+| 052AF0
+| {{ts|al}} | [[shrine_room_0]]
+| {{ts|al}} | 
+|-
+| 1412
+| 0584
+| 030CB000
+| 030DD6E0
+| 0126E0
+| {{ts|al}} | [[turibori_scene]]
+| {{ts|al}} | Scene File - Fishing Pond
+|-
+| 1413
+| 0585
+| 030DE000
+| 030E4760
+| 006760
+| {{ts|al}} | [[turibori_room_0]]
+| {{ts|al}} | 
+|-
+| 1414
+| 0586
+| 030E5000
+| 030E6500
+| 001500
+| {{ts|al}} | [[shrine_n_scene]]
+| {{ts|al}} | Scene File - Temple of Time Exterior (Night)
+|-
+| 1415
+| 0587
+| 030E7000
+| 03139B10
+| 052B10
+| {{ts|al}} | [[shrine_n_room_0]]
+| {{ts|al}} | 
+|-
+| 1416
+| 0588
+| 0313A000
+| 0313B490
+| 001490
+| {{ts|al}} | [[shrine_r_scene]]
+| {{ts|al}} | Scene File - Temple of Time Exterior (Ruins)
+|-
+| 1417
+| 0589
+| 0313C000
+| 0318EAF0
+| 052AF0
+| {{ts|al}} | [[shrine_r_room_0]]
+| {{ts|al}} | 
+|-
+| 1418
+| 058A
+| 0318F000
+| 031B07C0
+| 0217C0
+| {{ts|al}} | [[ganontika_scene]]
+| {{ts|al}} | Scene File - Inside Ganon's Castle
+|-
+| 1419
+| 058B
+| 031B1000
+| 031BA1C0
+| 0091C0
+| {{ts|al}} | [[ganontika_room_0]]
+| {{ts|al}} | 
+|-
+| 1420
+| 058C
+| 031BB000
+| 031D79B0
+| 01C9B0
+| {{ts|al}} | [[ganontika_room_1]]
+| {{ts|al}} | 
+|-
+| 1421
+| 058D
+| 031D8000
+| 031DF7E0
+| 0077E0
+| {{ts|al}} | [[ganontika_room_2]]
+| {{ts|al}} | 
+|-
+| 1422
+| 058E
+| 031E0000
+| 031E9990
+| 009990
+| {{ts|al}} | [[ganontika_room_3]]
+| {{ts|al}} | 
+|-
+| 1423
+| 058F
+| 031EA000
+| 031F1C90
+| 007C90
+| {{ts|al}} | [[ganontika_room_4]]
+| {{ts|al}} | 
+|-
+| 1424
+| 0590
+| 031F2000
+| 031F9540
+| 007540
+| {{ts|al}} | [[ganontika_room_5]]
+| {{ts|al}} | 
+|-
+| 1425
+| 0591
+| 031FA000
+| 03209BF0
+| 00FBF0
+| {{ts|al}} | [[ganontika_room_6]]
+| {{ts|al}} | 
+|-
+| 1426
+| 0592
+| 0320A000
+| 03211C90
+| 007C90
+| {{ts|al}} | [[ganontika_room_7]]
+| {{ts|al}} | 
+|-
+| 1427
+| 0593
+| 03212000
+| 0321B070
+| 009070
+| {{ts|al}} | [[ganontika_room_8]]
+| {{ts|al}} | 
+|-
+| 1428
+| 0594
+| 0321C000
+| 03227890
+| 00B890
+| {{ts|al}} | [[ganontika_room_9]]
+| {{ts|al}} | 
+|-
+| 1429
+| 0595
+| 03228000
+| 0322EB70
+| 006B70
+| {{ts|al}} | [[ganontika_room_10]]
+| {{ts|al}} | 
+|-
+| 1430
+| 0596
+| 0322F000
+| 03235950
+| 006950
+| {{ts|al}} | [[ganontika_room_11]]
+| {{ts|al}} | 
+|-
+| 1431
+| 0597
+| 03236000
+| 03241370
+| 00B370
+| {{ts|al}} | [[ganontika_room_12]]
+| {{ts|al}} | 
+|-
+| 1432
+| 0598
+| 03242000
+| 03249D40
+| 007D40
+| {{ts|al}} | [[ganontika_room_13]]
+| {{ts|al}} | 
+|-
+| 1433
+| 0599
+| 0324A000
+| 032541A0
+| 00A1A0
+| {{ts|al}} | [[ganontika_room_14]]
+| {{ts|al}} | 
+|-
+| 1434
+| 059A
+| 03255000
+| 0325CD40
+| 007D40
+| {{ts|al}} | [[ganontika_room_15]]
+| {{ts|al}} | 
+|-
+| 1435
+| 059B
+| 0325D000
+| 0325FE20
+| 002E20
+| {{ts|al}} | [[ganontika_room_16]]
+| {{ts|al}} | 
+|-
+| 1436
+| 059C
+| 03260000
+| 032686A0
+| 0086A0
+| {{ts|al}} | [[ganontika_room_17]]
+| {{ts|al}} | 
+|-
+| 1437
+| 059D
+| 03269000
+| 03275670
+| 00C670
+| {{ts|al}} | [[ganontika_room_18]]
+| {{ts|al}} | 
+|-
+| 1438
+| 059E
+| 03276000
+| 0327DD40
+| 007D40
+| {{ts|al}} | [[ganontika_room_19]]
+| {{ts|al}} | 
+|-
+| 1439
+| 059F
+| 0327E000
+| 0328B090
+| 00D090
+| {{ts|al}} | [[hakaana2_scene]]
+| {{ts|al}} | Scene File - Grave (Fairy's Fountain)
+|-
+| 1440
+| 05A0
+| 0328C000
+| 03292810
+| 006810
+| {{ts|al}} | [[hakaana2_room_0]]
+| {{ts|al}} | 
+|-
+| 1441
+| 05A1
+| 03293000
+| 032A0920
+| 00D920
+| {{ts|al}} | [[gerudoway_scene]]
+| {{ts|al}} | Scene File - Thieves' Hideout
+|-
+| 1442
+| 05A2
+| 032A1000
+| 032A5D40
+| 004D40
+| {{ts|al}} | [[gerudoway_room_0]]
+| {{ts|al}} | 
+|-
+| 1443
+| 05A3
+| 032A6000
+| 032AD2B0
+| 0072B0
+| {{ts|al}} | [[gerudoway_room_1]]
+| {{ts|al}} | 
+|-
+| 1444
+| 05A4
+| 032AE000
+| 032B1E50
+| 003E50
+| {{ts|al}} | [[gerudoway_room_2]]
+| {{ts|al}} | 
+|-
+| 1445
+| 05A5
+| 032B2000
+| 032BD310
+| 00B310
+| {{ts|al}} | [[gerudoway_room_3]]
+| {{ts|al}} | 
+|-
+| 1446
+| 05A6
+| 032BE000
+| 032C1920
+| 003920
+| {{ts|al}} | [[gerudoway_room_4]]
+| {{ts|al}} | 
+|-
+| 1447
+| 05A7
+| 032C2000
+| 032C6E40
+| 004E40
+| {{ts|al}} | [[gerudoway_room_5]]
+| {{ts|al}} | 
+|-
+| 1448
+| 05A8
+| 032C7000
+| 032D3560
+| 00C560
+| {{ts|al}} | [[HAKAdanCH_scene]]
+| {{ts|al}} | Scene File - Bottom of the Well
+|-
+| 1449
+| 05A9
+| 032D4000
+| 032E95F0
+| 0155F0
+| {{ts|al}} | [[HAKAdanCH_room_0]]
+| {{ts|al}} | 
+|-
+| 1450
+| 05AA
+| 032EA000
+| 032F52D0
+| 00B2D0
+| {{ts|al}} | [[HAKAdanCH_room_1]]
+| {{ts|al}} | 
+|-
+| 1451
+| 05AB
+| 032F6000
+| 032F9190
+| 003190
+| {{ts|al}} | [[HAKAdanCH_room_2]]
+| {{ts|al}} | 
+|-
+| 1452
+| 05AC
+| 032FA000
+| 032FBC60
+| 001C60
+| {{ts|al}} | [[HAKAdanCH_room_3]]
+| {{ts|al}} | 
+|-
+| 1453
+| 05AD
+| 032FC000
+| 032FE450
+| 002450
+| {{ts|al}} | [[HAKAdanCH_room_4]]
+| {{ts|al}} | 
+|-
+| 1454
+| 05AE
+| 032FF000
+| 03301960
+| 002960
+| {{ts|al}} | [[HAKAdanCH_room_5]]
+| {{ts|al}} | 
+|-
+| 1455
+| 05AF
+| 03302000
+| 03304E80
+| 002E80
+| {{ts|al}} | [[HAKAdanCH_room_6]]
+| {{ts|al}} | 
+|-
+| 1456
+| 05B0
+| 03305000
+| 0330E0F0
+| 0090F0
+| {{ts|al}} | [[hairal_niwa_n_scene]]
+| {{ts|al}} | Scene File - Castle Hedge Maze (Night)
+|-
+| 1457
+| 05B1
+| 0330F000
+| 03312620
+| 003620
+| {{ts|al}} | [[hairal_niwa_n_room_0]]
+| {{ts|al}} | 
+|-
+| 1458
+| 05B2
+| 03313000
+| 03321B20
+| 00EB20
+| {{ts|al}} | [[bowling_scene]]
+| {{ts|al}} | Scene File - Bombchu Bowling Alley
+|-
+| 1459
+| 05B3
+| 03322000
+| 033281E0
+| 0061E0
+| {{ts|al}} | [[bowling_room_0]]
+| {{ts|al}} | 
+|-
+| 1460
+| 05B4
+| 03329000
+| 0332DAE0
+| 004AE0
+| {{ts|al}} | [[hakaana_ouke_scene]]
+| {{ts|al}} | Scene File - Royal Family's Tomb
+|-
+| 1461
+| 05B5
+| 0332E000
+| 03338800
+| 00A800
+| {{ts|al}} | [[hakaana_ouke_room_0]]
+| {{ts|al}} | 
+|-
+| 1462
+| 05B6
+| 03339000
+| 0333D800
+| 004800
+| {{ts|al}} | [[hakaana_ouke_room_1]]
+| {{ts|al}} | 
+|-
+| 1463
+| 05B7
+| 0333E000
+| 03344110
+| 006110
+| {{ts|al}} | [[hakaana_ouke_room_2]]
+| {{ts|al}} | 
+|-
+| 1464
+| 05B8
+| 03345000
+| 03356090
+| 011090
+| {{ts|al}} | [[hylia_labo_scene]]
+| {{ts|al}} | Scene File - Lakeside Laboratory
+|-
+| 1465
+| 05B9
+| 03357000
+| 0335E5D0
+| 0075D0
+| {{ts|al}} | [[hylia_labo_room_0]]
+| {{ts|al}} | 
+|-
+| 1466
+| 05BA
+| 0335F000
+| 03365C10
+| 006C10
+| {{ts|al}} | [[souko_scene]]
+| {{ts|al}} | Scene File - Lon Lon Ranch House & Tower
+|-
+| 1467
+| 05BB
+| 03366000
+| 0336F540
+| 009540
+| {{ts|al}} | [[souko_room_0]]
+| {{ts|al}} | 
+|-
+| 1468
+| 05BC
+| 03370000
+| 0337A430
+| 00A430
+| {{ts|al}} | [[souko_room_1]]
+| {{ts|al}} | 
+|-
+| 1469
+| 05BD
+| 0337B000
+| 03383180
+| 008180
+| {{ts|al}} | [[souko_room_2]]
+| {{ts|al}} | 
+|-
+| 1470
+| 05BE
+| 03384000
+| 03390550
+| 00C550
+| {{ts|al}} | [[miharigoya_scene]]
+| {{ts|al}} | Scene File - Guard House
+|-
+| 1471
+| 05BF
+| 03391000
+| 03394DB0
+| 003DB0
+| {{ts|al}} | [[miharigoya_room_0]]
+| {{ts|al}} | 
+|-
+| 1472
+| 05C0
+| 03395000
+| 0339FA20
+| 00AA20
+| {{ts|al}} | [[mahouya_scene]]
+| {{ts|al}} | Scene File - Granny's Potion Shop
+|-
+| 1473
+| 05C1
+| 033A0000
+| 033A6A90
+| 006A90
+| {{ts|al}} | [[mahouya_room_0]]
+| {{ts|al}} | 
+|-
+| 1474
+| 05C2
+| 033A7000
+| 033AE1B0
+| 0071B0
+| {{ts|al}} | [[takaraya_scene]]
+| {{ts|al}} | Scene File - Treasure Chest Shop
+|-
+| 1475
+| 05C3
+| 033AF000
+| 033B8DC0
+| 009DC0
+| {{ts|al}} | [[takaraya_room_0]]
+| {{ts|al}} | 
+|-
+| 1476
+| 05C4
+| 033B9000
+| 033BB000
+| 002000
+| {{ts|al}} | [[takaraya_room_1]]
+| {{ts|al}} | 
+|-
+| 1477
+| 05C5
+| 033BB000
+| 033BD030
+| 002030
+| {{ts|al}} | [[takaraya_room_2]]
+| {{ts|al}} | 
+|-
+| 1478
+| 05C6
+| 033BE000
+| 033C0820
+| 002820
+| {{ts|al}} | [[takaraya_room_3]]
+| {{ts|al}} | 
+|-
+| 1479
+| 05C7
+| 033C1000
+| 033C4020
+| 003020
+| {{ts|al}} | [[takaraya_room_4]]
+| {{ts|al}} | 
+|-
+| 1480
+| 05C8
+| 033C5000
+| 033C8000
+| 003000
+| {{ts|al}} | [[takaraya_room_5]]
+| {{ts|al}} | 
+|-
+| 1481
+| 05C9
+| 033C8000
+| 033CAB00
+| 002B00
+| {{ts|al}} | [[takaraya_room_6]]
+| {{ts|al}} | 
+|-
+| 1482
+| 05CA
+| 033CB000
+| 033D2F10
+| 007F10
+| {{ts|al}} | [[ganon_sonogo_scene]]
+| {{ts|al}} | Scene File - Ganon's Tower (Collapsing)
+|-
+| 1483
+| 05CB
+| 033D3000
+| 033DAE80
+| 007E80
+| {{ts|al}} | [[ganon_sonogo_room_0]]
+| {{ts|al}} | 
+|-
+| 1484
+| 05CC
+| 033DB000
+| 033E2BB0
+| 007BB0
+| {{ts|al}} | [[ganon_sonogo_room_1]]
+| {{ts|al}} | 
+|-
+| 1485
+| 05CD
+| 033E3000
+| 033EBCA0
+| 008CA0
+| {{ts|al}} | [[ganon_sonogo_room_2]]
+| {{ts|al}} | 
+|-
+| 1486
+| 05CE
+| 033EC000
+| 033F1640
+| 005640
+| {{ts|al}} | [[ganon_sonogo_room_3]]
+| {{ts|al}} | 
+|-
+| 1487
+| 05CF
+| 033F2000
+| 033FACF0
+| 008CF0
+| {{ts|al}} | [[ganon_sonogo_room_4]]
+| {{ts|al}} | 
+|-
+| 1488
+| 05D0
+| 033FB000
+| 03404070
+| 009070
+| {{ts|al}} | [[ganon_demo_scene]]
+| {{ts|al}} | Scene File - Ganon's Tower Collapse & Battle Arena
+|-
+| 1489
+| 05D1
+| 03405000
+| 03409150
+| 004150
+| {{ts|al}} | [[ganon_demo_room_0]]
+| {{ts|al}} | 
+|-
+| 1490
+| 05D2
+| 0340A000
+| 0340A370
+| 000370
+| {{ts|al}} | [[face_shop_scene]]
+| {{ts|al}} | Scene File - Happy Mask Shop
+|-
+| 1491
+| 05D3
+| 0340B000
+| 03439640
+| 02E640
+| {{ts|al}} | [[face_shop_room_0]]
+| {{ts|al}} | 
+|-
+| 1492
+| 05D4
+| 0343A000
+| 0343B610
+| 001610
+| {{ts|al}} | [[kinsuta_scene]]
+| {{ts|al}} | Scene File - House of Skulltula
+|-
+| 1493
+| 05D5
+| 0343C000
+| 0344A0A0
+| 00E0A0
+| {{ts|al}} | [[kinsuta_room_0]]
+| {{ts|al}} | 
+|-
+| 1494
+| 05D6
+| 0344B000
+| 0344FB00
+| 004B00
+| {{ts|al}} | [[ganontikasonogo_scene]]
+| {{ts|al}} | Scene File - Inside Ganon's Castle (Collapsing)
+|-
+| 1495
+| 05D7
+| 03450000
+| 03467B80
+| 017B80
+| {{ts|al}} | [[ganontikasonogo_room_0]]
+| {{ts|al}} | 
+|-
+| 1496
+| 05D8
+| 03468000
+| 03471F20
+| 009F20
+| {{ts|al}} | [[ganontikasonogo_room_1]]
+| {{ts|al}} | 
+|}
+
+==File 1497 to 1510 (Various)==
+
+{| class="wikitable sortable" {{ts|ac|ml5|font-family: monospace}}
+! rowspan=2 | Dec.
+! rowspan=2 | Hex
+! colspan=2 | VROM
+! rowspan=2 | Size
+! rowspan=2 | File Name
+! rowspan=2 | Contents
+|-
+! Start
+! End
+|-
+| 1497
+| 05D9
+| 03472000
+| 03472400
+| 000400
+| {{ts|al}} | [[bump_texture_static]]
+| {{ts|al}} | Textures - Man Wearing Hat
+|-
+| 1498
+| 05DA
+| 03473000
+| 03473010
+| 000010
+| {{ts|al}} | [[anime_model_1_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1499
+| 05DB
+| 03474000
+| 03474010
+| 000010
+| {{ts|al}} | [[anime_model_2_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1500
+| 05DC
+| 03475000
+| 03475010
+| 000010
+| {{ts|al}} | [[anime_model_3_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1501
+| 05DD
+| 03476000
+| 03476010
+| 000010
+| {{ts|al}} | [[anime_model_4_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1502
+| 05DE
+| 03477000
+| 03477010
+| 000010
+| {{ts|al}} | [[anime_model_5_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1503
+| 05DF
+| 03478000
+| 03478010
+| 000010
+| {{ts|al}} | [[anime_model_6_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1504
+| 05E0
+| 03479000
+| 03479010
+| 000010
+| {{ts|al}} | [[anime_texture_1_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1505
+| 05E1
+| 0347A000
+| 0347A010
+| 000010
+| {{ts|al}} | [[anime_texture_2_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1506
+| 05E2
+| 0347B000
+| 0347B010
+| 000010
+| {{ts|al}} | [[anime_texture_3_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1507
+| 05E3
+| 0347C000
+| 0347C010
+| 000010
+| {{ts|al}} | [[anime_texture_4_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1508
+| 05E4
+| 0347D000
+| 0347D010
+| 000010
+| {{ts|al}} | [[anime_texture_5_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1509
+| 05E5
+| 0347E000
+| 0347E010
+| 000010
+| {{ts|al}} | [[anime_texture_6_static]]
+| {{ts|al}} | [Empty]
+|-
+| 1510
+| 05E6
+| 0347F000
+| 0347F040
+| 000040
+| {{ts|al}} | [[softsprite_matrix_static]]
+| {{ts|al}} | [?]
+|}

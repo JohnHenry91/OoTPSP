@@ -1,0 +1,40 @@
+{{Actor|name=ovl_En_Box}}
+
+'''ovl_En_Box''' is the [[actor]] for the [[Treasure Chests|treasure chest]].
+
+{{clear}}
+
+== Notes ==
+Chests use {{actor ref|0}}'s [[Ovl_player_actor/Get_Items#Get_Item_Table|Get Item Table]] to fetch what items are contained within. 
+
+After obtaining [[Get Item]] 0x35 (Silver Gauntlets), the chest actor forces a sandstorm fade-out transition in order to load the cutscene depicting [[Nabooru]] being captured by [[Twinrova]] in the Desert Colossus. This can cause issues with graphics plugins due to the sandstorm fade-out depending on a specific [[object]] file. 
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text
+|-
+| Actor_Environment_Tbox_On() %d
+|-
+| ../z_en_box.c
+|-
+| ../z_en_box.c
+|-
+| gfxp != NULL
+|-
+| ../z_en_box.c
+|-
+| gfxp != NULL
+|-
+| ../z_en_box.c
+|-
+| gfxp != NULL
+|-
+| ../z_en_box.c
+|-
+| ../z_en_box.c
+|-
+| ../z_en_box.c
+|}
+
+[[Category:Treasure Chests]]

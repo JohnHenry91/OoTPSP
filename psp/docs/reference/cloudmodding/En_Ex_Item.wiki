@@ -1,0 +1,56 @@
+{{Actor|name=ovl_En_Ex_Item|ispage=true}}
+
+'''ovl_En_Ex_Item''' is the [[actor]] used for displaying and possibly obtaining items from the Slingshot Minigame that Child Link can play in the Lost Woods, and [[Bombchu Bowling]].
+
+{{clear}}
+
+== Debug Rom Notes ==
+ ROM: 0xDC0528 (24060060) Receiving Bullet Bag 40 from Woods Game?
+ ROM: 0xDC052C (2406007B) Receiving Bullet Bag 50 from Woods Game?
+
+ ROM: 0xDC05C4 (2406007B) Receiving Bullet Bag 40 from Woods Game.
+ ROM: 0xDC05C8 (24060060) As above (except reversed?)
+
+== Console Output Strings ==
+
+{{translate}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ なにがでるかな？ ☆☆☆☆☆ %d[m||[32m☆☆☆☆☆ WHAT WILL I GET? ☆☆☆☆☆ %d[m
+|-
+| [33m☆☆☆☆☆ なにがでるかな？ ☆☆☆☆☆ %d[m||[33m☆☆☆☆☆ WHAT WILL I GET? ☆☆☆☆☆ %d[m
+|-
+| なにみの？ %d||なにみの？ %d
+|-
+| [35m バンクおかしいしぞ！%d[m||[35m BANK IS ABNORMAL! %d[m
+|-
+| 　||
+|-
+| [32m☆☆☆☆☆ 転送終了 ☆☆☆☆☆ %d[m||[32m☆☆☆☆☆ TRANSFER COMPLETE ☆☆☆☆☆ %d[m
+|-
+| [33m☆☆☆☆☆ 転送終了 ☆☆☆☆☆ %d[m||[33m☆☆☆☆☆ TRANSFER COMPLETE ☆☆☆☆☆ %d[m
+|-
+| [34m☆☆☆☆☆ 転送終了 ☆☆☆☆☆ %d[m||[34m☆☆☆☆☆ TRANSFER COMPLETE ☆☆☆☆☆ %d[m
+|-
+| [35m☆☆☆☆☆ 転送終了 ☆☆☆☆☆ %d[m||[35m☆☆☆☆☆ TRANSFER COMPLETE ☆☆☆☆☆ %d[m
+|-
+| [36m☆☆☆☆☆ 転送終了 ☆☆☆☆☆ %d[m||[36m☆☆☆☆☆ TRANSFER COMPLETE ☆☆☆☆☆ %d[m
+|-
+| [32m ☆☆☆☆☆ 母親ー？     ☆☆☆☆☆ %x[m||[32m ☆☆☆☆☆ MOM...?     ☆☆☆☆☆ %x[m
+|-
+| [32m ☆☆☆☆☆ 動いてねー？ ☆☆☆☆☆ %x[m||[32m ☆☆☆☆☆ YOU DIDN'T MOVE? ☆☆☆☆☆ %x[m
+|-
+| [32m ☆☆☆☆☆ さぁきえるぞ！ ☆☆☆☆☆ [m||[32m ☆☆☆☆☆ WELP, TIME TO DISAPPEAR! ☆☆☆☆☆ [m
+|-
+| [32m☆☆☆☆☆ 正常終了 ☆☆☆☆☆ [m||[32m☆☆☆☆☆ COMPLETION SUCCESSFUL ☆☆☆☆☆ [m
+|-
+| ../z_en_ex_item.c||../z_en_ex_item.c
+|-
+| ../z_en_ex_item.c||../z_en_ex_item.c
+|-
+| ../z_en_ex_item.c||../z_en_ex_item.c
+|}
+
+[[Category:Slingshot Minigame]] [[Category:Bombchu Bowling]] [[Category:Minigames]]

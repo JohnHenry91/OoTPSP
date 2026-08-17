@@ -1,0 +1,75 @@
+{{Actor|name=ovl_En_Heishi2|ispage=true}}
+
+'''ovl_En_Heishi2''' is a [[Hylian soldier]] [[Actor]]. This is also the soldier that tosses the bomb at you when you shoot the glass in Zelda's Courtyard.
+
+{{todo|Figure out which soldier it is!}}
+
+{{clear}}
+
+== Debug Rom Notes ==
+
+ ROM: 0xE0AD40 (2405002C) Sold Out Sign (From selling him Keaton Mask)
+
+== Console Output Strings ==
+
+{{translate}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [35m ☆☆☆☆☆ いやー ついうっかり ☆☆☆☆☆ ||[35m ☆☆☆☆☆ いやー ついうっかり ☆☆☆☆☆ 
+|-
+| [m||[m
+|-
+| 　||
+|-
+| [32m ☆☆☆☆☆ 覗き穴奥兵士ふぃ～ ☆☆☆☆☆ ||[32m ☆☆☆☆☆ 覗き穴奥兵士ふぃ～ ☆☆☆☆☆ 
+|-
+| [m||[m
+|-
+| 　||
+|-
+| [32m ☆☆☆☆☆ 兵士２セット完了！ ☆☆☆☆☆ %d||[32m ☆☆☆☆☆ SOLDIER 2 SETTINGS COMPLETE! ☆☆☆☆☆ %d
+|-
+| [m[33m ☆☆☆☆☆ 識別完了！         ☆☆☆☆☆ %d||[m[33m ☆☆☆☆☆ IDENTIFICATION COMPLETE!         ☆☆☆☆☆ %d
+|-
+| [m[35m ☆☆☆☆☆ メッセージ完了！   ☆☆☆☆☆ %x||[m[35m ☆☆☆☆☆ MESSAGE COMPLETE!   ☆☆☆☆☆ %x
+|-
+| 　||
+|-
+| [m[32m ☆☆☆☆☆ 全部の精霊石GET！ ☆☆☆☆☆ ||[m[32m ☆☆☆☆☆ ALL SPIRITUAL STONES GET! ☆☆☆☆☆ 
+|-
+| [m[33m ☆☆☆☆☆ 子供ははやくネロ！ ☆☆☆☆☆ ||[m[33m ☆☆☆☆☆ KIDS LIKE YOU SHOULD BE ASLEEP! ☆☆☆☆☆ 
+|-
+| [m[34m ☆☆☆☆☆ なんでも通るよ ☆☆☆☆☆ ||[m[34m ☆☆☆☆☆ ANYONE CAN PASS ☆☆☆☆☆ 
+|-
+| [m[35m ☆☆☆☆☆ １回目袖の下開始！ ☆☆☆☆☆ ||[m[35m ☆☆☆☆☆ １回目袖の下開始！ ☆☆☆☆☆ 
+|-
+| [m[35m ☆☆☆☆☆ ２回目袖の下開始！ ☆☆☆☆☆ ||[m[35m ☆☆☆☆☆ ２回目袖の下開始！ ☆☆☆☆☆ 
+|-
+| [m[36m ☆☆☆☆☆ それはとおらんよぉ ☆☆☆☆☆ ||[m[36m ☆☆☆☆☆ それはとおらんよぉ ☆☆☆☆☆ 
+|-
+| [m[35m☆☆☆ きたきたきたぁ！ ☆☆☆ %x||[m[35m☆☆☆ IT'S HERE IT'S HERE IT'S HERE! ☆☆☆ %x
+|-
+| [m[35m ☆☆☆☆☆ とおしゃしねぇちゅーの ☆☆☆☆☆ ||[m[35m ☆☆☆☆☆ NO WAY I'M GONNA LET YOU PASS! ☆☆☆☆☆ 
+|-
+| [m[35m☆☆☆ きたきたきたぁ！ ☆☆☆ %x||[m[35m☆☆☆ IT'S HERE IT'S HERE IT'S HERE! ☆☆☆ %x
+|-
+| [m[33m ☆☆☆☆☆ これでダウンだ！ ☆☆☆☆☆ ||[m[33m ☆☆☆☆☆ これでダウンだ！ ☆☆☆☆☆ 
+|-
+| [m||[m
+|-
+| ../z_en_heishi2.c||../z_en_heishi2.c
+|-
+| ../z_en_heishi2.c||../z_en_heishi2.c
+|-
+| ../z_en_heishi2.c||../z_en_heishi2.c
+|-
+| ../z_en_heishi2.c||../z_en_heishi2.c
+|-
+| ../z_en_heishi2.c||../z_en_heishi2.c
+|-
+| ../z_en_heishi2.c||../z_en_heishi2.c
+|}
+
+[[Category:Hylian Soldiers]]

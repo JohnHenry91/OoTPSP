@@ -1,0 +1,16 @@
+{{object|name=gameplay_keep}}
+
+'''gameplay_keep''' is an [[object]] file that contains models, textures, and data used globally across the game's locations. It is always loaded into memory. Its contents differ between NTSC 1.0 and the Debug ROM, with the 1.0 version being 0x5530 larger than its Debug ROM counterpart.
+
+{{todo|Categorize}}
+
+{{clear}}
+
+== Contents by Version ==
+
+{{subpage|NTSC 1.0|image=Item-Lens of Truth.png}}
+{{subpage|Debug|image=Item-Lens of Truth.png}}
+
+== See Also ==
+
+* [[Link Animations]]

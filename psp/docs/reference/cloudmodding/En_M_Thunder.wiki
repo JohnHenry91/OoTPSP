@@ -1,0 +1,70 @@
+{{actor|name=ovl_En_M_Thunder|isPage=true}}
+'''ovl_En_M_Thunder''' is the [[actor]] used to create the spin attack effect.
+{{clear}}
+<!-- {{Address|file=ovl_en_m_thunder|ram=y|
+{{Addr|version=Debug|rom-start=00E55050|rom-end=00E56700|ram-start=80A9EFE0|ram-end=80AA0690|size=5808}}|
+}}
+-->
+
+The ROM addresses for the spin attacks, and the spin attack tube, in the debug rom/ntsc 1.0 retail cartridge have 5 locations and they all seem to be located in Ovl_En_M_Thunder:
+
+== Spin Attack Notes ==
+
+0xE55F96/0xE55FB6 and 0xC9D7B1/0xC9D7CD are the locations for both parts of the orange spin attack. 0xE5609A/0xE560BA and 0xC9D8B5/C9D8D1 are the locations for both parts of the blue spin attack. Lastily, 0xE5641A/0xC9DC25 are the locations for the spin attack tube. This gives us about 10 options to choose from (just as a side note there are more):
+
+== Spin Attack Display Lists ==
+
+{| class="wikitable" style="text-align: left;"
+|+ [[gameplay_keep]] Display List Offsets
+!Animation || Debug Rom || NTSC 1.0
+|-
+|Flat Orange || 12AF0 || 12F90
+|-
+|Regular Orange || 12C10 || 130B0
+|-
+|Flat Blue || 12570 || 12A10
+|-
+|Regular Blue || 12690 || 12B30
+|-
+|Blade Beam || 149C0 || 14E60
+|-
+|Spin Attack Tube || 13610 || 13AB0
+|}
+
+== Spin Attack Modifiers ==
+
+{| class="wikitable" style="text-align: left;"
+|+ [[ovl_En_M_Thunder]] Values for Spin Attacks
+!Animation || Debug Rom || NTSC 1.0
+|-
+|Flat Orange || 2AF0 || 2F90
+|-
+|Regular Orange || 2C10 || 30B0
+|-
+|Flat Blue || 2570 || 2A10
+|-
+|Regular Blue || 2690 || 2B30
+|-
+|Blade Beam || 49C0 || 4E60
+|-
+|Spin Attack Tube || 3610 || 3AB0
+|}
+
+In the above table when you go to the offsets mentioned earlier, in a hex editing program, you'll see the values displayed in 2 bytes as represented in this table.
+
+At E560A6/E560BE (Debug Rom) and C9D8BA/C9D8D6 (NTSC) the two values are 2570/2690 (Debug Rom) and 2A10/2B30 (NTSC) and at E55FA2/E55FBA (Debug Rom) and C9D7B6/C9D7D2 (NTSC) the two values are 2AF0/2C10 (Debug Rom) and 2F90/30B0 (NTSC), which correlate to the appearance of the gameplay_keep display lists at 12570/12A10, 12690/12B30, 12AF0/12F90, and 12C10/130B0. Another thing is that at E5641E (Debug ROM) and C9DC2A (NTSC) The Spin Attack Tube display list (located at 13610 (Debug Rom)/13AB0 (NTSC) in gameplay_keep) can be modified at those locations.
+
+<pre>
+
+Ovl_En_M_Thunder ROM Offsets (Debug Rom/NTSC)
+
+0xF46/0xF32 Flat Orange
+0xF66/0F4E Regular Orange
+0x104A/0x1036 Flat Blue
+0x106A/0x1052 Regular Blue
+0x13CA/0x13A6 Spin Attack Tube
+
+
+</pre>
+
+[[Category: Display List Mappings]]

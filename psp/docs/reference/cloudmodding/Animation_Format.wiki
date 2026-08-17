@@ -1,0 +1,387 @@
+Animations in Ocarina of Time and Majora's Mask follow what I find to be a peculiar format. To have a working animation, the given resource file must have both a hierarchy and animation(s) to go with it.
+
+==Capable Viewers==
+[[ZSaten]], [[OZMAV|OZMAV2]] and [[z64anim]] are all viewers which can render normal skeletal structures ([[#Hierachy|hierarchies]]) with their animations. ZSaten is the only viewer for Link and the beta format used in [[object_human]]. z64anim is currently the only editor for hierarchies and animations.
+
+==Normal Animations==
+Animations are composed of three chunks: rotation values, rotation index, and a header
+===Rotation values===
+Pretty simple. This is just a list of unsigned 16 bit values that are referenced by the rotation index.<br>
+Example:
+ 00004000 8000C000
+This would be four values, 0/360 degrees, 90 degrees, 180 degrees, and 270 degrees
+Note: the first value in most lists of rotation values is 0.
+
+===Rotation index===
+A little more complex. It's size is exactly 6 + (6 * Number of limbs). The first three 16 bit values are translation values for the whole model (in xyz order), and the rest of the six byte groups are rotation values for each part of the hierarchy, in the order they are listed in the hierarchy.<br>
+Example:
+ 00000001 00000000 00020000
+This would translate the model on the y axis as much as the second value in the rotation values, and would rotate the first part of the hierarchy (and all of it's children) as much as the third value of the rotation value list. All of the values left at 0 will do nothing since the first value in the rotation value list is 0.
+
+===Animation header===
+Format:
+ ffff0000 rrrrrrrr iiiiiiii llll0000
+Where:<br>
+* '''f''' is the number of frames in the animation
+* '''r''' is the segment offset of the rotation value list
+* '''i''' is the segment offset of the rotation index list
+* '''l''' is the limit
+
+Most of these are self explanatory, but there is one that more confusing, the limit. If a entry in the rotation index list is greater than or equal to the limit, then for each frame the next value in the rotation list is read.
+
+==Link Animations==
+''Documentation released by Zant Nov 2010''
+===Animation headers===
+''0x2310 to 0x34F8 in gameplay_keep''<br>
+Format:<br>
+<tt>ffff0000bboooooo</tt><br>
+Where:
+'''f''' is the frame count, '''b''' is the segment id, used to reference the file containing the animation (in this case, segment 7 = [[link_animetion]]), and '''o''' is the offset from the start of the file
+===Translation===
+At the offset specified by the header; within link_animetion<br>
+Format:<br>
+<tt>XXXX YYYY ZZZZ</tt><br>
+'''X''', '''Y''' and '''Z''' are all global translation values for this particular frame (signed)
+===Rotations===
+The next 0x7E bytes immediately after the translation values are rotation values for each limb, in the order they are listed in the hierarchy. They are rotated on the X, Y, and Z axis, in that order, in 6-byte groups of 2 byte values.<br>
+Format:<br>
+<tt>XXXX YYYY ZZZZ</tt><br>
+'''X''', '''Y''' and '''Z''' are unsigned rotation amounts for the particular limb.
+
+===Animated Texture Properties===
+The last two bytes of an animation frame change Link's facial expression for the current frame. A 16-bit unsigned value. This still needs more research.
+
+===Example===
+Here's the first 0x12 bytes of the first frame of the "Alpha Jump Strike" animation:
+<pre>
+0054 00D6 0096 /* XYZ Translation for Link's model for this frame */
+
+C000 FBAC C000 /* XYZ rotation for Link's first limb for this frame */
+0000 0000 0000 /* XYZ rotation for Link's second limb for this frame */
+</pre>
+
+===C code===
+''Documentation written by CrookedPoe Oct 2019''
+
+<pre>
+/*** Link's Face Textures; Left and Right are from our point-of-view. ***/
+enum
+{
+LINKEYE_AUTO, /* Automatic Eyes */
+LINKEYE_OPEN, /* Open Eyes */
+LINKEYE_HALF, /* Half Open Eyes */
+LINKEYE_CLOSED, /* Closed Eyes */
+LINKEYE_LEFT, /* Look Left */
+LINKEYE_RIGHT, /* Look Right */
+LINKEYE_SHOCK, /* Shocked / Surprised */
+LINKEYE_DOWN, /* Look Down */
+LINKEYE_CLTIGHT /* Tightly Closed Eyes */
+};
+
+/*** Link's Mouth Textures ***/
+enum
+{
+  LINKMOUTH_AUTO, /* Automatic Mouth */
+  LINKMOUTH_CLOSED, /* Closed Mouth */
+  LINKMOUTH_SLIGHT, /* Open Mouth (Slight, Playing Ocarina) */
+  LINKMOUTH_WIDE, /* Open Mouth (Wide, Shouting) */
+  LINKMOUTH_SMILE /* Open Mouth (Smile, Item Get) */
+};
+
+/*** Link's Limbs; Left and Right are from Link's point-of-view. ***/
+enum
+{
+  LINKLIMB_ROOT, /* Limb 0 : Root */
+  LINKLIMB_WAIST, /* Limb 1 : Waist */
+  LINKLIMB_BODY_LO, /* Limb 2 : Lower-Body Affector */
+  LINKLIMB_THIGH_R, /* Limb 3 : Right Thigh */
+  LINKLIMB_SHIN_R, /* Limb 4 : Right Shin */
+  LINKLIMB_FOOT_R, /* Limb 5 : Right Foot */
+  LINKLIMB_THIGH_L, /* Limb 6 : Left Thigh */
+  LINKLIMB_SHIN_L, /* Limb 7 : Left Shin */
+  LINKLIMB_FOOT_L, /* Limb 8 : Left Foot */
+  LINKLIMB_BODY_HI, /* Limb 9 : Upper-Body Affector */
+  LINKLIMB_HEAD, /* Limb 10 : Head */
+  LINKLIMB_HAT, /* Limb 11 : Hat */
+  LINKLIMB_COLLAR, /* Limb 12 : Collar */
+  LINKLIMB_SHOULDER_L, /* Limb 13 : Left Shoulder */
+  LINKLIMB_FOREARM_L, /* Limb 14 : Left Forarm */
+  LINKLIMB_HAND_L, /* Limb 15 : Left Hand */
+  LINKLIMB_SHOULDER_R, /* Limb 16 : Right Shoulder */
+  LINKLIMB_FOREARM_R, /* Limb 17 : Right Forearm */
+  LINKLIMB_HAND_R, /* Limb 18 : Right Hand */
+  LINKLIMB_SHEATH, /* Limb 19 : Sheath / Sheathed Sword */
+  LINKLIMB_TORSO /* Limb 20 : Torso */
+};
+
+/*** 3-Vector Structure (Signed 16-bit Integers) ***/
+typedef struct
+{
+  int16_t x;
+  int16_t y;
+  int16_t z;
+} vec3s_t;
+
+/*** Animation Header for Link's Animations (located inside gameplay_keep). ***/
+typedef struct
+{
+  uint16_t frame_count;
+  uint16_t pad; /* Padding / Unused */
+  uint32_t addr; /* The address of the animation data (includes the RAM segment as its left-most byte). */
+} link_animetion_header_t;
+
+/*** Link's Facial Expression ***/
+typedef struct
+{
+  uint8_t mouth: 4;
+  uint8_t eyes : 4;
+} link_animetion_face_t;
+
+/*** Animation Frame Structure ***/
+typedef struct
+{
+  vec3s_t loc; /* Root Translation */
+  vec3s_t[21] rot; /* Rotation of Each Limb */
+  uint8_t pad; /* Padding / Unused */
+  link_animetion_face_t face; /* Facial Expression */
+} link_animetion_frame_t;
+</pre>
+
+==Hierarchy==
+Hierarchies are composed of three chunks: limb entries, limb index, and a header.
+===Limb entries===
+Format:
+ xxxxyyyy zzzzaabb dddddddd [cccccccc*] (repeats for each entry)
+<nowiki>*</nowiki> Rare, only used in link<br>
+Where:<br>
+'''x''' is the x translation, relative to the limb's parent<br>
+'''y''' is the y translation, relative to the limb's parent<br>
+'''z''' is the z translation, relative to the limb's parent<br>
+'''a''' is the first child's index in the limb list<br>
+'''b''' is the next limb's index in the limb list<br>
+'''d''' is the display list (as a [[segment offset]])<br>
+'''c''' is the far model display list (as a [[segment offset]])<br>
+Example:
+ 00640032 000004FF 06002458
+This entry and it's child (entry 4) would be offset by 100 on the x axis, 50 on the y axis, 0 on the x axis. It would render the display list at the offset of 0x2458 within {{object ref|object_link_child}} or {{object ref|14}} (the files assigned to segment 6), and it has one child (0x4), 0xFF indicates that there isn't a next limb.
+
+===Limb index===
+Format:
+ bboooooo (repeats for each entry)
+Where:<br>
+'''b''' is the segment id<br>
+'''o''' is the offset of the limb entry<br>
+
+===Header===
+Format:
+ bboooooo pp000000 xx000000
+Where:<br>
+'''b''' is segment id<br>
+'''o''' is the offset of the beginning of the limb index<br>
+'''p''' is the number of parts<br>
+'''x''' is the number of display lists<!--Really? It is often set to 0. I should see how the engine treats the value--><br>
+==Beta Format==
+There is one known file, object_human, which uses a depreciated hierarchy and animation format. [[ZSaten]] is capable of viewing these animations. Refer to [https://github.com/xdanieldzd/ozmav/blob/master/zsaten/zold.c zold.c] for details on implementation of the format.
+===Hierarchy===
+Like the supported format, it is a "tree" setup, with child and sibling limbs. Unlike the used format, however, it uses pointers instead of indexes, and contains default rotation values. The translation values are 32-bit floats, as well. The structure for each limb is as follows:
+<pre>typedef struct {
+    Gfx *dl;
+    f32 trans[3];
+    s16 rot[3];
+    u16 __align;
+    limb *a;
+    limb *b;
+} limb;</pre>
+For people who are not familiar with C structures:
+<pre>dddddddd xxxxxxxx yyyyyyyy zzzzzzzz qqqqwwww rrrr0000 nnnnnnnn uuuuuuuu</pre>
+Where '''d''' is the display list, '''x''', '''y''', and '''z''' are floating-points of the translation values, '''q''', '''w''' and '''r''' are x/y/z rotation, '''n''' is a pointer to the child limb and '''u''' is a pointer to the 'sibling' limb.<br>
+Besides being pointed to by eachother, all the limbs are pointed to in an array of pointers following them (the '''limb list'''). The order they are in this array is the same order that rotations are applied to them during animation.
+
+===Animation===
+The '''header''' defines the number of parts in the model and the number of frames in the animation. Format:<br>
+<tt>ppppffff bbrrrrrr bbiiiiii</tt><br>
+Where:<br>
+'''p''' is the number of parts,<br>
+'''f''' is the number of frames,<br>
+'''b''' is the segment id,<br>
+'''r''' is the rotation values, and<br>
+'''i''' is the "key".<br>
+<br>
+The '''rotation values''' are values referenced by the keys. They are simply unsigned half words representing rotation.<br>
+The '''key''' is a "lookup" table for the animations. It goes in the order that the limbs are listed in the limb list  (as defined above), taking into account that the first "entry" is for translation, not rotation, of limbs. The format is:<br>
+<tt>aaaaxxxx bbbbyyyy cccczzzz</tt><br>
+Where:<br>
+'''a''' is how many frames there are for x; either 1 or the value of '''f''' as defined in the header.<br>
+'''x''' is which start index of the '''rotation values''' to use. If '''a''' is 1, '''x''' defines the constant rotation index. However, if '''a''' is equal to '''f''', '''x''' defines the rotation index for the first frame.<br>
+'''b''' and '''y''' are the same as '''a''' and '''x''' except on the y-axis, as are the '''c''' and '''z''' pair.
+
+<!--
+===Hierarchy Example===
+This example shows the parent/child organization of the hierarchy. Example uses Adult link.
+<pre>
+Entry #|Data
+00     |FFC70D31 000001FF 00000000 00000000
+01     |00000000 00000209 06035330 0602F530
+02     |03B10000 000003FF 00000000 00000000
+03     |FE710045 FF070406 06035678 0602F7A0
+04     |051A0000 000005FF 060358B0 0602F9B8
+05     |04E80005 000BFFFF 06035B60 0602FB80
+06     |FE74004C 010807FF 06035CB8 0602FCA0
+07     |05180000 000008FF 06035EF0 0602FEC0
+08     |04E90006 0003FFFF 060361A0 06030088
+09     |00000015 FFF90AFF 00000000 00000000
+0A     |0570FEFD 00000B0C 060365E8 06030400
+0B     |FED6FD44 0000FFFF 06036D30 060309B0
+0C     |00000000 0000FF0D 060362F8 060301A8
+0D     |040FFF54 02A80E10 06037210 06030EF8
+0E     |03970000 00000FFF 060373D8 060310A0
+0F     |02F20000 0000FFFF 06021AA8 06026C58
+10     |040FFF53 FD581113 06036E58 06030AA0
+11     |03970000 000012FF 06037018 06030C48
+12     |02F20000 0000FFFF 06022498 060274F8
+13     |03D2FD4C 0156FF14 06023160 06027F00
+14     |00000000 0000FFFF 060363B8 06030250
+
+Goes to:
+
+<entry0>
+ <entry1>
+  <entry2>
+   <entry3>
+    <entry4>
+     <entry5>
+     </entry5>
+    </entry4>
+    <entry6>
+     <entry7>
+      <entry8>
+      </entry8>
+     </entry7>
+    </entry6>
+   </entry3>
+  </entry2>
+  <entry9>
+   <entry10>
+    <entry11>
+    </entry11>
+    <entry12>
+     <entry13>
+      <entry14>
+       <entry15>
+      </entry15>
+     </entry13>
+     <entry16>
+      <entry17>
+       <entry18>
+       </entry18>
+      </entry17>
+      <entry19>
+       <entry20>
+       </entry20>
+      </entry19>
+     </entry16>
+    </entry12>
+   </entry10>
+  </entry9>
+ </entry1>
+</entry0></pre>
+===Another Example===
+Same thing as the previous one, except the fairy is used this time:
+<pre>00 00000E10 000001FF 060136D0
+01 015E0064 012C0204 060160D8
+02 05140000 000003FF 06016358
+03 06400000 0000FFFF 060164C8
+04 015E0064 FED40507 06015A58
+05 05140000 000006FF 06015E40
+06 06400000 0000FFFF 06015FB0
+07 00000000 000008FF 060137F8
+08 03B6FF9C 0226090B 060154F0
+09 03840000 00000AFF 06015628
+0A 03200000 0000FFFF 06015860
+0B 03B6FF9C FDDA0C0E 06015018
+0C 03840000 00000DFF 06015150
+0D 03200000 0000FFFF 060152F8
+0E 060EFF6A 00000FFF 06013BE8
+0F 0384FF6A 00001013 06014B80
+10 03840000 000011FF 06014D10
+11 044C0000 000012FF 06014E18
+12 05AA0000 0000FFFF 06014F20
+13 00FAFF6A 01901417 06014680
+14 03840000 000015FF 06014810
+15 02EE0000 000016FF 06014910
+16 03B60000 0000FFFF 06014A88
+17 00FAFF6A FE7018FF 06014200
+18 03840000 000019FF 06014310
+19 02EE0000 00001AFF 06014488
+1A 03B60000 0000FFFF 06014588
+<00>
+ <01>
+  <02>
+   <03>
+  <04>
+   <05>
+    <06>
+   <07>
+    <09>
+     <0A>
+    <0B>
+     <0C>
+      <0D>
+     <0E>
+      <0F>
+       <10>
+        <11>
+         <12>
+       <13>
+        <14>
+         <15>
+          <16>
+        <17>
+         <18>
+          <19>
+           <1A></pre>
+-->
+
+==Rendering tips==
+<pre>
+typedef struct{
+    signed short X, Y, Z;
+    short XR, YR, ZR;
+    char Child;
+    char Next;
+    unsigned long DList;
+} Bone;
+
+void DrawBone(Bones[], int CurrentBone)
+{
+    glPushMatrix();
+
+    glTranslated(Bones[CurrentBone].X, Bones[CurrentBone].Y, Bones[CurrentBone].Z);
+    /* Apply rotation in the order z, y, x! */
+    glRotated(Bones[CurrentBone].RZ / 182.0444444, 0, 0, 1);
+    glRotated(Bones[CurrentBone].RY / 182.0444444, 0, 1, 0);
+    glRotated(Bones[CurrentBone].RX / 182.0444444, 1, 0, 0);
+
+    //Draw display list
+    if(Bones[CurrentBone].DList)
+        RenderDisplayList(Bones[CurrentBone].DList, true);
+    
+    //Draw child
+    if(Bones[CurrentBone].Child > -1)
+        DrawBone(Bones, Bones[CurrentBone].Child);
+    
+    glPopMatrix(); // pop matrix here!
+    
+    //Draw next
+    if(Bones[CurrentBone].Next > -1)
+        DrawBone(Bones, Bones[CurrentBone].Next);
+}
+</pre>
+
+==Credits==
+spinout - figuring out most of this stuff initially<br>
+euler - filling in the holes in spinout's knowledge<br>
+Zant - Link's animation format
+
+[[Category: File Formats]]
+[[Category: Documentation]]

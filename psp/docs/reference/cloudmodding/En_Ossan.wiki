@@ -1,0 +1,1022 @@
+{{Actor|name=ovl_En_Ossan|ispage=true}}
+
+==Shops Entries==
+
+{|class="wikitable"
+! Version || Rom Offset
+|-
+| NTSC 1.0 || C71ED0
+|-
+| Debug || E7EA4C
+|}
+
+To create shops, ovl_En_Ossan simply spawns {{actor ref|ovl_En_GirlA}} actors. These define which items are sold at what price, and the shopkeeper's dialog when the items are selected.
+
+=== Format ===
+<tt>iiii xxxx yyyy zzzz</tt>
+
+'''i''' = Shop Item Index, as defined in [[ovl_En_GirlA]]. This value is used as the "variable" parameter when spawning the actor<br>
+'''x''', '''y''', '''z''' = x,y,z coordinates for spawning the ovl_En_GirlA actor.
+
+{|class="wikitable"
+|+ First Record
+|-
+!Item || x || y || z
+|-
+| 000D || 0032 || 0034 || FFEC
+|}
+
+== Shops ==
+
+Shopkeeper actors are for reference, and are not found in the entries.
+
+===Kokiri Shop===
+
+* '''Variable:''' 0000
+* '''Object Dependency:''' {{object ref|00C5}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 000D
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Deku Shield
+| style="text-align: right;" | 40
+| style="text-align: right;" | 1
+|-
+| 0000
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Deku Nuts (5)
+| style="text-align: right;" | 15
+| style="text-align: right;" | 5
+|-
+| 0004
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Deku Nuts (10)
+| style="text-align: right;" | 30
+| style="text-align: right;" | 10
+|-
+| 0005
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Deku Stick
+| style="text-align: right;" | 10
+| style="text-align: right;" | 1
+|-
+| 001D
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Deku Seeds (30)
+| style="text-align: right;" | 30
+| style="text-align: right;" | 30
+|-
+| 002C
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Arrows (10)
+| style="text-align: right;" | 20
+| style="text-align: right;" | 10
+|-
+| 0001
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Arrows (30)
+| style="text-align: right;" | 60
+| style="text-align: right;" | 30
+|-
+| 0010
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+|}
+
+===Kakariko Potion Shop===
+
+* '''Variable:''' 0001
+* '''Object Dependency:''' {{object ref|0001}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 0009
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Green Potion
+| style="text-align: right;" | 30
+| style="text-align: right;" | 1
+|-
+| 0027
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Blue Fire
+| style="text-align: right;" | 300
+| style="text-align: right;" | 1
+|-
+| 0008
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Red Potion
+| style="text-align: right;" | 30
+| style="text-align: right;" | 1
+|-
+| 002B
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Bottled Fairy
+| style="text-align: right;" | 50
+| style="text-align: right;" | 1
+|-
+| 0000
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Deku Nuts (5)
+| style="text-align: right;" | 15
+| style="text-align: right;" | 5
+|-
+| 0028
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Bug
+| style="text-align: right;" | 50
+| style="text-align: right;" | 1
+|-
+| 002A
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Poe
+| style="text-align: right;" | 30
+| style="text-align: right;" | 1
+|-
+| 0007
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Fish
+| style="text-align: right;" | 200
+| style="text-align: right;" | 1
+|}
+
+===Bombchu Shop===
+
+* '''Variable:''' 0002
+* '''Object Dependency:''' {{object ref|0001}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 0018
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Bombchu (10)
+| style="text-align: right;" | 100
+| style="text-align: right;" | 10
+|-
+| 001C
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Bombchu (10)
+| style="text-align: right;" | 100
+| style="text-align: right;" | 10
+|-
+| 0019
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Bombchu (10)
+| style="text-align: right;" | 100
+| style="text-align: right;" | 10
+|-
+| 0015
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Bombchu (10)
+| style="text-align: right;" | 100
+| style="text-align: right;" | 10
+|-
+| 001A
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Bombchu (20)
+| style="text-align: right;" | 180
+| style="text-align: right;" | 20
+|-
+| 0016
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Bombchu (20)
+| style="text-align: right;" | 180
+| style="text-align: right;" | 20
+|-
+| 001B
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Bombchu (20)
+| style="text-align: right;" | 180
+| style="text-align: right;" | 20
+|-
+| 0017
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Bombchu (20)
+| style="text-align: right;" | 180
+| style="text-align: right;" | 20
+|}
+
+===Market Potion Shop===
+
+* '''Variable:''' 0003
+* '''Object Dependency:''' {{object ref|0001}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 0009
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Green Potion
+| style="text-align: right;" | 30
+| style="text-align: right;" | 1
+|-
+| 0027
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Blue Fire
+| style="text-align: right;" | 300
+| style="text-align: right;" | 1
+|-
+| 0008
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Red Potion
+| style="text-align: right;" | 30
+| style="text-align: right;" | 1
+|-
+| 002B
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Bottled Fairy
+| style="text-align: right;" | 50
+| style="text-align: right;" | 1
+|-
+| 0000
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Deku Nuts (5)
+| style="text-align: right;" | 15
+| style="text-align: right;" | 5
+|-
+| 0028
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Bug
+| style="text-align: right;" | 50
+| style="text-align: right;" | 1
+|-
+| 002A
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Poe
+| style="text-align: right;" | 30
+| style="text-align: right;" | 1
+|-
+| 0007
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Fish
+| style="text-align: right;" | 200
+| style="text-align: right;" | 1
+|}
+
+===Market Bazaar===
+
+* '''Variable:''' 0004
+* '''Object Dependency:''' {{object ref|0001}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 000C
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Hylian Shield
+| style="text-align: right;" | 80
+| style="text-align: right;" | 1
+|-
+| 002F
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Bombs (5)
+| style="text-align: right;" | 35
+| style="text-align: right;" | 5
+|-
+| 0000
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Deku Nuts (5)
+| style="text-align: right;" | 15
+| style="text-align: right;" | 5
+|-
+| 0010
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+|-
+| 002C
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Arrows (10)
+| style="text-align: right;" | 20
+| style="text-align: right;" | 10
+|-
+| 0002
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Arrows (50)
+| style="text-align: right;" | 90
+| style="text-align: right;" | 50
+|-
+| 0005
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Deku Stick
+| style="text-align: right;" | 10
+| style="text-align: right;" | 1
+|-
+| 0001
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Arrows (30)
+| style="text-align: right;" | 60
+| style="text-align: right;" | 30
+|}
+
+===Kakariko Bazaar===
+
+* '''Variable:''' 0005
+* '''Object Dependency:''' {{object ref|0001}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 000C
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Hylian Shield
+| style="text-align: right;" | 80
+| style="text-align: right;" | 1
+|-
+| 0003
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Bombs (5)
+| style="text-align: right;" | 25
+| style="text-align: right;" | 5
+|-
+| 0000
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Deku Nuts (5)
+| style="text-align: right;" | 15
+| style="text-align: right;" | 5
+|-
+| 0010
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+|-
+| 002C
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Arrows (10)
+| style="text-align: right;" | 20
+| style="text-align: right;" | 10
+|-
+| 0002
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Arrows (50)
+| style="text-align: right;" | 90
+| style="text-align: right;" | 50
+|-
+| 0005
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Deku Stick
+| style="text-align: right;" | 10
+| style="text-align: right;" | 1
+|-
+| 0001
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Arrows (30)
+| style="text-align: right;" | 60
+| style="text-align: right;" | 30
+|}
+
+===Talon's Shop (Unused)===
+
+* '''Variable:''' 0006
+* '''Object Dependency:''' {{object ref|0001}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 0011
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Lon Lon Milk & Bottle
+| style="text-align: right;" | 100
+| style="text-align: right;" | 1
+|-
+| 0000
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Deku Nuts (5)
+| style="text-align: right;" | 15
+| style="text-align: right;" | 5
+|-
+| 0004
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Deku Nuts (10)
+| style="text-align: right;" | 30
+| style="text-align: right;" | 10
+|-
+| 0010
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+|-
+| 0012
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Weird Egg
+| style="text-align: right;" | 100
+| style="text-align: right;" | 1
+|-
+| 0005
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Deku Stick
+| style="text-align: right;" | 10
+| style="text-align: right;" | 1
+|-
+| 0010
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+|-
+| 0010
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+|}
+
+===Zora Shop===
+
+* '''Variable:''' 0007
+* '''Object Dependency:''' {{object ref|00FE}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 000F
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Zora Tunic
+| style="text-align: right;" | 300
+| style="text-align: right;" | 1
+|-
+| 002C
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Arrows (10)
+| style="text-align: right;" | 20
+| style="text-align: right;" | 10
+|-
+| 0010
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+|-
+| 0001
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Arrows (30)
+| style="text-align: right;" | 60
+| style="text-align: right;" | 30
+|-
+| 0000
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Deku Nuts (5)
+| style="text-align: right;" | 15
+| style="text-align: right;" | 5
+|-
+| 0002
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Arrows (50)
+| style="text-align: right;" | 90
+| style="text-align: right;" | 50
+|-
+| 0007
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Fish
+| style="text-align: right;" | 200
+| style="text-align: right;" | 1
+|-
+| 0031
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Red Potion
+| style="text-align: right;" | 50
+| style="text-align: right;" | 1
+|}
+
+===Goron Shop===
+
+* '''Variable:''' 0008
+* '''Object Dependency:''' {{object ref|00C9}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 0003
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Bombs (5)
+| style="text-align: right;" | 25
+| style="text-align: right;" | 5
+|-
+| 0006
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Bombs (10)
+| style="text-align: right;" | 50
+| style="text-align: right;" | 10
+|-
+| 002D
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Bombs (20)
+| style="text-align: right;" | 80
+| style="text-align: right;" | 20
+|-
+| 002E
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Bombs (30)
+| style="text-align: right;" | 120
+| style="text-align: right;" | 30
+|-
+| 000E
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Goron Tunic
+| style="text-align: right;" | 200
+| style="text-align: right;" | 1
+|-
+| 0010
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+|-
+| 0030
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Red Potion
+| style="text-align: right;" | 40
+| style="text-align: right;" | 1
+|-
+| 0010
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+|}
+
+===Ingo's Shop (Unused)===
+
+* '''Variable:''' 0009
+* '''Object Dependency:''' {{object ref|0001}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 0013
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | [Ingo Milk]
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+|-
+| 0013
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | [Ingo Milk]
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+|-
+| 0013
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | [Ingo Milk]
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+|-
+| 0013
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | [Ingo Milk]
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+|-
+| 0014
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | [Ingo Egg]
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+|-
+| 0014
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | [Ingo Egg]
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+|-
+| 0014
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | [Ingo Egg]
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+|-
+| 0014
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | [Ingo Egg]
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+|}
+
+===Happy Mask Shop===
+
+* '''Variable:''' 000A
+* '''Object Dependency:''' {{object ref|0001}}
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! GlA || X || Y || Z || Get Item ID || Cost || Qt.
+|-
+| 0025
+| 0032
+| 0034
+| FFEC
+| style="text-align: left;" | Gerudo Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+|-
+| 0023
+| 0032
+| 004C
+| FFEC
+| style="text-align: left;" | Zora Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+|-
+| 0022
+| 0050
+| 0034
+| FFFD
+| style="text-align: left;" | Mask of Truth
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+|-
+| 0024
+| 0050
+| 004C
+| FFFD
+| style="text-align: left;" | Goron Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+|-
+| 0020
+| FFCE
+| 0034
+| FFEC
+| style="text-align: left;" | Skull Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+|-
+| 001E
+| FFCE
+| 004C
+| FFEC
+| style="text-align: left;" | Keaton Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+|-
+| 0021
+| FFB0
+| 0034
+| FFFD
+| style="text-align: left;" | Bunny Hood
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+|-
+| 001F
+| FFB0
+| 004C
+| FFFD
+| style="text-align: left;" | Spooky Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+|}
+
+==Unused Shops==
+
+{{todo|Check if this "alternate Bazaar" is really unused, or if it's just the Kakariko Village Bazaar.}}
+
+To load the alternate Bazaar, change the actor variable of the Bazaar shop keeper from 0004 to 0005.  It's not that great, just cheaper bombs.
+
+To load shop 0006 or 0009, change the variable for the Bazaar shop keeper to the one listed ones and replace the following objects in the Bazaar map.
+
+<tt>00D8 to 00DF</tt><br>
+<tt>00DC to 00DA</tt>
+
+You can view the models fine, but the Description message ID, and the Buying message ID  will have to be altered to make these shops completely functional again.
+
+== Console Output Strings ==
+
+{{investigate|There are two unused shops here, and a few with interesting names that may point to where they were located during development.}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| コキリの店||Kokiri Shop
+|-
+| 薬屋||Potion Shop
+|-
+| 夜の店||Night Shop
+|-
+| 路地裏の店||Back Alley Shop
+|-
+| 盾の店||Shield Shop
+|-
+| 大人の店||Adult Shop
+|-
+| タロンの店||Talon's Shop
+|-
+| ゾーラの店||Zora Shop
+|-
+| ゴロン夜の店||Goron Night Shop
+|-
+| インゴーの店||Ingo's Shop
+|-
+| お面屋||Mask Shop
+|-
+| [41;37m引数がおかしいよ(arg_data=%d)！！[m0||[41;37mFUNCTION IS ABNORMAL (arg_data=%d)！！[m0
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| [41;37mバンクが無いよ！！(%s)[m0||[41;37mBANK DOESN'T EXIST!! (%s)[m0
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| [41;37m予備バンクが無いよ！！(%s)[m0||[41;37m NO SPARE BANKS!! (%s)[m0
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| [33m%s[%d]:★★★ 会話終了！！ ★★★[m||[33m%s[%d]:★★★ CONVERSATINO COMPLETE!! ★★★[m
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| [33m★★★ 会話開始！！ ★★★[m||[33m★★★ CONVERSATION START!! ★★★[m
+|-
+| 「スティック左右で品物みてくれ！」||"MOVE THE JOYSTICK LEFT AND RIGHT TO EXAMINE THE GOODS!"
+|-
+| %s[%d]:||%s[%d]:[32mZOOMING!![m
+|-
+| [32mズーム中！！[m||
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| %s[%d]:||%s[%d]:[32mZOOMING!![m
+|-
+| [32mズーム中！！[m||
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| %s[%d]:||%s[%d]:[32mZOOMING!![m
+|-
+| [32mズーム中！！[m||
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| [33m初めて手にいれた！！[m||[33mOBTAINED FOR THE FIRST TIME!![m
+|-
+| 　||　
+|-
+| [33m持ち上げ開始！！[m||[33mHOLDING ITEM UP START!![m
+|-
+| 　||　
+|-
+| %s[%d]:||%s[%d]:[32mZOOMING!![m
+|-
+| [32mズーム中！！[m||
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| %s[%d]:||%s[%d]:[32mZOOMING!![m
+|-
+| [32mズーム中！！[m||
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| %s[%d]:||%s[%d]:[32mZOOMING!![m
+|-
+| [32mズーム中！！[m||
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| %s[%d]:||%s[%d]:[32mZOOMING!![m
+|-
+| [32mズーム中！！[m||
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| %s[%d]:||%s[%d]:[32mZOOMING!![m
+|-
+| [32mズーム中！！[m||
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| 店主の依頼 ( %d )||SHOPKEEPER REQUEST  ( %d )
+|-
+| %s[%d]:||%s[%d]:
+|-
+| [32mズーム中！！[m||[32mZOOMING!![m
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| [33m★★★ 続けるよ！！ ★★★[m||[33m★★★ CONTINUE!! ★★★[m
+|-
+| [33m★★★ やめるよ！！ ★★★[m||[33m★★★ QUIT!! ★★★[m
+|-
+| [41;37m★★★ 警告！！ 棚がないよ！！ ★★★[m||[41;37m★★★ WARNING!! THERE AREN'T ANY SHELVES!! ★★★[m
+|-
+| [33m◇◇◇ 店のおやじ( %d ) 初期設定 ◇◇◇[m||[33m◇◇◇ SHOPKEEPER ( %d ) INITIAL SETTINGS ◇◇◇[m
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|-
+| ../z_en_oB1.c||../z_en_oB1.c
+|}
+
+[[Category:Shops]]
+
+== Color Changing ==
+
+Item Select Cursor from Pulsing Green to Pulsing Blue (Debug ROM to match NTSC 1.0 colors)
+
+E7C80C - Replace the first two bytes with 306F<br />
+E7C81C - Replace the first two bytes with 01AA<br />

@@ -1,0 +1,327 @@
+{{address3|
+|space=ram
+|name=game_play
+|ver1=Debug|ref1=ram|start1=80212020|size1=12518
+|ver2=NTSC 1.0|ref2=ram|start2=801C84A0|size2=12518
+|ver3=NTSC 1.1|ref3=ram|start3=801C8660|size3=12518
+|ver4=NTSC 1.2|ref4=ram|start4=801C8D60|size4=12518
+|ver5=PAL 1.0|ref5=ram|start5=801C64E0|size5=12518
+|ver6=PAL 1.1|ref6=ram|start6=801C6520|size6=12518
+}}
+{{See also|Ram Map}}
+The '''game_play''' struct is a [[Game State]] containing a large chunk of the core game engine's variables. Historically, the instance of game_play was referred to as the Global Context, because it is dynamically allocated to a consistent address and many functions pass around either a reference to the game_play struct, or it's inner game struct.
+{{clear}}
+== Addresses ==
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! colspan=2 | Offset
+! rowspan=2 | Size
+! rowspan=2 | Identification
+! rowspan=2 | Type
+! colspan=7 | RAM
+|-
+! Start
+! End
+! NTSC 1.0
+! NTSC 1.1
+! NTSC 1.2
+! PAL 1.0
+! PAL 1.1
+! N64DD
+! Debug
+|-
+| 0000
+| 12518
+| 12518
+| style="text-align: left;" | game_play
+| struct
+| 801C84A0
+| 
+| 
+| 
+| 
+| 801E8E50
+| 80212020
+|-
+| 0000
+| 00A4
+| A4
+| style="text-align: left;" | [[Game Struct]]
+| struct
+| 801C84A0
+| 
+| 
+| 
+| 
+| 801E8E50
+| 80212020
+|-
+| 01E0
+| 
+| 
+| style="text-align: left;" | Camera Context
+| struct
+| 801C8680
+| 
+| 
+| 
+| 
+| 801E9030
+| 80212200
+|-
+| 1D64
+| 
+| 
+| style="text-align: left;" | Cutscene Context
+| struct
+| 801CA204
+| 
+| 
+| 
+| 
+| 801EABB4
+| 80213D84
+|-
+| 103D0
+| 104F0
+| 120
+| style="text-align: left;" | Text Box Context
+| struct
+| 801D8870
+| 
+| 
+| 
+| 
+| 801F9220
+| 802223F0
+|-
+| 104F0
+| 10760
+| 270
+| style="text-align: left;" | Interface Context
+| struct
+| 801D8990
+| 
+| 
+| 
+| 
+| 801F9340
+| 80222510
+|-
+| 10760
+| 
+| 
+| style="text-align: left;" | Subscreen Context
+| struct
+| 801D8C00
+| 
+| 
+| 
+| 
+| 801F95B0
+| 80222780
+|-
+| 10B20
+| 
+| 
+| style="text-align: left;" | Link Animation Context
+| struct
+| 801D8FC0
+| 
+| 
+| 
+| 
+| 801F9970
+| 80222B40
+|-
+| 117A4
+| 11CB8
+| 514
+| style="text-align: left;" | Object Context
+| struct
+| 801D9C44
+| 
+| 
+| 
+| 
+| 801FA5F4
+| 802237C4
+|-
+| 11CBC
+| 
+| 
+| style="text-align: left;" | Room Context
+| struct
+| 801DA15C
+| 
+| 
+| 
+| 
+| 801FAB0C
+| 80223CDC
+|-
+| 11D30
+| 
+| 
+| style="text-align: left;" | Transition Actor Context
+| struct
+| 801DA1D0
+| 
+| 
+| 
+| 
+| 801FAB80
+| 80223D50
+|-
+| 11E60
+| 
+| 
+| style="text-align: left;" | Simple Body Collision Group AT 1
+| struct
+| 801DA300
+| 
+| 
+| 
+| 
+| 801FACB0
+| 80223E80
+|-
+| 11F2C
+| 
+| 
+| style="text-align: left;" | Simple Body Collision Group AC 2
+| struct
+| 801DA3CC
+| 
+| 
+| 
+| 
+| 801FAD7C
+| 80223F4C
+|-
+| 12020
+| 
+| 
+| style="text-align: left;" | Simple Body Collision Group OT 3
+| struct
+| 801DA4C0
+| 
+| 
+| 
+| 
+| 801FAE70
+| 80224040
+|-
+| 12124
+| 
+| 
+| style="text-align: left;" | Buffer Context
+| struct
+| 801DA5C4
+| 
+| 
+| 
+| 
+| 801FAF74
+| 80224144
+|}
+
+{|class="wikitable"
+! Offset || Type || Debug || NTSC 1.0 || NTSC 1.1 || NTSC 1.2 || PAL 1.0 || PAL 1.1 || Description
+|-
+| 000000 || struct || 80212020 || 801C84A0 || 801C8660 || 801C8D60 || 801C64E0 || 801C6520 || [[Game Struct]]
+|-
+| 0000A4 || (u16) || 802120C4 || 801C8544 || 801C8704 || 801C8E04 || 801C6584 || 801C65C4 || Current scene number
+|-
+| 0000C0 || (u32) || 802120E0 || 801C8560 || 801C8720 || 801C8E20 || 801C65A0 || 801C65E0 || screen top
+|-
+| 0000C4 || (u32) || 802120E4 || 801C8564 || 801C8724 || 801C8E24 || 801C65A4 || 801C65E4 || screen bottom
+|-
+| 0000C8 || (u32) || 802120E8 || 801C8568 || 801C8728 || 801C8E28 || 801C65A8 || 801C65E8 || screen left
+|-
+| 0000CC || (u32) || 802120EC || 801C856C || 801C872C || 801C8E2C || 801C65AC || 801C65EC || screen right
+|-
+| 0000D0 || (f32) || 802120F0 || 801C8570 || 801C8730 || 801C8E30 || 801C65B0 || 801C65F0 || camera distance
+|-
+| 0000D4 || (f32) || 802120F4 || 801C8574 || 801C8734 || 801C8E34 || 801C65B4 || 801C65F4 || fog distance
+|-
+| 0000D8 || (f32) || 802120F8 || 801C8578 || 801C8738 || 801C8E38 || 801C65B8 || 801C65F8 || z distance
+|-
+| 0000DC || (f32) || 802120FC || 801C857C || 801C873C || 801C8E3C || 801C65BC || 801C65FC || unknown camera variable - leave at 1.0
+|-
+| 000270 || (actor*) || 80212290 || 801C8710 || 801C88D0 || 801C8FD0 || 801C6750 || 801C6790 || Actor that camera follows
+|-
+| 001C2C || u8 || 80213C4C || 801CA0CC || 801CA28C || 801CA98C || 801C810C || 801C814C || Number of actors loaded
+|-
+| 001C30 || (actor*)[12][2] || 80213C50 || 801CA0D0 || 801CA290 || 801CA990 || 801C8110 || 801C8150 || List of [[actors]] by type. First word is number of actors of that type, second word points to the first of that type. 
+|-
+| 001CC8 || (actor*) || 80213CE8 || 801CA168 || 801CA328 || 801CAA28 || 801C81A8 || 801C81E8 || What actor the z-target arrow is over
+|-
+| 001CCC || (actor*) || 80213CEC || 801CA16C || 801CA32C || 801CAA2C || 801C81AC || 801C81EC || What actor is being z-targeted
+|-
+| 001D28 || u32 || 80213D48 || 801CA1C8 || 801CA388 || 801CAA88 || 801C8208 || 801C8248 || Switch Flags
+|-
+| 001D2C || u32 || 80213D4C || 801CA1CC || 801CA38C || 801CAA8C || 801C820C || 801C824C || Temporary Switch Flags
+|-
+| 001D38 || u32 || 80213D58 || 801CA1D8 || 801CA398 || 801CAA98 || 801C8218 || 801C8258 || Chest Flags
+|-
+| 001D3C || u32 || 80213D5C || 801CA1DC || 801CA39C || 801CAA9C || 801C821C || 801C825C || Room Clear Flags
+|-
+| 001D4C || u32 || 80213D6C || 801CA1EC || 801CA3AC || 801CAAAC || 801C822C || 801C826C || Pointer to Title Card texture
+|-
+| 001D56 || u8 || 80213D76 || 801CA1F6 || 801CA3B6 || 801CAAB6 || 801C8236 || 801C8276 || Title Card Related
+|-
+| 001D57 || u8 || 80213D77 || 801CA1F7 || 801CA3B7 || 801CAAB7 || 801C8237 || 801C8277 || Delay to display title card graphic
+|-
+| 001D68 || u32 || 80213D88 || 801CA208 || 801CA3C8 || 801CAAC8 || 801C8248 || 801C8288 || [[Cutscene|Cutscene pointer]]
+|-
+| 0117A4 || (?) || 802237C4 || 801D9C44 || 801D9E04 || 801DA504 || 801D7C84 || 801D7CC4 || Argument 0 for [[Function Map#SpawnObject|SpawnObject()]] (this address, not value at this address)
+|-
+| 011CBC || (u8) || 80223CDC || 801DA15C || 801DA31C || 801DAA1C || 801D819C || 801D81DC || Current Room Number
+|-
+| 011CC8 || (void*) || 80223CE8 || 801DA168 || 801DA328 || 801DAA28 || 801D81A8 || 801D81E8 || Current Room Pointer
+|-
+| 011DE4 || u32 || 80223E04 || 801DA284 || 801DA444 || 801DAB44 || 801D82C4 || 801D8304 || Number of frames rendered while in normal gameplay (not paused or on file select)
+|-
+| 011DE8 || u8 || 80223E08 || 801DA288 || 801DA448 || 801DAB48 || 801D82C8 || 801D8308 || Sets which Link to load on scene load (0 = adult, 1 = child)
+|-
+| 011DEA || (u8) || 80223E0A || 801DA28A || 801DA44A || 801DAB4A || 801D82CA || 801D830A || Spawn Index for the current scene setup
+|-
+| 011DEB || (u8) || 80223E0B || 801DA28B || 801DA44B || 801DAB4B || 801D82CB || 801D830B || Number of map actors (nulled after actors are spawned iirc)
+|-
+| 011DEC || u32 || 80223E0C || 801DA28C || 801DA44C || 801DAB4C || 801D82CC || 801D830C || Number of rooms in the current scene
+|-
+| 011DF8 || (actor_list*)[] || 80223E18 || 801DA298 || 801DA458 || 801DAB58 || 801D82D8 || 801D8318 || Pointer to map actor list with position/rotation of stuff.
+|-
+| 011E04 || u32 || 80223E24 || 801DA2A4 || 801DA464 || 801DAB64 || 801D82E4 || 801D8324 || Pointer to current scene's exit list
+|-
+| 011E1A || u16 || 80223E3A || 801DA2BA || 801DA47A || 801DAB7A || 801D82FA || 801D833A || Next [[entrance index]]
+|}
+
+== Text ==
+{{Todo| Organize this better. Notes for DBG MQ}}
+002223F0 XXXX  -  Tells you the number of the message that is displayed on the screen. It is used for the "MESSAGE = XXXX" feature 
+in the Debug ROM.
+(code to activate this debug feature is: 81211CE4 0001)
+
+002223F4 00XX  -  Message box selection
+The values are as follows:
+ 00-Normal
+ 01-Beta(Code: Beta message box always ON - 812223F4 0001)
+ 02-Normal
+ 04-Beta Musicbox (Code: 812223F4 0004) 
+
+00222400       -  The actual message text. This can be changed as you please and will appear the way you've modified it.
+
+002224DA 00XX  -  The transparency of the text that is shown
+
+002224DC XX000000YY - How long the MESSAGE box will stay up before disappearing. XX is how long it should stay up, and YY is just a 
+counter that'll remove the MESSAGE box when it's counted down to 00.
+
+Variables:
+00-FE: Will make it count down from the value you provide.
+   FF: Will make the MESSAGE box permanent until you press A.
+
+002224FA 00RR00GG00BB000000AA  -  Color and transparency of the MESSAGE box
+
+[[Category:Ram]]

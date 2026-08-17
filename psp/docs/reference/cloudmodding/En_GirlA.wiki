@@ -1,0 +1,1264 @@
+{{DISPLAYTITLE:En_GirlA}}
+{{Actor|name=ovl_En_GirlA|ispage=true}}
+'''ovl_En_GirlA''' is an [[actor]] that makes up the items sold in shops. This actor contains code for rendering the items within the shops, and contains the data related to item being sold. They are spawned by [[ovl_En_Ossan]] (Shopkeeper) actors.
+
+==Shop Item Data Format==
+* Debug Rom 0xDF3254
+* NTSC 1.0 0xC022CC
+
+=== Deku Nut example===
+<tt>oooo ssss 8002ED80</tt><br>
+<tt>pppp cccc dddd bbbb</tt><br>
+
+<tt>iiiiiiii  80A3ABF8</tt><br>
+<tt>80A3B714  80A3BB6C</tt><br>
+
+'''o''' - [[Object| Object number]]. [[Rooms]] are expected to load the appropriate object files for the item model to load<br>
+'''s''' - Get Item model index (also known as "shader" number in older docs)<br>
+'''p''' - Actual Item Price. Changing this value will not change the displayed price.<br>
+'''c''' - "Pieces" (for ammo and such)<br>
+'''d''' - [[Text Id]] used for displaying the item description text.<br>
+'''b''' - [[Text Id]] used for displaying the purchased item text.<br>
+'''i''' - [[ovl_player_actor/Get_Items#Get_Item_Table|Get Item index]]
+
+Object/Get Item model index pairs are documented on the [[ovl_player_actor/Get_Items|Get Items]] page. 
+
+For instance, if you edit the heart entry:
+
+ 00B7 0008 00000000 000A0010 00AC0095
+ 0000 0048 80A3B204 80A3B8F0 80A3BB6C
+to
+ 00BA 0010 00000000 000A0010 00AC0095
+ 0000 0048 80A3B204 80A3B8F0 80A3BB6C
+
+...to display the light medallion, you'll need to replace the 00B7 object in the shop's map with the 00BA object, and change the model index from 0008 to 0010 to get it to load. It will still be a heart, though; only the graphic has changed.
+
+You can use UoT, ZLE, or ZAP2 to do this, or if you're gifted you can do it manually with a hex editor.
+
+===Item Index Entries===
+The index below is also a component in the actor's variable.
+
+==== Debug ROM ====
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! Index
+! Obj.
+! Mod.
+! Func. 1
+! Cost
+! Qt.
+! Desc.
+! Purc.
+! N/A
+! GI
+! Func. 2
+! Func. 3
+! Func. 4
+! Get Item ID
+! Model ID
+! Cost
+! Qt.
+! Used
+|-
+| 0000
+| 00BB
+| 0011
+| 8002ED80
+| 000F
+| 0005
+| 00B2
+| 007F
+| 0000
+| 0063
+| 80A3ABF8
+| 80A3B714
+| 80A3BB6C
+| style="text-align: left;" | Deku Nuts (5)
+| style="text-align: left;" | Deku Nut
+| style="text-align: right;" | 15
+| style="text-align: right;" | 5
+| class="bg-yes" | ✔
+|-
+| 0001
+| 00D8
+| 0025
+| 8002EBCC
+| 003C
+| 001E
+| 00C1
+| 009B
+| 0000
+| 004A
+| 80A3AAA8
+| 80A3B634
+| 80A3BB6C
+| style="text-align: left;" | Arrows (30)
+| style="text-align: left;" | Bundle of Arrows (2)
+| style="text-align: right;" | 60
+| style="text-align: right;" | 30
+| class="bg-yes" | ✔
+|-
+| 0002
+| 00D8
+| 0026
+| 8002EBCC
+| 005A
+| 0032
+| 00B0
+| 007D
+| 0000
+| 004B
+| 80A3AAA8
+| 80A3B634
+| 80A3BB6C
+| style="text-align: left;" | Arrows (50)
+| style="text-align: left;" | Bundle of Arrows (3)
+| style="text-align: right;" | 90
+| style="text-align: right;" | 50
+| class="bg-yes" | ✔
+|-
+| 0003
+| 00CE
+| 001F
+| 8002EBCC
+| 0019
+| 0005
+| 00A3
+| 008B
+| 0000
+| 0001
+| 80A3AB58
+| 80A3B678
+| 80A3BB6C
+| style="text-align: left;" | Bombs (5)
+| style="text-align: left;" | Bomb
+| style="text-align: right;" | 25
+| style="text-align: right;" | 5
+| class="bg-yes" | ✔
+|-
+| 0004
+| 00BB
+| 0011
+| 8002ED80
+| 001E
+| 000A
+| 00A2
+| 0087
+| 0000
+| 0064
+| 80A3ABF8
+| 80A3B714
+| 80A3BB6C
+| style="text-align: left;" | Deku Nuts (10)
+| style="text-align: left;" | Deku Nut
+| style="text-align: right;" | 30
+| style="text-align: right;" | 10
+| class="bg-yes" | ✔
+|-
+| 0005
+| 00C7
+| 001A
+| 00000000
+| 000A
+| 0001
+| 00A1
+| 0088
+| 0000
+| 0007
+| 80A3ACAC
+| 80A3B780
+| 80A3BB6C
+| style="text-align: left;" | Deku Stick
+| style="text-align: left;" | Deku Stick
+| style="text-align: right;" | 10
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0006
+| 00CE
+| 001F
+| 8002EBCC
+| 0032
+| 000A
+| 00B1
+| 007C
+| 0000
+| 0066
+| 80A3AB58
+| 80A3B678
+| 80A3BB6C
+| style="text-align: left;" | Bombs (10)
+| style="text-align: left;" | Bomb
+| style="text-align: right;" | 50
+| style="text-align: right;" | 10
+| class="bg-yes" | ✔
+|-
+| 0007
+| 00F4
+| 003E
+| 8002ED80
+| 00C8
+| 0001
+| 00B3
+| 007E
+| 0000
+| 006C
+| 80A3AD60
+| 00000000
+| 80A3BB6C
+| style="text-align: left;" | Fish
+| style="text-align: left;" | Fish
+| style="text-align: right;" | 200
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0008
+| 00EB
+| 0037
+| 8002EBCC
+| 001E
+| 0001
+| 00A5
+| 008E
+| 0000
+| 0010
+| 80A3ADD4
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Red Potion
+| style="text-align: left;" | Red Potion
+| style="text-align: right;" | 30
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0009
+| 00EB
+| 0036
+| 8002EBCC
+| 001E
+| 0001
+| 00A6
+| 008F
+| 0000
+| 0011
+| 80A3AE48
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Green Potion
+| style="text-align: left;" | Green Potion
+| style="text-align: right;" | 30
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 000A
+| 00EB
+| 0038
+| 8002EBCC
+| 003C
+| 0001
+| 00A7
+| 0090
+| 0000
+| 0012
+| 80A3AEBC
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Blue Potion
+| style="text-align: left;" | Blue Potion
+| style="text-align: right;" | 60
+| style="text-align: right;" | 1
+| class="bg-no" | ✘
+|-
+| 000B
+| 00F8
+| 0042
+| 8002EBCC
+| 03E8
+| 0001
+| 00A8
+| 0091
+| 0000
+| 0028
+| 80A3AF30
+| 80A3B7BC
+| 80A3BB6C
+| style="text-align: left;" | Giant's Knife & Biggoron's Sword
+| style="text-align: left;" | Giant's Knife & Biggoron's Sword
+| style="text-align: right;" | 1000
+| style="text-align: right;" | 1
+| class="bg-no" | ✘
+|-
+| 000C
+| 00DC
+| 002B
+| 8002EBCC
+| 0050
+| 0001
+| 00A9
+| 0092
+| 0000
+| 002A
+| 80A3AFC4
+| 80A3B800
+| 80A3BB6C
+| style="text-align: left;" | Hylian Shield
+| style="text-align: left;" | Hylian Shield
+| style="text-align: right;" | 80
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 000D
+| 00CB
+| 001C
+| 8002EBCC
+| 0028
+| 0001
+| 009F
+| 0089
+| 0000
+| 0029
+| 80A3B040
+| 80A3B83C
+| 80A3BB6C
+| style="text-align: left;" | Deku Shield
+| style="text-align: left;" | Deku Shield
+| style="text-align: right;" | 40
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 000E
+| 00F2
+| 003B
+| 00000000
+| 00C8
+| 0001
+| 00AA
+| 0093
+| 0000
+| 002C
+| 80A3B0BC
+| 80A3B878
+| 80A3BC0C
+| style="text-align: left;" | Goron Tunic
+| style="text-align: left;" | Goron Tunic
+| style="text-align: right;" | 200
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 000F
+| 00F2
+| 003C
+| 00000000
+| 012C
+| 0001
+| 00AB
+| 0094
+| 0000
+| 002D
+| 80A3B160
+| 80A3B8B4
+| 80A3BC3C
+| style="text-align: left;" | Zora Tunic
+| style="text-align: left;" | Zora Tunic
+| style="text-align: right;" | 300
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0010
+| 00B7
+| 0008
+| 00000000
+| 000A
+| 0010
+| 00AC
+| 0095
+| 0000
+| 0048
+| 80A3B204
+| 80A3B8F0
+| 80A3BB6C
+| style="text-align: left;" | Recovery Heart
+| style="text-align: left;" | Recovery Heart
+| style="text-align: right;" | 10
+| style="text-align: right;" | 16
+| class="bg-yes" | ✔
+|-
+| 0011
+| 00DF
+| 002F
+| 80A3C498
+| 0064
+| 0001
+| 00AD
+| 0097
+| 0000
+| 0014
+| 80A3B250
+| 80A3B92C
+| 80A3BB6C
+| style="text-align: left;" | Lon Lon Milk & Bottle
+| style="text-align: left;" | Lon Lon Milk
+| style="text-align: right;" | 100
+| style="text-align: right;" | 1
+| class="bg-no" | ✘
+|-
+| 0012
+| 00DA
+| 0028
+| 8002EBCC
+| 0064
+| 0001
+| 00AE
+| 0099
+| 0000
+| 0047
+| 80A3B2AC
+| 80A3B968
+| 80A3BB6C
+| style="text-align: left;" | Weird Egg
+| style="text-align: left;" | Weird Egg & Pocket Egg
+| style="text-align: right;" | 100
+| style="text-align: right;" | 1
+| class="bg-no" | ✘
+|-
+| 0013
+| 00DF
+| 002F
+| 80A3C498
+| 2710
+| 0001
+| 00B4
+| 0085
+| 0000
+| 0000
+| 80A3B308
+| 80A3B9A4
+| 80A3BB6C
+| style="text-align: left;" | [None]
+| style="text-align: left;" | Lon Lon Milk
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+| class="bg-no" | ✘
+|-
+| 0014
+| 00DA
+| 0028
+| 8002EBCC
+| 2710
+| 0001
+| 00B5
+| 0085
+| 0000
+| 0000
+| 80A3B318
+| 80A3B9D4
+| 80A3BB6C
+| style="text-align: left;" | [None]
+| style="text-align: left;" | Weird Egg & Pocket Egg
+| style="text-align: right;" | 10000
+| style="text-align: right;" | 1
+| class="bg-no" | ✘
+|-
+| 0015
+| 00D9
+| 0027
+| 8002EBCC
+| 0064
+| 000A
+| 00BC
+| 008C
+| 0000
+| 0003
+| 80A3B328
+| 00000000
+| 80A3BC6C
+| style="text-align: left;" | Bombchu (10)
+| style="text-align: left;" | Bombchu
+| style="text-align: right;" | 100
+| style="text-align: right;" | 10
+| class="bg-yes" | ✔
+|-
+| 0016
+| 00D9
+| 0027
+| 8002EBCC
+| 00B4
+| 0014
+| 0061
+| 002A
+| 0000
+| 006B
+| 80A3B328
+| 00000000
+| 80A3BC6C
+| style="text-align: left;" | Bombchu (20)
+| style="text-align: left;" | Bombchu
+| style="text-align: right;" | 180
+| style="text-align: right;" | 20
+| class="bg-yes" | ✔
+|-
+| 0017
+| 00D9
+| 0027
+| 8002EBCC
+| 00B4
+| 0014
+| 0061
+| 002A
+| 0000
+| 006B
+| 80A3B328
+| 00000000
+| 80A3BC6C
+| style="text-align: left;" | Bombchu (20)
+| style="text-align: left;" | Bombchu
+| style="text-align: right;" | 180
+| style="text-align: right;" | 20
+| class="bg-yes" | ✔
+|-
+| 0018
+| 00D9
+| 0027
+| 8002EBCC
+| 0064
+| 000A
+| 00BC
+| 008C
+| 0000
+| 0003
+| 80A3B328
+| 00000000
+| 80A3BC6C
+| style="text-align: left;" | Bombchu (10)
+| style="text-align: left;" | Bombchu
+| style="text-align: right;" | 100
+| style="text-align: right;" | 10
+| class="bg-yes" | ✔
+|-
+| 0019
+| 00D9
+| 0027
+| 8002EBCC
+| 0064
+| 000A
+| 00BC
+| 008C
+| 0000
+| 0003
+| 80A3B328
+| 00000000
+| 80A3BC6C
+| style="text-align: left;" | Bombchu (10)
+| style="text-align: left;" | Bombchu
+| style="text-align: right;" | 100
+| style="text-align: right;" | 10
+| class="bg-yes" | ✔
+|-
+| 001A
+| 00D9
+| 0027
+| 8002EBCC
+| 00B4
+| 0014
+| 0061
+| 002A
+| 0000
+| 006B
+| 80A3B328
+| 00000000
+| 80A3BC6C
+| style="text-align: left;" | Bombchu (20)
+| style="text-align: left;" | Bombchu
+| style="text-align: right;" | 180
+| style="text-align: right;" | 20
+| class="bg-yes" | ✔
+|-
+| 001B
+| 00D9
+| 0027
+| 8002EBCC
+| 00B4
+| 0014
+| 0061
+| 002A
+| 0000
+| 006B
+| 80A3B328
+| 00000000
+| 80A3BC6C
+| style="text-align: left;" | Bombchu (20)
+| style="text-align: left;" | Bombchu
+| style="text-align: right;" | 180
+| style="text-align: right;" | 20
+| class="bg-yes" | ✔
+|-
+| 001C
+| 00D9
+| 0027
+| 8002EBCC
+| 0064
+| 000A
+| 00BC
+| 008C
+| 0000
+| 0003
+| 80A3B328
+| 00000000
+| 80A3BC6C
+| style="text-align: left;" | Bombchu (10)
+| style="text-align: left;" | Bombchu
+| style="text-align: right;" | 100
+| style="text-align: right;" | 10
+| class="bg-yes" | ✔
+|-
+| 001D
+| 0119
+| 0047
+| 8002EBCC
+| 001E
+| 001E
+| 00DF
+| 00DE
+| 0000
+| 0069
+| 80A3B3A8
+| 80A3BA04
+| 80A3BB6C
+| style="text-align: left;" | Deku Seeds (30)
+| style="text-align: left;" | Deku Seeds
+| style="text-align: right;" | 30
+| style="text-align: right;" | 30
+| class="bg-yes" | ✔
+|-
+| 001E
+| 0134
+| 0030
+| 8002EBCC
+| 0000
+| 0001
+| 70B2
+| 70BE
+| 0000
+| 001A
+| 80A3B3A8
+| 80A3BA04
+| 80A3BB6C
+| style="text-align: left;" | Keaton Mask
+| style="text-align: left;" | Keaton Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 001F
+| 0135
+| 0031
+| 8002EBCC
+| 0000
+| 0001
+| 70B1
+| 70BD
+| 0000
+| 0018
+| 80A3B3A8
+| 80A3BA04
+| 80A3BB6C
+| style="text-align: left;" | Spooky Mask
+| style="text-align: left;" | Spooky Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0020
+| 0136
+| 004E
+| 8002EBCC
+| 0000
+| 0001
+| 70B0
+| 70BC
+| 0000
+| 0017
+| 80A3B3A8
+| 80A3BA04
+| 80A3BB6C
+| style="text-align: left;" | Skull Mask
+| style="text-align: left;" | Skull Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0021
+| 0137
+| 004F
+| 8002EBCC
+| 0000
+| 0001
+| 70B3
+| 70BF
+| 0000
+| 001B
+| 80A3B3A8
+| 80A3BA04
+| 80A3BB6C
+| style="text-align: left;" | Bunny Hood
+| style="text-align: left;" | Bunny Hood
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0022
+| 0138
+| 0050
+| 80A3C498
+| 0000
+| 0001
+| 70AF
+| 70C3
+| 0000
+| 001C
+| 80A3B3A8
+| 80A3BA04
+| 80A3BB6C
+| style="text-align: left;" | Mask of Truth
+| style="text-align: left;" | Mask of Truth
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0023
+| 0151
+| 005B
+| 00000000
+| 0000
+| 0001
+| 70B9
+| 70C1
+| 0000
+| 0052
+| 80A3B3A8
+| 80A3BA04
+| 80A3BB6C
+| style="text-align: left;" | Zora Mask
+| style="text-align: left;" | Zora Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0024
+| 0150
+| 005A
+| 00000000
+| 0000
+| 0001
+| 70B8
+| 70C0
+| 0000
+| 0051
+| 80A3B3A8
+| 80A3BA04
+| 80A3BB6C
+| style="text-align: left;" | Goron Mask
+| style="text-align: left;" | Goron Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0025
+| 0152
+| 005C
+| 00000000
+| 0000
+| 0001
+| 70BA
+| 70C2
+| 0000
+| 0053
+| 80A3B3A8
+| 80A3BA04
+| 80A3BB6C
+| style="text-align: left;" | Gerudo Mask
+| style="text-align: left;" | Gerudo Mask
+| style="text-align: right;" | 0
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0026
+| 0148
+| 0058
+| 8002EBCC
+| 0000
+| 0000
+| 00BD
+| 70C2
+| 0000
+| 0053
+| 80A3B454
+| 00000000
+| 00000000
+| style="text-align: left;" | Gerudo Mask
+| style="text-align: left;" | SOLD OUT
+| style="text-align: right;" | 0
+| style="text-align: right;" | 0
+| ?
+|-
+| 0027
+| 0173
+| 0066
+| 8002EBCC
+| 012C
+| 0001
+| 00B9
+| 00B8
+| 0000
+| 006E
+| 80A3B464
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Blue Fire
+| style="text-align: left;" | Blue Fire
+| style="text-align: right;" | 300
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0028
+| 0174
+| 0067
+| 80A3C498
+| 0032
+| 0001
+| 00BB
+| 00BA
+| 0000
+| 006D
+| 80A3B4D8
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Bug
+| style="text-align: left;" | Bug
+| style="text-align: right;" | 50
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0029
+| 0176
+| 006F
+| 80A3C498
+| 0032
+| 0001
+| 506F
+| 5070
+| 0000
+| 0070
+| 80A3B54C
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Big Poe
+| style="text-align: left;" | Big Poe
+| style="text-align: right;" | 50
+| style="text-align: right;" | 1
+| class="bg-no" | ✘
+|-
+| 002A
+| 0176
+| 0069
+| 80A3C498
+| 001E
+| 0001
+| 506D
+| 506E
+| 0000
+| 006F
+| 80A3B54C
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Poe
+| style="text-align: left;" | Poe
+| style="text-align: right;" | 30
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 002B
+| 0177
+| 006A
+| 80A3C498
+| 0032
+| 0001
+| 00B7
+| 00B6
+| 0000
+| 0013
+| 80A3B5C0
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Bottled Fairy
+| style="text-align: left;" | Bottled Fairy
+| style="text-align: right;" | 50
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 002C
+| 00D8
+| 0024
+| 8002EBCC
+| 0014
+| 000A
+| 00A0
+| 008A
+| 0000
+| 0049
+| 80A3AAA8
+| 80A3B634
+| 80A3BB6C
+| style="text-align: left;" | Arrows (10)
+| style="text-align: left;" | Arrow
+| style="text-align: right;" | 20
+| style="text-align: right;" | 10
+| class="bg-yes" | ✔
+|-
+| 002D
+| 00CE
+| 001F
+| 8002EBCC
+| 0050
+| 0014
+| 001C
+| 0006
+| 0000
+| 0067
+| 80A3AB58
+| 80A3B678
+| 80A3BB6C
+| style="text-align: left;" | Bombs (20)
+| style="text-align: left;" | Bomb
+| style="text-align: right;" | 80
+| style="text-align: right;" | 20
+| class="bg-yes" | ✔
+|-
+| 002E
+| 00CE
+| 001F
+| 8002EBCC
+| 0078
+| 001E
+| 001D
+| 001E
+| 0000
+| 0068
+| 80A3AB58
+| 80A3B678
+| 80A3BB6C
+| style="text-align: left;" | Bombs (30)
+| style="text-align: left;" | Bomb
+| style="text-align: right;" | 120
+| style="text-align: right;" | 30
+| class="bg-yes" | ✔
+|-
+| 002F
+| 00CE
+| 001F
+| 8002EBCC
+| 0023
+| 0005
+| 00CB
+| 00CA
+| 0000
+| 0001
+| 80A3AB58
+| 80A3B678
+| 80A3BB6C
+| style="text-align: left;" | Bombs (5)
+| style="text-align: left;" | Bomb
+| style="text-align: right;" | 35
+| style="text-align: right;" | 5
+| class="bg-yes" | ✔
+|-
+| 0030
+| 00EB
+| 0037
+| 8002EBCC
+| 0028
+| 0001
+| 0064
+| 0062
+| 0000
+| 0010
+| 80A3ADD4
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Red Potion
+| style="text-align: left;" | Red Potion
+| style="text-align: right;" | 40
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|-
+| 0031
+| 00EB
+| 0037
+| 8002EBCC
+| 0032
+| 0001
+| 0065
+| 0063
+| 0000
+| 0010
+| 80A3ADD4
+| 80A3BA40
+| 80A3BB6C
+| style="text-align: left;" | Red Potion
+| style="text-align: left;" | Red Potion
+| style="text-align: right;" | 50
+| style="text-align: right;" | 1
+| class="bg-yes" | ✔
+|}
+
+==== NTSC 1.0 ====
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! Id || Item || Object || GI<br>Model || func_ptr1 || Cost || Count || Desc.<br>Text Id || Buy<br>Text Id || Get Item || func_ptr2 || func_ptr3 || func_ptr4
+|-
+| 0 || Deku Nut, x5, $15 || 00BB || 0011 || 80022554 || 000F || 0005 || 00B2 || 007F || 00000063 || 80862FDC || 80863B4C || 80863FB4
+|-
+| 1 || Arrows (2), x30, $60 || 00D8 || 0025 || 80022438 || 003C || 001E || 00C1 || 009B || 0000004A || 80862E8C || 80863A64 || 80863FB4
+|-
+| 2 || Arrows (3), x50, $90 || 00D8 || 0026 || 80022438 || 005A || 0032 || 00B0 || 007D || 0000004B || 80862E8C || 80863A64 || 80863FB4
+|-
+| 3 || Bombs, x5, $25 || 00CE || 001F || 80022438 || 0019 || 0005 || 00A3 || 008B || 00000001 || 80862F3C || 80863AAC || 80863FB4
+|-
+| 4 || Deku Nut, x10, $30 || 00BB || 0011 || 80022554 || 001E || 000A || 00A2 || 0087 || 00000064 || 80862FDC || 80863B4C || 80863FB4
+|-
+| 5 || Deku Stick, x1, $10 || 00C7 || 001A || 00000000 || 000A || 0001 || 00A1 || 0088 || 00000007 || 80863094 || 80863BBC || 80863FB4
+|-
+| 6 || Bombs, x10, $50 || 00CE || 001F || 80022438 || 0032 || 000A || 00B1 || 007C || 00000066 || 80862F3C || 80863AAC || 80863FB4
+|-
+| 7 || Fish, x1, $200 || 00F4 || 003E || 80022554 || 00C8 || 0001 || 00B3 || 007E || 0000006C || 8086314C || 00000000 || 80863FB4
+|-
+| 8 || Red Potion, x1, $30 || 00EB || 0037 || 80022438 || 001E || 0001 || 00A5 || 008E || 00000010 || 808631C4 || 80863E84 || 80863FB4
+|-
+| 9 || Green Potion, x1, $30 || 00EB || 0036 || 80022438 || 001E || 0001 || 00A6 || 008F || 00000011 || 8086323C || 80863E84 || 80863FB4
+|-
+| 10 || Blue Potion, x1, $60 || 00EB || 0038 || 80022438 || 003C || 0001 || 00A7 || 0090 || 00000012 || 808632B4 || 80863E84 || 80863FB4
+|-
+| 11 || Giant's Knife, x1, $1000 || 00F8 || 0042 || 80022438 || 03E8 || 0001 || 00A8 || 0091 || 00000028 || 8086332C || 80863BF8 || 80863FB4
+|-
+| 12 || Hylian Shield, x1, $80 || 00DC || 002B || 80022438 || 0050 || 0001 || 00A9 || 0092 || 0000002A || 808633C0 || 80863C40 || 80863FB4
+|-
+| 13 || Deku Shield, x1, $40 || 00CB || 001C || 80022438 || 0028 || 0001 || 009F || 0089 || 00000029 || 80863440 || 80863C7C || 80863FB4
+|-
+| 14 || Goron Tunic, x1, $200 || 00F2 || 003B || 00000000 || 00C8 || 0001 || 00AA || 0093 || 0000002C || 808634C0 || 80863CB8 || 80864054
+|-
+| 15 || Zora Tunic, x1, $300 || 00F2 || 003C || 00000000 || 012C || 0001 || 00AB || 0094 || 0000002D || 80863568 || 80863CF4 || 80864084
+|-
+| 16 || Heart, x16, $10 || 00B7 || 0008 || 00000000 || 000A || 0010 || 00AC || 0095 || 00000048 || 80863610 || 80863D30 || 80863FB4
+|-
+| 17 || Milk Bottle (Unused), x1, $100 || 00DF || 002F || 808648CC || 0064 || 0001 || 00AD || 0097 || 00000014 || 8086365C || 80863D70 || 80863FB4
+|-
+| 18 || Weird Egg (Unused), x1, $100 || 00DA || 0028 || 80022438 || 0064 || 0001 || 00AE || 0099 || 00000047 || 808636B8 || 80863DAC || 80863FB4
+|-
+| 19 || Milk Bottle (Unused), x1, $10000 || 00DF || 002F || 808648CC || 2710 || 0001 || 00B4 || 0085 || 00000000 || 80863714 || 80863DE8 || 80863FB4
+|-
+| 20 || Weird Egg (Unused), x1, $10000 || 00DA || 0028 || 80022438 || 2710 || 0001 || 00B5 || 0085 || 00000000 || 80863728 || 80863E18 || 80863FB4
+|-
+| 21 || Bombchu, x10, $100 || 00D9 || 0027 || 80022438 || 0064 || 000A || 00BC || 008C || 00000003 || 8086373C || 00000000 || 808640B4
+|-
+| 22 || Bombchu, x20, $180 || 00D9 || 0027 || 80022438 || 00B4 || 0014 || 0061 || 002A || 0000006B || 8086373C || 00000000 || 808640B4
+|-
+| 23 || Bombchu, x20, $180 || 00D9 || 0027 || 80022438 || 00B4 || 0014 || 0061 || 002A || 0000006B || 8086373C || 00000000 || 808640B4
+|-
+| 24 || Bombchu, x10, $100 || 00D9 || 0027 || 80022438 || 0064 || 000A || 00BC || 008C || 00000003 || 8086373C || 00000000 || 808640B4
+|-
+| 25 || Bombchu, x10, $100 || 00D9 || 0027 || 80022438 || 0064 || 000A || 00BC || 008C || 00000003 || 8086373C || 00000000 || 808640B4
+|-
+| 26 || Bombchu, x20, $180 || 00D9 || 0027 || 80022438 || 00B4 || 0014 || 0061 || 002A || 0000006B || 8086373C || 00000000 || 808640B4
+|-
+| 27 || Bombchu, x20, $180 || 00D9 || 0027 || 80022438 || 00B4 || 0014 || 0061 || 002A || 0000006B || 8086373C || 00000000 || 808640B4
+|-
+| 28 || Bombchu, x10, $100 || 00D9 || 0027 || 80022438 || 0064 || 000A || 00BC || 008C || 00000003 || 8086373C || 00000000 || 808640B4
+|-
+| 29 || Deku Seeds, x30, $30 || 0119 || 0047 || 80022438 || 001E || 001E || 00DF || 00DE || 00000069 || 808637C0 || 80863E48 || 80863FB4
+|-
+| 30 || Keaton Mask, x1, $0 || 0134 || 0030 || 80022438 || 0000 || 0001 || 70B2 || 70BE || 0000001A || 808637C0 || 80863E48 || 80863FB4
+|-
+| 31 || Spooky Mask, x1, $0 || 0135 || 0031 || 80022438 || 0000 || 0001 || 70B1 || 70BD || 00000018 || 808637C0 || 80863E48 || 80863FB4
+|-
+| 32 || Skull Mask, x1, $0 || 0136 || 004E || 80022438 || 0000 || 0001 || 70B0 || 70BC || 00000017 || 808637C0 || 80863E48 || 80863FB4
+|-
+| 33 || Bunny Hood, x1, $0 || 0137 || 004F || 80022438 || 0000 || 0001 || 70B3 || 70BF || 0000001B || 808637C0 || 80863E48 || 80863FB4
+|-
+| 34 || Mask of Truth, x1, $0 || 0138 || 0050 || 808648CC || 0000 || 0001 || 70AF || 70C3 || 0000001C || 808637C0 || 80863E48 || 80863FB4
+|-
+| 35 || Zora Mask, x1, $0 || 0151 || 005B || 00000000 || 0000 || 0001 || 70B9 || 70C1 || 00000052 || 808637C0 || 80863E48 || 80863FB4
+|-
+| 36 || Goron Mask, x1, $0 || 0150 || 005A || 00000000 || 0000 || 0001 || 70B8 || 70C0 || 00000051 || 808637C0 || 80863E48 || 80863FB4
+|-
+| 37 || Gerudo Mask, x1, $0 || 0152 || 005C || 00000000 || 0000 || 0001 || 70BA || 70C2 || 00000053 || 808637C0 || 80863E48 || 80863FB4
+|-
+| 38 || Sold Out, x0, $0 || 0148 || 0058 || 80022438 || 0000 || 0000 || 00BD || 70C2 || 00000053 || 80863870 || 00000000 || 00000000
+|-
+| 39 || Blue Fire, x1, $300 || 0173 || 0066 || 80022438 || 012C || 0001 || 00B9 || 00B8 || 0000006E || 80863884 || 80863E84 || 80863FB4
+|-
+| 40 || Bottle Bug, x1, $50 || 0174 || 0067 || 808648CC || 0032 || 0001 || 00BB || 00BA || 0000006D || 808638FC || 80863E84 || 80863FB4
+|-
+| 41 || Big Poe (Unused), x1, $50 || 0176 || 006F || 808648CC || 0032 || 0001 || 506F || 5070 || 00000070 || 80863974 || 80863E84 || 80863FB4
+|-
+| 42 || Poe, x1, $30 || 0176 || 0069 || 808648CC || 001E || 0001 || 506D || 506E || 0000006F || 80863974 || 80863E84 || 80863FB4
+|-
+| 43 || Fairy's Spirit, x1, $50 || 0177 || 006A || 808648CC || 0032 || 0001 || 00B7 || 00B6 || 00000013 || 808639EC || 80863E84 || 80863FB4
+|-
+| 44 || Arrow (1), x10, $20 || 00D8 || 0024 || 80022438 || 0014 || 000A || 00A0 || 008A || 00000049 || 80862E8C || 80863A64 || 80863FB4
+|-
+| 45 || Bombs, x20, $80 || 00CE || 001F || 80022438 || 0050 || 0014 || 001C || 0006 || 00000067 || 80862F3C || 80863AAC || 80863FB4
+|-
+| 46 || Bombs, x30, $120 || 00CE || 001F || 80022438 || 0078 || 001E || 001D || 001E || 00000068 || 80862F3C || 80863AAC || 80863FB4
+|-
+| 47 || Bombs, x5, $35 || 00CE || 001F || 80022438 || 0023 || 0005 || 00CB || 00CA || 00000001 || 80862F3C || 80863AAC || 80863FB4
+|-
+| 48 || Red Potion, x1, $40 || 00EB || 0037 || 80022438 || 0028 || 0001 || 0064 || 0062 || 00000010 || 808631C4 || 80863E84 || 80863FB4
+|-
+| 49 || Red Potion, x1, $50 || 00EB || 0037 || 80022438 || 0032 || 0001 || 0065 || 0063 || 00000010 || 808631C4 || 80863E84 || 80863FB4
+|}
+
+==Item Gained Entries==
+{{main|Get Items}}
+
+==Messages==
+<pre>
+60 = You found a Small Key! This key will open a locked door. You can only use it in this dungeon.
+73 = You have learned the Minuet of Forest!
+74 = You have learned the Bolero of Fire!
+75 = You have learned the Serenade of Water!
+76 = You have learned the Requiem of Spirit!
+77 = You have learned the Nocturne of Shadow!
+78 = You have learned the Prelude of Light!
+</pre>
+
+== Debug Rom Notes ==
+In addition to above there seems to be some miscellaneous items (All Equipment Items) here as well but in changing them I could not find their functionality, if existent. It's likely their functionality is to see if you have them so you can't purchase them twice.
+
+ ROM: 0xDF23F0 (2405003F) Hylian Shield? 
+ ROM: 0xDF242C (2405003E) Deku Shield?
+ ROM: 0xDF2468 (24050042) Goron Tunic?
+ ROM: 0xDF24A4 (24050043) Zora Tunic?
+
+== Console Output Strings ==
+
+{{investigate|Are Ingo Egg and Ingo Milk previously undiscovered unused items?}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| デクの実×5||Deku Nuts x5
+|-
+| 矢×30||Arrows x30
+|-
+| 矢×50||Arrows x50
+|-
+| 爆弾×5||Bombs x5
+|-
+| デクの実×10||Deku Nuts x10
+|-
+| デクの棒||Deku Stick
+|-
+| 爆弾×10||Bombs x10
+|-
+| さかな||Fish
+|-
+| 赤クスリ||Red Potion
+|-
+| 緑クスリ||Green Potion
+|-
+| 青クスリ||Blue Potion
+|-
+| 巨人のナイフ||Giant's Knife
+|-
+| ハイリアの盾||Hylian Shield
+|-
+| デクの盾||Deku Shield
+|-
+| ゴロンの服||Goron Tunic
+|-
+| ゾ─ラの服||Zora Tunic
+|-
+| 回復のハート||Recovery Heart
+|-
+| ロンロン牛乳||Lon Lon Milk
+|-
+| 鶏の卵||Chicken Egg
+|-
+| インゴー牛乳||Ingo Milk
+|-
+| インゴー卵||Ingo Egg
+|-
+| もだえ石||Stone of Agony
+|-
+| 大人の財布||Adult Wallet
+|-
+| ハートの欠片||Heart Piece
+|-
+| ボムチュウ||Bombchu
+|-
+| ボムチュウ||Bombchu
+|-
+| ボムチュウ||Bombchu
+|-
+| ボムチュウ||Bombchu
+|-
+| ボムチュウ||Bombchu
+|-
+| デクのタネ||Deku Seed
+|-
+| キータンのお面||Keaton Mask
+|-
+| こわそなお面||Spooky Mask
+|-
+| ドクロのお面||Skull Mask
+|-
+| ウサギずきん||Bunny Hood
+|-
+| まことの仮面||Mask of Truth
+|-
+| ゾーラのお面||Zora Mask
+|-
+| ゴロンのお面||Goron Mask
+|-
+| ゲルドのお面||Gerudo Mask
+|-
+| ＳＯＬＤＯＵＴ||SOLD OUT
+|-
+| 炎||Flame
+|-
+| 虫||Bug
+|-
+| チョウチョ||Butterfly
+|-
+| ポウ||Poe
+|-
+| 妖精の魂||Fairy's Spirit
+|-
+| 矢×10||Arrows x10
+|-
+| 爆弾×20||Bombs x20
+|-
+| 爆弾×30||Bombs x30
+|-
+| 爆弾×5||Bombs x5
+|-
+| 赤クスリ||Red Potion
+|-
+| 赤クスリ||Blue Potion
+|-
+| %s(%2d)初期設定||%s(%2d) EARLY SETTINGS
+|-
+| [41;37m引数がおかしいよ(arg_data=%d)！！||[41;37m FUNCTION IS ABNORMAL (arg_data=%d)!!
+|-
+| ../z_en_girlA.c||
+|-
+| バンクが無いよ！！(%s)||BANK DOESN'T EXIT!! (%s)
+|-
+| ../z_en_girlA.c||
+|-
+| %s(%2d)初期設定||%s(%2d) EARLY SETTINGS
+|-
+| %s(%2d)||%s(%2d)
+|}
+
+[[Category:Documentation]] [[Category:Shops]]

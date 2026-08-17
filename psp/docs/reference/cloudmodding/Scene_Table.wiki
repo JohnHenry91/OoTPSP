@@ -1,0 +1,311 @@
+{{Address3|space=code|name=Scene Table|subpage=Scene Table
+|ver1=Debug|ref1=rom|start1=BA0BB0|size1=898
+|ver2=NTSC 1.0|ref2=rom|start2=B71440|size2=7E4
+|ver3=NTSC 1.1|ref3=rom|start3=B71600|size3=7E4
+|ver4=NTSC 1.2|ref4=rom|start4=B71450|size4=7E4
+|ver5=PAL 1.0|ref5=rom|start5=B70D60|size5=7E4
+|ver6=PAL 1.1|ref6=rom|start6=B70DA0|size6=7E4
+|ver7=PAL MQ|ref7=rom|start7=B6F440|size7=7E4
+}}
+{{Article link|Scene Table}}{{See also|Category:Scene Listings}}
+
+The scene table sets the internal numeric ordering for scenes, and defines certain graphical effects.
+
+{{clear}}
+
+==Format==
+
+There are 109 entries in the scene table in the Debug ROM, and 101 in all commercial releases.
+
+<pre>
+/* 0x00 */ s32 //Scene VRom Start
+/* 0x04 */ s32 //Scene VRom End
+/* 0x08 */ s32 Title Card Texture VRom Start
+/* 0x0C */ s32 Title Card Texture VRom End
+/* 0x10 */ s8 //unknown (is either 0x01 or 0x02 for some dungeons, otherwise 0x00)
+/* 0x11 */ s8 //Scene Render Init Function ID (determines scene effects and animations)
+/* 0x12 */ s8 //unknown (is unique value between 0x02 and 0x0A for some dungeons)
+</pre>
+
+==Scene Render Initialization Function==
+
+The Scene Render Initialization Function is used to pre-compute dynamic elements needed to render a scene/room, like camera effects, or dynamic/animated textures. For example, Deku Tree's function generates a display list for animated water textures every frame, and assigns it to [[segment offset]] 09. Valid values are 0x00-0x34.
+
+{| style="text-align: left;" | class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! #
+! Functionality
+! Used By
+|-
+| 00
+| 
+| style="text-align: left;" | [Various]
+|-
+| 01
+| 
+| style="text-align: left;" | Spot 00 - Hyrule Field
+|-
+| 02
+| 
+| style="text-align: left;" | Spot 01 - Kakariko Village
+|-
+| 03
+| 
+| style="text-align: left;" | Spot 03 - Zora's River
+|-
+| 04
+| 
+| style="text-align: left;" | Spot 04 - Kokiri Forest
+|-
+| 05
+| 
+| style="text-align: left;" | Spot 06 - Lake Hylia
+|-
+| 06
+| 
+| style="text-align: left;" | Spot 07 - Zora's Domain
+|-
+| 07
+| 
+| style="text-align: left;" | Spot 08 - Zora's Fountain
+|-
+| 08
+| 
+| style="text-align: left;" | Spot 09 - Gerudo Valley
+|-
+| 09
+| 
+| style="text-align: left;" | Spot 10 - Lost Woods
+|-
+| 0A
+| 
+| style="text-align: left;" | Spot 11 - Desert Colossus
+|-
+| 0B
+| 
+| style="text-align: left;" | Spot 12 - Gerudo's Fortress
+|-
+| 0C
+| 
+| style="text-align: left;" | Spot 13 - Haunted Wasteland
+|-
+| 0D
+| 
+| style="text-align: left;" | Spot 15 - Hyrule Castle
+|-
+| 0E
+| 
+| style="text-align: left;" | Spot 16 - Death Mountain Trail
+|-
+| 0F
+| 
+| style="text-align: left;" | Spot 17 - Death Mountain Crater
+|-
+| 10
+| 
+| style="text-align: left;" | Spot 18 - Goron City
+|-
+| 11
+| 
+| style="text-align: left;" | Spot 20 - Lon Lon Ranch
+|-
+| 12
+| 
+| style="text-align: left;" | Fire Temple
+|-
+| 12
+| 
+| style="text-align: left;" | Volvagia's Lair
+|-
+| 13
+| 
+| style="text-align: left;" | Inside the Deku Tree
+|-
+| 14
+| 
+| style="text-align: left;" | Dodongo's Cavern
+|-
+| 15
+| style="text-align: left;" | Screen Pulses
+| style="text-align: left;" | Inside Jabu-Jabu's Belly
+|-
+| 15
+| style="text-align: left;" | Screen Pulses
+| style="text-align: left;" | Barinade's Lair
+|-
+| 16
+| 
+| style="text-align: left;" | Forest Temple
+|-
+| 17
+| 
+| style="text-align: left;" | Water Temple
+|-
+| 18
+| 
+| style="text-align: left;" | Shadow Temple
+|-
+| 18
+| 
+| style="text-align: left;" | Bottom of the Well
+|-
+| 18
+| 
+| style="text-align: left;" | Bongo Bongo's Lair
+|-
+| 19
+| 
+| style="text-align: left;" | Spirit Temple
+|-
+| 1A
+| 
+| style="text-align: left;" | Inside Ganon's Castle
+|-
+| 1B
+| 
+| style="text-align: left;" | Gerudo Training Ground
+|-
+| 1C
+| 
+| style="text-align: left;" | Gohma's Lair
+|-
+| 1D
+| 
+| style="text-align: left;" | Morpha's Lair
+|-
+| 1E
+| 
+| style="text-align: left;" | Temple of Time
+|-
+| 1F
+| 
+| style="text-align: left;" | Grottos
+|-
+| 20
+| 
+| style="text-align: left;" | Chamber of the Sages
+|-
+| 21
+| 
+| style="text-align: left;" | Great Fairy's Fountain (Upgrades)
+|-
+| 21
+| 
+| style="text-align: left;" | Great Fairy's Fountain (Spells)
+|-
+| 22
+| 
+| style="text-align: left;" | Shooting Gallery
+|-
+| 23
+| 
+| style="text-align: left;" | Castle Hedge Maze (Day)
+|-
+| 23
+| 
+| style="text-align: left;" | Castle Hedge Maze (Night)
+|-
+| 23
+| 
+| style="text-align: left;" | Castle Hedge Maze (Early)
+|-
+| 24
+| style="text-align: left;" | Screen Shakes
+| style="text-align: left;" | Ganon's Tower Collapse & Battle Arena
+|-
+| 24
+| style="text-align: left;" | Screen Shakes
+| style="text-align: left;" | Ganon's Castle Exterior
+|-
+| 25
+| 
+| style="text-align: left;" | Ice Cavern
+|-
+| 26
+| 
+| style="text-align: left;" | Tower Collapse Exterior
+|-
+| 27
+| 
+| style="text-align: left;" | Fairy's Fountain
+|-
+| 27
+| 
+| style="text-align: left;" | Grave (Fairy's Fountain)
+|-
+| 28
+| 
+| style="text-align: left;" | Thieves' Hideout
+|-
+| 29
+| 
+| style="text-align: left;" | Bombchu Bowling Alley
+|-
+| 2A
+| 
+| style="text-align: left;" | Royal Family's Tomb
+|-
+| 2B
+| 
+| style="text-align: left;" | Lakeside Laboratory
+|-
+| 2C
+| 
+| style="text-align: left;" | Ranch House & Silo
+|-
+| 2D
+| 
+| style="text-align: left;" | Guard House
+|-
+| 2E
+| 
+| style="text-align: left;" | Granny's Potion Shop
+|-
+| 2F
+| 
+| style="text-align: left;" | Castle Courtyard
+|-
+| 2F
+| 
+| style="text-align: left;" | Spot 05 - Sacred Forest Meadow
+|-
+| 2F
+| 
+| style="text-align: left;" | Jungle Gym
+|-
+| 30
+| 
+| style="text-align: left;" | Grave (Redead)
+|-
+| 30
+| 
+| style="text-align: left;" | Dampé's Grave & Windmill
+|-
+| 31
+| 
+| style="text-align: left;" | Ganondorf Test Room
+|-
+| 32
+| 
+| style="text-align: left;" | Fishing Pond
+|-
+| 33
+| 
+| style="text-align: left;" | Ganon's Tower (Collapsing)
+|-
+| 34
+| 
+| style="text-align: left;" | Inside Ganon's Castle (Collapsing)
+|}
+
+== Scene Configuration Jump Table ==
+{{address3
+|space=code
+|name=Scene Configuration Jump Table
+|ver1=NTSC 1.0|ref1=ram|start1=800FBD18|size1=D4
+}}
+
+"Scene configuration" is used as an index to this table
+{{clear}}
+
+[[Category:Code (File)]]
+[[Category:Documentation]]

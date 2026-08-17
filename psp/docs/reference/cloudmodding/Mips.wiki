@@ -1,0 +1,324 @@
+'''MIPS''' is a reduced instruction set computer ([https://en.wikipedia.org/wiki/Reduced_instruction_set_computing RISC]) instruction set architecture developed by MIPS Technologies. The N64's CPU is a NEC VR4300.
+
+=Helpful Links=
+
+* [[Mips/Assembly]] covers some basics with writing MIPS assembly with GCC
+* [[Mips/Registers]] cheat sheet for register usage for the MIPS o32 ABI used by the game.
+* [https://minnie.tuhs.org/CompArch/Resources/R4400_Uman_book_Ed2.pdf MIPS R4000 Microprocessor User's Manual]
+* [https://web.archive.org/web/20190405145843/http://www.mrc.uidaho.edu/mrc/people/jff/digital/MIPSir.html MIPS Instruction Reference]
+
+=MIPS Tutorial=
+
+==Introduction==
+
+'''What is MIPS?'''
+
+MIPS instructions are used by the N64's processor to store and load data, thereby (...)
+
+'''Why learn?'''
+
+In ''Ocarina of Time'' and ''Majora's Mask'', object files contain models and their textures and animations, while actor files contain information about how, when, where, and under what conditions these resources should be loaded. Object files can be thought of as puppets, while actor files can be thought of as the puppet masters that control them. The actor files give the puppets orders in the form of MIPS instructions.
+
+Learning to read MIPS will enable you to decode these orders, as well as write your own. You will thus be able to understand exactly what each actor file is doing, as well as be able write your own custom actor files.
+
+Also, because MIPS is an assembly language, understand MIPS will give you an understanding of how processors and computers function at a very basic level. These low-level instructions form the underpinnings of every program and programming language.
+
+==Terminology==
+
+===Memory Values===
+
+{| class="wikitable" style="width: fixed;"
+! Name|| Hex Representation || Bits
+|-
+| bit|| - || 1
+|-
+| nibble || 0x0|| 4
+|-
+| byte || 0x00 || 8
+|-
+| halfword || 0x0000 || 16
+|-
+| word || 0x00000000 || 32
+|-
+| doubleword || 0x0000000000000000 || 64
+|}
+
+===Registers===
+
+{| class="wikitable" style="width: fixed;"
+! Register || Meaning || Notes
+|-
+| $at || address temporary || The value stored in the $at register is overwritten when a new function is accessed.
+|-
+| $ra || return address || The value stored in the $ra register is overwritten when a new function is accessed.
+|-
+| $sp || stack pointer || Unlike values stored in other registers, values stored in the $sp register are not overwritten when a new function is accessed. Therefore, values that need to be preserved across functions can be saved by storing them in the stack.
+|-
+| a1~a3 || argument || 
+|-
+| t1~t9 || temporary || Values stored in t registers are overwritten when a new function is accessed.
+|-
+| v0~v1 || value || Values stored in v registers are overwritten when a new function is accessed.
+|}
+
+==Deciphering MIPS Instructions==
+
+Examples of the MIPS instructions found at the beginning of actor En_Hy are listed below.
+
+When you come across an unfamiliar instruction, look it up in the [http://techpubs.sgi.com/library/manuals/2000/007-2489-001/pdf/007-2489-001.pdf MIPS R4000 Microprocessor User's Manual].
+
+{| class="wikitable" style="width: fixed;"
+! Name || Instruction || Format || Method
+|-
+| addiu || add immediate unsigned || rt,rs,immediate || '''Add''' the value at rs to the value at immediate. Store the result in rt.
+|-
+| addu || add unsigned || rd,rs,rt || '''Add''' the value at rs to the value at rt. Store the result in rd.
+|-
+| andi || and immediate || rt,rs,immediate || '''And''' the value at rs and the value at immediate. Store the result in rt.
+|-
+| b || branch || target || '''Branch''' to the location at target after executing the next instruction.
+|-
+| bgez || branch if greater than or equal to 0 || rs, offset || If the value at rs is '''greater than or equal to 0''', execute the instruction below, then '''branch''' to the location at offset.
+|-
+| jal || jump and link || target || 
+|-
+| jr || jump register || rs || 
+|-
+| lb || load byte || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt.
+|-
+| lbu || load byte unsigned || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt.
+|-
+| lh || load halfword || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the halfword''' found at the address into rt.
+|-
+| li || load immediate ||  || 
+|-
+| lui || load upper immediate || rt,immediate || Shift the value at immediate left by 16. '''Load''' the result into rt.
+|-
+| lw || load word || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the word''' found at the RAM address into rt.
+|-
+| nop || no operation ||  || 
+|-
+| or || or || rd,rs,rt || '''Or''' the value at rs and the value at rt. Store the result at rd.
+|-
+| ori || or immediate || rt,rs,immediate || '''Or''' the value at rs and the value at immediate. Store the result at rt.
+|-
+| sb || store byte || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the byte''' found at rt at the address.
+|-
+| sll || shift left logical || rd,rt,sa || '''Shift''' the value at rt left by the value at sa. Store the result at rd.
+|-
+| subu || substract unsigned || rd,rs,rt || '''Subtract''' the value at rs from the value at rt. Store the result at rd.
+|-
+| sw || store word || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the word''' found at rt at the address.
+|}
+
+==Decoding En_Hy==
+
+En_Hy is the actor that determines when, where, how, and under what conditions to spawn various Hylian NPCs. In addition, En_Hy also determines the following (by no means a complete list):
+
+* Which text IDs they use
+* How to colour certain sections of their outfits
+* When, where, and under what conditions they display their animations
+* When, where, and under what conditions they blink or change expression
+* How they react depending on which quest items Link has acquired
+* How their actions and dialogue change depending on conditions such as the time of day, Link's age, and what's happened in the story so far
+* How they react when Link shows them certain items
+* The amount of Rupees they give when the player sells them an item
+* The reward they give when the player completes their subquest
+
+By learning MIPS, you will be able to modify these aspects, as well as write your own instructions for how the NPCs behave.
+
+===func_80A6F5B0===
+
+func_80A6F5B0 is the first function in En_Hy.
+
+{| class="wikitable" style="width: fixed;"
+! Off. || Func. || Contents || Format || Instructions || Result
+|-
+| 0000 || addiu || $sp,$sp,-32 || rt,rs,immediate || '''Add''' the value at rs ($sp) to the value at immediate (-32). Store the result ($sp-32) in rt. || $sp = $sp-32
+|-
+| 0004 || sw || $ra,20($sp) || rt,offset(base) || Add the value at offset (20) to the value at base ($sp) to get an address ($sp20). '''Store the word''' found at rt (?) at the address. || $sp20 = 0x????????
+|-
+| 0008 || lh || t6,28(a0) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the halfword''' found at the address into rt. || t6 = 0x????
+|-
+| 000C || lui || t9,%hi(data_80A722D8) || rt,immediate || Shift the value at immediate (the upper 4 digits of 0x80A722D8) left by 16. '''Load''' the result (0x80A70000) into rt. || t9 = 0x80A70000
+|-
+| 0010 || addiu || t9,t9,%lo(data_80A722D8) || rt,rs,immediate || '''Add''' the value at rs (0x80A70000) to the value at immediate (the lower 4 digits of 0x80A722D8). Store the result (0x80A722D8) in rt. || t9 = 0x80A722D8
+|-
+| 0014 || andi || t7,t6,0x7f || rt,rs,immediate || '''And''' the value at rs and the value at immediate. Store the result in rt. || t7 = 0x0
+|-
+| 0018 || sll || t8,t7,2 || rd,rt,sa || '''Shift''' the value at rt left by the value at sa. Store the result at rd. || t8 = 0x0
+|-
+| 001C || subu || t8,t8,t7 || rd,rs,rt || '''Subtract''' the value at rs from the value at rt. Store the result at rd. || t8 = 0x0
+|-
+| 0020 || sll || t8,t8,2 || rd,rt,sa || '''Shift''' the value at rt left by the value at sa. Store the result at rd. || t8 = 0x0
+|-
+| 0024 || addu || v0,t8,t9 || rd,rs,rt || '''Add''' the value at rs to the value at rt. Store the result in rd. || v0 = 0x80A722D8
+|-
+| 0028 || lbu || v1,6(v0) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt. || v1 = 0x0
+|-
+| 002C || lui || $at,0x1 || rt,immediate || Shift the value at immediate left by 16. '''Load''' the result into rt. || $at = 0x10000
+|-
+| 0030 || or || a2,a0,$zero || rd,rs,rt || '''Or''' the value at rs and the value at rt. Store the result at rd. || 
+|-
+| 0034 || ori || $at,$at,0x17a4 || rt,rs,immediate || '''Or''' the value at rs and the value at immediate. Store the result at rt. || $at = 0x117A4
+|-
+| 0038 || addu || a0,a1,$at || rd,rs,rt || '''Add''' the value at rs to the value at rt. Store the result in rd. || a0 = 0x802237C4
+|-
+| 003C || lbu || t0,0(v0) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt. || t0 = 0x00
+|-
+| 0040 || lbu || t1,1(v0) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt. || t0 = 0x00
+|-
+| 0044 || lui || a1,%hi(data_80A72010) || rt,immediate || Shift the value at immediate left by 16. '''Load''' the result into rt. || a1 = 0x80A70000
+|-
+| 0048 || sll || t2,v1,3 || rd,rt,sa || '''Shift''' the value at rt left by the value at sa. Store the result at rd. || 
+|-
+| 004C || addu || a1,a1,t2 || rd,rs,rt || '''Add''' the value at rs to the value at rt. Store the result in rd. || a1 = 0x80A70000
+|-
+| 0050 || lh || a1,%lo(data_80A72010)(a1) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the halfword''' found at the address into rt. || a1 = 0x80A72010
+|-
+| 0054 || sw || a0,24($sp) || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the word''' found at rt at the address. || $sp24 = 0x802237C4
+|-
+| 0058 || sw || a2,32($sp) || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the word''' found at rt at the address. || $sp32 = 0x????????
+|-
+| 005C || sb || t0,31($sp) || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the byte''' found at rt at the address. || $sp31 = 0x00
+|-
+| 0060 || jal || external_func_8009812C ||  ||  || 
+|-
+| 0064 || sb || t1,30($sp) || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the byte''' found at rt at the address. || $sp30 = 0x00
+|-
+| 0068 || lw || a2,32($sp) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the word''' found at the RAM address into rt. || a2 = 0x????????
+|-
+| 006C || lui || a1,%hi(data_80A72010) || rt,immediate || Shift the value at immediate left by 16. '''Load''' the result into rt. || a1 = 0x80A70000
+|-
+| 0070 || sb || v0,408(a2) || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the byte''' found at rt at the address. || v0 = 0x00
+|-
+| 0074 || lb || t3,408(a2) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt. || t3 = 0x00
+|-
+| 0078 || lbu || t4,30($sp) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt. || t4 = 0x00
+|-
+| 007C || lw || a0,24($sp) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the word''' found at the RAM address into rt. || a0 = 0x802237C4
+|-
+| 0080 || bgez || t3,$L000000 || rs,offset || If the value at rs is '''greater than or equal to 0''', execute the instruction below, then '''branch''' to the location at offset. || 
+|-
+| 0084 || sll || t5,t4,3 || rd,rt,sa || '''Shift''' the value at rt left by the value at sa. Store the result at rd. || t5 = 0x0
+|-
+| 0088 || b || $L000001 || target || '''Branch''' to the location at target after executing the next instruction. || 
+|-
+| 008C || or || v0,$zero,$zero || rd,rs,rt || '''Or''' the value at rs and the value at rt. Store the result at rd. || v0 = 0x0
+|}
+
+===$L000000===
+
+'''$L000000''' is the first chronological label in func_80A6F5B0.
+
+{| class="wikitable" style="width: fixed;"
+! Off.  ||  Func.  ||  Contents  ||  Format  ||  Instructions  ||  Result
+|-
+| 0090 || addu || a1,a1,t5 || rd,rs,rt || '''Add''' the value at rs to the value at rt. Store the result in rd. || a1 = 0x80A70000
+|-
+| 0094 || lh || a1,%lo(data_80A72010)(a1) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the halfword''' found at the address into rt. || a1 = 0x80A72010
+|-
+| 0098 || jal || external_func_8009812C ||  ||  || 
+|-
+| 009C || sw || a2,32($sp) || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the word''' found at rt at the address. || $sp32 = 0x????????
+|-
+| 00A0 || lw || a2,32($sp) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the word''' found at the RAM address into rt. || a2 = 0x????????
+|-
+| 00A4 || lui || a1,%hi(data_80A71F50) || rt,immediate || Shift the value at immediate left by 16. '''Load''' the result into rt. || a1 = 0x80A70000
+|-
+| 00A8 || sb || v0,407(a2) ||  || Add the value at offset to the value at base to get an address. '''Store the byte''' found at rt at the address. || v0 = 0x00
+|-
+| 00AC || lb || t6,407(a2) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt. || t6 = 0x00
+|-
+| 00B0 || lbu || t7,31($sp) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt. || t7 = 0x00
+|-
+| 00B4 || lw || a0,24($sp) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the word''' found at the RAM address into rt. || a0 = 0x802237C4
+|-
+| 00B8 || bgez || t6,$L000002 || rs,offset || If the value at rs is '''greater than or equal to 0''', execute the instruction below, then '''branch''' to the location at offset. || 
+|-
+| 00BC || sll || t8,t7,2 || rd,rt,sa || '''Shift''' the value at rt left by the value at sa. Store the result at rd. || t8 = 0x00
+|-
+| 00C0 || b || $L000001 || target || '''Branch''' to the location at target after executing the next instruction. || 
+|-
+| 00C4 || or || v0,$zero,$zero || rd,rs,rt || '''Or''' the value at rs and the value at rt. Store the result at rd. || v0 = 0x0
+|}
+
+===$L000002===
+
+'''$L000002''' is the second chronological label in func_80A6F5B0.
+
+{| class="wikitable" style="width: fixed;"
+! Off.  ||  Func.  ||  Contents  ||  Format  ||  Instructions  ||  Result
+|-
+| 00C8 || subu || t8,t8,t7 || rd,rs,rt || '''Subtract''' the value at rs from the value at rt. Store the result at rd. || 
+|-
+| 00CC || sll || t8,t8,2 || rd,rt,sa || '''Shift''' the value at rt left by the value at sa. Store the result at rd. || 
+|-
+| 00D0 || addu || a1,a1,t8 || rd,rs,rt || '''Add''' the value at rs to the value at rt. Store the result in rd. || 
+|-
+| 00D4 || lh || a1,%lo(data_80A71F50)(a1) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the halfword''' found at the address into rt. || 
+|-
+| 00D8 || jal || external_func_8009812C ||  ||  || 
+|-
+| 00DC || sw || a2,32($sp) || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the word''' found at rt at the address. || 
+|-
+| 00E0 || lw || a2,32($sp) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the word''' found at the RAM address into rt. || 
+|-
+| 00E4 || sb || v0,406(a2) || rt,offset(base) || Add the value at offset to the value at base to get an address. '''Store the byte''' found at rt at the address. || 
+|-
+| 00E8 || lb || t9,406(a2) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the byte''' found at the address into rt. || 
+|-
+| 00EC || li || v0,1 ||  ||  || v0 = 0x1
+|-
+| 00F0 || bgez || t9,$L000001 || rs,offset || If the value at rs is '''greater than or equal to 0''', execute the instruction below, then '''branch''' to the location at offset. || 
+|-
+| 00F4 || nop ||  || - || Do nothing. || 
+|-
+| 00F8 || b || $L000001 || target || '''Branch''' to the location at target after executing the next instruction. || 
+|-
+| 00FC || or || v0,$zero,$zero || rd,rs,rt || '''Or''' the value at rs and the value at rt. Store the result at rd. || 
+|}
+
+===$L000001===
+
+'''$L000001''' is the third chronological label in func_80A6F5B0.
+
+{| class="wikitable" style="width: fixed;"
+! Off.  ||  Func.  ||  Contents  ||  Format  ||  Instructions  ||  Result
+|-
+| 0100 || lw || $ra,20($sp) || rt,offset(base) || Add the value at offset to the value at base to get a RAM address. '''Load the word''' found at the RAM address into rt. || $ra = $sp20
+|-
+| 0104 || addiu || $sp,$sp,32 || rt,rs,immediate || '''Add''' the value at rs to the value at immediate. Store the result in rt. || $sp = $sp32
+|-
+| 0108 || jr || $ra || target ||  || 
+|-
+| 010C || nop ||  || - || Do nothing. || 
+|}
+
+= Advanced Notes =
+
+== Stack Frame ==
+
+{| class="wikitable"
+! colspan=2 | Current Stack Frame
+|-
+| 0x00 - 0x10 || Called function arguments 0 to 4
+|-
+| (args-4) * 4 || Called function arguments 4 to '''args'''
+|-
+| ? || Unknown
+|-
+| (saved) * 4 || Saved registers
+|-
+| ra || Return Address
+|-
+| (local) * 4 || Local variables
+|-
+! colspan=2 | Callee Stack Frame
+|-
+| 0x00 - 0x10 || Current function arguments 0 to 4
+|-
+| (args-4) * 4 || Current function arguments 4 to '''args'''
+|}
+
+[[Category:Mips]]

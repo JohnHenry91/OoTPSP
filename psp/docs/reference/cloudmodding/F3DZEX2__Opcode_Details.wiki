@@ -1,0 +1,1928 @@
+{{subpage}}
+
+This is a detailed explanation of all the opcodes known in F3DZEX2. Parameters are explained in terms of various macros N64 programmers had access to, since those parameters will in quite a few cases be easier to describe than their raw GBI form.
+
+==<tt>0x00</tt> — <tt>G_NOOP</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>00000000 tttttttt</tt> || <tt>gsDPNoOp()</tt><br><tt>gsDPNoOpTag(tag)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>tag</tt> || <tt>tag</tt> || <tt>tttttttt</tt> || Pointer to a string tag
+|-
+|}
+
+===Description===
+
+Does nothing except stall the RDP for a few cycles. Typically used in debugging. In the Z64 games (specifically the debug builds), <tt>tag</tt> is set to a pointer to a string commenting the display list, which would then likely be output when calling the SDK's guParseGbiDL function.
+
+==<tt>0x01</tt> — <tt>G_VTX</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>010nn0aa vvvvvvvv</tt> || <tt>gsSPVertex(vaddr, numv, vbidx)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>numv</tt> || <tt>numv</tt> || <tt>nn</tt> || Number of vertices to load
+|-
+| <tt>vbidx</tt> || <tt>((vbidx + numv) & 0x7F) << 1</tt> || <tt>aa >> 1 - nn</tt> || Index of vertex buffer to begin storing vertices to.
+|-
+| <tt>vaddr</tt> || <tt>vaddr</tt> || <tt>vvvvvvvv</tt> || Address of vertices
+|-
+|}
+
+===Description===
+
+Loads <tt>numv</tt> vertices from address <tt>vaddr</tt> to the RSP's vertex buffer, starting at buffer index <tt>vbidx</tt>. For F3DEX2.NoN, <tt>numv</tt> must be in the range <tt>1 ≤ numv ≤ 32</tt>, and <tt>vbidx</tt> in the range <tt>0 ≤ vbidx ≤ 31</tt>. Vertex transformations and lighting calculations (if any) are calculated upon load.
+
+==<tt>0x02</tt> — <tt>G_MODIFYVTX</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>02wwnnnn vvvvvvvv</tt> || <tt>gsSPModifyVertex(vbidx, where, val)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>where</tt> || <tt>where</tt> || <tt>ww</tt> || Enumerated set of values specifying what to change
+|-
+| <tt>vbidx</tt> || <tt>vbidx * 2</tt> || <tt>nnnn / 2</tt> || Vertex buffer index of vertex to modify
+|-
+| <tt>val</tt> || <tt>val</tt> || <tt>vvvvvvvv</tt> || New value to insert
+|-
+|}
+
+===Description===
+
+Modifies a four-byte portion of the vertex specified by <tt>vbidx</tt>. The portion modified is specified by <tt>where</tt>, and the new value is given in <tt>val</tt>. Lighting calculations (if enabled) and position transformations are not calculated by the RSP after use of this command, so modifications modify final color and vertices.
+
+The valid values for <tt>where</tt> have names as follows:
+* <tt>G_MWO_POINT_RGBA = 0x10</tt> Modifies the color of the vertex
+* <tt>G_MWO_POINT_ST = 0x14</tt> Modifies the texture coordinates
+* <tt>G_MWO_POINT_XYSCREEN = 0x18</tt> Modifies the X and Y position
+* <tt>G_MWO_POINT_ZSCREEN = 0x1C</tt> Modifies the Z position (lower four nybbles of <tt>val</tt> should always be zero for this modification)
+
+The exact nature of these values is unclear. The SDK documentation describes them as "byte offsets", however they don't match offsets in the vertex structure (see below).
+
+==<tt>0x03</tt> — <tt>G_CULLDL</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>0300vvvv 0000wwww</tt> || <tt>gsSPCullDisplayList(vfirst, vlast)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>vfirst</tt> || <tt>vfirst * 2</tt> || <tt>vvvv / 2 </tt> || Vertex buffer index of first vertex for bounding volume
+|-
+| <tt>vlast</tt> || <tt>vlast * 2</tt> || <tt>wwww / 2</tt> || Vertex buffer index of last vertex for bounding volume
+|-
+|}
+
+===Description===
+
+This command takes the vertices in the vertex buffer from <tt>vfirst</tt> through <tt>vlast</tt> as describing the volume of the object being rendered (called the "bounding value"). If the bounding volume does not intersect with the current viewing volume (aka if the bounding volume is entirely offscreen), then the display list ends, equivalent to a <tt>DF</tt> opcode. Otherwise, the display list continues as though nothing happened (equivalent to <tt>00</tt>, then).
+
+For F3DEX2.NoN, Each of <tt>vfirst</tt> and <tt>vlast</tt> must be in the range <tt>0 ≤ x ≤ 31</tt>. Additionally, <tt>vfirst < vlast</tt> must be true (thus a minimum of two vertices must be specified, and range of vertices cannot be reversed). It's not specified what the behavior is when all the vertices are coplanar.
+
+==<tt>0x04</tt> — <tt>G_BRANCH_Z</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <i><tt>E1000000 dddddddd</tt></i><br/><tt>04aaabbb zzzzzzzz</tt> || <tt>gsSPBranchLessZraw(newdl, vbidx, zval)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <i><tt>newdl</tt></i> || <i><tt>newdl</tt></i> || <i><tt>dddddddd</tt></i> || <i>Address of display list to branch to</i>
+|-
+| <tt>vbidx</tt> || <tt>vbidx * 5</tt> || <tt>aaa / 5</tt> || Vertex buffer index of vertex to test
+|-
+| <tt>vbidx</tt> || <tt>vbidx * 2</tt> || <tt>bbb / 2</tt> || Vertex buffer index of vertex to test
+|-
+| <tt>zval</tt> || <tt>zval</tt> || <tt>zzzzzzzz</tt> || Z value to test against
+|-
+|}
+
+===Description===
+
+Tests the Z value of the vertex at buffer index <tt>vbidx</tt> (described as <tt>vbidx.z</tt> here) against <tt>zval</tt>. If <tt>vbidx.z ≤ zval</tt>, then the processor switches over to the display list at address <tt>newdl</tt> (equivalent to <tt>gsSPBranchList(newdl)</tt>). Otherwise continues through the display list. Useful for LOD-related model processing, where several occurrences of this can be stacked to branch to progressively closer versions of the model.
+
+Note that the <tt>04</tt> opcode actually pulls the address of the branching display list from the high half of the "RDP word" (16 bytes used for generic value storage, as far as is known). The italicized opcode given above is set by the "basic function" listed for this opcode, immediately before the actual <tt>04</tt> opcode.
+
+Although not stated in the documentation, <tt>vbidx</tt> is presumably limited to the range <tt>0 ≤ vbidx ≤ 31</tt> just like other buffer indices. It's unknown why the opcode needs <tt>vbidx</tt> twice, and multiplied by different amounts.
+
+Also, <tt>zval</tt> is usually calculated for the N64 programmer (only the <tt>*Zraw</tt> form specifies a raw <tt>zval</tt>). The formula used in these cases is as shown, written as C code:
+
+<syntaxhighlight lang="C">
+#include <stdint.h>
+
+int32_t FTOFIX32(float x) {
+    return (int32_t)(x * 0x00010000);
+}
+
+// note: parameter types taken from docs on gSPBranchLessZrg(...)
+uint32_t calcZVal(float zval, int32_t flag, float near, float far, int32_t zmin, int32_t zmax) {
+    float part1 = (flag == G_BZ_PERSP)
+                ? (1.0f - near / zval) / (1.0f - near / far)
+                : (zval - near) / (far - near);
+    return (uint32_t)FTOFIX32(part1) * ((zmax - zmin) & ~1) + FTOFIX32((float)zmin);
+}
+</syntaxhighlight>
+
+Where <tt>zval</tt> is the Z value the programmer is thinking of comparing against (whereas the "real" Z value handed to the opcode is calculated by this function), <tt>near</tt> and <tt>far</tt> denote the distances of the near and far clipping planes, respectively, from the viewpoint. <tt>zmin</tt> and <tt>zmax</tt> are the minimum and maximum posible Z values, respectively. <tt>flag</tt> decides on the projection, taking either of these enumerations:
+
+* <tt>G_BZ_PERSP = 0</tt>
+* <tt>G_BZ_ORTHO = 1</tt>
+
+As their names would suggest, <tt>PERSP</tt> handles perspective projection, <tt>ORTHO</tt> handles orthographic.
+
+Note that in a default setup, <tt>zmin</tt> is <tt>0</tt>, and <tt>zmax</tt> is <tt>0x03FF</tt>.
+
+This formula cannot be reversed for the value provided in the microcode, since the necessary information is absent. (Since the values are provided in the macro call generating this opcode, there's no guarantee any of the values match what they're "supposed" to be, e.g. <tt>near</tt> could be set to something far different from the location of the actual near clipping plane.)
+
+==<tt>0x05</tt> — <tt>G_TRI1</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>05aabbcc 00000000</tt> || <tt>gsSP1Triangle(v0, v1, v2, flag)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>(v0<nowiki>|</nowiki>v1<nowiki>|</nowiki>v2)</tt> || <tt>(v0<nowiki>|</nowiki>v1<nowiki>|</nowiki>v2) * 2</tt> || <tt>(aa<nowiki>|</nowiki>bb<nowiki>|</nowiki>cc) / 2</tt> || Vertex buffer index of one vertex of the triangle
+|-
+|}
+
+===Description===
+
+Draws one triangle to screen. <tt>v0</tt>, <tt>v1</tt>, and <tt>v2</tt> specify vertex buffer indices, all in the range <tt>0 ≤ v ≤ 31</tt> for F3DEX2.NoN.
+
+Vertices are drawn in the order <tt>aa -> bb -> cc</tt>. <tt>aa</tt> is considered the "primary" vertex of the triangle, which matters in certain situations (for example, its color is taken as the color of the whole triangle when doing flat shading).
+
+The given macro (<tt>gsSP1Triangle</tt>) reorders its arguments depending on the value of <tt>flag</tt> (which is why the argument listing above is generalized). It can be seen as choosing the primary vertex:
+
+; <tt>flag == 0</tt> : <tt>aa = v0</tt>, <tt>bb = v1</tt>, <tt>cc = v2</tt>
+; <tt>flag == 1</tt> : <tt>aa = v1</tt>, <tt>bb = v2</tt>, <tt>cc = v0</tt>
+; <tt>flag == 2</tt> : <tt>aa = v2</tt>, <tt>bb = v0</tt>, <tt>cc = v1</tt>
+
+==<tt>0x06</tt> — <tt>G_TRI2</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>06aabbcc 00ddeeff</tt> || <tt>gsSP2Triangles(v00, v01, v02, flag0, v10, v11, v12, flag1)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>(v00<nowiki>|</nowiki>v01<nowiki>|</nowiki>v02)</tt> || <tt>(v00<nowiki>|</nowiki>v01<nowiki>|</nowiki>v02) * 2</tt> || <tt>(aa<nowiki>|</nowiki>bb<nowiki>|</nowiki>cc) / 2</tt> || Vertex buffer index of one vertex of the first triangle
+|-
+| <tt>(v10<nowiki>|</nowiki>v11<nowiki>|</nowiki>v12)</tt> || <tt>(v10<nowiki>|</nowiki>v11<nowiki>|</nowiki>v12) * 2</tt> || <tt>(dd<nowiki>|</nowiki>ee<nowiki>|</nowiki>ff) / 2</tt> || Vertex buffer index of one vertex of the first triangle
+|-
+|}
+
+===Description===
+
+Draws two triangles at once. All six given indices must be in the range <tt>0 ≤ v ≤ 31</tt> for F3DEX2.NoN.
+
+The first triangle is drawn in the order <tt>aa -> bb -> cc</tt>, with <tt>aa</tt> being the "primary" vertex. The second triangle is similar, drawn in <tt>dd -> ee -> ff</tt> order and <tt>dd</tt> being its "primary" vertex.
+
+<tt>flag0</tt> reorders the vertices for the first triangle, and <tt>flag1</tt> reorders them for the second triangle. Either flag works as such:
+
+; <tt>flagX == 0</tt> : <tt>aa = vX0</tt>, <tt>bb = vX1</tt>, <tt>cc = vX2</tt>
+; <tt>flagX == 1</tt> : <tt>aa = vX1</tt>, <tt>bb = vX2</tt>, <tt>cc = vX0</tt>
+; <tt>flagX == 2</tt> : <tt>aa = vX2</tt>, <tt>bb = vX0</tt>, <tt>cc = vX1</tt>
+
+==<tt>0x07</tt> — <tt>G_QUAD</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>07aabbcc 00aaccdd</tt> || <tt>gsSPQuadrangle(v0, v1, v2, v3, flag)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>(v0<nowiki>|</nowiki>v1<nowiki>|</nowiki>v2<nowiki>|</nowiki>v3)</tt> || <tt>(v0<nowiki>|</nowiki>v1<nowiki>|</nowiki>v2<nowiki>|</nowiki>v3) * 2</tt> || <tt>(aa<nowiki>|</nowiki>bb<nowiki>|</nowiki>cc<nowiki>|</nowiki>dd) / 2</tt> || Vertex buffer index of one vertex of the quadrangle
+|-
+|}
+
+===Description===
+
+Draws a quadrangle, as two triangles. All four vertex indices are in the range <tt>0 ≤ v ≤ 31</tt> for F3DEX2.NoN.
+
+The macro given takes the four vertices and rearranges them according to <tt>flag</tt>, and as per the opcode writes it as two triangles. The draw order is <tt>aa -> bb -> cc</tt> for the first triangle, <tt>aa -> cc -> dd</tt>, with <tt>aa</tt> being the "primary" vertex for both (thus maintaining a single "primary" vertex for the quadrangle). Both occurrences of <tt>aa</tt> should be equal, as well as both of <tt>cc</tt>, since the purpose of this opcode is to draw a quadrilateral polygon.
+
+The flag determines the vertices as such:
+
+; <tt>flag == 0</tt> : <tt>aa = v0</tt>, <tt>bb = v1</tt>, <tt>cc = v2</tt>, <tt>dd = v3</tt>
+; <tt>flag == 1</tt> : <tt>aa = v1</tt>, <tt>bb = v2</tt>, <tt>cc = v3</tt>, <tt>dd = v0</tt>
+; <tt>flag == 2</tt> : <tt>aa = v2</tt>, <tt>bb = v3</tt>, <tt>cc = v0</tt>, <tt>dd = v1</tt>
+; <tt>flag == 3</tt> : <tt>aa = v3</tt>, <tt>bb = v0</tt>, <tt>cc = v1</tt>, <tt>dd = v2</tt>
+
+'''Note:''' This opcode is ''functionally equivalent'' to opcode <tt>06</tt>. The macro for this opcode (and thus presumably also the opcode itself) is labeled as ''no longer supported'' in Oct 1999 SDK documentation. If you're making new display lists to import into OoT, '''use <tt>06</tt> instead of this'''.
+
+==<tt>0xD3</tt> — <tt>G_SPECIAL_3</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>D3?????? ????????</tt> || <tt>G_SPECIAL_3</tt> (no function known)
+|-
+|}
+
+''No arguments for this opcode''
+
+===Description===
+
+Appears to be an explicitly reserved command.
+
+==<tt>0xD4</tt> — <tt>G_SPECIAL_2</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>D4?????? ????????</tt> || <tt>G_SPECIAL_2</tt> (no function known)
+|-
+|}
+
+''No arguments for this opcode''
+
+===Description===
+
+Appears to be an explicitly reserved command.
+
+==<tt>0xD5</tt> — <tt>G_SPECIAL_1</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>D5?????? ????????</tt> || <tt>G_SPECIAL_1</tt> (no function known)
+|-
+|}
+
+''No arguments for this opcode''
+
+===Description===
+
+Appears to be an explicitly reserved command.
+
+==<tt>0xD6</tt> — <tt>G_DMA_IO</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>D6___sss rrrrrrrr</tt><br/><tt>___ -> fmmm mmmm mmm0 (binary)</tt> || <tt>gsSPDma_io(flag, dmem, dram, size)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>flag</tt> || <tt>flag & 0x01</tt> || <tt>f</tt> || Chooses between read or write
+|-
+| <tt>dmem</tt> || <tt>dmem / 8 & 0x3FF</tt> || <tt>mmm mmmm mmm * 8</tt> || Address in DMEM/IMEM(?)
+|-
+| <tt>size</tt> || <tt>size - 1</tt> || <tt>sss + 1</tt> || (Presumably) size of data to transfer
+|-
+| <tt>dram</tt> || <tt>dram</tt> || <tt>rrrrrrrr</tt> || DRAM address
+|-
+|}
+
+===Description===
+
+Does a DMA between DMEM/IMEM address <tt>dmem</tt> and DRAM address <tt>dram</tt>. <tt>size</tt> bytes are presumably transfered in the process. <tt>flag</tt> determines the type of transfer. Apparently:
+
+* <tt>flag == 0</tt> — Read from DMEM/IMEM to DRAM
+* <tt>flag == 1</tt> — Write DRAM to DMEM/IMEM
+
+The exact nature of this command is unclear, since none of this opcode's macros are documented, and the only available comment suggests this is a debugging tool only. Therefore, you should not expect to see this in production code.
+
+==<tt>0xD7</tt> — <tt>G_TEXTURE</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>D700____ sssstttt</tt><br/><tt>____ -> 00LL Lddd nnnn nnn0 (binary)</tt> || <tt>gsSPTexture(scaleS, scaleT, level, tile, on)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>level</tt> || <tt>level & 0x07</tt> || <tt>LL L</tt> || Maximum number of mipmap levels aside from the first
+|-
+| <tt>tile</tt> || <tt>tile & 0x07</tt> || <tt>ddd</tt> || Tile descriptor number
+|-
+| <tt>on</tt> || <tt>on & 0x7F</tt> || <tt>n</tt> || Decides whether to turn the given texture on or off
+|-
+| <tt>scaleS</tt> || <tt>scaleS</tt> || <tt>ssss</tt> || Scaling factor for the S-axis (horizontal)
+|-
+| <tt>scaleT</tt> || <tt>scaleT</tt> || <tt>tttt</tt> || Scaling factor for the T-axis (vertical)
+|-
+|}
+
+===Description===
+
+This opcode enables or disables various tile descriptors, and sets the maximum number of mipmap levels and scaling factor for the texture.
+
+<tt>tile</tt> is the tile descriptor number being modified by the opcode. <tt>level</tt> is the maximum number of mipmap levels minus one, (so e.g. a <tt>level</tt> of zero means at most one mipmap). The <tt>scaleS</tt> and <tt>scaleT</tt> parameters set scaling factors for the tile descriptor.
+
+If <tt>on</tt> is set to <tt>0</tt>, then the tile descriptor is disabled, and none of the other parameters are actually applied. If <tt>on</tt> is set to <tt>1</tt>, then the tile descriptor is enabled and the previously-mentioned parameters ''are'' applied.
+
+Note that <tt>scaleS</tt> and <tt>scaleT</tt> are binary fractional values with an implied <tt>0.</tt>; for example, a <tt>scaleS</tt> of <tt>0x8000</tt> means <tt>0b0.1000_0000_0000_0000</tt>, or <tt>0d0.5</tt>.
+
+==<tt>0xD8</tt> — <tt>G_POPMTX</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>D8380002 aaaaaaaa</tt> || <tt>gsSPPopMatrixN(which, num)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>num</tt> || <tt>num * 64</tt> || <tt>aaaaaaaa / 64</tt> || The number of matrices to pop
+|-
+| <tt>which</tt> || class="bg-no"| Ignored || class="bg-no"| Ignored || Specifies which matrix stack to pop from
+|-
+|}
+
+===Description===
+
+Pops <tt>num</tt> matrices from the stack specified by <tt>which</tt>
+
+<tt>which</tt> can be either of:
+
+* <tt>G_MTX_MODELVIEW = 0x00</tt>
+* <tt>G_MTX_PROJECTION = 0x04</tt>
+
+However, since the projection matrix "stack" isn't actually a stack, the <tt>which</tt> parameter is silently ignored and always assumes the modelview matrix stack.
+
+==<tt>0xD9</tt> — <tt>G_GEOMETRYMODE</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>D9cccccc ssssssss</tt> || <tt>gsSPGeometryMode(clearbits, setbits)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>clearbits</tt> || <tt>~clearbits</tt> || <tt>~cccccc</tt> || Geometry mode bits to clear
+|-
+| <tt>setbits</tt> || <tt>setbits</tt> || <tt>ssssssss</tt> || Geometry mode bits to set
+|-
+|}
+
+===Description===
+
+Changes the various mode bits of the RSP's geometry mode. This opcode can clear and set bits at once.
+
+Assuming <tt>G</tt> to stand for the geometry mode bits, this command performs the equivalent of
+
+    G = (G & ~clearbits) | setbits
+
+That is, keeps only the bits that ''aren't'' meant to be cleared, and then sets the bits that are meant to be set. See below for a list of what the geometry mode bits mean.
+
+==<tt>0xDA</tt> — <tt>G_MTX</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>DA3800pp mmmmmmmm</tt> || <tt>gsSPMatrix(mtxaddr, params)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>params</tt> || <tt>params ^ G_MTX_PUSH</tt> || <tt>pp ^ G_MTX_PUSH</tt> || Parameters controlling nature of matrix addition
+|-
+| <tt>mtxaddr</tt> || <tt>mtxaddr</tt> || <tt>mmmmmmmm</tt> || RAM address of new matrix
+|-
+|}
+
+===Description===
+
+Adds a new matrix from <tt>mtxaddr</tt> to the appropriate matrix stack.
+
+<tt>params</tt> are a bitfield with the following options:
+
+* <tt>G_MTX_NOPUSH     = 0x00</tt>
+* <tt>G_MTX_PUSH       = 0x01</tt>
+* <tt>G_MTX_MUL        = 0x00</tt>
+* <tt>G_MTX_LOAD       = 0x02</tt>
+* <tt>G_MTX_MODELVIEW  = 0x00</tt>
+* <tt>G_MTX_PROJECTION = 0x04</tt>
+
+<tt>NOPUSH</tt> and <tt>PUSH</tt>, <tt>MUL</tt> and <tt>LOAD</tt>, and <tt>MODELVIEW</tt> and <tt>PROJECTION</tt> are exclusive pairs of options. <tt>NOPUSH</tt>, <tt>MUL</tt>, and <tt>MODELVIEW</tt> are "default options", and are named just as programmer convenience, to explicitly state choices.
+
+If <tt>PUSH</tt> is specified, then the matrix will be added to the top of the stack as a new stack element. If there is no room on the stack, this option is ignored and <tt>NOPUSH</tt> behavior occurs instead. <tt>NOPUSH</tt> means the top matrix of the stack will be overwritten with the new matrix.
+
+If <tt>MUL</tt> is specified, the new matrix is multiplied by the top of the stack before being placed according to <tt>PUSH</tt>/<tt>NOPUSH</tt>. Specifically the matrix product of <tt>new matrix * top of the stack</tt> (XXX verify this is the right order, since matrix multiplication ain't commutative). <tt>LOAD</tt> means no multiplication is done against the new matrix.
+
+<tt>MODELVIEW</tt> selects the modelview matrix stack (meaning the new matrix is a modelview matrix), while <tt>PROJECTION</tt> refers to the projection matrix "stack". Since the projection matrix "stack" is not actually a stack, rather a single matrix, the <tt>PUSH</tt> option is ''always'' ignored for new projection matrices.
+
+==<tt>0xDB</tt> — <tt>G_MOVEWORD</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>DBiioooo dddddddd</tt>
+| <tt>gsMoveWd(index, offset, data)</tt>
+<tt>gsSPSegment(segment, base)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>index</tt> || <tt>index</tt> || <tt>ii</tt> || Index into DMEM pointer table(?)
+|-
+| <tt>offset</tt> || <tt>offset</tt> || <tt>oooo</tt> || Offset from the indexed base address(?)
+|-
+| <tt>data</tt> || <tt>data</tt> || <tt>dddddddd</tt> || New 32-bit value
+|-
+|}
+
+===Description===
+
+Loads a new 32-bit value <tt>data</tt> to the location specified by <tt>index</tt> and <tt>offset</tt>.
+
+<tt>index</tt> is an index into a table of DMEM addresses. The enumerations given for this for F3DEX2 are:
+
+{|class="wikitable" {{ts|ml5|font-family: monospace}}
+! Define || Value
+|-
+|G_MW_MATRIX || 0x00
+|-
+|G_MW_NUMLIGHT || 0x02
+|-
+|G_MW_CLIP || 0x04
+|-
+| G_MW_SEGMENT || 0x06
+|-
+| G_MW_FOG || 0x08
+|-
+| G_MW_LIGHTCOL || 0x0A
+|-
+|G_MW_FORCEMTX || 0x0C
+|-
+|G_MW_PERSPNORM || 0x0E
+|}
+
+The <tt>offset</tt> is, as the name suggests, an offset from the address that <tt>index</tt> resolves to. <tt>G_MWO_SEGMENT_#</tt> does not follow this rule, and is expected to be used with the gsSPSegment macro. Enumerations are also provided for this value, for each of the enumerated <tt>index</tt> values. 
+
+==== Values ====
+{|class="wikitable mw-collapsible mw-collapsed" {{ts|ml5|font-family: monospace}}
+! Define || Value
+|-
+| G_MWO_NUMLIGHT || 0x00
+|-
+| G_MWO_CLIP_RNX || 0x04
+|-
+| G_MWO_CLIP_RNY || 0x0c
+|-
+| G_MWO_CLIP_RPX || 0x14
+|-
+| G_MWO_CLIP_RPY || 0x1c
+|-
+| G_MWO_SEGMENT_0 || 0x00
+|-
+| G_MWO_SEGMENT_1 || 0x01
+|-
+| G_MWO_SEGMENT_2 || 0x02
+|-
+| G_MWO_SEGMENT_3 || 0x03
+|-
+| G_MWO_SEGMENT_4 || 0x04
+|-
+| G_MWO_SEGMENT_5 || 0x05
+|-
+| G_MWO_SEGMENT_6 || 0x06
+|-
+| G_MWO_SEGMENT_7 || 0x07
+|-
+| G_MWO_SEGMENT_8 || 0x08
+|-
+| G_MWO_SEGMENT_9 || 0x09
+|-
+| G_MWO_SEGMENT_A || 0x0a
+|-
+| G_MWO_SEGMENT_B || 0x0b
+|-
+| G_MWO_SEGMENT_C || 0x0c
+|-
+| G_MWO_SEGMENT_D || 0x0d
+|-
+| G_MWO_SEGMENT_E || 0x0e
+|-
+| G_MWO_SEGMENT_F || 0x0f
+|-
+| G_MWO_FOG || 0x00
+|-
+| G_MWO_aLIGHT_1 || 0x00
+|-
+| G_MWO_bLIGHT_1 || 0x04
+|-
+| G_MWO_aLIGHT_2 || 0x18
+|-
+| G_MWO_bLIGHT_2 || 0x1c
+|-
+| G_MWO_aLIGHT_3 || 0x30
+|-
+| G_MWO_bLIGHT_3 || 0x34
+|-
+| G_MWO_aLIGHT_4 || 0x48
+|-
+| G_MWO_bLIGHT_4 || 0x4c
+|-
+| G_MWO_aLIGHT_5 || 0x60
+|-
+| G_MWO_bLIGHT_5 || 0x64
+|-
+| G_MWO_aLIGHT_6 || 0x78
+|-
+| G_MWO_bLIGHT_6 || 0x7c
+|-
+| G_MWO_aLIGHT_7 || 0x90
+|-
+| G_MWO_bLIGHT_7 || 0x94
+|-
+| G_MWO_aLIGHT_8 || 0xa8
+|-
+| G_MWO_bLIGHT_8 || 0xac
+|-
+| G_MWO_MATRIX_XX_XY_I || 0x00
+|-
+| G_MWO_MATRIX_XZ_XW_I || 0x04
+|-
+| G_MWO_MATRIX_YX_YY_I || 0x08
+|-
+| G_MWO_MATRIX_YZ_YW_I || 0x0c
+|-
+| G_MWO_MATRIX_ZX_ZY_I || 0x10
+|-
+| G_MWO_MATRIX_ZZ_ZW_I || 0x14
+|-
+| G_MWO_MATRIX_WX_WY_I || 0x18
+|-
+| G_MWO_MATRIX_WZ_WW_I || 0x1c
+|-
+| G_MWO_MATRIX_XX_XY_F || 0x20
+|-
+| G_MWO_MATRIX_XZ_XW_F || 0x24
+|-
+| G_MWO_MATRIX_YX_YY_F || 0x28
+|-
+| G_MWO_MATRIX_YZ_YW_F || 0x2c
+|-
+| G_MWO_MATRIX_ZX_ZY_F || 0x30
+|-
+| G_MWO_MATRIX_ZZ_ZW_F || 0x34
+|-
+| G_MWO_MATRIX_WX_WY_F || 0x38
+|-
+| G_MWO_MATRIX_WZ_WW_F || 0x3c
+|-
+| G_MWO_POINT_RGBA || 0x10
+|-
+| G_MWO_POINT_ST || 0x14
+|-
+| G_MWO_POINT_XYSCREEN || 0x18
+|-
+| G_MWO_POINT_ZSCREEN || 0x1c
+|}
+
+==<tt>0xDC</tt> — <tt>G_MOVEMEM</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>DCnnooii aaaaaaaa</tt> || <i>gsMoveMem(size, index, offset, address)</i>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <i><tt>size</tt></i> || <tt>((size - 1) / 8 & 0x1F) << 3</tt> || <i><tt>((nn >> 3) + 1) * 8</tt></i> || <i>Size in bytes of memory to be moved</i>
+|-
+| <i><tt>offset</tt></i> || <tt>offset / 8</tt> || <i><tt>oo * 8</tt></i> || <i>Offset from indexed base address</i>
+|-
+| <i><tt>index</tt></i> || <tt>index</tt> || <i><tt>ii</tt></i> || <i>Index into table of DMEM addresses</i>
+|-
+| <i><tt>address</tt></i> || <tt>address</tt> || <i><tt>aaaaaaaa</tt></i> || <i>RAM address of memory</i>
+|-
+|}
+
+===Description===
+
+Transfers a block of data from RDRAM to DMEM, in 8 byte chunks. <tt>Size</tt> is the number of bytes to copy from RDRAM <tt>address</tt>, placing it at the DMEM location pointed to by <tt>index</tt>, plus <tt>offset</tt>.
+
+<tt>index</tt> is an index into a table of addresses of DMEM. Given enumerations for <tt>index</tt> are:
+
+* <tt>G_MV_MMTX     = 2</tt>
+* <tt>G_MV_PMTX     = 6</tt>
+* <tt>G_MV_VIEWPORT = 8</tt>
+* <tt>G_MV_LIGHT    = 10</tt>
+* <tt>G_MV_POINT    = 12</tt>
+* <tt>G_MV_MATRIX   = 14</tt>
+
+Note however that only <tt>VIEWPORT</tt>, <tt>LIGHT</tt>, and <tt>MATRIX</tt> are used by any of the macros given to programmers.
+
+<tt>offset</tt> is, as the name would suggest, an offset from the address <tt>index</tt> resolves to. This could be anything, though a couple enumerations are provided. (XXX list them here or elsewhere?)
+
+Also note that the function <tt>gsMoveMem</tt> is ''imaginary'': all of the macros that use this opcode do so directly, as opposed to going through another function. Since no general macro exists for this opcode, <tt>gsMoveMem</tt> was invented for illustrative purposes.
+
+==<tt>0xDD</tt> — <tt>G_LOAD_UCODE</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <i><tt>E1000000 dddddddd</tt></i><br/><tt>DD00ssss tttttttt</tt> || <tt>gsSPLoadUcodeEx(tstart, dstart, dsize)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>dstart</tt> || <tt>dstart</tt> || <tt>dddddddd</tt> || Start of data section
+|-
+| <tt>dsize</tt> || <tt>dsize</tt> || <tt>ssss</tt> || Size of data section
+|-
+| <tt>tstart</tt> || <tt>tstart</tt> || <tt>tttttttt</tt> || Start of text section
+|-
+|}
+
+===Description===
+
+Loads a new microcode executable into the RSP, with pointers <tt>dstart</tt> to the start of the data section and <tt>tstart</tt> to the start of the text section, with <tt>dsize</tt> specifying the size of the data section. After loading the new microcode, the RCP is reset as appropriate.
+
+Note that <tt>dstart</tt> is stored in the high half of the "RDP word", the opcode for which is shown in italics before the actual <tt>DD</tt> opcode.
+
+==<tt>0xDE</tt> — <tt>G_DL</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>DEpp0000 dddddddd</tt> || <tt>gsSPDisplayList(dl)</tt><br/><tt>gsSPBranchList(dl)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+|colspan=4 class="bg-info" style="text-align:center;"| <i><tt>pp</tt> determined by choice of function; see below</i>
+|-
+| <tt>dl</tt> || <tt>dl</tt> || <tt>dddddddd</tt> || Address of new display list to jump to
+|-
+|}
+
+===Description===
+
+Tells the RDP to switch over to the display list at address <tt>dl</tt>. <tt>pp</tt> mentions what will happen when the end of the new display list is reached.
+
+If <tt>pp</tt> is set to zero (using <tt>gsSPDisplayList</tt>), then the current address the display list processor is at is pushed to a display list address stack before switching over. This means execution returns at this point after the new display list is done.
+
+If <tt>pp</tt> is set to one (using <tt>gsSPBranchList</tt>), then the current address isn't saved, meaning execution can't return to this point after the new display list is done. (It will instead return to the existing top of the address stack, if any addresses are there.)
+
+==<tt>0xDF</tt> — <tt>G_ENDDL</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>DF000000 00000000</tt> || <tt>gsSPEndDisplayList()</tt>
+|-
+|}
+
+''No arguments for this opcode''
+
+===Description===
+
+Ends the current display list. At this point execution will return to the address of the top of the display list address stack. If there are no addresses in this stack, that's the end of graphics processing, until the RCP is asked to do more.
+
+==<tt>0xE0</tt> — <tt>G_SPNOOP</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E0000000 00000000</tt> || <tt>gsSPNoOp()</tt>
+|-
+|}
+
+''No arguments for this opcode''
+
+===Description===
+
+Does nothing. Seemingly different from <tt>00</tt>; judging by the names of this opcode and <tt>00</tt>, this opcode stalls the RSP, whereas the other stalls the RDP.
+
+==<tt>0xE1</tt> — <tt>G_RDPHALF_1</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E1000000 hhhhhhhh</tt> || <tt>gsDPWord(wordhi, <i>wordlo</i>)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>wordhi</tt> || <tt>wordhi</tt> || <tt>hhhhhhhh</tt> || New value of high word
+|-
+|}
+
+===Description===
+
+This opcode sets the higher half of the generic RDP word to <tt>wordhi</tt>.
+
+'''Note:''' the referenced function also generates opcode <tt>F1</tt> (which uses <tt>wordlo</tt>). See the section on <tt>F1</tt> for info on that.
+
+==<tt>0xE2</tt> — <tt>G_SETOTHERMODE_L</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E200ssnn dddddddd</tt> || <tt>gsSPSetOtherMode(0xE2, shift, length, data)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>shift</tt> || <tt>32 - shift - length</tt> || <tt>32 - (nn + 1) - ss</tt> || Amount <tt>data</tt> is shifted by, or number of LSb of mode bits to be changed
+|-
+| <tt>length</tt> || <tt>length - 1</tt> || <tt>nn + 1</tt> || Size of data affected, in bits
+|-
+| <tt>data</tt> || <tt>data</tt> || <tt>dddddddd</tt> || New bit settings to be applied
+|-
+|}
+
+===Description===
+
+Modifies various bits of the lower half of the RDP Other Modes word. Various enumerations are provided for <tt>shift</tt> and <tt>data</tt>.
+
+The operation performed by the opcode can be expressed as such, assuming <tt>LO</tt> to stand for the lower word of the RDP other modes:
+
+    LO =  LO & ~(((1 << length) - 1) << shift) | data
+
+Or, in English, it clears all the bits designated to be modified (determined by <tt>shift</tt> and <tt>length</tt>), and then sets those bits according to <tt>data</tt>. Important to note that ''<tt>data</tt> is '''preshifted'''''. That is, it is up to the caller to shift <tt>data</tt> appropriately. The enumerations provided for <tt>data</tt> are pre-shifted to match this requirement.
+
+The enumerations provided for <tt>shift</tt> are:
+
+* <tt>G_MDSFT_ALPHACOMPARE = 0</tt>
+* <tt>G_MDSFT_ZSRCSEL      = 2</tt>
+* <tt>G_MDSFT_RENDERMODE   = 3</tt>
+
+The structure of the lower modes is provided in the [[F3DZEX2|main page]].
+
+==<tt>0xE3</tt> — <tt>G_SETOTHERMODE_H</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E300ssnn dddddddd</tt> || <tt>gsSPSetOtherMode(0xE3, shift, length, data)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>shift</tt> || <tt>32 - shift - length</tt> || <tt>32 - (nn + 1) - ss</tt> || Amount <tt>data</tt> is shifted by, or number of LSb of mode bits to be changed
+|-
+| <tt>length</tt> || <tt>length - 1</tt> || <tt>nn + 1</tt> || Size of data affected, in bits
+|-
+| <tt>data</tt> || <tt>data</tt> || <tt>dddddddd</tt> || New bit settings to be applied
+|-
+|}
+
+===Description===
+
+Modifies the various bits of the high half of the RDP Other Modes word. Enumerations are provided for <tt>shift</tt> and <tt>data</tt>.
+
+Like with <tt>E2</tt>, <tt>data</tt> is preshifted, and the opcode's procedure can be formulized in the same way (where <tt>OH</tt> stands for the high word of the other modes):
+
+    HO =  HO & ~(((1 << length) - 1) << shift) | data
+
+The enumerations for <tt>shift</tt> are as follows:
+
+* <tt>G_MDSFT_BLENDMASK   = 0</tt>
+* <tt>G_MDSFT_ALPHADITHER = 4</tt>
+* <tt>G_MDSFT_RGBDITHER   = 6</tt>
+* <tt>G_MDSFT_COMBKEY     = 8</tt>
+* <tt>G_MDSFT_TEXTCONV    = 9</tt>
+* <tt>G_MDSFT_TEXTFILT    = 12</tt>
+* <tt>G_MDSFT_TEXTLUT     = 14</tt>
+* <tt>G_MDSFT_TEXTLOD     = 16</tt>
+* <tt>G_MDSFT_TEXTDETAIL  = 17</tt>
+* <tt>G_MDSFT_TEXTPERSP   = 19</tt>
+* <tt>G_MDSFT_CYCLETYPE   = 20</tt>
+* <tt>G_MDSFT_COLORDITHER = 22</tt>
+* <tt>G_MDSFT_PIPELINE    = 23</tt>
+
+The layout of the high word is describe in the [[F3DZEX2|main page]].
+
+==<tt>0xE4</tt> — <tt>G_TEXRECT</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E4xxxyyy 0iXXXYYY</tt><br/><i><tt>E1000000 sssstttt</tt></i><br/><i><tt>F1000000 ddddeeee</tt></i> || <tt>gsSPTextureRectangle(ulx, uly, lrx, lry, tile, uls, ult, dsdx, dtdy)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>lrx</tt> || <tt>lrx</tt> || <tt>xxx</tt> || Lower-right corner X coordinate
+|-
+| <tt>lry</tt> || <tt>lry</tt> || <tt>yyy</tt> || Lower-right corner Y coordinate
+|-
+| <tt>tile</tt> || <tt>tile</tt> || <tt>i</tt> || Tile descriptor to use for rectangle
+|-
+| <tt>ulx</tt> || <tt>ulx</tt> || <tt>XXX</tt> || Upper-left corner X coordinate
+|-
+| <tt>uly</tt> || <tt>uly</tt> || <tt>YYY</tt> || Upper-left corner Y coordinate
+|-
+| <tt>uls</tt> || <tt>uls</tt> || <tt>ssss</tt> || Texture S coordinate at upper-left corner
+|-
+| <tt>ult</tt> || <tt>ult</tt> || <tt>tttt</tt> || Texture T coordinate at upper-left corner
+|-
+| <tt>dsdx</tt> || <tt>dsdx</tt> || <tt>dddd</tt> || Change in S coordinate over change in X coordinate
+|-
+| <tt>dtdy</tt> || <tt>dtdy</tt> || <tt>eeee</tt> || Change in T coordinate over change in Y coordinate
+|-
+|}
+
+===Description===
+
+Draws a textured rectangle from screen coordinates <tt>(ulx,uly)</tt> to <tt>(lrx, lry)</tt>, using the texture specified by <tt>tile</tt> to color the rectangle. The texture is positioned using <tt>(uls, ult)</tt> as the texture coordinate of <tt>(ulx, uly)</tt>, and changing the texture coordinates with the use of <tt>dsdx</tt> and <tt>dtdy</tt>.
+
+<tt>ulx</tt>, <tt>uly</tt>, <tt>lrx</tt>, and <tt>lry</tt> are 12-bit numbers in a fixed point 10.2 format, giving a range of <tt>0 ≤ n ≤ 1023.75</tt> for each value (with <tt>0b0.01</tt> / <tt>0d0.25</tt> precision). This means that the coordinates cannot reference the framebuffer past a 1024-pixel square, if the framebuffer exceeds those limits in either dimension.
+
+<tt>tile</tt> refers to any of the eight tile descriptors whose texture will be used on the rectangle. <tt>uls</tt> and <tt>ult</tt> specify the S and T coordinate, respectively, of the upper-left corner of the rectangle. <tt>uls</tt> and <tt>ult</tt> are in signed fixed point 10.5 format, giving a range <tt>-1024 ≤ n ≤ 1023.96875</tt> for each value (with <tt>0b0.00001</tt> / <tt>1/32</tt> precision).
+
+The texture coordinates for other parts of the rectangle are calculated via <tt>dsdx</tt> and <tt>dtdy</tt>, which are in signed fixed point 5.10 format, giving a range of <tt>-32 ≤ n ≤ 31.999023</tt> (with <tt>0b0.0000000001</tt> / <tt>1/1024</tt> precision). These parameters change the S coordinate per a change of 1.0 in the X coordinate of the rectangle, and the T coordinate per change of 1.0 in the Y coordinate (XXX not entirely sure on what the 'per change's are, but 1.0 seems reasonable).
+
+Important to note that using this opcode requires setting the texture parameters in the high and low words of the RDP after this opcode, which the given function <tt>gsSPTextureRectangle</tt> does (extra instructions in italics above).
+
+An alternate version of this command exists as <tt>gsDPTextureRectangle</tt>. It takes the same parameters, but generates a 128-bit opcode, twice the size of other opcodes:
+
+    E4xxxyyy 0iXXXYYY sssstttt ddddeeee
+
+However, this version isn't documented in the SDK's function reference, and it seems to be an outdated or otherwise unusual variant. Therefore this version seems unlikely.
+
+==<tt>0xE5</tt> — <tt>G_TEXRECTFLIP</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E5xxxyyy 0iXXXYYY</tt><br/><i><tt>E1000000 sssstttt</tt></i><br/><i><tt>F1000000 ddddeeee</tt></i> || <tt>gsSPTextureRectangleFlip(ulx, uly, lrx, lry, tile, uls, ult, dtdx, dsdy)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>lrx</tt> || <tt>lrx</tt> || <tt>xxx</tt> || Lower-right corner X coordinate
+|-
+| <tt>lry</tt> || <tt>lry</tt> || <tt>yyy</tt> || Lower-right corner Y coordinate
+|-
+| <tt>tile</tt> || <tt>tile</tt> || <tt>i</tt> || Tile descriptor to use for rectangle
+|-
+| <tt>ulx</tt> || <tt>ulx</tt> || <tt>XXX</tt> || Upper-left corner X coordinate
+|-
+| <tt>uly</tt> || <tt>uly</tt> || <tt>YYY</tt> || Upper-left corner Y coordinate
+|-
+| <tt>uls</tt> || <tt>uls</tt> || <tt>ssss</tt> || Texture S coordinate at upper-left corner
+|-
+| <tt>ult</tt> || <tt>ult</tt> || <tt>tttt</tt> || Texture T coordinate at upper-left corner
+|-
+| <tt>dtdx</tt> || <tt>dtdx</tt> || <tt>dddd</tt> || Change in T coordinate over change in X coordinate
+|-
+| <tt>dsdy</tt> || <tt>dsdy</tt> || <tt>eeee</tt> || Change in S coordinate over change in Y coordinate
+|-
+|}
+
+===Description===
+
+This is similar to opcode <tt>E4</tt>, with the only difference being that the S and T coordinates of a texture are flipped in rendering, so that S coordinates are along the Y axis and T along the X axis. This essentially flips the texture about the diagonal line <tt>(ulx,uly),(lrx,lry)</tt>.
+
+<tt>dtdx</tt> describes the change in T over the change in X, and <tt>dsdy</tt> describes change in S over change in Y.
+
+Also like <tt>E4</tt>, there is an unusual 128-bit variant created by <tt>gsDPTextureRectangleFlip</tt>:
+
+    E5xxxyyy 0iXXXYYY sssstttt ddddeeee
+
+==<tt>0xE6</tt> — <tt>G_RDPLOADSYNC</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E6000000 00000000</tt> || <tt>gsDPLoadSync()</tt>
+|-
+|}
+
+''No arguments for this opcode''
+
+===Description===
+
+This forces a wait for a texture to load, in order to synchronize with pixel rendering. This ensures that loading a new texture won't disrupt the rendering of primitives mid-render.
+
+==<tt>0xE7</tt> — <tt>G_RDPPIPESYNC</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E7000000 00000000</tt> || <tt>gsDPPipeSync()</tt>
+|-
+|}
+
+''No arguments for this opcode''
+
+===Description===
+
+'''This is not the "start of display list" command. ''There is no such thing.'''''
+
+Waits for the RDP to finish rendering its currently-rendering primitive, before updating RDP attributes. This avoids altering the rendering of a primitive in the middle of its render.
+
+Historically, several model viewers have interpreted this command as somehow starting a display list. '''This is not true.''' Display lists have no command that starts a display list. To find display lists, the most accurate way would be to find the end display list command (<tt>DF</tt>) and work backwards, until an invalid display list command is encountered.
+
+==<tt>0xE8</tt> — <tt>G_RDPTILESYNC</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E8000000 00000000</tt> || <tt>gsDPTileSync()</tt>
+|-
+|}
+
+''No arguments for this opcode''
+
+===Description===
+
+Forces a wait for rendering to finish before updating tile descriptor attributes, so as to not disrupt rendering of primitives mid-render.
+
+==<tt>0xE9</tt> — <tt>G_RDPFULLSYNC</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>E9000000 00000000</tt> || <tt>gsDPFullSync()</tt>
+|-
+|}
+
+''No arguments for this opcode''
+
+===Description===
+
+Generates an interrupt for the main CPU when the RDP has finished doing everything. This is typically the last opcode before the "end display list" opcode (<tt>DF</tt>).
+
+==<tt>0xEA</tt> — <tt>G_SETKEYGB</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>EAwwwxxx ccssddtt</tt> || <tt>gsDPSetKeyGB(centerG, scaleG, widthG, centerB, scaleB, widthB)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>widthG</tt> || <tt>widthG</tt> || <tt>www</tt> || Scaled width of half the key window for green
+|-
+| <tt>widthB</tt> || <tt>widthB</tt> || <tt>xxx</tt> || Scaled width of half the key window for blue
+|-
+| <tt>centerG</tt> || <tt>centerG</tt> || <tt>cc</tt> || Intensity of active key for green
+|-
+| <tt>scaleG</tt> || <tt>scaleG</tt> || <tt>ss</tt> || Reciprocal of size of soft edge, normalized to <tt>0..0xFF</tt>, for green
+|-
+| <tt>centerB</tt> || <tt>centerB</tt> || <tt>dd</tt> || Intensity of active key for blue
+|-
+| <tt>scaleB</tt> || <tt>scaleB</tt> || <tt>tt</tt> || Reciprocal of size of soft edge, normalized to <tt>0..0xFF</tt>, for blue
+|-
+|}
+
+===Description===
+
+Sets the center, scale, and width parameters for the green and blue components for chroma key (see <tt>EB</tt> for red).
+
+<tt>widthB</tt> and <tt>widthG</tt> are in an unsigned fixed-point 4.8 format. The other parameters are normal 8-bit unsigned integers.
+
+Note that chroma key was considered unsupported by Oct 1999 documentation, however this opcode may potentially still be used to set registers in the Color Combiner for other purposes.
+
+==<tt>0xEB</tt> — <tt>G_SETKEYR</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>EB000000 0wwwccss</tt> || <tt>gsDPSetKeyR(centerR, widthR, scaleR)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>widthR</tt> || <tt>widthR</tt> || <tt>www</tt> || Scaled with of half the key window for red
+|-
+| <tt>centerR</tt> || <tt>centerR</tt> || <tt>cc</tt> || Intensity of active key for red
+|-
+| <tt>scaleR</tt> || <tt>scaleR</tt> || <tt>ss</tt> || Reciprocal of size of soft edge, normalized to <tt>0..0xFF</tt>, for blue
+|-
+|}
+
+===Description===
+
+Sets the scale, center, and width parameters for the red component for chroma key (see <tt>EA</tt> for blue and green).
+
+<tt>widthR</tt> is an unsigned fixed-point 4.8 number. <tt>centerR</tt> and <tt>sizeR</tt> are 8-bit unsigned integers.
+
+Note that chroma key was considered unsupported by Oct 1999 documentation, however this opcode may potentially still be used to set registers in the Color Combiner for other purposes.
+
+==<tt>0xEC</tt> — <tt>G_SETCONVERT</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt style="white-space:pre;">   E    C  00aa aaaa  aaab bbbb  bbbb cccc<br/>cccc cddd  dddd ddee  eeee eeef  ffff ffff</tt> || <tt>gsDPSetConvert(k0, k1, k2, k3, k4, k5)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>k0</tt> || <tt>k0</tt> || <tt>aa aaaa aaa</tt> || K0 term of conversion matrix
+|-
+| <tt>k1</tt> || <tt>k1</tt> || <tt>b bbbb bbbb</tt> || K1 term of conversion matrix
+|-
+| <tt>k2</tt> || <tt>k2</tt> || <tt>cccc cccc c</tt> || K2 term of conversion matrix
+|-
+| <tt>k3</tt> || <tt>k3</tt> || <tt>ddd dddd dd</tt> || K3 term of conversion matrix
+|-
+| <tt>k4</tt> || <tt>k4</tt> || <tt>ee eeee eee</tt> || K4 term of conversion matrix
+|-
+| <tt>k5</tt> || <tt>k5</tt> || <tt>f ffff ffff</tt> || K5 term of conversion matrix
+|-
+|}
+
+===Description===
+
+Sets the terms need to perform conversion from YUV to RGB. All of the parameters are signed 9-bit numbers, with range <tt>-256 ≤ k ≤ 255</tt>.
+
+Note that YUV support was no longer guaranteed by Oct 1999 documentation, however the K4 and K5 terms could still potentially be used by the Color Combiner.
+
+==<tt>0xED</tt> — <tt>G_SETSCISSOR</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>EDxxxyyy m0vvvwww</tt> || <tt>gsDPSetScissor(mode, ulx, uly, lrx, lry)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>ulx</tt> || <tt>ulx</tt> || <tt>xxx</tt> || Upper-left X coordinate of rectangle
+|-
+| <tt>uly</tt> || <tt>uly</tt> || <tt>yyy</tt> || Upper-left Y coordinate of rectangle
+|-
+| <tt>mode</tt> || <tt>mode</tt> || <tt>m</tt> || Interpolation mode setting
+|-
+| <tt>lrx</tt> || <tt>lrx</tt> || <tt>vvv</tt> || Lower-right X coordinate of rectangle
+|-
+| <tt>lry</tt> || <tt>lry</tt> || <tt>www</tt> || Lower-right Y coordinate of rectangle
+|-
+|}
+
+===Description===
+
+Sets the scissoring rectangle, with upper-left corner at <tt>(ulx, uly)</tt>, and lower-right corner at <tt>(lrx, lry)</tt>.
+
+The <tt>mode</tt> setting controls interpolation, if any. Valid values are:
+
+* <tt>G_SC_NON_INTERLACE  = 0</tt>
+* <tt>G_SC_EVEN_INTERLACE = 2</tt>
+* <tt>G_SC_ODD_INTERLACE  = 3</tt>
+
+<tt>NON_INTERLACE</tt> draws all scanlines, while <tt>EVEN</tt> and <tt>ODD</tt> draw only even or odd scanlines, respectively.
+
+==<tt>0xEE</tt> — <tt>G_SETPRIMDEPTH</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>EE000000 zzzzdddd</tt> || <tt>gsDPSetPrimDepth(z, dz)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>z</tt> || <tt>z</tt> || <tt>zzzz</tt> || Z value for primitive
+|-
+| <tt>dz</tt> || <tt>dz</tt> || <tt>dddd</tt> || delta Z value for primitive
+|-
+|}
+
+===Description===
+
+This sets the Z value for the entire primitive to be rendered, when the source for its depth component is set to be taken from this value. (This could be thought of as the depth version of "flat shading".)
+
+<tt>z</tt> and <tt>dz</tt> are signed 16-bit values. <tt>z</tt> sets the actual depth for the primitive, while <tt>dz</tt> helps rendering of anti-aliased and decal objects (this is usually <tt>0</tt>).
+
+==<tt>0xEF</tt> — <tt>G_RDPSETOTHERMODE</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>EFhhhhhh LLLLLLLL</tt> || <tt>gsDPSetOtherMode(omodeH, omodeL)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>omodeH</tt> || <tt>omodeH</tt> || <tt>hhhhhh</tt> || Settings for other mode higher word bits
+|-
+| <tt>omodeL</tt> || <tt>omodeL</tt> || <tt>LLLLLLLL</tt> || Settings for other mode lower word bits
+|-
+|}
+
+===Description===
+
+Sets the other mode bits of the RDP. <tt>omodeH</tt> is similar to using <tt>E3</tt>, and <tt>omodeL</tt> is similar to using <tt>E2</tt>.
+
+The difference from either <tt>E3</tt> or <tt>E2</tt> is that this command sets all the bits in both halves of the RDP word (that is, this opcode has no way of limiting what bits are actually affected).
+
+See the [[F3DZEX2|main page]] for what the other mode bits mean
+
+==<tt>0xF0</tt> — <tt>G_LOADTLUT</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>F0000000 0tccc000</tt> || <tt>gsDPLoadTLUTCmd(tile, count)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>tile</tt> || <tt>tile</tt> || <tt>t</tt> || Tile descriptor to load from
+|-
+| <tt>count</tt> || <tt>(count & 0x3FF) << 2</tt> || <tt>ccc >> 2</tt> || Number of colors to load minus one
+|-
+|}
+
+===Description===
+
+Tells the RDP to load <tt>count + 1</tt> colors from the texture loaded to tile descriptor <tt>tile</tt>. The tile descriptor's attributes and other state related to textures inform the RDP how to load the palette, and where to load it to.
+
+(Note: the count is quadrupled likely due to how palettes are stored in TMEM. Not sure where details on that would be appropriate, though.)
+
+==<tt>0xF1</tt> — <tt>G_RDPHALF_2</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>F1000000 LLLLLLLL</tt> || <tt>gsDPWord(<i>wordhi</i>, wordlo)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>wordlo</tt> || <tt>wordlo</tt> || <tt>LLLLLLLL</tt> || New value of low word
+|-
+|}
+
+===Description===
+
+This opcode sets the low half of the generic RDP word to <tt>wordlo</tt>.
+
+'''Note:''' the referenced function also generates opcode <tt>E1</tt> (which uses <tt>wordhi</tt>). See the section on <tt>E1</tt> for info on that.
+
+==<tt>0xF2</tt> — <tt>G_SETTILESIZE</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>F2sssttt 0iuuuvvv</tt> || <tt>gsDPSetTileSize(tile, uls, ult, lrs, lrt)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>uls</tt> || <tt>uls</tt> || <tt>sss</tt> || Upper-left texture coordinate, S-axis
+|-
+| <tt>ult</tt> || <tt>ult</tt> || <tt>ttt</tt> || Upper-left texture coordinate, T-axis
+|-
+| <tt>tile</tt> || <tt>tile</tt> || <tt>i</tt> || Tile descriptor to modify
+|-
+| <tt>lrs</tt> || <tt>lrs</tt> || <tt>uuu</tt> || Lower-right texture coordinate, S-axis
+|-
+| <tt>lrt</tt> || <tt>lrt</tt> || <tt>vvv</tt> || Lower-right texture coordinate, T-axis
+|-
+|}
+
+===Description===
+
+Sets the size of the texture for tile descriptor <tt>tile</tt>, setting its upper-left corner at <tt>(uls, ult)</tt>, and its lower-right corner at <tt>lrs, lrt</tt>.
+
+When loading textures into TMEM, these values indicate the location of the first and last texel to load into TMEM. When rendering, the upper-left corner tells where in texture image space to start taking the texture from, while the lower-right corner applies in rendering only for clamping the texture.
+
+<tt>uls</tt>, <tt>ult</tt>, <tt>lrs</tt>, and <tt>lrt</tt> are all in unsigned fixed-point 10.2 format, with range <tt>0 ≤ x ≤ 1023.75</tt>
+
+==<tt>0xF3</tt> — <tt>G_LOADBLOCK</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>F3sssttt 0ixxxddd</tt> || <tt>gsDPLoadBlock(tile, uls, ult, texels, dxt)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>uls</tt> || <tt>uls</tt> || <tt>sss</tt> || Upper-left corner of texture to load, S-axis
+|-
+| <tt>ult</tt> || <tt>ult</tt> || <tt>ttt</tt> || Upper-left corner of texture to load, T-axis
+|-
+| <tt>tile</tt> || <tt>tile</tt> || <tt>i</tt> || Tile descriptor to load into
+|-
+| <tt>texels</tt> || <tt>texels</tt> || <tt>xxx</tt> || Number of texels to load to TMEM, minus one
+|-
+| <tt>dxt</tt> || <tt>dxt</tt> || <tt>ddd</tt> || Change in T-axis per scanline
+|-
+|}
+
+===Description===
+
+Loads a texture into TMEM as one long line of data, starting at <tt>(uls, ult)</tt> in the currently chosen area of RAM, and loads <tt>texels + 1</tt> texels to TMEM for tile descriptor <tt>tile</tt>. <tt>dxt</tt> is used for determining when the next row starts.
+
+<tt>uls</tt> and <tt>ult</tt> are unsigned fixed-point 10.2 numbers, with range <tt>0 ≤ n ≤ 1023.75</tt>.
+
+<tt>dxt</tt> is an unsigned fixed-point 1.11 number, meaning a range of <tt>0 ≤ n ≤ 1.999512</tt>. This number has units, namely <tt>lines words<sup>-1</sup></tt>, where a "word" is 64 bits in length, and a line is one row of the texture. (It may be more easily understood when inverted to get its reciprocal: words/lines . <tt>dxt</tt> is the reciprocal of the number of 64-bit chunks it takes to get a row of texture.)
+
+When loading an image through this opcode, an internal counter is incremented by <tt>dxt</tt> for every 64 bits of texture read. When this counter is high enough to turn over to the next integer value (e.g. <tt>0.9 + 0.15 -> 1.05</tt>), the current line number is incremented. This is important as odd-numbered rows have their values swapped for interleaved access (the first line read in is line 0, and thus isn't swapped).
+
+Note that if <tt>dxt</tt> is not a power of two (i.e. only one bit in the value is 'on'), then an error in the counter will accumulate over time, and eventually cause errors in determining where next lines are (when exactly this happens depends on the value and the type of texture being read in).
+
+If the data has bee pre-interleaved by the game, then <tt>dxt</tt> will be <tt>0</tt>, meaning the current line number never advances (and thus loading will never interleave data for you).
+
+==<tt>0xF4</tt> — <tt>G_LOADTILE</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>F4sssttt 0iuuuvvv</tt> || <tt>gsDPLoadTile(tile, uls, ult, lrs, lrt)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>uls</tt> || <tt>uls</tt> || <tt>sss</tt> || Upper-left corner of tile, S-axis
+|-
+| <tt>ult</tt> || <tt>ult</tt> || <tt>ttt</tt> || Upper-left corner of tile, T-axis
+|-
+| <tt>tile</tt> || <tt>tile</tt> || <tt>i</tt> || Tile descriptor being loaded to
+|-
+| <tt>lrs</tt> || <tt>lrs</tt> || <tt>uuu</tt> || Lower-right corner of tile, S-axis
+|-
+| <tt>lrt</tt> || <tt>lrt</tt> || <tt>vvv</tt> || Lower-right corner of tile, T-axis
+|-
+|}
+
+===Description===
+
+Loads a rectangular portion of the texture being pointed to in DRAM for tile descriptor <tt>tile</tt> into TMEM. <tt>(uls, ult)</tt> specifies the upper-left corner of the texture in RAM, offset from its earlier-specified origin, and <tt>(lrs, lrt)</tt> specifies the lower-right corner of the texture to load.
+
+All coordinate values are in unsigned fixed-point 10.2 format (range <tt>0 ≤ n ≤ 1023.75</tt>).
+
+==<tt>0xF5</tt> — <tt>G_SETTILE</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt style="white-space:pre;">   F    5  fffi i0nn  nnnn nnnm  mmmm mmmm<br/>0000 0ttt  pppp ccaa  aass ssdd  bbbb uuuu</tt> || <tt>gsDPSetTile(fmt, siz, line, tmem, tile, palette, cmT, maskT, shiftT, cmS, maskS, shiftS)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>fmt</tt> || <tt>fmt</tt> || <tt>fff</tt> || Sets color format
+|-
+| <tt>siz</tt> || <tt>siz</tt> || <tt>i i</tt> || Sets bit size of pixel
+|-
+| <tt>line</tt> || <tt>line</tt> || <tt>nn nnnn nnn</tt> || Number of 64-bit values per row
+|-
+| <tt>tmem</tt> || <tt>tmem</tt> || <tt>m mmmm mmmm</tt> || Offset of texture in TMEM
+|-
+| <tt>tile</tt> || <tt>tile</tt> || <tt>ttt</tt> || Tile descriptor being modified
+|-
+| <tt>palette</tt> || <tt>palette</tt> || <tt>pppp</tt> || Which palette to use for colors (if relevant)
+|-
+| <tt>cmT</tt> || <tt>cmT</tt> || <tt>cc</tt> || Clamp and Mirror flags for the T axis
+|-
+| <tt>maskT</tt> || <tt>maskT</tt> || <tt>aa aa</tt> || Sets how much of T axis is shown before wrapping
+|-
+| <tt>shiftT</tt> || <tt>shiftT</tt> || <tt>ss ss</tt> || Sets the amount to shift T axis values after perspective division
+|-
+| <tt>cmS</tt> || <tt>cmS</tt> || <tt>dd</tt> || Clamp and Mirror flags for the S axis
+|-
+| <tt>maskS</tt> || <tt>maskS</tt> || <tt>bbbb</tt> || Sets how much of S axis is shown before wrapping
+|-
+| <tt>shiftS</tt> || <tt>shiftS</tt> || <tt>uuuu</tt> || Sets the amount to shift S axis values after perspective division
+|-
+|}
+
+===Description===
+
+Sets many different parameters for tile descriptor <tt>tile</tt>.
+
+<tt>fmt</tt> sets the color format in use by the particular texture. It can be one of these values:
+
+* <tt>G_IM_FMT_RGBA = 0</tt>
+* <tt>G_IM_FMT_YUV  = 1</tt>
+* <tt>G_IM_FMT_CI   = 2</tt>
+* <tt>G_IM_FMT_IA   = 3</tt>
+* <tt>G_IM_FMT_I    = 4</tt>
+
+<tt>siz</tt> sets the bit size of each texel. It can be any of these:
+
+* <tt>G_IM_SIZ_4b  = 0</tt>
+* <tt>G_IM_SIZ_8b  = 1</tt>
+* <tt>G_IM_SIZ_16b = 2</tt>
+* <tt>G_IM_SIZ_32b = 3</tt>
+
+(Not every combination of <tt>fmt</tt> and <tt>siz</tt> is valid. See below(?) for a table of accepted texture types.)
+
+<tt>line</tt> sets the number of 64-bit pieces per row of the texture (textures will be padded in TMEM if the row doesn't end in a multiple of 64 bits). <tt>tmem</tt> is the location in TMEM where the texture is. Note that TMEM is addressed in units of 64 bits here (zero-indexed), so e.g. <tt>1</tt> means byte 8 of TMEM.
+
+<tt>palette</tt> specifies which of the sixteen palettes this texture will be using. Note that this only applies to <tt>ci4</tt> textures (<tt>G_IM_FMT_CI</tt> and <tt>G_IM_SIZ_4b</tt>), since <tt>ci8</tt> has access to the entirety of the palette area, and no other texture type needs palettes.
+
+<tt>cmT</tt> and <tt>cmS</tt> set the clamp and mirror settings for their respective axes. The values of these two parameters can be any combination of:
+
+* <tt>G_TX_NOMIRROR = 0</tt>
+* <tt>G_TX_MIRROR   = 1</tt>
+* <tt>G_TX_WRAP     = 0</tt>
+* <tt>G_TX_CLAMP    = 2</tt>
+
+Where <tt>NOMIRROR</tt> and <tt>MIRROR</tt>, and <tt>WRAP</tt> and <tt>CLAMP</tt> are exclusive pairs of options. (And with <tt>NOMIRROR</tt> and <tt>WRAP</tt> currently labeled just to allow explicitly stating desired operation.) <tt>MIRROR</tt> enables mirroring of the texture along that given access (e.g. setting <tt>MIRROR</tt> for the S axis will mirror a texture horizontally), whereas <tt>NOMIRROR</tt> disables it. <tt>WRAP</tt> repeats texels on a particular cycle, whereas <tt>CLAMP</tt> enforces clamping instead (sampling the colors at the edges of the texture for texels beyond the set size of the texture).
+
+<tt>maskT</tt> and <tt>maskS</tt> sets when the respective axis "loops" its texels. the value is interpreted as the first bit that's ignored. In other words, only the first <tt>2<sup>mask</sup></tt> texels of the row/column are actually used. If wrapping, then the previous texels are simply repeated; mirroring will mirror the set to be reperated, meaning the <tt>mask</tt>th bit of the current coordinate decides if its texel is mirrored. A mask value of <tt>0</tt> will implicitly enable clamping.
+
+<tt>shiftT</tt> and <tt>shiftS</tt> specify how many bits to shift texture coordinates after perspective division, for their respective axes. If the value is <tt>0</tt>, then no shifting is done. If the value is in range <tt>1 ≤ n ≤ 10</tt>, then coordinates are right-shifted by that amount. For values in range <tt>11 ≤ n ≤ 15</tt>, values are ''left''-shifted by <tt>16 - n</tt>.
+
+==<tt>0xF6</tt> — <tt>G_FILLRECT</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>F6xxxyyy 00vvvwww</tt> || <tt>gsDPFillRectangle(ulx, uly, lrx, lry)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>lrx</tt> || <tt>(lrx & 0x3FF) << 2</tt> || <tt>xxx</tt> || Lower-right corner of rectangle, X-axis
+|-
+| <tt>lry</tt> || <tt>(lry & 0x3FF) << 2</tt> || <tt>yyy</tt> || Lower-right corner of rectangle, Y-axis
+|-
+| <tt>ulx</tt> || <tt>(ulx & 0x3FF) << 2</tt> || <tt>vvv</tt> || Upper-left corner of rectangle, X-axis
+|-
+| <tt>uly</tt> || <tt>(uly & 0x3FF) << 2</tt> || <tt>www</tt> || Upper-left corner of rectangle, Y-axis
+|-
+|}
+
+===Description===
+
+Draws a rectangle to the framebuffer with top-left corner <tt>(ulx, uly)</tt> and bottom-right corner <tt>(lrx, lry)</tt>, coloring it with the current fill color. Similar to <tt>E4</tt>, but uses a solid color instead of a texture.
+
+All the coordinate values are (probably) fixed-width unsigned 10.2 format, with the macro shown making sure the coordinates sent to microcode are integers.
+
+==<tt>0xF7</tt> — <tt>G_SETFILLCOLOR</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>F7000000 cccccccc</tt> || <tt>gsDPSetFillColor(color)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>color</tt> || <tt>color</tt> || <tt>cccccccc</tt> || Fill value for use in fill mode
+|-
+|}
+
+===Description===
+
+Sets the fill color for use in fill mode, which allows clearing the current color buffer.
+
+When clearing the Z buffer, <tt>color</tt> is a 14-bit Z value and 2-bit dZ value specified twice to fill all 32 bits. In other words, <tt>color</tt> at the bit level looks like the following:
+
+    ZZZZ ZZZZ  ZZZZ ZZdd  ZZZZ ZZZZ  ZZZZ ZZdd
+
+If dealing with a color buffer, the meaning of <tt>color</tt> depends on the current color image's format. For an RGBA5551 color image, the chosen fill color is specified twice, like with the Z buffer:
+
+    rrrr rggg  ggbb bbba  rrrr rggg  ggbb bbba
+
+For an RGBA32 color image, <tt>color</tt> is a single RGBA32 color value.
+
+For the 16-bit versions, the two occurrences of the color/depth value should be the same, however they can be different for an unspecified "special effect".
+
+(Note: there is one reference to being able to use an 8-bit color image, but it's not clear if that applies here. Could the Video Interface settings be related in some way as well?)
+
+==<tt>0xF8</tt> — <tt>G_SETFOGCOLOR</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>F8000000 rrggbbaa</tt> || <tt>gsDPSetFogColor(R, G, B, A)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>R</tt> || <tt>R</tt> || <tt>rr</tt> || Red component of fog color
+|-
+| <tt>G</tt> || <tt>G</tt> || <tt>gg</tt> || Green component of fog color
+|-
+| <tt>B</tt> || <tt>B</tt> || <tt>bb</tt> || Blue component of fog color
+|-
+| <tt>A</tt> || <tt>A</tt> || <tt>aa</tt> || Alpha component of fog color
+|-
+|}
+
+===Description===
+
+Sets the fog color in the RDP blender. It's considered a general-purpose register, which as the name suggests is typically intended for fog effects. Note that the fog color is ''always'' specified in RGBA32 form, regardless of actual framebuffer formats.
+
+==<tt>0xF9</tt> — <tt>G_SETBLENDCOLOR</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>F9000000 rrggbbaa</tt> || <tt>gsDPBlendColor(R, G, B, A)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>R</tt> || <tt>R</tt> || <tt>rr</tt> || Red component of blend color
+|-
+| <tt>G</tt> || <tt>G</tt> || <tt>gg</tt> || Green component of blend color
+|-
+| <tt>B</tt> || <tt>B</tt> || <tt>bb</tt> || Blue component of blend color
+|-
+| <tt>A</tt> || <tt>A</tt> || <tt>aa</tt> || Alpha component of blend color
+|-
+|}
+
+===Description===
+
+Sets the RDP blender's blend color, a general purpose color register available for various purposes in the blender.
+
+==<tt>0xFA</tt> — <tt>G_SETPRIMCOLOR</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>FA00mmff rrggbbaa</tt> || <tt>gsDPSetPrimColor(minlevel, lodfrac, R, G, B, A)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>minlevel</tt> || <tt>minlevel</tt> || <tt>mm</tt> || Minimum possible LOD value (clamped to this at minimum)
+|-
+| <tt>lodfrac</tt> || <tt>lodfrac</tt> || <tt>ff</tt> || Primitive LOD fraction for mipmap filtering
+|-
+| <tt>R</tt> || <tt>R</tt> || <tt>rr</tt> || Red component of primitive color
+|-
+| <tt>G</tt> || <tt>G</tt> || <tt>gg</tt> || Green component of primitive color
+|-
+| <tt>B</tt> || <tt>B</tt> || <tt>bb</tt> || Blue component of primitive color
+|-
+| <tt>A</tt> || <tt>A</tt> || <tt>aa</tt> || Alpha component of primitive color
+|-
+|}
+
+===Description===
+
+Sets the primitive color register of the RDP's color combiner. Also sets two additional values available to the color combiner, the minimum LOD level and an LOD fraction.
+
+<tt>minlevel</tt> and <tt>lodfrac</tt> are both fixed-point unsigned 0.8 numbers, meaning a range of <tt>0 ≤ n ≤ 0.99609375</tt>. <tt>minlevel</tt> defines the minimum possible value for LOD to have, when the LOD calculated for a particular part of the primitive is less than <tt>1.0</tt>. In other words, the LOD of any part of the primitive is clamped at the lower end to <tt>max(minlevel, LOD)</tt>.
+
+<tt>lodfrac</tt> specifies a fraction that the programmer can specify for use in the color combiner of the RDP. It's meant to offer a further refinement (XXX verify that, not 100% sure on it) on the linear filtering of two mipmaps. (Typically referred to in the SDK and elsewhere as "trilinear" filtering; however, due to the potential ambiguity of this term, we won't use it here. See the note on terminology at [https://www.opengl.org/wiki/Sampler_Object#Filtering].) <!--want this parenthetical as a footnote-->
+
+The RGBA32 color specified via <tt>R</tt>, <tt>G</tt>, <tt>B</tt>, and <tt>A</tt> is also made available to the color combiner for use by the programmer.
+
+==<tt>0xFB</tt> — <tt>G_SETENVCOLOR</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>FB000000 rrggbbaa</tt> || <tt>gsDPSetEnvColor(R, G, B, A)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>R</tt> || <tt>R</tt> || <tt>rr</tt> || Red component of environment color
+|-
+| <tt>G</tt> || <tt>G</tt> || <tt>gg</tt> || Green component of environment color
+|-
+| <tt>B</tt> || <tt>B</tt> || <tt>bb</tt> || Blue component of environment color
+|-
+| <tt>A</tt> || <tt>A</tt> || <tt>aa</tt> || Alpha component of environment color
+|-
+|}
+
+===Description===
+
+Sets the environment color register in the RDP's color combiner. It's available as a general-purpose color register for the programmer to use in the color combiner.
+
+==<tt>0xFC</tt> — <tt>G_SETCOMBINE</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt style="white-space: pre;">   F    C  aaaa cccc  czzz xxxe  eeeg gggg<br/>bbbb ffff  vvvt ttdd  dyyy wwwh  hhuu usss</tt> || <tt>gsDPSetCombineLERP(a0, b0, c0, d0, Aa0, Ab0, Ac0, Ad0, a1, b1, c1, d1, Aa1, Ab1, Ac1, Ad1)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>a0</tt> || <tt>a0</tt> || <tt>aaaa</tt> || Color 'a' value, first cycle
+|-
+| <tt>c0</tt> || <tt>c0</tt> || <tt>cccc c</tt> || Color 'c' value, first cycle
+|-
+| <tt>Aa0</tt> || <tt>Aa0</tt> || <tt>zzz</tt> || Alpha 'a' value, first cycle
+|-
+| <tt>Ac0</tt> || <tt>Ac0</tt> || <tt>xxx</tt> || Alpha 'c' value, first cycle
+|-
+| <tt>a1</tt> || <tt>a1</tt> || <tt>eee e</tt> || Color 'a' value, second cycle
+|-
+| <tt>c1</tt> || <tt>c1</tt> || <tt>g gggg</tt> || Color 'c' value, second cycle
+|-
+| <tt>b0</tt> || <tt>b0</tt> || <tt>bbbb</tt> || Color 'b' value, first cycle
+|-
+| <tt>b1</tt> || <tt>b1</tt> || <tt>ffff</tt> || Color 'b' value, second cycle
+|-
+| <tt>Aa1</tt> || <tt>Aa1</tt> || <tt>vvv</tt> || Alpha 'a' value, second cycle
+|-
+| <tt>Ac1</tt> || <tt>Ac1</tt> || <tt>t tt</tt> || Alpha 'c' value, second cycle
+|-
+| <tt>d0</tt> || <tt>d0</tt> || <tt>dd d</tt> || Color 'd' value, first cycle
+|-
+| <tt>Ab0</tt> || <tt>Ab0</tt> || <tt>yyy</tt> || Alpha 'b' value, first cycle
+|-
+| <tt>Ad0</tt> || <tt>Ad0</tt> || <tt>www</tt> || Alpha 'd' value, first cycle
+|-
+| <tt>d1</tt> || <tt>d1</tt> || <tt>h hh</tt> || Color 'd' value, second cycle
+|-
+| <tt>Ab1</tt> || <tt>Ab1</tt> || <tt>uu u</tt> || Alpha 'b' value, second cycle
+|-
+| <tt>Ad1</tt> || <tt>Ad1</tt> || <tt>sss</tt> || Alpha 'd' value, second cycle
+|-
+|}
+
+===Description===
+
+Sets up the RDP's Color Combiner's parameters for primitive rendering. This sets up parameters for color (R, G, B) and alpha for both cycles. (In one-cycle mode, both cycles must have equal parameters.)
+
+The general formula used to mix colors in the Color combiner is of the form:
+
+    (A - B) * C + D
+
+This is performed on all sets of parameters. <tt>a0</tt>, <tt>b0</tt>, <tt>c0</tt>, and <tt>d0</tt>; <tt>a1</tt>, <tt>b1</tt>, <tt>c1</tt>, and <tt>d1</tt>; <tt>Aa0</tt>, <tt>Ab0</tt>, <tt>Ac0</tt>, and <tt>Ad0</tt>; and <tt>Aa1</tt>, <tt>Ab1</tt>, <tt>Ac1</tt>, and <tt>Ad1</tt> are those sets of parameters.
+
+The values taken in each parameter are part of an enumeration of potential sources for that value, but which differs for various pieces: all of the color <tt>A</tt>, <tt>B</tt>, <tt>C</tt>, <tt>D</tt> components have different enumerations, and alpha <tt>C</tt> is different from the other alpha components. See the [[F3DZEX2|main page]] on the color combiner for details on how it works.
+
+==<tt>0xFD</tt> — <tt>G_SETTIMG</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>FD__0www iiiiiiii</tt><br/><tt>__ -> fffs s000 (binary)</tt> || <tt>gsDPSetTextureImage(fmt, siz, width, imgaddr)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>fmt</tt> || <tt>fmt</tt> || <tt>fff</tt> || Format of texture to be pointed to
+|-
+| <tt>siz</tt> || <tt>siz</tt> || <tt>ss</tt> || Bit size of pixels in texture to be pointed to
+|-
+| <tt>width</tt> || <tt>width - 1</tt> || <tt>www + 1</tt> || Width of the texture
+|-
+| <tt>imgaddr</tt> || <tt>imgaddr</tt> || <tt>iiiiiiii</tt> || RAM address of start of texture
+|-
+|}
+
+===Description===
+
+This opcode sets the location in RAM of the image that will be used when using any of the texture loading opcodes. <tt>imgaddr</tt> is the RAM location of the image to be pulling textures from. <tt>width</tt> is the width of the image, necessary in finding out when next rows start. The maximum allowed with is <tt>4096</tt>, or <tt>0x1000</tt>. <tt>www</tt> is the width minus one so that it can fit within three nybbles.
+
+<tt>fmt</tt> and <tt>siz</tt> are the usual image format enumerations, explained on [[F3DZEX2|the main page]].
+
+==<tt>0xFE</tt> — <tt>G_SETZIMG</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>FE000000 iiiiiiii</tt> || <tt>gsDPSetDepthImage(imgaddr)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>imgaddr</tt> || <tt>imgaddr</tt> || <tt>iiiiiiii</tt> || Address of the depth buffer
+|-
+|}
+
+===Description===
+
+Sets the location of the depth buffer to <tt>imgaddr</tt>. Since the format of the depth buffer is fixed (14-bit Z value and 2-bit dZ value), those parameters are not here, unlike for <tt>FD</tt> and <tt>FF</tt>. The width of the depth buffer is shared with the color buffer (see <tt>FF</tt>), and thus isn't set here.
+
+==<tt>0xFF</tt> — <tt>G_SETCIMG</tt>==
+
+===Argument Mapping===
+
+{| class="wikitable"
+|-
+! Microcode !! Reference Function
+|-
+| <tt>FF__0www iiiiiiii</tt><br/><tt>__ -> fffs s000 (binary)</tt> || <tt>gsDPSetColorImage(fmt, siz, width, imgaddr)</tt>
+|-
+|}
+
+{| class="wikitable"
+|-
+! Function Param !! To Microcode !! From Microcode !! Explanation
+|-
+| <tt>fmt</tt> || <tt>fmt</tt> || <tt>fff</tt> || Format of color buffer to be pointed to
+|-
+| <tt>siz</tt> || <tt>siz</tt> || <tt>ss</tt> || Bit size of pixels in color buffer to be pointed to
+|-
+| <tt>width</tt> || <tt>width - 1</tt> || <tt>www + 1</tt> || Width of the color buffer
+|-
+| <tt>imgaddr</tt> || <tt>imgaddr</tt> || <tt>iiiiiiii</tt> || RAM address of color buffer
+|-
+|}
+
+===Description===
+
+Sets the location of the color framebuffer, usually a framebuffer that's displayed to the screen. The color buffer is set to RAM location <tt>imgaddr</tt>, with a width of <tt>width</tt>. <tt>fmt</tt> and <tt>siz</tt> are the typical image format enumerations, described on [[F3DZEX2|the main page]].
+
+The location is usually some place set as the framebuffer to show (which is not handled by display lists), but oftentimes will be set to a depth buffer. This is usually done to fill (aka clear) the depth buffer in fill mode.

@@ -1,0 +1,9 @@
+The '''Carpet Salesman''' is an Npc that rides a carpet and sells [[Bombchus]]. He's not a very interesting guy really.
+
+== Actors ==
+* {{actor ref|ovl_En_Js}}
+
+== Objects ==
+* {{object ref|object_js}}
+
+[[Category:Carpet Salesman| ]]

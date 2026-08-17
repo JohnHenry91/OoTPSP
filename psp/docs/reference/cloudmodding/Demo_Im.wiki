@@ -1,0 +1,42 @@
+{{Actor|name=ovl_Demo_Im|ispage=true}}
+
+'''ovl_Demo_Im''' is an [[Impa]] cutscene [[actor]].
+{{clear}}
+[[Category:Impa]]
+== Debug Rom Notes ==
+=== Rom ===
+* 0xD3EAAC (2405006A) Shadow Medallion (From Sage Impa)<br>
+* 0xD4033C (24060060) Zelda's Lullaby (After speaking with Zelda)
+
+== NTSC 1.0 Notes ==
+
+<pre>
+Relative Offset
+0x2BA8 Shadow Medallion Cutscene, 0xEF0 bytes
+</pre>
+
+=== Console Output Strings ===
+{| class="wikitable"
+| ../z_demo_im_inKenjyanomaDemo02.c||../z_demo_im_inKenjyanomaDemo02.c
+|-
+| ../z_demo_im_inKenjyanomaDemo02.c||../z_demo_im_inKenjyanomaDemo02.c
+|-
+| Demo_Im_Ocarina_Check_DemoMode:そんな動作は無い!!!!!!!!||Demo_Im_Ocarina_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| Demo_Im_Ocarina_Check_DemoMode:そんな動作は無い!!!!!!!!||Demo_Im_Ocarina_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| Demo_Im_Spot00_Check_DemoMode:そんな動作は無い!!!!!!!!||Demo_Im_Spot00_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| Demo_Im_inEnding_Check_DemoMode:そんな動作は無い!!!!!!!!||Demo_Im_inEnding_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||[31m MAIN MODE ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!!
+|-
+| [m../z_demo_im.c../z_demo_im.c||[m../z_demo_im.c../z_demo_im.c
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||[31m DRAW MODE ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!!
+|-
+| [m||[m
+|}
+
+[[Category:Cutscenes]]
+[[Category:Documentation]]

@@ -1,0 +1,576 @@
+==Header==
+{|class="wikitable"
+! Index || Type || Description
+|-
+| 0x00 || Vec3s || Collision vertices bounding box, minimum vertex
+|-
+| 0x06 || Vec3s || Collision vertices bounding box, maximum vertex
+|-
+| 0x0C || s16? || Number of vertices to load
+|-
+| 0x10 || s32 || [[Segment offset]] of [[#Vertex Array|vertex array]]
+|-
+| 0x14 || s16? || Number of polygons to load
+|-
+| 0x18 || s32 || Segment offset of [[#Polygon Array|polygon array]]
+|-
+| 0x1C || s32 || Segment offset of [[#Polygon Types|polygon type definitions]]
+|-
+| 0x20 || s32 || Segment offset of [[#Camera Data|camera data]]*
+|-
+| 0x24 || s16? || Number of water boxes*
+|-
+| 0x28 || s32 || Segment offset of [[#Water Boxes|water boxes]]*
+|}
+
+<nowiki>*</nowiki> = optional, set to 0 if it's not needed.
+
+==Vertex Array==
+Each vertex in the array is of the following structure:
+<pre>
+/* 0x00 */ s16 x; //Position on x-axis
+/* 0x02 */ s16 y; //Position on y-axis
+/* 0x04 */ s16 z; //Position on z-axis
+</pre>
+
+==Polygon Array==
+<pre>
+/* 0x00 */ s16? //Polygon Type
+/* 0x02 */ s16? //Vertex a (& 0x1FFF), Collision Detection Flags (& 0xE000)
+/* 0x04 */ s16? //Vertex b (& 0x1FFF), Enable Conveyor Surface (land only) (& 0x2000)
+/* 0x06 */ s16? //Vertex c (& 0x1FFF)
+/* 0x08 */ s16 a; //Unit Normal Vector x component 
+/* 0x0A */ s16 b; //Unit Normal Vector y component
+/* 0x0C */ s16 c; //Unit Normal Vector z component 
+/* 0x0E */ s16 d; //Collision plane's relative distance from origin with respect to the normal. 
+</pre>
+
+The unit normal is stored  -0x7FFF (0x8001) to 0x7FFF representing -1.0 to 1.0)
+
+=== Collision Detection Flags ===
+
+* & 0x2000 - if 1, ignored by Camera collision detection
+* & 0x4000 = if 1, ignored by most entities
+* & 0x8000 = if 1, ignored by projectiles (slingshot seeds, arrows), bombchus (for bombchu bowling)
+
+=== Poly Detection Notes ===
+
+The equation of a plane is represented by the formula <tt>ax + by + cz + d = 0</tt>, where (a, b, c) is the unit normal vector of the plane, d is the distance, and (x,y,z) is a point along that plane.
+
+The sign of the distance appears to be dependent on the sign of the normal. Given a flat plane located at y = 1000 with a unit normal vector of (0, 1, 0) (making it a floor), d will be -1000
+
+The sign of the unit normal determines what face of the plane is solid. Collisions are detected when moving from the positive side of the face into the negative side. Given the example plane above, along with the previous coordinates of (0, 1030, 0) and next coordinates of (0, 990, 0):
+
+ 0(0) + 1(1030) + 0(0) - 1000 =  30 //positive face
+ 0(0) + 1( 990) + 0(0) - 1000 = -10 //negative face
+
+See [[Collision Normals|collision normals]] for a code snippet that preforms normal calculation.
+
+==Polygon Types==
+
+ High Value (+ 0x00)
+  & 0x8000 0000 //Epona can't walk on the polygon
+  & 0x4000 0000 //Decreases surface height of poly by 1. Used in rugs and dirt paths.
+  & 0x3C00 0000 //Floor Settings
+     [00]  Default
+     [14]  Void (Small Pits)
+     [18]  Instead of jumping, grab wall like vines
+     [20]  Stop all momentum in the air
+     [24]  Fall instead of jumping
+     [2C]  Dive
+     [30]  Void (Large Pits)
+  & 0x03E0 0000 //Wall Settings (Uses a lookup table at NTSC 1.0 RAM 800EC020 that is then broken up into bit flags.)
+      [00]  None
+      [02]  Cannot Grab Ledge
+      [04]  Ladder, Cannot Grab Ledge
+      [06]  Ladder Top, Cannot Grab ledge
+      [08]  Vines
+      [0A]  Crawl Space
+      [0C]  Crawl Space
+      [0E]  Pushblock
+      [10]+ None
+  & 0x001C 0000 //Unknown
+  & 0x0003 E000 //Special
+        [0 0]  0 = None
+        [0 2]  1 = Camera Related? Used in Haunted Wasteland. Part of Function 80036870
+        [0 4]  2 = Hurt Floor (Spikes). See Wall Damage below.
+        [0 6]  3 = Hurt Floor (Lava). See Wall Damage below.
+        [0 8]  4 = Shallow Sand
+        [0 A]  5 = Slippery
+        [0 C]  6 = No Fall Damage
+        [0 E]  7 = Quicksand Crossing (Epona can't cross)
+        [1 0]  8 = Jabu Jabu's Belly Wall
+        [1 2]  9 = Void on Contact
+        [1 4] 10 = Unused?
+        [1 6] 11 = Causes Link to look upwards
+        [1 8] 12 = Quicksand Crossing (Epona can cross)
+        [1 A]+ Unused?
+  & 0x0000 1F00 //Scene Exit Table Index
+  & 0x0000 00FF //Mesh Camera Data Index id (see [[#Camera Data]] for more info)
+
+ Low Value (+ 0x04)
+  & 0x0800 0000 //Wall Damage, prevents flames from being drawn at Link's feet if touching Hurt Floor
+  & 0x07E0 0000 //Conveyor Surface Direction (value << 10)
+  & 0x001C 0000 //Conveyor Surface Speed. 4-7 = keeps momentum when entering after stepping on a polygon with speed 1-3
+       [00] 0 = None
+       [04] 1 = Slow
+       [08] 2 = Mid
+       [0C] 3 = Fast
+  & 0x0002 0000 //Hookshot Surface
+  & 0x0001 F800 //Echo
+  & 0x0000 07C0 //Lighting Setting
+  & 0x0000 0030 //Terrain Slope Surface.
+            [0] = Flat
+            [1] = Sloped
+            [2] = Flat, preserves scene temporary flags on scene exit
+  & 0x0000 000F //Sound Effect/Material Type
+
+=== Sound effect or Material Type === 
+Uses a lookup table at NTSC 1.0 RAM 800EC0A0 for 0x0 - 0xD. 0xE and 0xF are always NA_SE_PL_WALK_GROUND
+
+{|class = "wikitable"
+!Id || Name || Description
+|-
+|0 || NA_SE_PL_WALK_GROUND || Earth/dirt
+|-
+|1 || NA_SE_PL_WALK_SAND || Sand
+|-
+|2 || NA_SE_PL_WALK_CONCRETE || Stone
+|-
+|3 || NA_SE_PL_WALK_DIRT || Wet stone
+|-
+|4 || NA_SE_PL_WALK_WATER0 || Shallow water
+|-
+|5 || NA_SE_PL_WALK_WATER1 || Not-as-shallow water (lower-pitched sound)
+|-
+|6 || NA_SE_PL_WALK_WATER2 || Underbrush/grass
+|-
+|7 || NA_SE_PL_WALK_MAGMA || Lava/goo
+|-
+|8 || NA_SE_PL_WALK_GRASS || Earth/dirt
+|-
+|9 || NA_SE_PL_WALK_GLASS || Wooden plank
+|-
+|A || NA_SE_PL_WALK_LADDER || Packed earth/wood
+|-
+|B || NA_SE_PL_WALK_GROUND || Earth/dirt
+|-
+|C || NA_SE_PL_WALK_ICE || Ceramic
+|-
+|D || NA_SE_PL_WALK_IRON || Loose earth
+|-
+|E || NA_SE_PL_WALK_GROUND || Earth/dirt
+|-
+|F || NA_SE_PL_WALK_GROUND || Earth/dirt
+|}
+
+=== Conveyor Surfaces ===
+
+Conveyor surfaces push Link in a specific direction, or set the direction Link will walk in when touching a scene exit poly. Conveyor surfaces are ignored completely if the player is wearing Iron Boots.
+
+To configure a land based conveyor surface, set bit flag stored next to Vertex B for that poly to 1, then set a surface speed between 1 and 3 and a direction for the surface to push Link towards. When configuring a conveyor surface for scene exits, the conveyor speed attribute will be ignored, but the angle will be used to set the direction for Link to head towards at the speed he touched the exit poly. When configuring a water based conveyor surface, the Vertex B bit flag does not have to be set.
+
+When setting a conveyor speed of 4+, the poly surface appears to inherit the speed and direction property of the previous polygon's conveyor.
+
+==Camera Data==
+The collision mesh's camera data pointer points to an array of the following struct:
+<pre>
+typedef struct {
+    /* 0x00 */ u16 cameraSType;
+    /* 0x02 */ s16 numCameras;
+    /* 0x04 */ Vec3s* camPosData; //only certain Camera S types, null otherwise
+} CamData;
+</pre>
+
+See [[Cameras#Camera_S_Data]] for a list of valid Camera S types.
+
+===Camera Position Data===
+{{Todo| This information is incorrect for most camera types }}
+<pre>struct //0x12 bytes
+{
+/* 0x00 */ vector3_s16 position;
+/* 0x06 */ vector3_s16 rotation;
+/* 0x0C */ s16 fov; //Field of View, only some camera types
+/* 0x0E */ s16 jfif_id; //Stores jfif image id to display, only some camera types
+/* 0x10 */ s16 unk_0x10; //0xFFFF
+};
+</pre>
+
+==Water Boxes==
+<pre>
+struct //0x10 bytes per record
+{
+/* 0x00 */ s16 x_min;
+/* 0x02 */ s16 y_surface; //water surface height
+/* 0x04 */ s16 z_min;
+/* 0x06 */ s16 x_length; //x,z size of water box
+/* 0x08 */ s16 z_length;
+/* 0x0A */ //nothing
+/* 0x0C */ s32 properties; 
+    // 0x0007 E000 //Room. 0x3F for always active
+    // 0x0000 1F00 //Underwater Lighting Settings Id
+    // 0x0000 00FF //Camera?
+};</pre>
+
+Note that water is bottomless. Additionally, some actors will overwrite some of the properties described here (mainly actors which change the level of the water).
+
+==Credits==
+MNGoldenEagle/JSA for mostly everything. Water was figured out by [[User:spinout|spinout]]. Documentation on camera data has been released by DeathBasket and Nokaubure.
+
+==ZHC Collision==
+
+<pre>// -*- mode: c;-*-
+typedef struct {
+    local string thisName = "ZHC_CollisionWaterBox";
+    SIBE;
+    SIT;
+    short minX;
+    SIT;
+    short topY;
+    SIT;
+    short minZ;
+    SIT;
+    short sizeX;
+    SIT;
+    short sizeZ;
+    SIT;
+    ubyte zeroes[4];
+    AssertUBytesNull(zeroes, thisName);
+    SIT;
+    enum <short> WATER_PROPS {
+        WATER_PROP_NORMAL       = 0x0100,
+        WATER_PROP_ABNORMAL     = 0x0102,
+        WATER_PROP_CAMERAFUCKER = 0x0105,
+    } maybeWaterPropertiesOrCameraEffects;
+    /*
+    AnomEnum( 
+        EnumToString( maybeWaterPropertiesOrCameraEffects ),
+        maybeWaterPropertiesOrCameraEffects,
+        thisName+"->maybeWaterPropertiesOrCameraEffects"
+    );
+    */
+} ZHC_CollisionWaterBox;
+
+typedef struct {
+    SIBE;
+    SIT;
+    ushort type;
+    SIT;
+    ZVector verts;
+    SIT;
+    ZNormal normal;
+    SIT;
+    short displacement;
+    SIEND;
+} ZHC_CollisionPolyList;
+
+/*
+differences (quicksand-major):
+terrain_trigger_reset_enable
+terrain_hurt_fire_enable
+terrain_hookshot_enable
+unknown3 = 1 (else: 0)
+unknown4 = 15
+*/
+/*
+other notes (for both):
+specialEffects == 1
+TERRAIN_CAMERA_PROXIMITY_NOTSO_CLOSEUP
+1 \ 0 \15 \ TERRAIN_SLOPE_BURGOR \ TERRAIN_SOUND_DIRT
+*/
+
+typedef struct {
+    // This data closely resembles the NIFF_Mat data type (Material)
+    // Specifically: ambient/primary/fog lighting and user values per-poly
+    // Outside the typical "UserExpansionBlock"
+    local string thisName = "ZHC_CollisionPolyTypeList";
+    SIBE;
+
+    SIT; UNK;
+    ubyte unknown1 : 2;
+
+    SIT;
+    // if these two bits aren't set at the same time, instant transitions
+    // do not happen
+    enum <ubyte> TERRAIN_TRIGGER_TRANSITION {
+        TERRAIN_TRIGGER_TRANSITION_DESERTLOST = 0x3
+    } do_trigger_transit : 2;
+
+    SIT;
+    ubyte obj_set_or_exit_number : 4;
+
+    // == milestone: 8 bits
+
+    SIT;
+    enum <ubyte> TERRAIN_HANDS {
+        TERRAIN_HANDS_DO_NOTHING   = 0x0, // 0 0 0 0
+                                          // 0 0 0 1 0x1 ?
+                                          // 0 0 1 0 0x2 ?
+                                          // 0 0 1 1 0x3 ?
+                                          // 0 1 0 0 0x4 ?
+                                          // 0 1 0 1 0x5 ?
+        TERRAIN_HANDS_CLIMB_DOWN   = 0x6, // 0 1 1 0
+        TERRAIN_HANDS_CLIMB_DOWN2  = 0x7, // 0 1 1 1
+        TERRAIN_HANDS_ALLOW_CLIMB  = 0x8, // 1 0 0 0
+                                          // 1 0 0 1 0x9 ?
+        TERRAIN_HANDS_ALLOW_CRAWL  = 0xA, // 1 0 1 0
+                                          // 1 0 1 1 0xB ?
+                                          // 1 1 0 0 0xC ?
+                                          // 1 1 0 1 0xD ?
+        TERRAIN_HANDS_GRAB_SURFACE = 0xE, // 1 1 1 0
+                                          // 1 1 1 1 0xF ? 
+    } climbability : 4;
+
+    SIT; UNK;
+    ubyte unknown2 : 2;
+
+    SIT;
+    // the first bit impedes the second bit
+    enum <ubyte> TERRAIN_ANGER_JABBU {
+        TERRAIN_ANGER_JABBU_DISABLE = 0x0,
+        TERRAIN_ANGER_JABBU_ENABLE  = 0x1,
+    } do_anger_jabbu : 2;
+
+    // == milestone: 16 bits
+
+    SIT;
+    enum <ubyte> TERRAIN_TRIGGER_RESET {
+        TERRAIN_TRIGGER_RESET_DISABLE = 0x0,
+        TERRAIN_TRIGGER_RESET_ENABLE  = 0x1,
+    } do_out_of_bounds_reset : 1;
+
+    SIT;
+    // the second half of this is only used for quicksand?
+    enum <ubyte> TERRAIN_HURT_FIRE {
+        TERRAIN_HURT_FIRE_DISABLE = 0x0,
+        TERRAIN_HURT_FIRE_ENABLE  = 0x1,
+        TERRAIN_HURT_FIRE_DISABLE2= 0x2,
+        TERRAIN_HURT_FIRE_ENABLE2 = 0x3,
+    } do_trigger_hurt_fire : 2;
+
+    SIT;
+    // if exitTrigger isn't a valid exit then enabling this will crash
+    enum <ubyte> TERRAIN_WARP {
+        TERRAIN_WARP_DISABLE = 0x0,
+        TERRAIN_WARP_ENABLE  = 0x1,
+    } do_warp : 1;
+
+    SIT;
+    // 0 == disabled, exit to jump to if this poly triggers one
+    ubyte exitTrigger : 4;
+
+    // == milestone: 24 bits
+
+    SIT;
+    // anything above 6 is just a higher angle of 5
+    enum <ubyte> TERRAIN_CAMERA_PROXIMITY {
+        TERRAIN_CAMERA_PROXIMITY_NORMAL         = 0x00,
+        TERRAIN_CAMERA_PROXIMITY_HIGHBIRDSEYE   = 0x01,
+        TERRAIN_CAMERA_PROXIMITY_HIGHBIRDSEYE2  = 0x02,
+        TERRAIN_CAMERA_PROXIMITY_CLOSEUP        = 0x03,
+        TERRAIN_CAMERA_PROXIMITY_NOTSO_CLOSEUP  = 0x04,
+        TERRAIN_CAMERA_PROXIMITY_NORMAL2        = 0x05, // same as 0x5
+        TERRAIN_CAMERA_PROXIMITY_HIGHER         = 0x06,
+        TERRAIN_CAMERA_PROXIMITY_PROBABLYUNUSED = 0xFF,
+    } camera_modifier;
+
+    // == milestone: 32 bits
+
+    /*
+    AnomEnum( 
+        EnumToString( camera_modifier ),
+        camera_modifier,
+        thisName+"->camera_modifier"
+    );
+    */
+    SIT; UNK;
+    ubyte unknown3 : 4;
+
+    SIT;
+    enum WALLS_HURT {
+        WALLS_HURT_DISABLE = 0,
+        WALLS_HURT_ENABLE  = 1,
+    } do_walls_hurt : 1;
+
+    SIT; UNK;
+    ubyte unknown4 : 3;
+
+    // == milestone: 40 bits
+
+    SIT; UNK;
+    ubyte unknown5 : 4;
+
+    SIT; UNK;
+    ubyte unknown6 : 2;
+
+    SIT;
+    enum TERRAIN_HOOKSHOT {
+        TERRAIN_HOOKSHOT_DISABLE = 0x0,
+        TERRAIN_HOOKSHOT_ENABLE  = 0x1,
+    } hookshot : 1;
+
+    SIT; UNK;
+    ubyte unknown7 : 1;
+
+    // == milestone: 48 bits
+
+    SIT;
+    // Presumably, this is for trick walls that are 
+    // bombable or metal surfaces.
+    // WILL *OVERRIDE* SCENE ECHO SETTING
+    ubyte impact_sound_echo : 4;
+
+    SIT; UNK;
+    // this and the next unknown composed ambient settings
+    ubyte unknown8 : 4;
+
+    // milestone: 56 bits
+    
+    SIT; UNK;
+    ubyte unknown9 : 2;
+
+    SIT;
+    // this spans 2 bits because of how it wraps,
+    // only TERRAIN_SLOPE_ENABLE triggers sloping(?)
+    enum TERRAIN_SLOPE {
+        TERRAIN_SLOPE_DISABLE = 0x0,
+        TERRAIN_SLOPE_ENABLE  = 0x1,
+        TERRAIN_SLOPE_HOTDOG  = 0x2,
+        TERRAIN_SLOPE_BURGOR  = 0x3,
+    } slope : 2;
+
+    SIT;
+    // this is footstep sounds, but also the sound it makes
+    // if struck with a sword
+    enum TERRAIN_SOUND {
+        TERRAIN_SOUND_DIRT                  = 0x0,
+        TERRAIN_SOUND_SAND                  = 0x1,
+        TERRAIN_SOUND_STONE_DRY             = 0x2,
+        TERRAIN_SOUND_STONE_WET             = 0x3,
+        TERRAIN_SOUND_WATER_SHALLOW         = 0x4,
+        TERRAIN_SOUND_WATER_DEEP            = 0x5,
+        TERRAIN_SOUND_GRASS                 = 0x6,
+        TERRAIN_SOUND_LAVA_OR_GOO           = 0x7,
+        TERRAIN_SOUND_DIRT2                 = 0x8,
+        TERRAIN_SOUND_WOOD_PLANK            = 0x9,
+        TERRAIN_SOUND_DIRT_PACKED_OR_WOOD   = 0xA,
+        TERRAIN_SOUND_DIRT3                 = 0xB,
+        TERRAIN_SOUND_CERAMIC               = 0xC,
+        TERRAIN_SOUND_DIRT_LOOSE            = 0xD,
+        TERRAIN_SOUND_DIRT4                 = 0xE,
+        TERRAIN_SOUND_DIRT5                 = 0xF,
+    } terrainSound : 4;
+
+    // milestone: 64 bits
+} ZHC_CollisionPolyTypeList;
+
+typedef struct {
+    local string thisName = "ZHC_CollisionHeader";
+    SIBE;
+    SIT;
+    ZVector min;
+    SIT;
+    ZVector max;
+    SIT;
+    ushort numVerts;
+    SIT;
+    ubyte zeroes1[2];
+    AssertUBytesNull(zeroes1, thisName);
+    SIT;
+    ZBankPointer vertArrayOffset;
+    if( vertArrayOffset.zb.bankNo == bankType ){
+        SAVE;
+        FSeek(headerStart + vertArrayOffset.offset);
+        ZVector verts[numVerts];
+        REST;
+    } else {
+        Assert( 0, "External Bank" );
+    }
+    SIT;
+    ushort numPolys;
+    SIT;
+    ubyte zeroes2[2];
+    AssertUBytesNull(zeroes2, thisName);
+    SIT;
+    ZBankPointer polyArrayOffset;
+    if( polyArrayOffset.zb.bankNo == bankType ){
+        SAVE;
+        FSeek(headerStart + polyArrayOffset.offset);
+        struct {
+            ZHC_CollisionPolyList polys[numPolys]<optimize=false>;
+        } AllThesePolyLists;
+        REST;
+    } else {
+        Assert( 0, "External Bank" );
+    }
+    SIT;
+    ZBankPointer polyTypeArrayOffset;
+    if( polyTypeArrayOffset.zb.bankNo == bankType ){
+        SAVE;
+        FSeek(headerStart + polyTypeArrayOffset.offset);
+        struct {
+            ZHC_CollisionPolyTypeList polyTypes[numPolys]<optimize=false>;
+        } AllThesePolyTypeLists;
+        REST;
+    } else {
+        Assert( 0, "External Bank" );
+    }
+    SIT;
+    ZBankPointer cameraDataOffset; //if not zeroes
+    if( cameraDataOffset.zb.bankNo == bankType ){
+        SAVE;
+        FSeek(headerStart + cameraDataOffset.offset);
+        ZHC_AltCamera cameraData;
+        REST;
+    } else {
+        Assert( 0, "External Bank" );
+    }
+    SIT;
+    ushort numWaterBoxes; //if not zeroes
+    SIT;
+    ubyte zeroes3[2];
+    AssertUBytesNull(zeroes3, thisName);
+    
+    SIT;
+    ZBankPointer waterBoxArrayOffset;
+    if( numWaterBoxes ){
+        if( waterBoxArrayOffset.zb.bankNo == bankType ){
+            SAVE;
+            FSeek(headerStart + waterBoxArrayOffset.offset);
+            struct {
+                ZHC_CollisionWaterBox waterBoxes[numWaterBoxes]<optimize=false>;
+            } AllTheseWaterBoxes;
+            REST;
+        } else {
+            Assert( 0, "External Bank" );
+        }
+    }
+    SIEND;
+} ZHC_CollisionHeader;
+
+typedef struct {
+    local string thisName = "ZHC_CollisionHeader";
+    SIBE;
+    SIT;
+    ubyte command;
+    AssertNumberEquals(command, 0x03, thisName);
+
+    SIT;
+    ubyte zeroes[3];
+    AssertUBytesNull(zeroes, thisName);
+    
+    ZBankPointer listOffset;
+    if( listOffset.zb.bankNo == bankType ){
+        SAVE;
+        FSeek(headerStart + listOffset.offset);
+        ZHC_CollisionHeader collisionHeaders;
+        REST;
+    } else {
+        Assert( 0, "External Bank" );
+    }
+    SIEND;
+} ZHC_CollisionList;</pre>
+
+{{source|DerrikeG}}
+
+[[Category:File Formats]]

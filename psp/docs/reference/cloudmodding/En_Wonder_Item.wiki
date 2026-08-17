@@ -1,0 +1,20 @@
+{{Actor|name=ovl_En_Wonder_Item|ispage=true}}
+
+'''ovl_En_Wonder_Item''' is the [[actor]] for spawning hidden items. Additionally, it can be used to as a shootable hitbox to set switch flags.
+
+{{todo|What is this actor?}}
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ 不思議不思議まか不思議    ☆☆☆☆☆ %x[m||[32m☆☆☆☆☆ MYSTERIOUS MYSTERIOUS VERY MYSTERIOUS    ☆☆☆☆☆ %x[m
+|-
+| [32m☆☆☆☆☆ Ｙｏｕ ａｒｅ Ｓｈｏｃｋ！  ☆☆☆☆☆ %d[m||[32m☆☆☆☆☆ Ｙｏｕ ａｒｅ Ｓｈｏｃｋ！  ☆☆☆☆☆ %d[m
+|-
+| [33m☆☆☆☆☆ うっかり兵セット完了 ☆☆☆☆☆ [m||[33m☆☆☆☆☆ CARELESS SOLDIER SETTINGS COMPLETE ☆☆☆☆☆ [m
+|}
+[[Category: Items]]

@@ -1,0 +1,25 @@
+{{actor|name=ovl_Bg_Toki_Swd|ispage=true}}
+
+'''ovl_Bg_Toki_Swd''' is the [[actor]] for the [[Master Sword]] Pedestal.
+
+{{clear}}
+
+== NTSC 1.0 Notes ==
+ 
+=== File ===
+{| class="wikitable"
+! Offset || Description
+|-
+|0x0490 || Pulling the Master Sword Cutscene
+|-
+|0x0940 || Dropping the Master Sword Cutscene
+|-
+|0x0F30 || "Hey... isn't that... The Master Sword?" Cutscene
+|}
+
+== Debug Notes ==
+
+ ROM: 0xC89D04 (2405003C) Item Obtained when Master Sword is drawn
+
+[[Category: Master Sword]]
+[[Category: Cutscenes]]

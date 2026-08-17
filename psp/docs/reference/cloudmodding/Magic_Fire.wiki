@@ -1,0 +1,4 @@
+{{actor|name=ovl_Magic_Fire}}
+'''ovl_Magic_Fire''' is the actor spawned when casting [[Din's Fire]].
+{{clear}}
+[[Category:Din's Fire]]

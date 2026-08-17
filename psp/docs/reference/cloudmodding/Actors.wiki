@@ -1,0 +1,298 @@
+{{See also|Category:Actors}}
+
+Actors are the various interactive pieces in the Zelda 64 engine, from enemies to static scenery.
+__TOC__
+{{clear}}
+There are three major components to an actor:
+* The actor's [[overlay]], a file that contains the code for an actor
+* Actor instances, or an in memory representation of our actor.
+* [[Object|Object files]], one or more files that contain pre-generated microcode, animations, and graphical assets for an actor. These can be shared by multiple actors.
+
+== Actor Overlay Table ==
+{{:Actor Overlay Table}}
+
+== Overlay File ==
+See [[Overlays]] for more information on the overlay format.
+
+=== Initialization Variables ===
+The actor's initialization variables are pointed to via the 6th word in the Actor Overlay Table.
+
+<syntaxhighlight lang="c">
+typedef struct
+{
+    /* 0x00 */ s16 Id; //value does not always match the instance's real actor number
+    /* 0x02 */ u8  Type; //classifies actor and determines when actor will execute
+
+    /* 0x04 */ s32 Flags; //unknown, but seems to have an effect on the ability to Z-Target an actor. 
+    /* 0x08 */ s16 ObjectId; //possibly it's primary object dependency
+    /* 0x0A */ //Padding
+
+    /* 0x0C */ int InstanceSize;
+    /* 0x10 */ void* Init; //Constructor
+    /* 0x14 */ void* Dest; //Destructor
+    /* 0x18 */ void* Main; //Main Update Function
+    /* 0x1C */ void* Draw; //Draw function
+} z_ActorInit;
+</syntaxhighlight>
+
+Some notes on the "Flags" variable:
+* & 0x0000 0001 - targetable
+* & 0x0000 0004 - if actor group is 05, and targetable flag is set, plays danger musics on approach
+* & 0x0000 0010 - update function always run regardless if the camera is not focusing at the actor
+* & 0x0000 0020 - draw function always run regardless if the camera is not focusing at the actor
+* & 0x0000 0040 - programmatically computed (?)
+* & 0x0000 0400 - hookshotable (collider + 0x1D has to be set to 05)
+* & 0x0040 0000 = Affects actor lighting. 0 passes current coords to 80066298 func, else pass null for coords
+* & 0x0080 0000 = For actors that can be picked up, disables the drop command
+* & 0x0400 0000 = Actor is able to press floor switches
+* & 0x0000 1000 = ?
+* If it's set to 0x10, the actor seems to not be targetable when initialized.
+* If it's set to 0x9, it is targetable.
+
+=== Common Data Structures ===
+* [[Collision]]
+* [[Damage Charts]] - Used to determine how certain actors will react to different attacks
+
+==Actor Instances==
+=== Structure ===
+For Ocarina of Time, the allocated actor structure is as follows. Alternate (better) versions [http://vg64tools.googlecode.com/svn/n64/z_snippets/actor.h here]. The Majora's Mask actor structure is similar but not interchangeable.
+<syntaxhighlight lang="c">typedef struct {
+    f32 x, y, z;
+} Coord_f;
+
+typedef struct {
+    s16 x, y, z;
+} Rotation;
+
+typedef struct
+{
+    struct
+    {
+        char Damage : 4;
+        char Effect : 4;
+    } Attack[0x20];
+} z_ActorDamageTable;
+
+typedef struct
+{
+    /* 0x00 */ u16      id; //Actor Id. 
+    /* 0x02 */ u8       type; //Actor Type. See Below
+    /* 0x03 */ u8       room; //Room number the actor is part of. FF denotes that the actor won't despawn on a room change
+    /* 0x04 */ s32      flags; //flags used for drawing stuff?
+    // & 0x0040 0000 = Affects actor lighting. 0 passes current coords to 80066298 func, else pass null for coords
+    // & 0x0000 1000 = ?
+    // & 0x0000 0040 = ?
+    /* 0x08 */ Coord_f  pos1; //Related to collision detection routine
+    /* 0x14 */ Rotation initRot; //Initial Rotation when spawned
+    /* 0x1A */ u16      unk_0x01A;
+    /* 0x1C */ u16      variable; //Configurable variable set by an actor's spawn data
+    /* 0x1E */ s8       objTableIndex; //index to table at Game Play + 0x117A4 
+    /* 0x1F */ u8       unk_0x01F;
+    /* 0x20 */ u16      soundEffect; //Plays sound effect relative to actor's location (if within range of camera?)
+    /* 0x22 */ u16      unk_0x022;
+    /* 0x24 */ Coord_f  position; //Current coordinates
+    /* 0x30 */ Rotation speedRot; //0x32 sets what direction the 0x68 speedXZ variable is moving the actor
+    /* 0x36 */ u16      unk_0x036; //same as 0x1A
+    /* 0x38 */ Coord_f  pos3; //Related to camera
+    /* 0x44 */ Rotation rot1; //0x30 rotation copied into here
+    /* 0x4A */ u16      unk_0x04A;
+    /* 0x4C */ float    unk_0x04C; /* I know this is a float from breakpointing it */
+    /* 0x50 */ Coord_f  scale; //sets x,y,z scaling factor. Typically, a factor of 0.01 is used for each axis
+    /* 0x5C */ Coord_f  velocity;
+    /* 0x68 */ float    speedXZ; //Always positive, stores how fast the actor is traveling along the XZ plane
+    /* 0x6C */ float    gravity; //acceleration due to gravity; value is added to Y velocity every frame
+    /* 0x70 */ float    minVelocityY; //sets the lower bounds cap on velocity along the Y axis
+	//struct, collision related
+    /* 0x74 */ int*     wallPoly; //Wall polygon an actor is touching
+    /* 0x78 */ int*     floorPoly; //Floor polygon an actor is over/touching
+    /* 0x7C */ u8       wallPolySource; //Complex Poly Surface Source. 0x32 = Scene
+    /* 0x7D */ u8       floorPolySource; //Complex Poly Surface Source. 0x32 = Scene. related to 0x80/88
+    /* 0x80 */ float    unk_0x080; //floor poly height?
+    /* 0x84 */ float    unk_0x084;
+    /* 0x88 */ u16      unk_0x088; //unknown
+    // & 0x0100 = ?
+    /* 0x8A */ s16      unk_roty; //rotation y (give item, possibly next facing dir?/face toward link?)
+    /* 0x8C */ float    unk_0x08C;
+    /* 0x90 */ float    xzDistanceFromLink; 
+    /* 0x94 */ float    yDistanceFromLink; // relative distance
+    /* 8-10-2012 : Addition made by Jason777 */
+    /* For actors which contain a damage chart (example: Stalfos)... */
+    struct 
+    {
+    /* 0x98 */ z_ActorDamageTable* DamageChart;  /* Pointer to the actor's Damage Chart in RAM. */
+    /* 0x9C */ Coord_f  displacement; //amount to correct velocity (0x5C) by when colliding into a body
+    /* 0xA8 */ s16      unk_0x0A8; 
+    /* 0xAA */ s16      unk_0x0AA; 
+    /* 0xAC */ u16      unk_0x0AC; //unk
+    /* 0xAE */ u8       mass; // Used to compute displacement, 50 is common value, 0xFF for infinite mass/unmoveable
+    /* 0xAF */ u8       health; 
+    /* 0xB0 */ u8       damage; //amount to decrement health by
+    /* 0xB1 */ u8       damageEffect; //Stores what effect should occur when hit by a weapon
+    /* 0xB2 */ u8       impactEffect; //Maybe? set on deku nut when deku nut collides with gossip stone
+    /* 0xB3 */ u8       unk_0x0B3; //?
+    }; //CollisionCheck common
+    
+    struct 
+    {
+    /* 0xB4 */ Rotation rot2; //updating this value changes an actor's rotation immediately
+    /* 0xBA */ 
+    /* 0xBB */ u8       unk_0x0BB; //unknown byte?
+    /* 0xBC */ float    unk_0x0BC; //Model y axis offset. Represents model space units. collision mesh related
+    /* 0xC0 */ void*     drawDropShadow; //Draw function for Piece of Heart drop shadow?
+    /* 0xC4 */ float    unk_0x0C4;
+    /* 0xC8 */ u8       unk_0x0C8;
+    }; //NTSC 1.0 initializes with 8001EC20
+    
+    /* 0xCC */ Coord_f  unk_0x0CC; //used in Link, not Deku Babas 
+    /* 0xD8 */ Coord_f  unk_0x0D8; //used in Link, not Deku Babas
+    /* 0xE4 */ Coord_f  unk_0x0E4; //stores result of some vector transformation involving
+                        // actor xyz vector, and a matrix at Game Play + 11D60
+    /* 0xF0 */ float    unk_0x0F0; //related to above
+    /* 0xF4 */ float    unk_0x0F4; //unknown
+    /* 0xF8 */ float    unk_0x0F8; //unknown
+    /* 0xFC */ float    unk_0x0FC; //unknown
+    /* 0x100 */ Coord_f Pos4; //Final Coordinates last frame (collision, NTSC 1.0 f 8002F8E0)
+    /* 0x10C */ u8      unk_0x10C; //Z-Target related
+    /* 0x10D */ s8      unk_0x10D; //Z-Target related
+    /* 0x10E */ u16     textId; //text id to pass to link/display when interacting with an actor (navi text, probably others)
+    /* 0x110 */ s16     freezeActor; //Used for the "Redead Freeze" attack
+    /* 0x112 */ u8     unk_0x112; //Damage color effect, the higher the number the higher the color intensity, 00-1F = blue, 40-5F = red, 80-9F = white, C0-DF = white (duplicate)
+    /* 0x113 */ u8     unk_0x113; //Damage color animation, goes from 01 to FF, the lower the value the faster the animation goes, crashes if 00
+    /* 0x114 */ u8      unk_0x114; //Damage color effect timer, decremented toward 0 every frame
+    /* 0x115 */ u8      runActor; // Determines if actor instance should be processed. 01 for yes, 00 for no.
+    /* 0x116 */ u8      unknown; //set within a routine that deals with collision
+    /* 0x117 */ u8      naviEnemyId; //sets what 0600 dialog to display when talking to navi. Default 0xFF
+    
+    /* 0x118 */ struct z_Actor* attachedA; //Interfacing Actor? 
+    //e.g. Link holding chu, Chu instance stores ptr to Link instance here; 
+    //     Anju having Link's ptr when giving an item;
+    //     Volvagia Hole stores Volvagia Flying here
+    
+    /* 0x11C */ struct z_Actor* attachedB; //Attached to Actor (
+	//e.g. Link holding chu, Link instance stores ptr to Bombchu instance here
+    /* 0x120 */ struct z_Actor* actor_prev; /* Previous z_Actor of this type */
+    /* 0x124 */ struct z_Actor* actor_next; /* Next z_Actor of this type */
+    /* 0x128 */ void *Init; //Initialization Routine. Mandatory
+    /* 0x12C */ void *Dest; //Actor destructor 
+    /* 0x130 */ void *Main; //Main Update function, called every frame the actor is to be updated
+    /* 0x134 */ void *Draw; //Draw Routine, writes necessary display lists
+    /* 0x138 */ u32 CodeEntry; //Address to source overlay file's reference in code (file)
+    /* From here on, the structure and size varies for each actor */
+} z_Actor;
+//actors with a poly-type collision mesh will always set this variable
+//    /* 0x13C */ s32 PolyActorId; //Index for poly mesh
+
+//ActorMain, Actor Draw arguments
+//A0 = Actor Instance
+//A1 = Game Play
+
+</syntaxhighlight>
+
+=== Categories ===
+{{address3|space=gctxt|name=Actor Category Table
+|ver1=Debug|ref1=offset|start1=001C30|size1=60
+|ver2=NTSC 1.0|ref2=ram|start2=1CA0D0|size2=60
+|ver3=NTSC 1.1|ref3=offset|start3=001C30|size3=60
+|ver4=NTSC 1.2|ref4=offset|start4=001C30|size4=60
+|ver5=PAL 1.0|ref5=offset|start5=001C30|size5=60
+|ver6=PAL 1.1|ref6=offset|start6=001C30|size6=60
+|ver7=PAL MQ|ref7=offset|start7=001C30|size7=60
+}}
+Actor instances are added into a doubly-linked list based on a category id. Ids can be set in the overlay file, but can also be pro grammatically modified (ex. Skulltula/Gold Skulltula actor). There are 12 categories total. Majora's Mask may use 16 different categories.
+ char * actor_types[12] = {
+     "Switch",  "Backgrounds",  "Player",       "Bomb",
+     "NPC",     "Enemy",        "Prop (2)",     "Item/Action",
+     "Misc",    "Boss",         "Door",         "Chests"
+ };
+{|class="wikitable"
+! Id
+! Description
+! Usage
+|-
+|0 || Switches || Step-on switches, Anubis enemy, Death Mountain Crater Smoke Cone
+|-
+|1 || Backgrounds || Typically larger, more complex set pieces with background collision
+|-
+|2 || Player ||
+|-
+|3 || Bomb || Bombs, Bombchus
+|-
+|4 || NPC ||
+|-
+|5 || Enemy || Used for triggering room clear state. 
+|-
+|6 || Prop ||
+|-
+|7 || Item/Action ||
+|-
+|8 || Misc ||
+|-
+|9 || Boss ||
+|-
+|10 || Door ||
+|-
+|11 || Chests ||
+|}
+
+==Loading Actors==
+What is currently known about the loading and execution of code from actors in Zelda 64 is that:<br>
+*The first time an actor is loaded ([[Function Map#ActorSpawn|spawned]]), its overlay file is transferred to RAM
+**The transferred file has its offsets relocated to a real address space in RAM
+**The actor file remains allocated in ram until all instances of that actor have despawned
+*The game begins to create an instance of the actor
+*For each actor instance, actors are given a certain amount of memory as defined in the actor file. However, the minimum space required by the game's engine is 0x128 bytes in OoT (MM may vary).
+**Within this given memory is information such as
+***Location
+***Rotation
+***Scale
+***Pointer to damage chart (if the actor has one)
+***Pointers to actor functions
+****Initialization - run when actor instance is loaded.
+****Main - always run during gameplay.
+****Drawing - to be run when actor is close enough to the camera.
+***Pointer to Next/Previous actor(s) of this actor's category
+***Whatever else that actor needs (ex. instanced variables).
+
+At [[Game Play]] + 0x1C30 (80213C50 in the Debug Rom's RAM) is a list of actor categories (see above), each entry being an integer and a pointer. The pointer points to the first allocated entry for an actor. The integer is the number of actors of that category, the first entry being type 0, and the last last being type 11 (chests). Actors after the first actor are pointed to through the next/previous pointers within each allocated actor.
+
+=== Compact Instance Initialization Format ===
+Some actors use a "compact" format in order to initialize instance variables to a default value other than 0. The parser function is located at  NTSC 1.0 80063F7C, accepting an Actor Instance pointer (plus possibly an offset divisible by 0x800) followed by a pointer to the "compact" format to parse.
+
+The format is as follows:
+<pre>
+(v >> 0x1F) & 1  == Continue Parsing
+(v >> 0x1C) & 7  == Type
+(v >> 8) & 0x7FF == Offset from start of instance to write initial value
+v & 0xFFFF       == Value. 
+</pre>
+
+As implied, the "compact" format is continuously parsed until a 0 Continue Parsing bit is encountered. 
+
+The following types are supported. Note that duplicates exist due to signed/unsigned types having the same initialization logic.
+
+* 0, Set Byte
+* 1, Set Byte
+* 2, Set Halfword
+* 3, Set Halfword
+* 4, Set Word
+* 5, Set Word
+* 6, Set Float (int to float)
+* 7, Set Float (int to float / 1000)
+* 8, Set Vector3D<float> (int to float)
+* 9, Set Vector3D<float> (int to float)/1000)
+* A, Set Vector3D<short>
+
+==Custom Actors==
+A number of custom actors have been created. For more information, see [[Overlays]].
+
+==Examples==
+[http://spinout182.com/mqd/a.html Every actor in Debug MQ disassembled]
+
+==Credits==
+Cendamos - Actor table information, misc stuff that got the ball rolling<br>
+Euler - Actor file structure<br>
+JayTheHam - His early work with Cendamos on actor information<br>
+ZZT32 - Explained some actor table stuff to me<br>
+spinout - Writing this article
+[[Category: Actors| ]]
+[[Category: File Formats]]

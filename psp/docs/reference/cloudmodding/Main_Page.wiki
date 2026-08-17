@@ -1,0 +1,203 @@
+__NOTOC__
+<!-- TOP HEADER -->
+<div class="mainpage-box-blue">
+<div class="mainpage-title">Welcome to the CloudModding wiki for</div>
+[[File:OoT-Logo.png|240px|center|alt=Logo for The Legend of Zelda: Ocarina of Time]]
+<div class="mainpage-subtitle">'''{{NUMBEROFARTICLES}}''' articles covering absolutely everything about the game!</div>
+</div>
+
+<br/>
+
+<!-- DECOMP BOX -->
+<div class="mainpage-box-blue">
+<div class="mainpage-header-title">Ocarina of Time Decompilation</div>
+<p class="mainpage-header-tagline">MQ Debug Rom Code decompilation progress</p>
+<div style="display: flex; justify-content: center;">
+{| class="wikitable" style="margin-top: 0; text-align: center;"
+! colspan="5" | Last Change
+|-
+| colspan="5" | <decomp-status stat="timestamp" />
+|-
+! Matching
+! Total
+! Boot
+! Code
+! Overlays
+|-
+| No
+| <decomp-status stat="total" />
+| <decomp-status stat="boot" />
+| <decomp-status stat="code" />
+| <decomp-status stat="overlays" />
+|-
+| Yes
+| <decomp-status stat="total" matching />
+| <decomp-status stat="boot" matching />
+| <decomp-status stat="code" matching />
+| <decomp-status stat="overlays" matching />
+|}
+</div>
+<div class="plainlinks" style='text-align: center;'>Website: [https://zelda64.dev/ zelda64.dev]</div>
+</div>
+
+<br/>
+
+<!-- N64 INFO BOX -->
+<div class="mainpage-box-red">
+<div class="mainpage-header-title">N64 System Information</div>
+<div class="mainpage-header-tagline">Useful info on the N64 in general</div>
+* [[Microcode]]
+* [[MIPS]]
+</div>
+
+<br/>
+
+<!-- OOT INFO BOXES -->
+<div class="mainpage-box-green">
+<div class="mainpage-header">
+<span class="mainpage-header-title">Ocarina of Time</span><br/>
+<span class="mainpage-header-tagline">Everything to know concerning the N64 title</span>
+</div>
+{| style="width:100%"
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Core Game Engine</div>
+* [[:Category:Audio|Audio]]
+* [[Actors]] ([[:Category:Actor Listings|list]]) ([[:Category:Actors|category]])
+* [[Objects]] ([[:Category:Object Listings|list]]) ([[:Category:Objects|category]])
+* [[Scenes]] ([[Scenes and Rooms|Format]]) ([[:Category: Scene Listings|list]])
+* [[Rooms]] ([[Scenes and Rooms|Format]])
+* [[Cutscenes]] ([[:Category:Cutscene Listings|list]]), [[onepointdemo]]
+* [[Entrance Table]]
+* [[Filetypes]]
+* [[Filesystem]] ([[:Category:File Listings|files]])
+* [[:Category:Code (File)|Code (File)]]
+* [[Text Format|Text]] ([[Text Ids|Ids]])
+* [[Textures]]
+* [[Items]]
+* [[Particles]]
+* [[:Category:Entities]] - Categorizes various NPCs and other things
+* [[Cameras]]
+* [[Rendering]]
+* [[Maps]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Actors</div>
+* [[Actor List]]
+* [[Actor List (Variables)]]
+* [[:Category:Actors by Location|Actors by Location]]
+* [[Actor Overlay Table]]
+* [[Damage Charts]]
+* [[Damage Notes]]
+* [[Overlays]]
+* [[Variable List by Actor]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Animations</div>
+* [[Action Parameters]]
+* [[Animation Format]]
+* [[Link Animations|Link's Animations]]
+
+'''Individual Animations'''
+* [[Blade Beam]]
+|-
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Audio</div>
+* [[Audiobank]]
+* [[Audioseq]]
+* [[Music Sequences]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Collision</div>
+* [[Collision]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Items</div>
+* [[Item List]]
+* [[Item Usability Table]]
+|-
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Objects</div>
+* [[Object List]]
+* [[Object List (File Relationships)]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Scenes & Rooms</div>
+* [[Scenes and Rooms]]
+* [[Entrance Cutscenes]]
+* [[Map Select]]
+* [[:Category:Scene_Listings|Scene Listings]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Text</div>
+* [[Text Format]]
+* [[Text Ids]]
+|-
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Textures</div>
+* [[JFIF Backgrounds]]
+* [[Textures|Texture Format]]
+* [[Texture_List_(Xml)|Texture Listing]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Memory Maps</div>
+* [[Ram Map|RAM Map]]
+* [[Function Map]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Miscellaneous</div>
+* [[Versions]]
+* [[Notes]]
+* [[Save Format]]
+* [[Shop Documentation]]
+* [[Source Code List]]
+<!-- | class="mainpage-std-cell mainpage-empty-cell"| -->
+|}
+</div>
+
+<br/>
+
+<!-- MODDING BOXES -->
+<div class="mainpage-box-cyan">
+<div class="mainpage-header">
+<span class="mainpage-header-title">Modding</span><br/>
+<span class="mainpage-header-tagline">Information tailored to the modders among us</span>
+</div>
+{| style="width:100%"
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Actors</div>
+* [[Modification and Addition of Switches]]
+* [[Actor Replacement|Replacing Actors]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Interface</div>
+* [[Interface Hacking]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Programs</div>
+* [[Programs]]
+|-
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Sizes</div>
+* [[Cheat:Size Modifiers|Size Modifiers]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Colors</div>
+* [[Cheat:Color Modifiers]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Codes</div>
+* [[:Category:GameShark Codes|Category: Codes]]
+|}
+</div>
+
+<br/>
+
+<!-- DEBUG ROM BOXES -->
+<div class="mainpage-box-magenta">
+<div class="mainpage-header">
+<span class="mainpage-header-title">[[Debug Rom|MQ Debug ROM]]</span><br/>
+<span class="mainpage-header-tagline">Information concerning specifically the Master Quest debug ROM</span>
+</div>
+{| style="width:100%"
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Codes</div>
+* [[Cheat:General (Debug)|GameShark Codes]]
+* [[Cheat:Weather (Debug)|Weather Codes]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Scenes & Rooms</div>
+* [[Filename to Scene Relationships]]
+* [[Syotes_scene|Room 120]]
+| class="mainpage-std-cell"|
+<div class="mainpage-cell-title">Modding</div>
+* [[Code:Navi Replacement (Debug)|Navi Replacement]]
+* [[Code:Play As Z-Targeted (Debug)|Play As Z-Targeted]]
+|}
+</div>

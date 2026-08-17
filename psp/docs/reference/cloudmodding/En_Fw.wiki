@@ -1,0 +1,4 @@
+{{actor|name=ovl_En_Fw|ispage=true}}
+'''ovl_En_Fw''' is the core creature that makes up [[Flare Dancer|Flare Dancer's]] weak body. 
+{{clear}}
+[[Category:Flare Dancer]]

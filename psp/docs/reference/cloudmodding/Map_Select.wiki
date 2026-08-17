@@ -1,0 +1,324 @@
+This long sought after relic, buried within the catacombs of OoT's [[Yaz]] blocks, was thought to be impossible to enable. Luckily, it was enabled by default in the debug ROM.
+
+Using Map Select, players can navigate Ocarina of Time's locations without having to travel to them on foot. It also allows users to set the cutscene, time of day, and Link's age.
+
+Most map select entries are written in Japanese. A translation by [[User:GlitterBerri|GlitterBerri]] and [[User:Playtendo|Playtendo]] is available below. It is also possible to use Cooliscool's [[Zelda Edit]] tool to alter a ROM so its map select is permanently written in English.
+
+== Accessing ==
+
+=== Debug ROM ===
+The Debug ROM features 10 additional maps, which likely existed only in testing builds during development. These maps are listed below.
+
+To access Map Select in the Debug ROM, open the first file on the File Select screen. Alternatively, press '''L''' + '''R''' + '''Z''' at any point during the game.
+
+=== Other Versions ===
+
+To enable Map Select in other versions of the game, a code is required. See [[Cheat:Map Select]].
+
+== Controls ==
+{| class="wikitable"
+!Buttons || Effect
+|-
+|D Pad Up || Scroll back through maps.
+|-
+|D Pad Down || Scroll forward through maps.
+|-
+|A || Select destination.
+|-
+|B || Change Link's age.
+|-
+|Z || Scroll forward through Stage options.
+|-
+|R || Scroll back through Stage options.
+|-
+|C Up || Decrease OPT.
+|-
+|C Down || Increase OPT.
+|}
+
+=== Stage Options ===
+
+{| class="wikitable"
+!Japanese || English || Effect
+|-
+|おひる　ジャラ || Day-''jara'' || Loads Day version of map.
+|-
+|よる　ゴロン || Night-''goron'' || Loads Night version of map.
+|-
+|デモXX || Cutscene XX || Loads cutscene.
+|}
+
+Players can select Cutscenes 00 to 0A for each map. Invalid cutscenes will generally freeze the game.
+
+''Jara'' is a phrase used by the Kokiri.
+
+=== Age Options ===
+
+{| class="wikitable"
+!Japanese || English || Effect
+|-
+|5（わかすぎ） || 5 (Too Young) || Loads Child version of map.
+|-
+|17 （わかもの） || 17 (Youth) || Loads Adult version of map.
+|}
+
+== Map Select List ==
+{| class="wikitable"
+!#||Name||Location||Translation||Notes
+|-
+| ||title||Title Screen||||
+|-
+| 1||Spot 00||Hyrule Field||||
+|-
+| 2||Spot 01||Kakariko Village||||
+|-
+| 3||Spot 02||Graveyard||||
+|-
+| 4||Spot 03||Zora's River||||
+|-
+| 5||Spot 04||Kokiri Forest||||
+|-
+| 6||Spot 05||Sacred Forest Meadow||||
+|-
+| 7||Spot 06||Lake Hylia||||
+|-
+| 8||Spot 07||Zora's Domain||||
+|-
+| 9||Spot 08||Zora's Fountain||||
+|-
+| 10||Spot 09||Gerudo Valley||||
+|-
+| 11||Spot 10||Lost Woods||||
+|-
+| 12||Spot 11||Desert Colossus||||
+|-
+| 13||Spot 12||Gerudo's Fortress||||
+|-
+| 14||Spot 13||Haunted Wasteland||||
+|-
+| 15||Spot 15||Hyrule Castle||||Spot 14 is missing.
+|-
+| 16||Spot 16||Death Mountain Trail||||
+|-
+| 17||Spot 17||Death Mountain Crater||||
+|-
+| 18||Spot 18||Goron City||||
+|-
+| 19||Spot 20||Lon Lon Ranch||||Spot 19 is missing.
+|-
+| 20||ときのま||Temple Of Time||Chamber of Time||
+|-
+| 21||けんじゃのま||Chamber of Sages||Chamber of Sages||
+|-
+| 22||しゃてきじょう||Shooting Gallery||Target Range||
+|-
+| 23||ハイラルにわゲーム||Castle Courtyard Game||Hyrule Garden Game||
+|-
+| 24||はかしたとびこみあな||Grave 1||Grave Dive Hole||
+|-
+| 25||はかしたとびこみあな２||Grave 2||Grave Dive Hole 2||
+|-
+| 26||おうけ　の　はかあな||Royal Family's Tomb||Royal Family's Grave||
+|-
+| 27||だいようせいのいずみ||Great Fairy's Fountain (Din)||Great Fairy's Fountain||
+|-
+| 28||とびこみ　ようせいあな||Great Fairy's Fountain (Farore)||Fairy Dive Hole||
+|-
+| 29||まほうせき　ようせいのいずみ||Great Fairy's Fountain (Nayru)||Magic Stone Fairy's Fountain||
+|-
+| 30||ガノンさいしゅうせん||Ganon's Tower - Collapsing||Final Battle With Ganon||
+|-
+| 31||ハイラルなかにわ||Castle Courtyard||Hyrule Inner Garden||
+|-
+| 32||つりぼり||Fishing Pond||Fishing||
+|-
+| 33||ボムチュウボーリング||Bombchu Bowling Alley||Bombchu Bowling||
+|-
+| 34||ロンロンぼくじょう　そうこ１||Lon Lon Ranch House||Lon Lon Ranch Storehouse 1||
+|-
+| 35||ロンロンぼくじょう　そうこ２||Lon Lon Ranch Silo||Lon Lon Ranch Storehouse 2||
+|-
+| 36||みはり　ごや||Guard House||Lookout Hut||
+|-
+| 37||まほう　の　くすりや||Potion Shop||Magic Potion Shop||
+|-
+| 38||たからばこや||Treasure Chest Game||Treasure Chest Shop||
+|-
+| 39||きん　スタルチュラハウス||House Of Skulltula||Gold Skulltula House||
+|-
+| 40||じょうかまち いりぐち||Entrance to Market||Castle Town - Entrance||
+|-
+| 41||じょうかまち||Market||Castle Town||
+|-
+| 42||つらろじ||Back Alley||Back Alley||
+|-
+| 43||ときのしんでん　まえ||Temple of Time Exterior||In Front of the Temple of Time||
+|-
+| 44||りんくのいえ||Link's House||Link's House||
+|-
+| 45||カカリコむらのながや||Kakariko House 1||Kakariko Village Row House||
+|-
+| 46||つらろじの　いえ||Back Alley House 1||Back Alley House||
+|-
+| 47||こきりのむら　ものしりきょうだいのいえ||House of the Know-it-All Brothers||Kokiri Village - Know-It-All Brothers' House||
+|-
+| 48||こきりのむら　ふたごのいえ||House of Twins||Kokiri Village - House of Twins||
+|-
+| 49||こきりのむら　ミドのいえ||Mido's House||Kokiri Village - Mido's House||
+|-
+| 50||こきりのむら　サリアのいえ||Saria's House||Kokiri Village - Saria's House||
+|-
+| 51||うまごや||Stable||Stable||
+|-
+| 52||はかもりのいえ||Grave Keeper's Hut||Grave Keeper's House||
+|-
+| 53||つらろじ　いぬおばさんのいえ||Dog Lady's House||Back Alley - Dog Lady's House||
+|-
+| 54||かかりこむら　インパのいえ||Impa's House||Kakariko Village - Impa's House||
+|-
+| 55||ハイリア　けんきゅうじょ||Lakeside Laboratory||Hylia Laboratory||
+|-
+| 56||テント||Running Man's Tent||Tent||
+|-
+| 57||たてのみせ||Bazaar||Shield Shop||
+|-
+| 58||こきりぞくのみせ||Kokiri Shop||Kokiri Shop||
+|-
+| 59||ゴロンのみせ||Goron Shop||Goron Shop||
+|-
+| 60||ゾーラのみせ||Zora Shop||Zora Shop||
+|-
+| 61||カカリコむら　くすりや||Closed Shop||Kakariko Village - Pharmacy||
+|-
+| 62||じょうかまち　くすりや||Potion Shop||Castle Town - Pharmacy||
+|-
+| 63||つらろじ　よるのみせ||Bombchu Shop (Back Alley)||Back Alley Night Shop||
+|-
+| 64||おめんや||Happy Mask Shop||Mask Shop||
+|-
+| 65||ゲルドのしゅうれんじょう||Gerudo Training Ground||Gerudo Training Area||
+|-
+| 66||ようせいのきの　ダンジョン||Inside the Deku Tree||Fairy Tree Dungeon||
+|-
+| 67||ようせいのきの　ダンジョン　ボス||Gohma's Lair||Fairy Tree Dungeon - Boss||
+|-
+| 68||ドドンゴ　ダンジョン||Dodongo's Cavern||Dodongo Dungeon||
+|-
+| 69||ドドンゴ　ダンジョン　ボス||King Dodongo's Lair||Dodongo Dungeon - Boss||
+|-
+| 70||きょうだいぎょ　ダンジョン||Inside Jabu-Jabu's Belly||Giant Fish Dungeon||
+|-
+| 71||きょうだいぎょ　ダンジョン　ボス||Barinade's Lair||Giant Fish Dungeon - Boss||
+|-
+| 72||もりのしんでん||Forest Temple||Forest Temple||
+|-
+| 73||もりのしんでん　ボス||Phantom Ganon's Lair||Forest Temple - Boss||
+|-
+| 74||いどした　ダンジョン||Bottom of the Well||Below the Well Dungeon||
+|-
+| 75||はかした　ダンジョン||Shadow Temple||Beneath the Grave Dungeon||
+|-
+| 76||はかした　ダンジョン　ボス||Bongo Bongo's Lair||Beneath the Grave Dungeon - Boss||
+|-
+| 77||ひのしんでん||Fire Temple||Fire Temple||
+|-
+| 78||ひのしんでん　ボス||Volvagia's Lair||Fire Temple - Boss||
+|-
+| 79||みずのしんでん||Water Temple||Water Temple||
+|-
+| 80||みずのしんでん　ボス||Morpha's Lair||Water Temple - Boss||
+|-
+| 81||じゃしんぞう　ダンジョン||Spirit Temple||Evil Goddess Statue Dungeon||
+|-
+| 82||じゃしんぞう　ダンジョン　アイアンナック||Iron Knuckle's Lair||Evil Goddess Statue Dungeon - Iron Knuckle||
+|-
+| 83||じゃしんぞう　ダンジョン　ボス||Twinrova's Lair||Evil Goddess Statue Dungeon - Boss||
+|-
+| 84||ガノンのとう||Stairs to Ganondorf's Lair||Ganon's Tower||
+|-
+| 85||ガノンのとう　ボス||Ganondorf's Lair||Ganon's Tower - Boss||
+|-
+| 86||こおりのどうくつ||Ice Cavern||Ice Cavern||
+|-
+| 87||はかしたリレー||Dampé Grave Relay Game||Relay Beneath the Grave||
+|-
+| 88||ガノンちか　ダンジョン||Inside Ganon's Castle||Ganon's Basement Dungeon||
+|-
+| 89||ガノンさいしゅうせん　デモ　＆　バトル||Ganon's Lair||Final Battle With Ganon - Cutscene & Battle||
+|-
+| 90||ガノンのとう　そのご　１||Escaping Ganon's Castle 1||After Ganon's Tower 1||
+|-
+| 91||ガノンのとう　そのご　２||Escaping Ganon's Castle 2||After Ganon's Tower 2||
+|-
+| 92||ガノンのとう　そのご　３||Escaping Ganon's Castle 3||After Ganon's Tower 3||
+|-
+| 93||ガノンのとう　そのご　４||Escaping Ganon's Castle 4||After Ganon's Tower 4||
+|-
+| 94||ガノンちか　そのご||Escaping Ganon's Castle 5||After Ganon's Basement||
+|-
+| 95||ゲルドつうろ １−２||Thieves' Hideout 1||Gerudo Passage 1-2||
+|-
+| 96||ゲルドつうろ ３−４　９−１０||Thieves' Hideout 2||Gerudo Passage 3-4 9-10||
+|-
+| 97||ゲルドつうろ ５−６||Thieves' Hideout 3||Gerudo Passage 5-6||
+|-
+| 98||ゲルドつうろ ７−８||Thieves' Hideout 4||Gerudo Passage 7-8||
+|-
+| 99||ゲルドつうろ １１−１２||Thieves' Hideout 5||Gerudo Passage 11-12||
+|-
+| 100||ゲルドつうろ １３||Thieves' Hideout 6||Gerudo Passage 13||
+|-
+| 101||かくしとびこみあな　０||Grotto 1||Hidden Dive Hole 0||
+|-
+| 102||かくしとびこみあな　１||Grotto 2||Hidden Dive Hole 1||
+|-
+| 103||かくしとびこみあな　２||Grotto 3||Hidden Dive Hole 2||
+|-
+| 104||かくしとびこみあな　３||Grotto 4||Hidden Dive Hole 3||
+|-
+| 105||かくしとびこみあな　４||Grotto 5||Hidden Dive Hole 4||
+|-
+| 106||かくしとびこみあな　５||Grotto 6||Hidden Dive Hole 5||
+|-
+| 107||かくしとびこみあな　６||Grotto 7||Hidden Dive Hole 6||
+|-
+| 108||かくしとびこみあな　７||Grotto 8||Hidden Dive Hole 7||
+|-
+| 109||かくしとびこみあな　８||Grotto 9||Hidden Dive Hole 8||
+|-
+| 110||かくしとびこみあな　９||Grotto 10||Hidden Dive Hole 9||
+|-
+| 111||かくしとびこみあな　１０||Grotto 11||Hidden Dive Hole 10||
+|-
+| 112||かくしとびこみあな　１１||Grotto 12||Hidden Dive Hole 11||
+|-
+| 113||かくしとびこみあな　１２||Grotto 13||Hidden Dive Hole 12||
+|-
+| 114||かくしとびこみあな　１３||Grotto 14||Hidden Dive Hole 13||
+|-
+| 115||ハイラル　デモ||Goddess Cutscene Environment||Hyrule Demo||
+|-
+! colspan="5"| The following entries are only present in the Debug ROM.
+|-
+| 116||べっしつ　（たからばこワープ）||Treasure Chest Warp||Special Room (Treasure Chest Warp)||A room with moving textures on the walls that was used to test the battle with Ganondorf. Name mixed up with 119.
+|-
+| 117||ささテスト||SRD Map||Grass Test||A flat plane with objects that change depending on Link's age and the time of day. Name owes to its use in testing ground sound effects. 
+|-
+| 118||テストマップ||Test Map||Test Map|| A terrain test map with platforms of varying elevations.
+|-
+| 119||テストルーム||Test Room||Test Room||Name switched with map 116. A series of rooms filled with treasure chests that contain all the items in the game.
+|-
+| 120||ちゅうスタルフォスべや||Stalfos Miniboss Room||Stalfos Miniboss Room||Name owes to the fact that it originally showcased a fight with two Stalfos in prerelease shots. 
+|-
+| 121||ボススタルフォスべや||Stalfos Boss Room||Boss Stalfos Room||Name owes to the fact that it originally showcased a giant Stalfos fight in prerelease shots.
+|-
+| 122||Sutaru||Dark Link Room||Stal||Name owes to the fact that it originally showcased a Stalfos battle in prerelease shots. 
+|-
+| 123||jikkenjyou||Shooting Gallery Duplicate||Test Area||
+|-
+| 124||depthテスト||Depth Test||Depth Test||Link falls past a panel of nine squares.
+|-
+| 125||ハイラルにわゲーム２||Hyrule Garden Game (Test Version)||Hyrule Garden Game 2||An earlier version of the Hyrule garden game. 
+|}
+[[Category:Documentation]]
+[[Category:Debug ROM]]

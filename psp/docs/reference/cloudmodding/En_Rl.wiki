@@ -1,0 +1,28 @@
+{{Actor|name=ovl_En_Rl|ispage=true}}
+
+'''ovl_En_Rl''' is the [[actor]] for Rauru.
+
+{{clear}}
+== Debug Rom Notes ==
+
+ ROM: 0xE9D624 (2405006B) Light Medallion
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| ../z_en_rl_inKenjyanomaDemo02.c||../z_en_rl_inChamberofSagesCutscene02.c
+|-
+| ../z_en_rl_inKenjyanomaDemo02.c||../z_en_rl_inChamberofSagesCutscene02.c
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mMAIN MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|-
+| ../z_en_rl.c||../z_en_rl.c
+|-
+| ../z_en_rl.c||../z_en_rl.c
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mDRAW MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|}
+
+[[Category:Rauru]]

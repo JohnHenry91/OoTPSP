@@ -1,0 +1,204 @@
+All information by Underscore, Peardian
+__TOC__
+==How JPG Renders Work==
+OoT uses the JPEG File Interchange Format (JFIF), a format that stopped being updated as of 1992.  This format has a more in-depth document available at [http://www.w3.org/Graphics/JPEG/jfif3.pdf W3C] (1992), however that document does not apply as strictly to the Legend of Zelda, so dwelling on it is not recommended.<br>
+<br>
+JPG Renders are used in rooms in Ocarina of Time that do not tend to move, such as shops and the back alleys. These rooms have collision data that is separate from the pre-rendered image.  This is done so that the game can conserve space by having a constant illusory camera angle, without having to render a given number of models that have to be textured, wasting the dynamic camera angle and system memory resources.<br>
+<br>
+The JPG Renders are stored in various locations throughout the ROM and are listed below.
+===Format===
+The JPG Render format is as follows.<br>
+{| class="wikitable"
+! Name
+! Data
+! Purpose
+|- 
+| Begn
+| <tt>FF D8</tt>
+| The marker to identify that the image started.<br>(Included in the actual image itself.
+|- 
+| APP0
+| <tt>FF E0</tt>
+| A marker to identify that header has started.
+|- 
+| Leng
+| <tt>00 10</tt>
+| The length of the header excluding the APP0 marker and all other markers. 0x0010 = 16 in dec. All images use a header length of 16.
+|- 
+| Iden
+| <tt>4A 46 49 46 00</tt>
+| The JFIF identifier, followed by a null byte.
+|- 
+| Vers
+| <tt>01 01</tt>
+| Version, first being major, second being the minor.<br> LoZ:OoT used version 1.01.
+|- 
+| Dens
+| <tt>00</tt>
+| Density units.<br>
+{| class="wikitable"
+| <tt>00</tt>
+| No units, aspect ratio only specified.
+|- 
+| <tt>01</tt>
+| Pixels per inch.
+|- 
+| <tt>02</tt>
+| Pixels per centimeter.
+|}
+|- 
+| Xden
+| <tt>00 01</tt>
+| Integer horizontal pixel density. (1)
+|- 
+| Yden
+| <tt>00 01</tt>
+| Integer vertical pixel density. (1)
+|- 
+| Twid
+| <tt>00</tt>
+| Embedded thumbnail width. (0)
+|- 
+| Thig
+| <tt>00</tt>
+| Embedded thumbnail height. (0)
+|- 
+| Tdat
+| n/a
+| Because thumbnails were not used or needed, and the length is not included in the header above, it is not needed. But, for the sake of completion, the length of this section would be Twid*Thig*3 (0)
+|- 
+| Mark
+| <tt>FF DB</tt>
+| This serves to note the end of the header and is not included in its length.                              
+|- 
+| Data
+| ...
+| This is the actual data for the image, but it is useless unless the header is also included with it.
+|- 
+| End
+| <tt>FF D9</tt>
+| The marker to identify that the image has finished. (Included in the actual image itself.)
+|}
+(All data in hex, all data required for extraction.)
+
+==List of JPG Renders==
+This section lists all positions of JPG renders and their aliases.
+{|class="wikitable sortable"
+! Position
+! Name
+|- 
+| <tt>0x027B06F0</tt>
+| Depth Test
+|- 
+| <tt>0x02B64480</tt>
+| Kokiri Link's House
+|- 
+| <tt>0x02B96490</tt>
+| Kokiri Shop
+|- 
+| <tt>0x02BC3430</tt>
+| Kokiri Know-It-All-Brothers' House
+|- 
+| <tt>0x02C4E370</tt>
+| Market Entrance Day
+|- 
+| <tt>0x02CA3FB0</tt>
+| Bazaar
+|- 
+| <tt>0x02D09120</tt>
+| Market Back Alley 1 Day
+|- 
+| <tt>0x02D2E920</tt>
+| Market Back Alley 2 Day
+|- 
+| <tt>0x02D54120</tt>
+| Market Back Alley 3 Day
+|- 
+| <tt>0x02D9E370</tt>
+| Market Entrance Night
+|- 
+| <tt>0x02DC5360</tt>
+| Market Entrance Future
+|- 
+| <tt>0x02DED110</tt>
+| Market Back Alley 1 Night
+|- 
+| <tt>0x02E12910</tt>
+| Market Back Alley 2 Night
+|- 
+| <tt>0x02E38110</tt>
+| Market Back Alley 3 Night
+|- 
+| <tt>0x02E6C0C0</tt>
+| Kokiri Twins' House
+|- 
+| <tt>0x02EAAA50</tt>
+| Lon Lon Ranch Stable
+|- 
+| <tt>0x02ED77C0</tt>
+| Kakariko House
+|- 
+| <tt>0x02F1DDA0</tt>
+| Kakariko Gravekeepr's Hut
+|- 
+| <tt>0x02F809D0</tt>
+| Goron Shop
+|- 
+| <tt>0x02FA89E0</tt>
+| Zora Shop
+|- 
+| <tt>0x02FD6660</tt>
+| Kakariko Potion Shop
+|- 
+| <tt>0x02FFE430</tt>
+| Market Potion Shop
+|- 
+| <tt>0x03028160</tt>
+| Market Bombchu Shop
+|- 
+| <tt>0x030507A0</tt>
+| Market Mamamu Yan's House
+|- 
+| <tt>0x0307DEF0</tt>
+| Kakariko Anju's House
+|- 
+| <tt>0x030B2EA0</tt>
+| Valley Tent
+|- 
+| <tt>0x031C80F0</tt>
+| Kokiri Mido's House
+|- 
+| <tt>0x032030E0</tt>
+| Kokiri Saria's House
+|- 
+| <tt>0x03259D80</tt>
+| Market Pink Pants House
+|- 
+| <tt>0x032E6AF0</tt>
+| Temple of Time Day
+|- 
+| <tt>0x0330C2F0</tt>
+| Temple of Time Path Day
+|- 
+| <tt>0x03355B10</tt>
+| Temple of Time Night
+|- 
+| <tt>0x0337B310</tt>
+| Temple of Time Path Night
+|- 
+| <tt>0x033AAAF0</tt>
+| Temple of Time Future
+|- 
+| <tt>0x033D02F0</tt>
+| Temple of Time Path Future
+|- 
+| <tt>0x03554E40</tt>
+| Market Happy Mask Shop
+|}
+
+==Usage in Zelda 64==
+{{main |Scenes and Rooms#Mesh Header}}
+JFIF images are pointed to from within the map's mesh header, when header type 1 is used.
+[[Category: Documentation]]
+[[Category: File Formats]]
+[[Category: Textures]]

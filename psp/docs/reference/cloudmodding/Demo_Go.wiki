@@ -1,0 +1,21 @@
+{{Actor|name=ovl_Demo_Go}}
+
+'''ovl_Demo_Go''' is the Goron cutscene [[actor]].
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mMAIN MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|-
+| ../z_demo_go.c||../z_demo_go.c
+|-
+| ../z_demo_go.c||../z_demo_go.c
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mDRAW MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|}
+
+[[Category:Cutscene Actors]] [[Category:Gorons]]

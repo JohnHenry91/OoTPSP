@@ -1,0 +1,421 @@
+== VIEW Structure ==
+
+The "VIEW" is a common structure that appears in all game states that I believe stores the final information on the active camera, which is then converted into a projection matrix. Each [[Game State]] defines it's own VIEW struct. Below is both the struct and the initial values, when initialized by the NTSC 1.0 function located at 80091858:
+
+  /* 0x00 */ u32 VIEW;            //0x56494557, or string literal VIEW
+  /* 0x04 */ ptr graphicsContext; //stores address to the start of the [[Graphics Context]]
+  /* 0x08 */ s32 viewportTopY    =   0;    
+  /* 0x0C */ s32 viewportBottomY = 240;
+  /* 0x10 */ s32 viewportLeftX   =   0;   
+  /* 0x14 */ s32 viewportRightX  = 320;
+  /* 0x18 */ float fieldOfView   = 60.0f;
+  /* 0x1C */ float fogDistance   = 10.0f;
+  /* 0x20 */ float zDepth        = 12800.0f;
+  /* 0x24 */ float unk1          = 1.0f;
+  /* 0x28 */ float unk2          = 0.0f;
+  /* ... */
+  /* 0x124 */ u32 unk_0x124      = 0;
+
+== Camera Structure == 
+
+The Camera structure is a structure seen in at least in the "main game" game state that is used to represent a pin-hole? camera located within world space. The main game state defines and uses up to 4 camera structs at any one time. At [[Game Play]] + 0x790 is a pointer array to the four cameras used in game. These structs are allocated to game_play at the following locations:
+
+{|class=wikitable
+|+ game_play
+! Offset || Usage
+|-
+| 0x01E0 || Follows the player
+|- 
+| 0x034C || typically used for cutscenes
+|-
+| 0x04B8 || Used when Pierre dances
+|-
+| 0x0624 || ?
+|}
+
+<pre>
+//union at the beginning of the struct. The following few bytes only applies to the first camera
+  0x0000 f32 //?
+  0x0004 f32 //tween time step (0 to 1)
+  0x0008 f32 //?
+  0x000C f32 //?
+  0x0010 f32 //?
+  0x0014 f32 //?
+  0x0018 f32 //?
+  0x001C s16 //?
+  0x0050 f32[3] //xyz 1 (could be camera focus or loc)
+  0x005C f32[3] //xyz 2 (could be camera focus or loc)
+  0x00
+  0x007C ptr //Game Play
+  0x0080 ptr //Follow Actor (Link)
+  0x00FC f32 = Angle of View
+  0x011C s32 //Index for 800EEE70 (camera behavior?) table. Stores next behavior when surfacing water?
+  0x0124 = Focus Point tween list
+  0x0128 = Camera Position tween list
+  0x0142 s16 Camera S property //State, Index for 800EEE70 (camera behavior?) table
+  0x0144 s16 Camera M property //Mode
+  0x014C s16 //? flags?
+  0x0164 s16 //?
+  //known values: +0x01E0, +0x034C from game_play
+
+the second camera:
+ 0x004 f32 //tween time step (0 to 1)
+ 0x008 s16 //tween point list array index
+</pre>
+
+== Camera Behavior Data ==
+
+According to the Debug Rom's Camera Debugger (enabled by setting the halfword at 80210BA4 to 1, or setting RO00 in the memory editor), cameras have 4 primary properties: S, M, F, and I
+
+* S seems to stand for State. It acts as a global behavior for the camera. 
+* M seems to stand for mode. This usually changes depending on Link's actions.
+* F is presumably the function executing the camera behavior logic
+* I is unknown 
+
+=== Structs ===
+<pre>typedef struct //Camera S
+{
+    s32 unkFlags;
+    z_Camera_M* m; //Pointer to array of Camera M data
+} z_Camera_S
+
+typedef struct //Camera M
+{
+    s16 f; //Sets function for handling camera movement
+} z_Camera_M
+</pre>
+
+=== Camera S Data ===
+This table is located at Debug 8011D064; NTSC 800EEE70, B64DD0. The Camera S property can be set either through Link touching/being over polygon types, or it can be changed programmatically by actors.
+
+{|class="wikitable"
+|+ Camera S data<br>NTSC 1.0, B64DD0
+! Id || Data || Pointer || Size || Name || Description
+|-
+| 00 || 00000000 || 00000000 || 00 || NONE || Keeps previous camera type (except 1F), becomes 01-03 if no other camera exists
+|-
+| 01 || 051FFFFF || 800ED990 || A8 || NORMAL0 || Default, a bit far
+|-
+| 02 || 051FFFFF || 800EDA38 || A8 || NORMAL1 || Default, far
+|-
+| 03 || 051FFFFF || 800EDAE0 || A8 || DUNGEON0 || Default, zoomed
+|-
+| 04 || 051FFFFF || 800EDB88 || A8 || DUNGEON1 || Default, more zoomed
+|-
+| 05 || 050FF7FF || 800EDC30 || A0 || NORMAL3 || Default, like 01 but higher Y-Axis
+|-
+| 06 || 8500018F || 800EDCD0 || 48 || HORSE0 || 
+|-
+| 07 || 051FFFFF || 800EDD18 || A8 || BOSS_GOMA || Default, like 01 but lower Y-Axis
+|-
+| 08 || 051FFFFF || 800EDDC0 || A8 || BOSS_DODO || Default, farther than 07
+|-
+| 09 || 051FFFFF || 800EDE68 || A8 || BOSS_BARI || Default, like 08 but lower Y-Axis
+|-
+| 0A || 051FFFFF || 800EDF10 || A8 || BOSS_FGANON || Default, like 07 but higher Y-Axis
+|-
+| 0B || 051FFFFF || 800EDFB8 || A8 || BOSS_BAL || Default, farther than 02
+|-
+| 0C || 051FFFFF || 800EE060 || A8 || BOSS_SHADES || Default, same as 0B?
+|-
+| 0D || 051FFFFF || 800EE108 || A8 || BOSS_MOFA || Default, zoomed, slightly angle to the sky, FOV changes (but can't be adjusted)
+|-
+| 0E || 051FFFFF || 800EE1B0 || A8 || BOSS_TWIN0 || Default, slightly farther than 07
+|-
+| 0F || 051FFFFF || 800EE258 || A8 || BOSS_TWIN1 || Default, same as 0D but without FOV
+|-
+| 10 || 051FFFFF || 800EE300 || A8 || BOSS_GANON1 || Default, like 01 but higher Y-Axis
+|-
+| 11 || 051FFFFF || 800EE3A8 || A8 || BOSS_GANON2 || Default, far
+|-
+| 12 || 851FFFFF || 800EE450 || A8 || TOWER0 || Default, zoomed, high Y-Axis, weird rotation
+|-
+| 13 || 851FFFFF || 800EE4F8 || A8 || TOWER1 || Default, zoomed, high Y-Axis, weird rotation but to the opposite direction as 12
+|-
+| 14 || 8500000D || 800EE5A0 || 20 || FIXED0 || Fixed camera, no rotation
+|-
+| 15 || 85000001 || 800EE5C0 || 08 || FIXED1 || Fixed camera, no rotation
+|-
+| 16 || 85000001 || 800EE5C8 || 08 || CIRCLE0 || Fixed camera, focuses on link
+|-
+| 17 || 85000001 || 800EE5D0 || 08 || CIRCLE2 || Shops
+|-
+| 18 || 851E1FFF || 800EE5D8 || A8 || CIRCLE3 || Fixed camera, farther than 16, focuses on link
+|-
+| 19 || 8C00000D || 800EE680 || 20 || PREREND0 || Fixed camera, no rotation, instant transition
+|-
+| 1A || 8C00000D || 800EE6A0 || 20 || PREREND1 || Fixed camera, disables the rest of the cameras once triggered, focuses on link
+|-
+| 1B || 8C000001 || 800EE6C0 || 08 || PREREND3 || Fixed camera, position updates towards east/west of the camera when link moves
+|-
+| 1C || C5000001 || 800EE6C8 || 08 || DOOR0 || Fixed camera, same as 1A but with black bars
+|-
+| 1D || C5000003 || 800EE6D0 || 10 || DOORC || 
+|-
+| 1E || C5000001 || 800EE6E0 || 08 || RAIL3 || ???, keeps zooming to link until it glitches
+|-
+| 1F || C5000001 || 800EE6E8 || 08 || START0 || Fixed camera, no rotation, instant transition, resets with camera type 00
+|-
+| 20 || C5000001 || 800EE6F0 || 08 || START1 || Fixed camera, no rotation, instant transition, disables the rest of the cameras once triggered
+|-
+| 21 || 05000001 || 800EE6F8 || 08 || FREE0 || Camera position and rotation freezes until another camera type is triggered
+|-
+| 22 || 05000001 || 800EE700 || 08 || FREE2 || Same as 21
+|-
+| 23 || 85000001 || 800EE708 || 08 || CIRCLE4 || Fixed camera, focuses on link, instant transition
+|-
+| 24 || 05000003 || 800EE710 || 10 || CIRCLE5 || ???, focuses on link, behavior changes depending on which camera type you had before?
+|-
+| 25 || CE000001 || 800EE720 || 08 || DEMO0 || 
+|-
+| 26 || 4E000001 || 800EE728 || 08 || DEMO1 || Same as 21
+|-
+| 27 || 05000009 || 800EE730 || 20 || MORI1 || Fixed camera, rotation is fixed but position follows link, smooth transition
+|-
+| 28 || 45000001 || 800EE750 || 08 || ITEM0 || ???, blue warp cutscene?, disables the rest of the cameras once triggered
+|-
+| 29 || 45000001 || 800EE758 || 08 || ITEM1 || Same as 21
+|-
+| 2A || 45000001 || 800EE760 || 08 || DEMO3 || 
+|-
+| 2B || 45000001 || 800EE768 || 08 || DEMO4 || Same as 21 but with black bars
+|-
+| 2C || 451FFFFF || 800EE770 || A8 || UFOBEAN || Overhead at 45º, close to link
+|-
+| 2D || 451FFFFF || 800EE818 || A8 || LIFTBEAN || Same as 03
+|-
+| 2E || C5000001 || 800EE8C0 || 08 || SCENE0 || 
+|-
+| 2F || 45000001 || 800EE8C8 || 08 || SCENE1 || ???, camera position freezes, keeps zooming on link until it glitches
+|-
+| 30 || 05000001 || 800EE8D0 || 08 || HIDAN1 || ???, camera goes extremely far, focuses on link
+|-
+| 31 || 45000001 || 800EE8D8 || 08 || HIDAN2 || 
+|-
+| 32 || 45000001 || 800EE8E0 || 08 || MORI2 || Same as 21
+|-
+| 33 || 45000001 || 800EE8E8 || 08 || MORI3 || 
+|-
+| 34 || 451FFFFF || 800EE8F0 || A8 || TAKO || Overhead at 45º, close to link
+|-
+| 35 || 05000033 || 800EE998 || 30 || SPOT05A || Overhead at 80º, ignores walls
+|-
+| 36 || 05000033 || 800EE9C8 || 30 || SPOT05B || Overhead at 80º, farther than 35
+|-
+| 37 || 05000033 || 800EE9F8 || 30 || HIDAN3 || Overhead at 80º but doesn't clip through walls
+|-
+| 38 || 4A000001 || 800EEA28 || 08 || ITEM2 || Ocarina camera, movement controls are inverted, camera stucks into this state until you use the ocarina
+|-
+| 39 || 05000001 || 800EEA30 || 08 || CIRCLE6 || Same as 21 but with black bars
+|-
+| 3A || 051FFFFF || 800EEA38 || A8 || NORMAL2 || Same as 03 but doesn't pan down near ledges
+|-
+| 3B || 0501E05F || 800EEAE0 || 88 || FISHING || Default, like 3A but higher Y-Axis
+|-
+| 3C || 45000001 || 800EEB68 || 08 || DEMOC || Same as 21 but with black bars
+|-
+| 3D || 051FFFFF || 800EEB70 || A8 || UO_FIBER || Default, camera is at ground level and angles to the sky
+|-
+| 3E || 051FFFFF || 800EEC18 || A8 || DUNGEON2 || Same as 03
+|-
+| 3F || 051FFFFF || 800EECC0 || A8 || TEPPEN || Same as 3D
+|-
+| 40 || C5000ECD || 800EED68 || 60 || CIRCLE7 || Fixed camera, focuses on link
+|-
+| 41 || 051FFFFF || 800EEDC8 || A8 || NORMAL4 || Same as 03
+|}
+
+=== Camera M Types ===
+{|class="wikitable"
+! Id || Name
+|-
+| 00 || NORMAL
+|-
+| 01 || PARALLEL
+|-
+| 02 || KEEPON
+|-
+| 03 || TALK
+|-
+| 04 || BATTLE
+|-
+| 05 || CLIMB
+|-
+| 06 || SUBJECT
+|-
+| 07 || BOWARROW
+|-
+| 08 || BOWARROWZ
+|-
+| 09 || FOOKSHOT
+|-
+| 0A || BOOMERANG
+|-
+| 0B || PACHINCO
+|-
+| 0C || CLIMBZ
+|-
+| 0D || JUMP
+|-
+| 0E || HANG
+|-
+| 0F || HANGZ
+|-
+| 10 || FREEFALL
+|-
+| 11 || CHARGE
+|-
+| 12 || STILL
+|-
+| 13 || PUSHPULL
+|-
+| 14 || BOOKEEPON
+|}
+
+=== Function Data ===
+List of the functions referenced by the Camera M struct. The function table is located at 800EF080 in NTSC 1.0
+{| class="wikitable"
+! Id || Function || NTSC 1.0
+|-
+| 00 || NONE || 00000000
+|-
+| 01 || NORM0() || 8003A2C4
+|-
+| 02 || NORM1() || 80038A14
+|-
+| 03 || NORM2() || 8003946C
+|-
+| 04 || NORM3() || 80039BFC
+|-
+| 05 || NORM4() || 8003A2A4
+|-
+| 06 || PARA0() || 8003AC14
+|-
+| 07 || PARA1() || 8003A2E4
+|-
+| 08 || PARA2() || 8003AB70
+|-
+| 09 || PARA3() || 8003AB90
+|-
+| 0A || PARA4() || 8003ABF4
+|-
+| 0B || KEEP0() || 8003F9DC
+|-
+| 0C || KEEP1() || 8003D400
+|-
+| 0D || KEEP2() || 8003E150
+|-
+| 0E || KEEP3() || 8003E170
+|-
+| 0F || KEEP4() || 8003EBC4
+|-
+| 10 || SUBJ0() || 80041540
+|-
+| 11 || SUBJ1() || 800408C8
+|-
+| 12 || SUBJ2() || 800408E8
+|-
+| 13 || SUBJ3() || 80040908
+|-
+| 14 || SUBJ4() || 80040F0C
+|-
+| 15 || JUMP0() || 8003C2EC
+|-
+| 16 || JUMP1() || 8003AC34
+|-
+| 17 || JUMP2() || 8003B274
+|-
+| 18 || JUMP3() || 8003BB60
+|-
+| 19 || JUMP4() || 8003C2CC
+|-
+| 1A || BATT0() || 8003D3E0
+|-
+| 1B || BATT1() || 8003C30C
+|-
+| 1C || BATT2() || 8003D048
+|-
+| 1D || BATT3() || 8003D068
+|-
+| 1E || BATT4() || 8003D088
+|-
+| 1F || FIXD0() || 800408A8
+|-
+| 20 || FIXD1() || 8003FC7C
+|-
+| 21 || FIXD2() || 8003FF68
+|-
+| 22 || FIXD3() || 8004031C
+|-
+| 23 || FIXD4() || 8004051C
+|-
+| 24 || DATA0() || 80041560
+|-
+| 25 || DATA1() || 80041580
+|-
+| 26 || DATA2() || 800415A0
+|-
+| 27 || DATA3() || 800415C0
+|-
+| 28 || DATA4() || 800415E0
+|-
+| 29 || UNIQ0() || 8004260C
+|-
+| 2A || UNIQ1() || 800418CC
+|-
+| 2B || UNIQ2() || 80041D50
+|-
+| 2C || UNIQ3() || 80042108
+|-
+| 2D || UNIQ4() || 80042BC0
+|-
+| 2E || UNIQ5() || 80042BE0
+|-
+| 2F || UNIQ6() || 80042C00
+|-
+| 30 || UNIQ7() || 80042D30
+|-
+| 31 || UNIQ8() || 80042F34
+|-
+| 32 || UNIQ9() || 80042F54
+|-
+| 33 || DEMO0() || 80046220
+|-
+| 34 || DEMO1() || 8004442C
+|-
+| 35 || DEMO2() || 80044604
+|-
+| 36 || DEMO3() || 80044624
+|-
+| 37 || DEMO4() || 80045110
+|-
+| 38 || DEMO5() || 80045130
+|-
+| 39 || DEMO6() || 80045B08
+|-
+| 3A || DEMO7() || 80045DAC
+|-
+| 3B || DEMO8() || 80045DE0
+|-
+| 3C || DEMO9() || 80045E00
+|-
+| 3D || SPEC0() || 80046240
+|-
+| 3E || SPEC1() || 80046388
+|-
+| 3F || SPEC2() || 800463A8
+|-
+| 40 || SPEC3() || 800463C8
+|-
+| 41 || SPEC4() || 800463E8
+|-
+| 42 || SPEC5() || 8004658C
+|-
+| 43 || SPEC6() || 80046C7C
+|-
+| 44 || SPEC7() || 80046930
+|-
+| 45 || SPEC8() || 800470EC
+|-
+| 46 || SPEC9() || 8004710C
+|}

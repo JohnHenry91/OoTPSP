@@ -1,0 +1,2 @@
+{{Actor|name=ovl_En_Clear_Tag|ispage=true}}
+'''ovl_En_Clear_Tag''' is the infamous Arwing actor. Unlike other actors, the Arwing does not appear to have a separate [[object]] file

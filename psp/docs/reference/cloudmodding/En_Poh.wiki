@@ -1,0 +1,4 @@
+{{actor|name=ovl_En_Poh|ispage=true}}
+'''ovl_En_Poh''' is the standard [[Poe]] [[actor]]
+{{clear}}
+[[Category:Poes]]

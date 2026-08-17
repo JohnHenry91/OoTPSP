@@ -1,0 +1,21 @@
+{{Actor|name=ovl_En_Hs|ispage=true}}
+
+'''ovl_En_Hs''' is the [[actor]] for version of the carpenter's depressed son that appears during the adult era. He's known as [[Grog]] in ''Majora's Mask''.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{{investigate|Is this an unused shop?}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [36m ヒヨコの店(大人の時) [m||[36m Chick Shop (Adult Era) [m
+|-
+| [36m ヒヨコ屋閉店 [m||[36m Chick Shop - Closed [m
+|-
+| [36m ヒヨコの店(子人の時) [m||[36m Chick Shop (Child Era) [m
+|}
+
+[[Category:Grog]]

@@ -1,0 +1,147 @@
+== Files ==
+The following is a list of files used for the game's various maps. 
+
+=== ovl_map_mark_data ===
+Contains data for placing chest/boss room icons on the minimap used during game play for [[scenes]] 0-9 (the 10 major dungeons). See [[#map_mark_data|map_mark_data]] below for more information on the file's data.
+
+=== map_grand_static ===
+map_grand_static contains the textures for the overworld minimaps. The first 20 textures correspond with scenes 81-100. There are 4 "extra" minimaps that are displayed during specific events:
+
+* A second Graveyard minimap replaces the original one once the Shadow Temple is discovered
+* Lake Hylia has a different minimap for when the water level is lowered as an Adult
+* Gerudo Valley has a minimap for when the bridge to Gerudo's Fortress is broken
+* A second Gerudo's Fortress replaces the original one once you head up into the Horseback Archery section
+
+=== map_48x85_static ===
+map_48x85_static contains the textures for the pause screen dungeon (scenes 0-9) maps. All textures are 48x85, ci4 textures. Two textures are used to create a complete map of a single floor; as such, dungeon floors use a 2 step index (0, 2, 4, etc.). Even indices are used for the left texture of the floor, while odd indices are used for the right texture. 
+
+The outline around the dungeon, and each room shown within a floor is assigned it's own unique color. This makes it possible to highlight specific rooms, and hide the border before the player has obtained the map.
+
+=== map_i_static ===
+map_i_static contains the textures for the dungeon (scenes 0-9) minimaps. Each one is an 96 by 85, i4 texture. There are 239 textures in total. Each minimap is aligned to the bottom right corner of the texture.
+
+== Map Data Table ==
+{{address3|space=code|hideoff=false
+|ver1=Debug|ref1=ram|start1=801257F8|size1=70
+|ver2=NTSC 1.0|ref2=rom|start2=B6D238|size2=70
+|ver3=USA MQ|ref3=ram|start3=800F67A8|size3=70
+}}
+
+{|class="wikitable" {{ts|al|ml5|font-family: monospace}}
+! Off || Debug || NTSC 1.0 || Description
+|-
+| 00 || 80123A70 || 800F5550 || s16[10*8] Dungeon floor index in map_48x85_static for all 8 floors of all dungeons; increases by 2 per floor due to each floor being 2 textures
+|-
+| 04 || 80123B10 || 800F55F0 || Which floor index the boss room is on. Used to place Link on the subscreen while in one
+|-
+| 08 || 80123B20 || 800F5600 || Palette index to use for each of the 32 rooms in all 10 dungeon for the map_48x85_static textures (index 0x0 are blank pixels, index 0xF is outline)
+|-
+| 0C || 80123DA0 || 800F5880 || Number of palette indexes to use for the rooms (Half) (Set to the highest amount of rooms on a single floor)
+|-
+| 10 || 80123DB4 || 800F5894 || Map palette index 0x1-0xE in table above to their room IDs (Half) (14 entries per floor. 8 floors. 10 dungeons. 0xFF for unused indexes)
+|-
+| 14 || 80124674 || 800F6154 || Dungeon Room Compass X Offsets (half)
+|-
+| 18 || 801249E4 || 800F64C4 || Dungeon Room Compass Y Offsets (half)
+|-
+| 1C || 80124D54 || 800F6834 || # of Room Minimaps per Dungeon (Byte)
+|-
+| 20 || 80124D60 || 800F6840 || Minimap Room Texture Entry Offsets per Dungeon (Half)
+|-
+| 24 || 80124D74 || 800F6854 || Overworld Minimap Texture Lengths (Half)
+|-
+| 28 || 80124DA4 || 800F6884 || Overworld Minimap Texture Offsets (Half)
+|-
+| 2C || 80124DD4 || 800F68B4 || Overworld Minimap X Positions (Half)
+|-
+| 30 || 80124E04 || 800F68E4 || Overworld Minimap Y Positions (Half)
+|-
+| 34 || 80124E34 || 800F6914 || Overworld Compass X Scale (Half), Y Scale (Half), X Offset (Half), Y Offset (Half)
+|-
+| 38 || 80124EF4 || 800F69D4 || Dungeon start index in map_48x85_static (Half) (increases by 2 per floor due to each floor being 2 textures)
+|-
+| 3C || 80124F08 || 800F69E8 || Dungeon Compass X Scale (Half), Y Scale (Half), X Offset (Half), Y Offset
+|-
+| 40 || 80124F58 || 800F6A38 || Overworld Minimap Texture Width (Half)
+|-
+| 44 || 80124F88 || 800F6A68 || Overworld Minimap Texture Height (Half)
+|-
+| 48 || 80124FB8 || 800F6A98 || Overworld Dungeon Entrance X Position (Half)
+|-
+| 4C || 80124FE8 || 800F6AC8 || Overworld Dungeon Entrance Y Position (Half)
+|-
+| 50 || 80125018 || 800F6AF8 || Dungeon Entrance Flag [?] (Half)
+|-
+! colspan="4" | Dungeon Floors
+|-
+| 54 || 80125040 || 800F6B20 || Y Coordinates for All 8 Floors of All Dungeons
+|-
+| 58 || 80125180 || 800F6C60 || Floor Transition Entries per Dungeon (Number of entries for the next 3 tables)
+|-
+| 5C || 80125194 || 800F6C74 || Room to Go From (Byte)
+|-
+| 60 || 80125394 || 800F6E74 || Floor to Check For (Byte)
+|-
+| 64 || 80125594 || 800F7074 || Room to Go To (Byte)
+|-
+! colspan="4" | Dungeon Subscreen
+|-
+| 68 || 80125794 || 800F7274 || Floor ID (1F, BF, B2, Etc.) (Byte)
+|-
+| 6C || 801257E4 || 800F72C4 || Dungeon Floor Boss Skull Y Offset relative to center of screen (Half)
+|}
+
+== Dungeon Floor Icon Draw Table ==
+{{address3|space=ovl_kaleido_scope|hideoff=false
+|ver1=Debug|ref1=ram|start1=
+|ver2=NTSC 1.0|ref2=rom|start2=00BC7E00
+|ver3=USA MQ|ref3=rom|start3=00BB49E0
+}}
+In [[ovl_kaleido_scope]], there is an array of 0x1EC byte records that store the dungeon map icon information for scenes 0-9. Each record corresponds to a single floor within the dungeon.
+{{clear}}
+
+<pre style="display: inline-block;">struct 
+{
+    /* 0x00 */ s16 icon; //Icon Type; 0 = Chest, 1 = Boss
+    /* 0x04 */ s32 //?
+    /* 0x08 */ Vertex* vertex //icon vertex data
+    /* 0x0C */ int numVertices //icon vertices 
+    /* 0x10 */ s32 //Number of chests?
+    /* 0x14 */ struct 
+    {
+        /* 0x00 */ s16 //chest flag; -1 for no flag
+        /* 0x04 */ f32 //x icon offset
+        /* 0x08 */ f32 //y icon offset
+    } IconPoint[12]; //0x0C bytes per record
+} DungeonFloor[3]; //0xA4 bytes per record, 0x1EC bytes total</pre>
+
+Note: In order to index this table, the game uses the map_48x85_static index for the floor, where index 0 is the first floor, index ''2'' is the second and so on. Thus, the code uses a multiplier of 0xF6 instead of 0x1EC to reach each record.
+
+== map_mark_data ==
+
+=== Structure ===
+The overlay only contains data. At the end of the overlay's data section, there is a pointer array to the map mark data for the dungeon minimaps. Each minimap that appears in a dungeon is associated with a 0x72 byte record. The minimaps are indexed in the same order as they appear on file.
+
+<pre style="display: inline-block;">
+struct
+{
+    /* 0x00 */ s8 icon; // 0 for the chest icon, 1 for the boss room icon, FF for unused
+    /* 0x01 */ u8 count; //number of icons to display. Maximum per group is 12
+    /* 0x02 */ struct 
+    {
+        /* 0x00 */ s8 chestFlag; //if specified chest flag is 0, the icon will be displayed
+        /* 0x01 */ u8 x, y; //coordinates to place the icon (top-left corner), relative to the minimap texture.
+
+    } MinimapIconPoint[12]; //0x03 bytes per record
+
+} DungeonMinimapMarks[3]; //0x26 bytes per record, 0x72 bytes total
+</pre>
+
+If '''icon''' is 0 or 1, the minimap rendering routine will parse the next set of points. Once an '''icon''' set to FF is encountered, the rest of the bytes are 0.
+
+=== Positioning the Icons ===
+
+The minimap textures in [[map_i_static]] are  96x85 in size. The set coordinate will position the icon from the top-left corner, rather than the center. Since the chest icon is 7x7 in size, to center a chest icon at point 48,50, subtract 4 from both x and y positions (44,46).
+
+
+[[Category: Code (File)]] [[Category: Ovl_kaleido_scope]]

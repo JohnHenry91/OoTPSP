@@ -1,0 +1,4 @@
+{{actor|name=ovl_En_Nutsball}}
+'''ovl_En_Nutsball''' is the [[actor]] file for the projectile shot by [[Deku Scrubs]] and Octoroks. 
+{{clear}}
+[[Category:Deku Scrubs]]

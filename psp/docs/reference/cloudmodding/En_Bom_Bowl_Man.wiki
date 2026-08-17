@@ -1,0 +1,35 @@
+{{Actor|name=ovl_En_Bom_Bowl_Man|ispage=true}}
+
+'''ovl_En_Bom_Bowl_Man''' is the [[actor]] for the [[Bombchu Bowling]] lady.
+
+{{clear}}
+
+==Console Output Strings==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆ もー 肩こっちゃうよねぇ～  ☆ ||[32m☆ MAN, MY SHOULDERS HURT~  ☆ 
+|-
+| [m[32m☆ もっとラクしてもうかるバイトないかしら？ ☆ %d||[m[32m☆ ISN'T THERE SOME SORT OF JOB THAT WILL PAY BETTER AND BE MORE RELAXING? ☆ %d
+|-
+| [m[31m☆ game_play->bomchu_game_flag ☆ %d||[m[31m☆ game_play->bomchu_game_flag ☆ %d
+|-
+| [m[31m☆ 壁１の状態どう？ ☆ %d||[m[31m☆ HOW'S THE FIRST WALL DOING? ☆ %d
+|-
+| [m[31m☆ 壁２の状態どう？ ☆ %d||[m[31m☆ HOW'S THE SECOND WALL DOING? ☆ %d
+|-
+| [m[31m☆ 穴情報     ☆ %d||[m[31m☆ HOLE INFORMATION     ☆ %d
+|-
+| [m||[m
+|-
+| [35m☆☆☆☆☆ 中央ＨＩＴ！！！！ ☆☆☆☆☆ ||[35m☆☆☆☆☆ CENTER HIT!!!! ☆☆☆☆☆ 
+|-
+| [m[35m☆☆☆☆☆ ボムチュウ消化 ☆☆☆☆☆ ||[m[35m☆☆☆☆☆ BOMBCHU LOST ☆☆☆☆☆ 
+|-
+| [m[33m☆ わー ☆ %d||[m[33m☆ WOW ☆ %d
+|-
+| [m../z_en_bom_bowl_man.c../z_en_bom_bowl_man.c||[m../z_en_bom_bowl_man.c../z_en_bom_bowl_man.c
+|}
+
+[[Category:Bombchu Bowling]]

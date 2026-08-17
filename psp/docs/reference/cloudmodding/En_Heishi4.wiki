@@ -1,0 +1,41 @@
+{{Actor|name=ovl_En_Heishi4|ispage=true}}
+
+'''ovl_En_Heishi4''' is a [[Hylian soldier]] [[actor]].
+
+{{todo|Figure out which soldier it is!}}
+
+{{clear}}
+
+== Console Output Strings ==
+
+{{investigate|Is there a cutscene associated with this soldier? What's with the Master Sword line?}}
+
+{{translate}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m ☆☆☆☆☆ 兵士２セット完了！ ☆☆☆☆☆ %d||[32m ☆☆☆☆☆ SOLDER 2 SETTINGS COMPLETE ☆☆☆☆☆ %d
+|-
+| [m[33m ☆☆☆☆☆ 識別完了！    ☆☆☆☆☆ %d||[m[33m ☆☆☆☆☆ IDENTIFICATION COMPLETE!    ☆☆☆☆☆ %d
+|-
+| [m[35m ☆☆☆☆☆ メッセージ完了！   ☆☆☆☆☆ %x||[m[35m ☆☆☆☆☆ MESSAGE COMPLETE!   ☆☆☆☆☆ %x
+|-
+| 　||
+|-
+| [m||[m
+|-
+| 　||
+|-
+| [32m ☆☆☆☆☆ ぎゃぁ！オトナだー ☆☆☆☆☆ ||[32m ☆☆☆☆☆ GYAAAH! AN ADULT! ☆☆☆☆☆ 
+|-
+| [m[33m ☆☆☆☆☆ マスターソード祝入手！ ☆☆☆☆☆ ||[m[33m ☆☆☆☆☆ MASTER SWORD 祝入手！ ☆☆☆☆☆ 
+|-
+| [m[33m ☆☆☆☆☆ デモ開始！ ☆☆☆☆☆ ||[m[33m ☆☆☆☆☆ CUTSCENE START! ☆☆☆☆☆ 
+|-
+| [m[34m ☆☆☆☆☆ 返事なし ☆☆☆☆☆ ||[m[34m ☆☆☆☆☆ NO REPLY ☆☆☆☆☆ 
+|-
+| [m||[m
+|}
+
+[[Category:Hylian Soldiers]]

@@ -1,0 +1,79 @@
+{{actor|name=ovl_En_Zl3}}
+'''ovl_En_Zl3''' is the  [[Princess Zelda|Adult Princess Zelda]] actor, used during the Tower Collapse sequence.
+[[Category:Princess Zelda]]
+{{clear}}
+==Console Output Strings==
+
+{{translate}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| ../z_en_zl3.c
+|-
+| ../z_en_zl3.c
+|-
+| ../z_en_zl3.c
+|-
+| ../z_en_zl3.c
+|-
+| ../z_en_zl3.c
+|-
+| ../z_en_zl3.c
+|-
+| ../z_en_zl3.c
+|-
+| ゼルダ姫のEn_Zl3_Actor_inFinal_Init通すよ!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| ゼルダ姫のEn_Zl3_Actor_inFinal_Initは通った!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| En_Zl3_inFinal_Check_DemoMode:そんな動作は無い!!!!!!!!||
+|-
+| ゼルダ姫のEn_Zl3_Actor_inFinal2_Init通すよ!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| ゼルダ姫のEn_Zl3_Actor_inFinal2_Initは通った!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| En_Zl3_inFinal2_Check_DemoMode:そんな動作は無い!!!!!!!!||
+|-
+| En_Zl3_Get_path_info レールデータをゲットだぜ = %d!!!!!!!!!!!!!!||
+|-
+| En_Zl3_Get_path_info レールデータが無い!!!!!!!!!!!!!!!!!!!!||
+|-
+| ../z_en_zl3_inEscape.c
+|-
+| ../z_en_zl3_inEscape.c
+|-
+| ../z_en_zl3_inEscape.c
+|-
+| ../z_en_zl3_inEscape.c
+|-
+| ../z_en_zl3_inEscape.c
+|-
+| ../z_en_zl3_inEscape.c
+|-
+| ../z_en_zl3_inEscape.c
+|-
+| [31m En_Oa3 の arg_data がおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| [m[31mEn_Zl3_main_bankアニメーションのバンクを読めない!!!!!!!!!!!!||
+|-
+| [m[31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| [mゼルダ姫のEn_Zl3_Actor_ct通すよ!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| ゼルダ姫のEn_Zl3_Actor_ctは通った!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| [31m描画前処理モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| [m
+|-
+| ../z_en_zl3.c
+|-
+| ../z_en_zl3.c
+|-
+| ../z_en_zl3.c
+|-
+| ../z_en_zl3.c
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|}

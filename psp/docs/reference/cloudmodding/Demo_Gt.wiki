@@ -1,0 +1,67 @@
+{{Actor|name=ovl_Demo_Gt|ispage=true}}
+
+'''ovl_Demo_Gt''' is the [[actor]] for Ganon's Tower collapsing.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| ../z_demo_gt_part1.c||../z_demo_gt_part1.c
+|-
+| ../z_demo_gt_part1.c||../z_demo_gt_part1.c
+|-
+| ../z_demo_gt_part1.c||../z_demo_gt_part1.c
+|-
+| ../z_demo_gt_part2.c||../z_demo_gt_part2.c
+|-
+| ../z_demo_gt_part2.c||../z_demo_gt_part2.c
+|-
+| ../z_demo_gt_part2.c||../z_demo_gt_part2.c
+|-
+| ../z_demo_gt_part3.c||../z_demo_gt_part3.c
+|-
+| ../z_demo_gt_part3.c||../z_demo_gt_part3.c
+|-
+| ../z_demo_gt_part3.c||../z_demo_gt_part3.c
+|-
+| ../z_demo_gt_part4_1.c||../z_demo_gt_part4_1.c
+|-
+| ../z_demo_gt_part4_1.c||../z_demo_gt_part4_1.c
+|-
+| ../z_demo_gt_part4_1.c||../z_demo_gt_part4_1.c
+|-
+| ../z_demo_gt_part4_2.c||../z_demo_gt_part4_2.c
+|-
+| ../z_demo_gt_part4_2.c||../z_demo_gt_part4_2.c
+|-
+| ../z_demo_gt_part4_2.c||../z_demo_gt_part4_2.c
+|-
+| ../z_demo_gt_part4_3.c||../z_demo_gt_part4_3.c
+|-
+| ../z_demo_gt_part4_3.c||../z_demo_gt_part4_3.c
+|-
+| ../z_demo_gt_part4_3.c||../z_demo_gt_part4_3.c
+|-
+| ../z_demo_gt_part5.c||../z_demo_gt_part5.c
+|-
+| ../z_demo_gt_part5.c||../z_demo_gt_part5.c
+|-
+| ../z_demo_gt_part5.c||../z_demo_gt_part5.c
+|-
+| ../z_demo_gt_part6.c||../z_demo_gt_part6.c
+|-
+| ../z_demo_gt_part6.c||../z_demo_gt_part6.c
+|-
+| ../z_demo_gt_part6.c||../z_demo_gt_part6.c
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mMAIN MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|-
+| Demo_Gt_Actor_ct そんな引数は無い!!!!!!!!!!!!!!!!!!!!!!!!!!!!||Demo_Gt_Actor_ct FUNCTION DOESN'T EXIST!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mDRAW MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|}
+
+[[Category:Ganon's Tower]]

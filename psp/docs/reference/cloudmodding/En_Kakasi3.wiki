@@ -1,0 +1,25 @@
+{{Actor|name=ovl_En_Kakasi3|ispage=true}}
+
+'''ovl_En_Kakasi3''' is the actor file for [[Bonooru]] the [[Scarecrows|Scarecrow]].
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [33m☆☆☆☆☆ おーボヌール ☆☆☆☆☆ [m||[33m☆☆☆☆☆ OH, BONOORU ☆☆☆☆☆ [m
+|-
+| [35m☆☆☆☆☆ まさか！ ☆☆☆☆☆ %d[m||[35m☆☆☆☆☆ YOU'VE GOTTA BE KIDDING! ☆☆☆☆☆ %d[m
+|-
+| 　||　
+|-
+| [36m☆☆☆☆☆ これで、他の奴もＯＫ！だ！ ☆☆☆☆☆ %d[m||[36m☆☆☆☆☆ THIS MEANS THAT THE OTHER GUY WILL BE OK TOO! ☆☆☆☆☆ %d[m
+|-
+| 　||　
+|-
+| [33m☆☆☆☆☆ フラグ！ ☆☆☆☆☆ %d[m||[33m☆☆☆☆☆ FLAG! ☆☆☆☆☆ %d[m
+|}
+
+[[Category:Scarecrows]]

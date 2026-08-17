@@ -1,0 +1,788 @@
+{{todo|Document locations for other versions}}
+The following page documents several functions used in the Debug Rom.
+
+==Functions==
+The N64 functions and math functions were found with LFE unless otherwise noted.
+===Misc===
+====AssertMessage====
+ 0x80001ff0
+ void AssertMessage(char* cond, char* fn, int line);
+''Called when an assert() fails''<br>
+'''cond''' is the condition that was asserted<br>
+'''fn''' is the file (<tt>__FILE__</tt>)<br>
+'''line''' is the line (<tt>__LINE__</tt>)
+====DebugMessage====
+ 0x80002130
+ void DebugMessage(char* format, ...);
+''Print an informational debug message''<br>
+'''format''' is a <tt>printf()</tt>-style format string<br>
+====NullPointerCheck====
+ 0x80002d60
+ void NullPointerCheck(char* exp, void* ptr, char* fn, int line);
+''Prints a debug message if the pointer is NULL''<br>
+'''exp''' is the name of the value to check<br>
+'''ptr''' is the pointer value<br>
+'''fn''' is the file (<tt>__FILE__</tt>)<br>
+'''line''' is the line (<tt>__LINE__</tt>)
+====DebugMessageWithThreadId====
+ 0x80002e10
+ void DebugMessageWithThreadId(char* str, int val);
+''Prints a debug message <tt>"<%d %s %d>"</tt> where the first integer is the current thread ID''<br>
+'''str''' Unknown. File name?<br>
+'''val''' Unknown. Line number?<br>
+====game_alloc====
+ 0x800C5484
+ char * game_alloc(u32 z_gp, int siz, char * fn, int line);
+''Allocates memory''<br>
+'''z_gp''' is 0x80212020<br>
+'''siz''' is the size of the block to be allocated<br>
+'''fn''' is the file (<tt>__FILE__</tt>)<br>
+'''line''' is the line (<tt>__LINE__</tt>)
+====graph_alloc====
+ 0x800C69cc
+ void * graph_alloc(u32 z_gp, int siz);
+''Allocates graphics memory''<br>
+'''z_gp''' is 0x80212020<br>
+'''siz''' is the size of the block to be allocated<br>
+
+''[[Notes/Lee's graph alloc notes|graph_alloc notes]]''
+
+====DMARomToRam====
+ 0x80000BFC
+ void DMARomToRam(u32 rom_addr, u32 ram_addr, int siz);
+''Transfers data from ROM to RAM''<br>
+Variables are self explanatory
+
+====GetFile====
+ 0x800013FC
+ void GetFile(ftl_d * f);
+''Loads a file from the filesystem''<br>
+'''f''' is a pointer to an instance of this structure:
+ typedef struct {
+    u32 rom_v_start;
+    char *dest;
+    int siz;
+ } ftl_d;
+Note that the memory must already be allocated for '''dest'''!
+====set_actor_size====
+ 0x8002D62C
+ void set_actor_size(z64_actor_t * a, f32 size);
+''Sets an actor's scale''<br>
+'''a''' is the actor's [[Actors#Loaded Actors|structure]], and<br>
+'''size''' is the scale (float) that it is to be scaled to.
+====set_bgm====
+ 0x800FA00C
+ void set_bgm(u8 seq_num);
+''Sets background music to be played''<br>
+'''seq_num''' is the [[Music Sequences|sequence number]] to use
+
+===OoT spawn functions===
+====SpawnObject====
+ 0x80097C00
+ void ObjectSpawn(u32 const_1, u16 object_number);
+''Spawns an object''<br>
+'''const_1''' is 0x802237C4
+====ActorSpawn====
+ 0x80031F50
+ actor * ActorSpawn(u32 const_1, GamePlay* ctxt, int actor_no, f32 fx, f32 fy, f32 fz, u16 rx, u16 ry, u16 rz, int actor_var);
+''Spawns an actor''<br>
+'''const_1''' is 0x80213C44<br>
+'''ctxt''' is probably Game Play (<tt>0x80212020</tt>).<br>
+Return value is a pointer to a [[Actors#Loaded_Actors|loaded actor]].<br>
+<br>
+Other:<br>
+ 0x80032458<br>
+ actor_loaded_t* ( void* (z_ctxt + 0x1C24), actor_loaded_t* link, void *z_ctxt, uint16_t actor_number, float x, float y, float z, uint16_t xrot, uint16_t yrot, uint16_t zrot, uint16_t variable);<br>
+
+====SpawnArea====
+ 0x800C0008
+ void SpawnArea(GamePlay* ctxt, int scene_no, int entrance_no);
+''Spawns a specified scene''<br>
+'''ctxt''' is probably Game Play (<tt>0x80212020</tt>).<br>
+'''scene_no''' is the [[Scene Table|scene number]] to use<br>
+'''entrance_no''' is the start position to use.
+
+====EffectAdd====
+ 0x80026cd4
+ ? EffectAdd(...);
+''Spawns an effect? Name gleaned from debug message.''<br>
+
+===OoT Text functions===
+buffer is a text object, 0x2C bytes as I recall. It's <tt>struct</tt>ure is still yet to be determined.
+====SetTextRGBA====
+ 0x800FB3AC
+ void SetTextRGBA(void * buffer, u8 r, u8 g, u8 b, u8 a);
+''Sets color of text to be drawn''
+====SetTextXY====
+ 0x800FB41C
+ void SetTextXY(void * buffer, u16 x, u16 y);
+''Sets the position of text to be drawn''
+====SetTextString====
+ 0x800FBCB4
+ void SetTextString(void * buffer, char * format, ...);
+''Sets the text string to be drawn''
+
+===Math functions===
+====absf====
+ 0x801067E0
+ float absf(float value);
+''Returns absolute value of a float''<br>
+Not found with LFE, manually found
+====__sinf/fsin/sinf====
+ 0x80100290
+ float sinf(float angle);
+''Computes the sine of an angle in floating point''
+====sins====
+ 0x80100450
+ float sins(unsigned short angle)
+''Computes the sine of an angle in fixed point''
+====__cosf/fcos/cosf====
+ 0x80104610
+ float cosf(float angle);
+''Computes the cosine of an angle in floating point''
+====coss====
+ 0x80104780
+ float coss(unsigned short angle);
+''Computes the cosine of an angle in fixed point''
+====sqrtf====
+ 0x801031E0
+ float sqrtf (float value);
+''Computes the square root''
+
+===N64 OS functions===
+====osSendMesg====
+ 0x80003060
+ void osSendMesg(OSMesgQueue *mq, OSMesg msg, s32 flag);
+''Provides messaging and synchronization facilities''
+====osStopThread====
+ 0x800031B0
+ void osStopThread(OSThread *t);
+''Suspends a given thread''
+====osRecvMesg====
+ 0x80003280
+ s32 osRecvMesg(OSMesgQueue *mq, OSMesg *msg, s32 flag);
+''Provides messaging and synchronization facilities''
+====osCreateThread====
+ 0x80004550
+ void osCreateThread(OSThread *t, OSId id, void (*entry)(void *),
+                void *arg, void *sp, OSPri pri);
+''Registers a schedulable object''
+====osWritebackDCache====
+ 0x800046C0
+ void osWritebackDCache(void *vaddr, s32 nbytes);
+''Writes back CPU data cache lines to physical memory''
+====osVirtualToPhysical====
+ 0x80004DE0
+ u32 osVirtualToPhysical(void *vaddr)
+''Translates between CPU virtual address/physical memory address''
+====osGetThreadId====
+ 0x80004F20
+ void osGetThreadId(OSThread *t);
+''Obtains the debugger identifier of a thread''
+====osSetIntMask====
+ 0x80004F40
+ OSIntMask osSetIntMask(OSIntMask im);
+''Sets the enabled interrupt mask''
+====osInvalICache====
+ 0x80006150
+ void osInvalICache(void *vaddr, s32 nbytes);
+''Invalidates CPU instruction cache''
+====osCreateMesgQueue====
+ 0x800061D0
+ void osCreateMesgQueue(OSMesgQueue *mq, OSMesg *msg, s32 count);
+''Provides messaging and synchronization facilities''
+====osInvalDCache====
+ 0x80006200
+ void osInvalDCache(void *vaddr, s32 nbytes);
+''Invalidates CPU data cache lines''
+====osJamMesg====
+ 0x800062E0
+ void osJamMesg(OSMesgQueue *mq, OSMesg msg, s32 flag);
+''Provides messaging and synchronization facilities''
+====osSetThreadPri====
+ 0x80006430
+ void osSetThreadPri(OSThread *t, OSPri pri);
+''Sets the priority of specified thread''
+====osGetThreadPri====
+ 0x80006510
+ void osGetThreadPri(OSThread *t);
+''Gets the priority of specified thread''
+====osGetTime====
+ 0x800069E0
+ OSTime osGetTime(void);
+''Gets the real time counter value''
+====osGetCount====
+ 0x80006EA0
+ u32 osGetCount(void);
+''Returns CPU count register''
+====__osSetCompare====
+ 0x80006F00 : 
+ void __osSetCompare(u32 value);
+''Internal routine to access to multiple MIPS R4300 registers''
+====__osSetFpcCsr====
+ 0x80007A70
+ u32 __osSetFpcCsr(u32 value);
+''Sets the current value of the R4300 floating-point control/status register''
+====__osGetFpcCsr====
+ 0x80007A80
+ u32 __osGetFpcCsr(void);
+''Returns the current value of the R4300 floating-point control/status register''
+====osYieldThread====
+ 0x80007B40
+ void osYieldThread(void);
+''Yields the CPU and invokes the thread dispatcher''
+====__osGetCause====
+ 0x80007B90
+ u32 __osGetCause(void);
+''Returns the current value of the MIPS R4300 Cause register that describes the cause of the most recent exception''
+====osStartThread====
+ 0x80008FC0
+ void osStartThread(OSThread *t);
+''Starts or resumes a thread''
+====osSpTaskYield====
+ 0x801014A0
+ void osSpTaskLoad(OSTask *task);
+''Requests that the SP"yield"''
+====osStopTimer====
+ 0x80102330
+ void osStopTimer(OSTimer *timer);
+''Stops an interval or countdown timer''
+====osDpGetStatus====
+ 0x801041C0
+ u32 osDpGetStatus(void);
+''Returns the hardware status of the display processor command status register''
+
+====osDpSetStatus====
+ 0x801041D0
+ void osDpSetStatus(u32 status);
+''Updates the display processor command status register with status''
+====osAiGetLength====
+ 0x80105C00
+ u32 osAiGetLength(void);
+''Returns the number of bytes remaining in the current DMA buffer''
+====osWritebackDCacheAll====
+ 0x80106490
+ void osWritebackDCache(void *vaddr, s32 nbytes);
+''Writes back all cached locations to physical memory''
+====Undocumented OS functions====
+ 0x8000AE50 : osViModeMpalLan1
+ 0x80012160 : __osRcpImTable
+ 0x80106470 : __osSpGetStatus
+ 0x80106480 : __osSpSetStatus
+ 0x80004300 : __osDequeueThread
+ 0x800046A0 : __osSetSR
+ 0x800046B0 : __osGetSR
+ 0x80005040 : __osProbeTLB
+ 0x80006EB0 : __osSetGlobalIntMask
+ 0x80007220 : __osResetGlobalIntMask
+ 0x80007AE0 : osMapTLBRdb
+
+===Other N64 functions===
+====bzero/_bzero/blkclr/_blkclr====
+ 0x80004450
+ void bzero(void *dst, int length);
+''Zero-clears a byte string''
+====bcmp/_bcmp====
+ 0x800068C0
+ int bcmp(const void *s1, const void *s2, int length);
+''Compares byte strings''
+====bcopy/_bcopy====
+ 0x80006F10
+ void bcopy(const void *src,void *dst,int length);
+''Copies a byte string''
+====guPerspectiveF====
+ 0x801010D0
+ void guPerspectiveF(
+        float mf[4][4],
+        u16 *perspNorm,
+        float fovy,
+        float aspect,
+        float near,
+        float far,
+        float scale);
+''Creates a perspective projection matrix (floating point)''
+====guPerspective====
+ 0x80101300
+ void guPerspective(
+        Mtx *m,
+        u16 *perspNorm,
+        float fovy,
+        float aspect,
+        float near,
+        float far,
+        float scale);
+''Creates a perspective projection matrix (fixed point)''
+====guMtxIdentF====
+ NTSC 1.0: 0x800D0830
+ void guMtxIdentF(
+        float m[4][4]);
+''Creates a floating-point 4x4 identity matrix (m)''
+
+====guMtxF2L====
+ NTSC 1.0: 0x800AB6BC
+ void guMtxF2L(
+        float mf[4][4],
+        Mtx *m);
+''Converts a 4x4 floating-point matrix to a fixed-point matrix''
+
+===Other Zelda Functions===
+====T_BGCheck_getBGDataInfo====
+ 0x8003c4c4
+ int T_BGCheck_getBGDataInfo(void* ctx, int index);
+''Unknown use (name gleaned from debug message). Contains a <tt>DebugMessage</tt> call that says (in Japanese) "That bg_actor_index is unused. index=%d"''<br>
+'''ctxt''' is probably Game Play (<tt>0x80212020</tt>).<br>
+'''index''' is a "background actor index"<br>
+Return value (if any) unknown.<br>
+====DynaPolyInfo_setActor====
+ 0x8003ea74
+ int DynaPolyInfo_setActor(GamePlay* ctx, int unk, Actor* actor);
+''Unknown use (name gleaned from debug message). Contains a <tt>DebugMessage</tt> call that says (in Japanese) something like "Dynamic polygon ??? index missing"''.<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''unk''' is unknown<br>
+'''actor''' is an actor in RAM<br>
+Return value (if any) unknown.<br>
+====DynaPolyInfo_delReserve====
+ 0x8003ed58
+ int DynaPolyInfo_delReserve(GamePlay* ctx, int unk, int index);
+''Unknown use (name gleaned from debug message).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''unk''' is unknown<br>
+'''index''' is unknown (name gleaned from debug message)<br>
+Return value (if any) unknown.<br>
+====setCameraData====
+ 0x8005afd4
+ ? setCameraData(...);
+''Unknown use (name gleaned from debug message). Unknown signature. Contains a debug message that says "mcamera: setCameraData: last argument not alive!".''<br>
+====CollisionBtlTbl_get====
+ 0x8005b200
+ int CollisionBtlTbl_get(int index);
+''Unknown use (name gleaned from debug message).''<br>
+====ClObjJntSph_set3====
+ 0x8005be50
+ ? ClObjJntSph_set3(...);
+''Unknown use (name gleaned from debug message). Unknown signature.''<br>
+====CollisionCheck_setAT====
+ // z_collision_check.c
+ 0x8005d79c
+ ? CollisionCheck_setAT(...);
+''Unknown use (name gleaned from debug message). Unknown signature.''<br>
+====CollisionCheck_setAC====
+ // z_collision_check.c
+ 0x8005d9f4
+ ? CollisionCheck_setAC(...);
+''Unknown use (name gleaned from debug message). Unknown signature.''<br>
+====CollisionCheck_setOC====
+ // z_collision_check.c
+ 0x8005dc4c
+ ? CollisionCheck_setOC(...);
+''Unknown use (name gleaned from debug message). Unknown signature.''<br>
+
+====CollisionCheck_setOCLine====
+ // z_collision_check.c
+ 0x8005DE9C
+
+====CollisionCheck_generalLineOcCheck====
+ // z_collision_check.c
+ 0x80062530
+
+====Vec3f_Copy====
+ 0x80077e40
+ void Vec3f_Copy(Vec3f* dst, Vec3f* src);
+''Copy a three-component floating-point vector.''<br>
+====Vec3f_CopyVec3s====
+ 0x80077e5c
+ void Vec3f_CopyVec3s(Vec3f* dst, Vec3s* src);
+''Copy a three-component 16-bit short vector to a three-component float vector.''<br>
+====Vec3f_Add====
+ 0x80077e9c
+ void Vec3f_Add(Vec3f* left, Vec3f* right, Vec3f* dst);
+''Add two three-component vectors.''<br>
+====Vec3f_Sub====
+ 0x80077ed0
+ void Vec3f_Sub(Vec3f* left, Vec3f* right, Vec3f* dst);
+''Subtract two three-component vectors.''<br>
+====DisplayList_AllocSetEnvColor====
+ 0x800951d0
+ void* DisplayList_AllocSetEnvColor(GamePlay* ctxt, int r, int g, int b, int a);
+''Allocates and returns a display list that sets the environment color.''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''r''' is red component (0-255).<br>
+'''g''' is green component (0-255).<br>
+'''b''' is blue component (0-255).<br>
+'''a''' is alpha component (0-255).<br>
+====MapLoad_SetStartPositions_0x00====
+ 0x80098508
+ void MapLoad_SetStartPositions_0x00(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x00 (start positions).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetActorList_0x01====
+ 0x800985dc
+ void MapLoad_SetActorList_0x01(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x01 (actors).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_0x02====
+ 0x80098630
+ void MapLoad_0x02(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x02 (unknown).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetCollision_0x03====
+ 0x80098674
+ void MapLoad_SetCollision_0x03(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x03 (collision).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetMaps_0x04====
+ 0x800987a4
+ void MapLoad_SetMaps_0x04(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x04 (maps).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetEntrances_0x06====
+ 0x800987f8
+ void MapLoad_SetEntrances_0x06(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x06 (entrances).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_0x07====
+ 0x8009883c
+ void MapLoad_0x07(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x07 (unknown).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_0x08====
+ 0x80098904
+ void MapLoad_0x08(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x08 (unknown).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetMesh_0x0a====
+ 0x80098958
+ void MapLoad_SetMesh_0x0a(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x0a (mesh).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetObjects_0x0b====
+ 0x8009899c
+ void MapLoad_SetObjects_0x0b(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x0b (objects).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_0x0c====
+ 0x80098b74
+ void MapLoad_0x0c(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x0c (unknown).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_0x0d====
+ 0x80098c24
+ void MapLoad_0x0d(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x0d (unknown).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetTransitionActors_0x0e====
+ 0x80098c68
+ void MapLoad_SetTransitionActors_0x0e(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x0e (transition actors).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetEnvironment_0x0f====
+ 0x80098cc8
+ void MapLoad_SetEnvironment_0x0f(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x0f (environment settings).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetSkybox_0x11====
+ 0x80098d1c
+ void MapLoad_SetSkybox_0x11(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x11 (skybox).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetSkyboxControl_0x12====
+ 0x80098d5c
+ void MapLoad_SetSkyboxControl_0x12(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x12 (skybox modifier).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetTime_0x10====
+ 0x80098d80
+ void MapLoad_SetTime_0x10(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x10 (time).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_0x05====
+ 0x80099090
+ void MapLoad_0x05(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x05 (unknown).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetExits_0x13====
+ 0x800990f0
+ void MapLoad_SetExits_0x13(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x13 (exits).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_0x09====
+ 0x80099134
+ void MapLoad_0x09(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x09 (unknown).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetMusic_0x15====
+ 0x80099140
+ void MapLoad_SetMusic_0x15(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x15 (music).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetEcho_0x16====
+ 0x8009918c
+ void MapLoad_SetEcho_0x16(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x16 (echo).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_SetAltHeaders_0x18====
+ 0x800991a0
+ void MapLoad_SetAltHeaders_0x18(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x18 (alt. headers).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_0x17====
+ 0x8009934c
+ void MapLoad_0x17(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x17 (unknown).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+====MapLoad_0x19====
+ 0x800993c0
+ void MapLoad_0x19(GamePlay* ctxt, void* cmd);
+''Map-loading callback for command 0x19 (unknown).''<br>
+'''ctxt''' is Game Play (<tt>0x80212020</tt>).<br>
+'''cmd''' is a pointer to the map/scene command.<br>
+
+====Animation_GetFrameCount====
+ 0x800a2000
+ int Animation_GetFrameCount(int animation);
+''Get the number of frames in an animation.''<br>
+'''animation''' is the animation in [[segment offset]] format.<br>
+====Skeleton_Info_Rom_SV_ct====
+ 0x800a46f8
+ int Skeleton_Info_Rom_SV_ct(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
+''Unknown (name gleaned from debug message). Seems to be related to skeletal hierarchies and animation.''<br>
+====Skeleton_Info2_skin2_ct====
+ 0x800a487c
+ int Skeleton_Info2_skin2_ct(int a0, int a1, int a2, int a3);
+''Unknown (name gleaned from debug message). Seems to be related to skeletal hierarchies and animation.''<br>
+
+===Undocumented===
+ 0x80003710 : __ull_rshift
+ 0x8000373C : __ull_rem
+ 0x80003778 : __ull_div
+ 0x800037B4 : __ll_lshift
+ 0x800037E0 : __ll_rem
+ 0x8000381C : __ll_div
+ 0x80003878 : __ll_mul
+ 0x800038A8 : __ull_divremi
+ 0x80003908 : __ll_mod
+ 0x800039A4 : __ll_rshift
+ 0x80007D00 : _Litob
+ 0x80106550 : __d_to_ll
+ 0x8010656C : __f_to_ll
+ 0x80106588 : __d_to_ull
+ 0x80106628 : __f_to_ull
+ 0x801066C4 : __ll_to_d
+ 0x801066DC : __ll_to_f
+ 0x801066F4 : __ull_to_d
+ 0x80106728 : __ull_to_f
+ 0x8014B2D0 : __libm_qnan_f
+
+=== Incomplete ===
+../z_eff_blure.c
+ z_eff_blure.c::SQ_NoInterpolate_disp()
+ z_eff_blure.c::SQ_HermiteInterpolate_disp()
+ EffectBlureInfo2_disp_makeDisplayList()
+../z_eff_shield_particle.c
+ EffectShieldParticle_ct()
+ spark()
+ EffectSparkInfo_proc()
+ EffectSparkInfo_disp()
+../z_eff_ss_dead.c
+ EffectAdd()
+../z_effect_soft_sprite.c
+ EffectSoftSprite2_makeEffect()
+ EffectSoftSprite2_disp()
+../z_bgcheck.c
+ T_BGCheck_PosErrorCheck()
+ T_Polygon_GetVertex_bg_ai()
+ T_BGCheck_getBGDataInfo()
+ DynaPolyInfo_setActor()
+ DynaPolyInfo_delReserve()
+ DynaPolyInfo_expandSRT()
+ DynaPolyInfo_setup()
+ BGCheckCollection_typicalActorPos()
+../z_collision_check.c
+ CollisionBtlTbl_get()
+ ClObjJntSph_set()
+ ClObjJntSph_set3()
+ ClObjJntSph_set5()
+ ClObjTris_set3()
+ ClObjTris_set5()
+ CollisionCheck_setAT()
+ CollisionCheck_setAT_SAC()
+ CollisionCheck_setAC()
+ CollisionCheck_setAC_SAC()
+ CollisionCheck_setOC()
+ CollisionCheck_setOC_SAC()
+ CollisionCheck_setOCLine()
+ CollisionCheck_OC()
+ CollisionCheck_generalLineOcCheck()
+../z_fcurve_data_skelanime.c
+ FcSkeletonInfo_draw_child()
+../z_horse.c
+ Horse_SetNormal()
+ Horse_Set_Check()
+../z_skelanime.c
+ Si2_Lod_draw()
+ Si2_Lod_draw_SV()
+ Si2_draw()
+ Si2_draw_SV()
+ Si2_draw2()
+ Si2_draw2_SV()
+../z_skin_awb.c
+ Skin_Matrix_InverseMatrix()
+ Skin_Matrix_to_Mtx_new()
+../z_sram.c
+ sram_initialize( Game *game, Sram *sram )
+../z_fbdemo.c
+ msleep(100);
+ fbdemo_cleanup()
+ fbdemo_init()
+ shrink_window_setval
+ shrink_window_setnowval
+../z_play.c
+ Game_play_shop_pr_vr_switch_set()
+../game.c
+ game_alloc
+../main.c
+ debug_InitArena
+../padmgr.c
+ padmgr_HandlePreNMI()
+ padmgr_Create()
+../sched.c
+ osSpTaskStartGo
+../sys_cfb.c
+ Math3D_lineVsPosSuisenCross()
+ Math3DLengthPlaneAndPos()
+ Math3DSignedLengthPlaneAndPos()
+//? (crash debugger)
+ __osGetCurrFaultedThread()
+ FindFaultedThread()
+//? (in the midst of the gbi dump macros)
+ AnyDisplayList()
+../mtxuty-cvt.c
+ DoRelocation
+//os
+ malloc
+ malloc_DEBUG
+ malloc_r
+ malloc_r_DEBUG
+ realloc
+ realloc_DEBUG
+ calloc
+ __osFree
+ __osRealloc
+//? ocarina/audio
+ Na_StartOcarinaSinglePlayCheck2
+ Na_StopOcarinaMode();
+ Na_StartMorinigBgm
+ Na_SetSoundOutputMode
+//? memory allocation stuff
+ zelda_malloc()
+ zelda_malloc_DEBUG
+ zelda_malloc_r()
+ zelda_realloc
+ zelda_realloc_DEBUG
+ zelda_calloc
+
+==Within code==
+<div style="padding-left:2em">''Main Article: [[Code notes]]''</div>
+0x8001CE60 - 0x80157D90 is code
+ 801274A0(u32)[0x1A]	Jump table for map reading functions
+ 80127520(u16)		Adult link object number
+ 80127522(u16)		Child link object number
+ 80127524(u32)		Number of objects
+ 80127528(u32)[# objs]	Object table
+ 801162A0		[[Actors#Actor_table|Actor Table]]
+TODO: scene table, exit table, more functions
+
+== Game States ==
+{{main|Game States}}
+
+80212020 is a very important address, as it's the address that the active game state is allocated to in the Debug MQ rom. It's passed as an argument to many functions, most taking either a [[Game Play]] or [[Game Struct]] pointer.
+
+==gsSP Segments==
+ 80166FA8(u32)[(number of segments)]	Segment table, value|0x80000000 = ram addr
+ char * segments[8] = 0x80166FA8;
+Example: Segment 0x6 would be pointed to at 0x80166FC0 ( 0x6 << 2 = 0x18 + 0x80166FA8 = 0x80166FC0 )<br>
+''Note: the table is for the engine's reference only, so it is not reliable at all times, it is only updated when the cpu needs to update it, but not necessarily as the segment addresses are updated. Notably, the cpu does not keep track of segments 8-15''
+Segments values are:<br>
+0 - unknown<br>
+1 - unknown<br>
+2 - scene<br>
+3 - map<br>
+4 - gameplay_keep<br>
+5 - gameplay_field_keep (outside of dungeons), or gameplay_dangeon_keep (dungeons)<br>
+6 - current object<br>
+7 - unknown/link_animetion<br>
+8+  determined by current game circumstances.
+
+==Controller==
+ typedef struct /* ZZT32 did this struct */
+ {
+     /* Buttons */
+     u16 pad;
+     
+     /* Joystick */
+     signed x : 8;
+     signed y : 8;
+ } Controller; 
+ 80166AF0	Player 1
+ 80166B08	Player 2
+ 80166B20	Player 3
+ 80166B38	Player 4
+
+==Misc==
+{|class="wikitable"
+|8015E693 ||(s16?) || Magic amount
+|-
+|8015E695|||| Rupee amount
+|-
+|8015E6EE||(s8?)|| Bombs amount
+|-
+|8015E6EF|||| Arrow amount
+|-
+|8015E6F2|||| Deku seed amount
+|-
+|8015E690|||| Heart amount
+|-
+|8015FA54|| || Magic bar length
+|-
+|8015FA7A|||| Time of day
+|-
+|80062078|||| Link's damage amount
+|-
+|80211174||(u16) || Make any Non-Zero value to "freeze" all actors
+|-
+|802245B0||z64_actor_t||Link
+|-
+|80224C24|||| Link's action
+|-
+|8023D9A3|||| Explosions damage
+|}
+
+==See also==
+[http://spinout182.com/zelda64.h zelda64.h] 
+[[Category:Documentation]]
+[[Category:Code (File)]]
+[[Category:Ram]]

@@ -1,0 +1,3275 @@
+{{subpage}}
+
+{| class="wikitable" style="text-align: center; font-family: monospace; margin: left;"
+! Start || End || style="width: 5%;" | Type || Identification || Ref. || Notes || Type || Size
+|-
+| 00000000
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | 
+| rgb5a1
+| 16x16
+|-
+| 00000200
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | 
+| rgb5a1
+| 16x16
+|-
+| 00000400
+| 
+| Texture
+| style="text-align: left;" | Hylian Shield
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x64
+|-
+| 00001400
+| 
+| Texture
+| style="text-align: left;" | Ocarina of Time
+| ✔
+| style="text-align: left;" | 
+| rgb5a1
+| 32x16
+|-
+| 00001800
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | 
+| rgb5a1
+| 16x16
+|-
+| 00001A00
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | 
+| i8
+| 8x8
+|-
+| 00001A40
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | 
+| rgb5a1
+| 16x16
+|-
+| 00001C40
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | 
+| i8
+| 16x16
+|-
+| 00001D40
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | 
+| i8
+| 16x32
+|-
+| 00001F40
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | 
+| i8
+| 16x16
+|-
+| 000035C0
+| 
+| D. List
+| style="text-align: left;" | Debug Triangle [?]
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 000035F0
+| 
+| Texture
+| style="text-align: left;" | Circle
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 000036F0
+| 
+| Texture
+| style="text-align: left;" | Ball
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 000037F0
+| 
+| Texture
+| style="text-align: left;" | Cursor
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 000038F0
+| 
+| Texture
+| style="text-align: left;" | X
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 000039F0
+| 
+| D. List
+| style="text-align: left;" | Debug Arrow
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00003C90
+| 
+| D. List
+| style="text-align: left;" | Debug Camera
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00003FC8
+| 
+| D. List
+| style="text-align: left;" | Checkered Floor
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00004058
+| 
+| Texture
+| style="text-align: left;" | Checkered Floor
+| ✘
+| style="text-align: left;" |
+| ia4
+| 32x32
+|-
+| 00004298
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank square. Visible from one side only. Seems to take on environment textures.
+| 
+| 
+|-
+| 00004380
+| 
+| Texture
+| style="text-align: left;" | Arrow - Shaft
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 16x128
+|-
+| 00005380
+| 
+| Texture
+| style="text-align: left;" | Arrow - Fletching
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x16
+|-
+| 00005AA0
+| 
+| D. List
+| style="text-align: left;" | Arrow - High-Poly
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00005E20
+| 
+| D. List
+| style="text-align: left;" | Arrow - Low-Poly
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00006020
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x32
+|-
+| 00006820
+| 
+| Texture
+| style="text-align: left;" | Bomb - Body
+| ✔
+| style="text-align: left;" |
+| ia8
+| 64x64
+|-
+| 00007860
+| 
+| D. List
+| style="text-align: left;" | Bomb - Body
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000078F0
+| 
+| Texture
+| style="text-align: left;" | Bomb - Cap
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 8x8
+|-
+| 00007A50
+| 
+| D. List
+| style="text-align: left;" | Bomb - Cap
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00007B10
+| 
+| Texture
+| style="text-align: left;" | Bombchu
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 8x8
+|-
+| 00007E10
+| 
+| D. List
+| style="text-align: left;" | Bombchu
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00007F80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bomb & Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 00008780
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bomb & Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 00008F80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bomb & Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 00009780
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bomb & Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 00009F80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 0000A780
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 0000AF80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 0000B780
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bomb2
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 0000BF80
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Child Link animated eye textures? Transparent and blinks when Link does.
+| 
+| 
+|-
+| 0000BFE8
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0000C040
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank square. Visible from one side only. Seems to take on environment textures.
+| 
+| 
+|-
+| 0000C0D0
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_Hahen
+| 
+| style="text-align: left;" | Try blowing up a boulder and see if it results in this. [!]
+| 
+| 
+|-
+| 0000C160
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Hahen
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x16
+|-
+| 0000C690
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0000C698
+| 
+| D. List
+| style="text-align: left;" | Boomerang I
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0000C808
+| 
+| D. List
+| style="text-align: left;" | Boomerang II
+| 
+| style="text-align: left;" | What's the difference between these two?
+| 
+| 
+|-
+| 0000C820
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0000C8B0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?] Textures suggest it's a hookshot chain, but nothing appears...
+| 
+| 
+|-
+| 0000CC10
+| 
+| D. List
+| style="text-align: left;" | Indicator Arrow
+| 
+| style="text-align: left;" | For pointing out things you can interact with.
+| 
+| 
+|-
+| 0000CD20
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 8x8
+|-
+| 0000CE20
+| 
+| D. List
+| style="text-align: left;" | Triangle Pointer [?]
+| 
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 0000CE60
+| 
+| Texture
+| style="text-align: left;" | Hookshot Chain
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0000D260
+| 
+| Texture
+| style="text-align: left;" | Shop -『 Reticule
+| 
+| style="text-align: left;" |
+| ia4
+| 16x16
+|-
+| 0000D2E0
+| 
+| Texture
+| style="text-align: left;" | Shop - Control Stick Icon
+| 
+| style="text-align: left;" |
+| ia8
+| 16x16
+|-
+| 0000D3E0
+| 
+| Texture
+| style="text-align: left;" | Shop - Arrow Icon
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0000D6E0
+| 
+| D. List
+| style="text-align: left;" | Goron Rock - Fragment
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0000D7E0
+| 
+| D. List
+| style="text-align: left;" | Goron Rock
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0000D980
+| 
+| Texture
+| style="text-align: left;" | Goron Rock I [?]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0000E180
+| 
+| Texture
+| style="text-align: left;" | Goron Rock II [?]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0000F0D0
+| 
+| D. List
+| style="text-align: left;" | Wooden Door - Frame [?]
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0000F158
+| 
+| D. List
+| style="text-align: left;" | Wooden Door - Handle on Right
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0000F2A0
+| 
+| D. List
+| style="text-align: left;" | Wooden Door - Handle on Left
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0000F3D8
+| 
+| Texture
+| style="text-align: left;" | Wooden Door
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x64
+|-
+| 000104F0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank square. Visible from one side only. Glitched textures. Blinks when Link does.
+| 
+| 
+|-
+| 000105D0
+| 
+| D. List
+| style="text-align: left;" | Sparkle Mote I [?]
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00010650
+| 
+| D. List
+| style="text-align: left;" | Sparkle Mote II [?]
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000106C8
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 000116D0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x32
+|-
+| 00011ED0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x32
+|-
+| 00012A10
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00012B30
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00012F90
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 000130B0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 000131D0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000135D0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00013AB0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00013BA0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000143A0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00014E60
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00015060
+| 
+| Texture
+| style="text-align: left;" | Navi Wing
+| ✔
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000158A0
+| 
+| D. List
+| style="text-align: left;" | Navi - Top Wing I
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00015970
+| 
+| D. List
+| style="text-align: left;" | Navi - Top Wing II
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00015A30
+| 
+| D. List
+| style="text-align: left;" | Navi - Bottom Wing I
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00015B00
+| 
+| D. List
+| style="text-align: left;" | Navi - Bottom Wing II
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00015BC0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Draw Texture 0592E0
+| 
+| 
+|-
+| 00015C00
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank square that seems to always face the camera. Can't be viewed head-on, can only be seen peripherally.
+| 
+| 
+|-
+| 00015C20
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00015E08
+| 
+| Texture
+| style="text-align: left;" | Navi Wing [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x64
+|-
+| 00016EF0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i4
+| 16x16
+|-
+| 00016F70
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 00017070
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00017870
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00018070
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00018950
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00018D50
+| 
+| D. List
+| style="text-align: left;" | Fish - Tail
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00018DF0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?] Texture suggests it's a fish body, but nothing appears...
+| 
+| 
+|-
+| 00018F08
+| 
+| D. List
+| style="text-align: left;" | Fish - Back Half
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00019020
+| 
+| Texture
+| style="text-align: left;" | Fish - Tail
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x16
+|-
+| 00019220
+| 
+| Texture
+| style="text-align: left;" | Fish - Body
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x8
+|-
+| 00019550
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Blast
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 0001A550
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_Blast
+| 
+| style="text-align: left;" | Explosion blast ring.
+| 
+| 
+|-
+| 0001A600
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0001A6C0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001A6C0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001AAC0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001AEC0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001B2C0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001B6C0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001BAC0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001BEC0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001C2C0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Fire
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001C6C0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank square. Visible from one side only. Glitched textures. Blinks when Link does.
+| 
+| 
+|-
+| 0001C760
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001CB60
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001CF60
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001D360
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001D760
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001DB60
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001DF60
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001E360
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Sibuki2
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0001E760
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0001E810
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 0001F7F0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001F810
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001F990
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001FB10
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001FC90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001FE10
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 0001FF90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020110
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020290
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020410
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020590
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020710
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020890
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020A10
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| i8
+| 16x24
+|-
+| 00020B90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020D10
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00020E90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021010
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021190
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021310
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021490
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021610
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021790
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| i8
+| 16x24
+|-
+| 00021910
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021A90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_HitMark
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00021C10
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank square. Visible from one side only. Glitched textures. Blinks when Link does.
+| 
+| 
+|-
+| 00021CB0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000224B0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00022CB0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 00023CB0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00023E30
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00023FB0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00024130
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 000242B0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00024430
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 000245B0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 00024730
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Magma
+| 
+| style="text-align: left;" |
+| ia8
+| 16x24
+|-
+| 000248B0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank square. Visible from one side only. Glitched textures. Blinks when Link does.
+| 
+| 
+|-
+| 00024950
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Ripple
+| 
+| style="text-align: left;" |
+| i8
+| 64x64
+|-
+| 00025950
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_G_Ripple
+| 
+| style="text-align: left;" | Appears as a flat black square with the ripple texture.
+| 
+| 
+|-
+| 000259F0
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_G_Spk [?]
+| 
+| style="text-align: left;" | Blank square. Visible from one side only. Glitched textures. Blinks when Link does.
+| 
+| 
+|-
+| 00025A90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00025F90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00026490
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00026990
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00026E90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00027390
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00027890
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00027D90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Splash
+| 
+| style="text-align: left;" |
+| i8
+| 32x40
+|-
+| 00028290
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank square. Visible from one side only. Glitched textures. Blinks when Link does.
+| 
+| 
+|-
+| 00028330
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00028370
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00028770
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00028B70
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00028F70
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00029370
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00029770
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00029B70
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 00029F30
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Stone1
+| 
+| style="text-align: left;" |
+| ia8
+| 32x32
+|-
+| 0002A330
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank narrow rectangle that seems to always face the camera. Can't be viewed head-on, can only be seen peripherally.
+| 
+| 
+|-
+| 0002A3D0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002A9D0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002AFD0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002B5D0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002BBD0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002C1D0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002C7D0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002CDD0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Lightning
+| 
+| style="text-align: left;" |
+| i8
+| 16x96
+|-
+| 0002D3D0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank rectangle. Visible from one side only. Glitched textures. Blinks when Link does. Probs. lightning.
+| 
+| 
+|-
+| 0002D480
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002DC80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002E480
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002EC80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002F480
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0002FC80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00030480
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00030C80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00031480
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00031C80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dead_Db
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00032480
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Blank narrow rectangle that seems to always face the camera. Can't be viewed head-on, can only be seen peripherally.
+| 
+| 
+|-
+| 00032530
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00032930
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00032D30
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00033130
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Kakera & Ss_Shard & Ss_En_Ice
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00033530
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00033BC0
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_Kakera & Ss_Shard
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00033CB8
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_En_Ice
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00034380
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_Kakera & Ss_Shard & Ss_En_Ice
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 000346B0
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000347A0
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034890
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034980
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034A70
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034B60
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034C50
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034D40
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034E30
+| 
+| D. List
+| style="text-align: left;" | Insect - Body
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Body
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 
+| 
+| D. List
+| style="text-align: left;" | Insect - Body
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00034FC0
+| 
+| Texture
+| style="text-align: left;" | Insect - Body
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 16x64
+|-
+| 000357C0
+| 
+| Texture
+| style="text-align: left;" | Insect - Leg
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 8x16
+|-
+| 00035A80
+| 
+| D. List
+| style="text-align: left;" | Regenerating Grass - Stalk
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00035B40
+| 
+| D. List
+| style="text-align: left;" | Regenerating Grass - Tip
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00035BD0
+| 
+| Texture
+| style="text-align: left;" | Regenerating Grass - Stalk
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 000363D0
+| 
+| Texture
+| style="text-align: left;" | Regenerating Grass - Tip
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00036BD0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i4
+| 64x64
+|-
+| 000373D0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i4
+| 64x64
+|-
+| 00037BD0
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_Dead_Dd & Ss_Dead_Ds
+| 
+| style="text-align: left;" | Appears as a flat black square with a white circle texture.
+| 
+| 
+|-
+| 00037C38
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Appears as a flat black square with a white ring texture.
+| 
+| 
+|-
+| 00037D20
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_KiraKira
+| ✔
+| style="text-align: left;" | Navi sparkle.
+| 
+| 
+|-
+| 00037D80
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_KiraKira
+| ✔
+| style="text-align: left;" |
+| i4
+| 16x16
+|-
+| 00037E00
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 00038000
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 000382D0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 000383A0
+| 
+| Texture
+| style="text-align: left;" | Moon
+| ✔
+| style="text-align: left;" |
+| ia16
+| 32x64
+|-
+| 000393A0
+| 
+| D. List
+| style="text-align: left;" | Moon
+| ✔
+| style="text-align: left;" | Blank rectangle with moon texture applied that seems to always face the camera. Can't be viewed head-on, can only be seen peripherally.
+| 
+| 
+|-
+| 00039450
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000398B0
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 000399B0
+| 
+| D. List
+| style="text-align: left;" | Item Drop - Bomb [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00039A80
+| 
+| D. List
+| style="text-align: left;" | Item Drop - Recovery Heart [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00039B50
+| 
+| D. List
+| style="text-align: left;" | Item Drop - Arrow [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00039E90
+| 
+| D. List
+| style="text-align: left;" | Grey Rock - Medium Angular
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003A0C0
+| 
+| D. List
+| style="text-align: left;" | Grey Rock - Large Vertical Rectangle
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003A430
+| 
+| D. List
+| style="text-align: left;" | Grey Rock - Small Vertical Rectangle
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003A7A0
+| 
+| D. List
+| style="text-align: left;" | Grey Rock - Small Horizontal Rectangle
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003AB00
+| 
+| D. List
+| style="text-align: left;" | Grey Rock - Large Horizontal Rectangle
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003AE60
+| 
+| D. List
+| style="text-align: left;" | Grey Rock - Tiny Cube
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003B1E0
+| 
+| D. List
+| style="text-align: left;" | Stump
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003B3B0
+| 
+| D. List
+| style="text-align: left;" | Grass [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003B460
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 0003B860
+| 
+| D. List
+| style="text-align: left;" | Piece of Heart - Interior [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003C3D0
+| 
+| D. List
+| style="text-align: left;" | Piece of Heart - Exterior [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003C508
+| 
+| D. List
+| style="text-align: left;" | Heart Container - Interior [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003CFD0
+| 
+| D. List
+| style="text-align: left;" | Heart Container - Exterior [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003D108
+| 
+| D. List
+| style="text-align: left;" | Heart Container - Shell [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003D260
+| 
+| D. List
+| style="text-align: left;" | Item Drop - Heart Container [Early]
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003D560
+| 
+| D. List
+| style="text-align: left;" | Square Sign
+| ✔
+| style="text-align: left;" | Doesn't change is height to suit Child Link when loaded directly like this.
+| 
+| 
+|-
+| 0003DAC0
+| 
+| D. List
+| style="text-align: left;" | Directional Sign
+| ✔
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0003DD80
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Arrow x2
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003E580
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Arrow x1
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003ED80
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Arrow x3
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003F580
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Bomb
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0003FD80
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Bombchu
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00040580
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Bomb Bag
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00040D80
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Recovery Heart
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00041580
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Piece of Heart
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00041D80
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 00041E50
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Small Key
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00042650
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Small Magic Jar
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00042E50
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Deku Nut
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00043650
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Deku Seeds
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00043E50
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Deku Stick
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00044650
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Large Magic Jar
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00044E50
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Green Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00044E70
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Blue Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00044E90
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Red Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00044EB0
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Pink Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00044ED0
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Orange Rupee
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00044EF0
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Silver Rupee
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00045150
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Black Rupee shape.
+| rgb5a1
+| 4x4
+|-
+| 00045220
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Recovery Heart [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00045A20
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Bomb [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00046220
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Arrow [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00046A20
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Red Rupee [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00046A40
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Green Rupee [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 4x4
+|-
+| 00046A60
+| 
+| Texture
+| style="text-align: left;" | Item Drop - Heart Container [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00047260
+| 
+| Texture
+| style="text-align: left;" |
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00047A60
+| 
+| Texture
+| style="text-align: left;" | Grey Stone Block I
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00048260
+| 
+| Texture
+| style="text-align: left;" | Grey Stone Block II
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00048A60
+| 
+| Texture
+| style="text-align: left;" | Stump - Top
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00049260
+| 
+| Texture
+| style="text-align: left;" | Stump - Side
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 00049A60
+| 
+| Texture
+| style="text-align: left;" | Grass [Early]
+| ✘
+| style="text-align: left;" |
+| rgb5a1
+| 64x32
+|-
+| 0004AA60
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0004B260
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x32
+|-
+| 0004BA60
+| 
+| Texture
+| style="text-align: left;" | Square Sign - Side
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x16
+|-
+| 0004BE60
+| 
+| Texture
+| style="text-align: left;" | Square Sign - Top
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 32x16
+|-
+| 0004C260
+| 
+| Texture
+| style="text-align: left;" | Square Sign - Post
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 64x8
+|-
+| 0004C660
+| 
+| Texture
+| style="text-align: left;" | Directional Sign
+| ✔
+| style="text-align: left;" |
+| rgb5a1
+| 64x32
+|-
+| 0004D690
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0004D6B0
+| 
+| D. List
+| style="text-align: left;" | Teardrop Shadow [?]
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 0004D740
+| 
+| Texture
+| style="text-align: left;" | Teardrop Shadow
+| 
+| style="text-align: left;" |
+| ia16
+| 32x64
+|-
+| 0004E740
+| 
+| D. List
+| style="text-align: left;" | Circular Shadow [?]
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0004E7C0
+| 
+| Texture
+| style="text-align: left;" | Circular Shadow
+| 
+| style="text-align: left;" |
+| ia16
+| 32x32
+|-
+| 0004F000
+| 
+| D. List
+| style="text-align: left;" | Squiggly Shadow [?]
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 0004F050
+| 
+| Texture
+| style="text-align: left;" | Squiggly Shadow
+| 
+| style="text-align: left;" |
+| i8
+| 16x64
+|-
+| 0004F510
+| 
+| D. List
+| style="text-align: left;" | Dungeon Door Shutter [?]
+| 
+| style="text-align: left;" | Makes the entire game blink black. Aaaa!
+| 
+| 
+|-
+| 0004F5C0
+| 
+| Texture
+| style="text-align: left;" | Dungeon Door Bar
+| 
+| style="text-align: left;" |
+| ia8
+| 32x128
+|-
+| 00050600
+| 
+| D. List
+| style="text-align: left;" | Dungeon Door Bars
+| 
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00050690
+| 
+| Texture
+| style="text-align: left;" | Dungeon Door Shutter
+| 
+| style="text-align: left;" |
+| rgb5a1
+| 32x64
+|-
+| 00051690
+| 
+| Texture
+| style="text-align: left;" | Sun I
+| ✔
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00051E90
+| 
+| Texture
+| style="text-align: left;" | Sun II
+| ✔
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00052698
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 000526D8
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 000526F0
+| 
+| D. List
+| style="text-align: left;" | Sun I & Sun II [?]
+| ✔
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 00052980
+| 
+| D. List
+| style="text-align: left;" |
+| 
+| style="text-align: left;" | Nothing [?]
+| 
+| 
+|-
+| 00052A10
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_Fire_Tail & Ss_En_Fire & Ss_K_Fire
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00052AD0
+| 
+| D. List
+| style="text-align: left;" | Effect_Ss_K_Fire
+| 
+| style="text-align: left;" | [Freeze]
+| 
+| 
+|-
+| 00052B90
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_K_Fire
+| 
+| style="text-align: left;" |
+| i8
+| 32x128
+|-
+| 00053390
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Fire_Tail & Ss_En_Fire & Ss_K_Fire
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 000547E0
+| 
+| D. List
+| style="text-align: left;" | Bang Shape I
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00054B60
+| 
+| D. List
+| style="text-align: left;" | Bang Shape II
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00055810
+| 
+| D. List
+| style="text-align: left;" | Cloud Shape I
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00055B30
+| 
+| D. List
+| style="text-align: left;" | Cloud Shape II
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 000567B0
+| 
+| D. List
+| style="text-align: left;" | Round Shape I
+| ✘
+| style="text-align: left;" | 
+| 
+| 
+|-
+| 00056AC8
+| 
+| D. List
+| style="text-align: left;" | Round Shape II
+| ✘
+| style="text-align: left;" |
+| 
+| 
+|-
+| 00056AE0
+| 
+| Texture
+| style="text-align: left;" | ADLEZ
+| ✘
+| style="text-align: left;" |
+| i8
+| 64x32
+|-
+| 000572E0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000576E0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00057AE0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00057EE0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000582E0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000586E0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00058AE0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 00058EE0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Dust
+| 
+| style="text-align: left;" |
+| i8
+| 32x32
+|-
+| 000592E0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 00059AE0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0005A2E0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0005AAE0
+| 
+| Texture
+| style="text-align: left;" |
+| 
+| style="text-align: left;" |
+| i8
+| 32x64
+|-
+| 0005B2E0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bubble & Dt_Bubble
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 0005B3E0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_Bubble & Dt_Bubble
+| 
+| style="text-align: left;" |
+| i8
+| 16x16
+|-
+| 0005B4E0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Spk
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 0005B6E0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Spk
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 0005B8E0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Spk
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|-
+| 0005BAE0
+| 
+| Texture
+| style="text-align: left;" | Effect_Ss_G_Spk
+| 
+| style="text-align: left;" |
+| i8
+| 16x32
+|}
+
+[[Category: NTSC 1.0]]
+[[Category: Display List Mappings]]

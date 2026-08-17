@@ -1,0 +1,394 @@
+'''Audioseq''' contains data for playing the game's sequenced music. The sequenced music in the Zelda 64 games follows a MIDI type format which is a slightly updated version of that used in earlier games like Super Mario 64.
+
+== Moving Audioseq ==
+To move the Audioseq file to another location in ROM, you will need to correct its entry in the file table, update the assembly code used to load sequences from the file, and update the [[CRC]]. This can be found at 0xB5A4AC (Debug ROM) and looks like:
+ 
+<tt>3C05 xxxx 24A5 yyyy</tt>
+ 
+In [[MIPS]] assembly:
+ LUI       $A1,xxxx
+ ADDIU     $A1,$A1,yyyy
+
+* '''x''' = upper half of address
+* '''y''' = lower half of address
+
+== Sequence Pointer Table ==
+{{address3|space=code|name=Sequence Table List
+|ver1=Debug|ref1=rom|start1=BCC6A0|size1=6F0
+|ver2=NTSC 1.0|ref2=rom|start2=B89AD0|size2=6F0
+|ver3=NTSC 1.1|ref3=rom|start3=B89C90|size3=6F0
+|ver4=NTSC 1.2|ref4=rom|start4=B89B40|size4=6F0
+|ver5=PAL 1.0|ref5=rom|start5=B89290|size5=6F0
+|ver6=PAL 1.1|ref6=rom|start6=B892D0|size6=6F0
+|ver7=JP GC|ref7=rom|start7=B881F0|size7=6F0
+|ver8=JP MQ|ref8=rom|start8=B881D0|size8=6F0
+|ver9=USA GC|ref9=rom|start9=B881D0|size9=6F0
+|ver10=USA MQ|ref10=rom|start10=B881B0|size10=6F0
+|ver11=PAL GC|ref11=rom|start11=B879C0|size11=6F0
+|ver12=PAL MQ|ref12=rom|start12=B879A0|size12=6F0
+|ver13=JP Collection|ref13=rom|start13=B881D0|size13=6F0}}
+
+The sequence pointer table begins with an 0x10 byte header:  
+
+<syntaxhighlight lang="c#">
+/* 0x00 */ short NumberOfSequences = 0x6E;
+/* 0x04 */ int AudioSeq_StartAddress; //ram only
+/* 0x08-0x0F is padded to 0 */
+</syntaxhighlight>
+
+Following that is a record for each sequence in the table:
+
+<tt>xxxxxxxx yyyyyyyy uuaa 0000 00000000</tt>
+ 
+* '''x''' = Pointer to the start of the sequence in the sequenced music file. In rom, this value is an offset relative to the start of the file, while in ram, this value will be converted into the [[VRom]] address that the sequence is located at
+* '''y''' = Length of the sequence, in bytes.
+* '''u''' = Unknown. Value set to 0x02
+* '''a''' = Sequence Type, affects memory allocation. 0x00 is Hyrule Field, 0x01 is fanfares, 0x02 is BGM
+
+{{clear}}
+
+== Format ==
+There are generally three different parts to the sequences:
+
+'''Sequence Header'''<br>
+This is the part of the sequence that controls things such as master volume, tempo and loop settings.
+
+'''Channel Header'''<br>
+Controls volume, pan, etc. and points to music data to be played back on each channel.
+
+'''Music Data'''<br>
+Contains the data for which notes should be played, their velocity, length, etc.
+
+From here, all numbers will be given in hexadecimal unless stated otherwise.
+=== Sequence Header Commands ===
+{|class="wikitable"
+! Command || Description
+|-
+|<tt>D3 xx</tt>
+|Seems to be something to do with the sequence type or format; for Super Mario 64, xx is usually 80, for Zelda 64, xx is usually 20.
+|-
+|<tt>D5 xx</tt>
+|Unknown. xx usually takes the value of 32. For sequences that don't play any music xx is 46.
+|-
+|<tt>D7 xxxx</tt>
+|Enables channels given by xxxx (boolean, each channel is one bit).
+|-
+|<tt>9x yyyy</tt>
+|Points to a channel header offset. x is the channel number (0 - F) and yyyy is the offset of that channel's header relative to the start of the sequence file.
+|-
+|<tt>DB xx</tt>
+|Master volume control, xx is the volume.
+|-
+|<tt>DD xx</tt>
+|Tempo control, xx is the tempo value in beats per minute.
+|-
+|<tt>CC yyxx</tt>
+|Unknown. yy starts at zero and increases each time the command appears, xx is (always?) 73.
+|-
+|<tt>FD xx / FD yyyy</tt>
+|Timestamp (number of 'ticks' to wait before the next command is read, relative to tempo), variable length. If xx goes above 7F, add 8000 to it to get yyyy.
+|-
+|<tt>FB xxxx</tt>
+|Offset to loop from, xxxx is the offset relative to the start of the sequence file.
+|-
+|<tt>D6 xxxx</tt>
+|Disables channels given by xxxx.
+|-
+|<tt>FF</tt>
+|Marks the end of the sequence header.
+|}
+
+Some sequences have the following data after the first four bytes of their sequence header. Its purpose is currently unknown but it may be to do with continuing playback mid-sequence after returning to the area from a house/shop:<br>
+<tt>D7FFFF 8776CCFF7786F3 vv F2 ww C801F3 xx [C801FA yyyy] FB zzzz</tt>
+
+'''v''', '''w''' and '''x''' are unknowns, '''y''' and '''z''' seem to be pointers to 9x commands for different parts of the sequence within the sequence header. The part in square brackets is repeated in some sequences.
+
+=== Channel Header Commands ===
+{|class="wikitable"
+! Command || Purpose || Variables
+|-
+| C4
+| Initialises the channel for music playback
+| 
+|-
+| 8x yyyy 
+| Points to music data to be played on the current channel
+| '''x''' is 'note layer' to be used (8 - B). A maximum of four note layers can be loaded per channel.<br>'''y''' is the offset of the music data to be played, relative to the start of the sequence file.
+|-
+| DF xx (yy)
+|Channel volume
+| '''x''' is the volume value<br>'''y''' is a timestamp used between control changes (when the volume is changing constantly)
+|-
+| DD xx
+|Channel pan
+| '''x''' is the pan amount, 00 = hard left, 3F = centre, 7F = hard right
+|-
+| E9 xx
+| Priority. Unknown how it is used
+| '''x''' = ?
+|-
+| D4 xx
+| Effects level (echo)
+| '''x''' is the effect amount
+|-
+| D8 xx (yy)
+| Vibrato
+| '''x''' Vibrato amount. Higher values can produce odd sounds.<br>'''y''' is a timestamp used between control changes
+|-
+| D3 xx (yy)
+|Pitch bend
+| '''x''' Pitch bend amount, signed.<br>'''y''' is a timestamp used between control changes
+|-
+| C2 xx
+| Transposition
+| '''x''' is the number of semitones to transpose by. Signed value 
+|-
+| C1 xx
+|Sets the instrument number
+| '''x''' instrument number to be used for the current channel
+|-
+|FD xx / FD yyyy
+|Timestamp (see sequence header commands).
+|
+|-
+| FF
+|Marks the end of the channel header.
+|
+|}
+
+=== Music Data ===
+Things get a little more complicated here.
+{|class="wikitable"
+! Command ||Format || Description || Values || Notes
+|-
+| <tt>nn</tt><br>(<tt>0x00 to 0x3F</tt>)
+|<tt>tt(tt)vvgg</tt>
+|rowspan=3|Play note
+|'''n''' = Note value<br>'''t''' = Variable length timestamp<br>'''v''' = Note velocity<br>'''g''' = Gate time
+|
+|-
+| <tt>nn</tt><br>(<tt>0x40 to 0x7F</tt>)
+| <tt>tt(tt) vv</tt>
+|'''n''' = Note value + 40<br>'''t''' = Variable length timestamp<br>'''v''' = Note velocity
+|Gate time is the same as was used for the previous play note command.
+|-
+| <tt>nn</tt><br>(<tt>0x80 to 0xBF</tt>)
+| <tt>vv gg</tt>
+|'''n''' = Note value + 80<br>'''v''' = Note velocity<br>'''g''' = Gate time
+|Timestamp is the same as was used for the previous play note command.
+|-
+| <tt>C0</tt>
+| <tt>xx</tt>, or<br><tt>yyyy</tt>
+|Timestamp / rest
+| '''x''' or '''y''' is the variable length timestamp value
+| Used when no music needs to be played for a set amount of time
+|-
+| <tt>FC</tt>
+| <tt>xxxx</tt>
+| Jump to offset
+| '''x''' is offset relative to the start of the sequence file to jump to
+| Plays the data from there until it reaches the next FF command
+|-
+| <tt>FF</tt>
+|
+| Terminator
+|
+| Marks the end of the current music data.
+|}
+Note: It seems that some of the channel header commands are valid for use in the music data but the only one that's really useful is the C2 command (transposition).
+
+=== Differences with the Super Mario 64 format ===
+In Super Mario 64, the 8x yyyy command appears as:
+ 9x yyyy
+Where x is the 'note layer' to use (0 - 3) and yyyy is the offset to load music data from relative to the start of the sequence file.<br>
+Super Mario 64 does not use the E9 (priority) command and does not seem to be compatible with the way Zelda 64 does control changes. There may be other differences but this has not been looked into fully as of yet.
+=== Tips for converting from MIDI ===
+Zelda note value = MIDI note value - 0x15<br>
+Zelda timestamp = (MIDI timestamp/0x80)*0x18
+== Instrument Sets ==
+There is no master instrument index in Zelda 64 as there is for MIDI sequences, instead there are different instrument sets that contain the instruments needed to play each sequence. The instrument set a sequence uses is not defined in the sequence itself but is defined externally. The lookup table for this data is retrieved in a rather unusual way:
+
+In the Debug Rom for example, address BCC4E0 acts as the start address to the table. In order to reach the instrument set record, the game reads the halfword at BCC4E0 + (SequenceId * 2), then adds that to BCC4E0 to reach the appropriate record. Fortunately, this calculation can be simplified as being Table Start (BCC4E0 for debug) + DD + (SequenceId * 2) for all but sequence 0, where you'll have to subtract the result by 1.
+
+<tt>nnii*</tt>
+* '''n''' is number of Instrument Sets within the record
+* '''i''' is the Instrument Set number for the Sequence
+
+{{address3|space=code|name=Instrument Sets
+|ver1=Debug|ref1=rom|start1=BCC4E0
+|ver2=NTSC 1.0|ref2=ram|start2=1139B0
+}}
+
+Here's a list of which sequences use which instrument sets:
+===OoT instrument sets list===
+
+{|class="wikitable"
+! Instrument<br>Set Number || Purpose || Dependent<br />Sequences
+|-
+|0x00 || Ocarina songs ||
+0x44<br />
+0x45<br />
+0x46<br />
+0x47<br />
+0x48<br />
+0x49
+|-
+|0x01 || Actor Sounds || none
+|-
+| 0x02 || Nature Sounds || 0x01
+|-
+| 0x03 || Hyrule Field ||
+0x02<br />
+0x03<br />
+0x04<br />
+0x05<br />
+0x06<br />
+0x07<br />
+0x08<br />
+0x09<br />
+0x0A<br />
+0x0B<br />
+0x0C<br />
+0x0D<br />
+0x0E<br />
+0x0F<br />
+0x10<br />
+0x11<br />
+0x12<br />
+0x13<br />
+0x14<br />
+0x15<br />
+0x16<br />
+0x17<br />
+0x19<br />
+0x1A<br />
+0x1B<br />
+0x1F<br />
+0x21<br />
+0x23<br />
+0x2B<br />
+0x2D<br />
+0x31<br />
+0x32<br />
+0x38<br />
+0x3B<br />
+0x43<br />
+0x4A<br />
+0x51<br />
+0x52<br />
+0x53<br />
+0x54<br />
+0x62<br />
+0x6C
+|-
+| 0x04 || Deku Tree || 0x1C
+|-
+| 0x05 || Market ||
+0x1D<br />
+0x3E
+|-
+| 0x06 || Title Screen || 0x1E
+|-
+| 0x07 || Jabu Jabu's Belly || 0x26
+|-
+| 0x08 || Kakariko Village (guitar) ||
+0x27<br />
+0x4C
+|-
+| 0x09 || Fairy Fountain ||
+0x28<br />
+0x29<br />
+0x3A<br />
+0x3D<br />
+0x4B<br />
+0x4F<br />
+0x57<br />
+0x66<br />
+0x6A
+|-
+| 0x0A || Fire Temple || 0x2A
+|-
+| 0x0B || Dodongo's Cavern || 0x18
+|-
+| 0x0C || Forest Temple || 0x2C
+|-
+| 0x0D || Lon Lon Ranch || 0x2F
+|-
+| 0x0E || Goron City || 0x30
+|-
+| 0x0F || Kokiri Forest || 0x3C
+|-
+| 0x10 || Spirit Temple || 0x3F
+|-
+| 0x11 || Horse Race ||
+0x40<br />
+0x41<br />
+0x42
+|-
+| 0x12 || Warp songs (ocarina songs 2) ||
+0x25<br />
+0x33<br />
+0x34<br />
+0x35<br />
+0x36<br />
+0x37<br />
+0x59
+|-
+| 0x13 || Goddess Cutscene ||
+0x4D<br />
+0x56<br />
+0x5D
+|-
+| 0x14 || Shooting Gallery || 0x4E
+|-
+| 0x15 || Zora's Domain || 0x50
+|-
+| 0x16 || Shop || 0x55
+|-
+| 0x17 || Ice Cavern || 0x58
+|-
+| 0x18 || Shadow Temple || 0x5B
+|-
+| 0x19 || Water Temple || 0x5C
+|-
+| 0x1A || Blank? || none
+|-
+| 0x1B || Gerudo Valley || 0x5F
+|-
+| 0x1C || Lakeside Laboratory || 0x60
+|-
+| 0x1D || Kotake and Koume's Theme || 0x61
+|-
+| 0x1E || Ganon's Castle (organ) || 0x2E
+|-
+| 0x1F || Inside Ganon's Castle || 0x63
+|-
+| 0x20 || Ganondorf Battle/Boss Battle 2 ||
+0x5E<br />
+0x64<br />
+0x65<br />
+0x6B
+|-
+| 0x21 || Ending sequence 1 ||
+0x67<br />
+0x69
+|-
+| 0x22 || Ending sequence 2 || 0x68
+|-
+| 0x23 || Game Over/Fanfares ||
+0x20<br />
+0x22<br />
+0x24<br />
+0x39
+|-
+| 0x24 || Owl || 0x5A
+|}
+
+==Legacy Credits==
+messiaen, DeathBasket - Sequence format<br>
+messiaen - pointer table format<br>
+DeathBasket - Instrument set lists for OoT and MM<br>
+DeathBasket - Writing this
+
+[[Category: Audio]]
+[[Category: Documentation]]

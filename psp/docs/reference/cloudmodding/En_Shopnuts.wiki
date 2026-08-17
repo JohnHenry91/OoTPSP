@@ -1,0 +1,3 @@
+{{Actor|name=ovl_En_Shopnuts}}
+'''ovl_En_Shopnuts''' is the enemy form of the [[Business Scrub]].
+[[Category:Deku Scrubs]]

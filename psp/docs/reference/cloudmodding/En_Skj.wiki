@@ -1,0 +1,9 @@
+{{actor|name=ovl_En_Skj}}
+'''ovl_En_Skj''' is the Skullkid actor.
+{{clear}}
+[[Category:Skull Kid]]
+== Debug Rom Notes ==
+ ROM: 0xEB5D20 (2406003E) Heart Piece from Skullkid (Simon Says - Skull Kids)
+ ROM: 0xEB5DB0 (2406003E) Heart Piece from Skullkid (Saria's Song Skull Kid)
+
+ ROM: 0xEB6264 (2405002C) Sold Out Sign (For selling Skull Mask)

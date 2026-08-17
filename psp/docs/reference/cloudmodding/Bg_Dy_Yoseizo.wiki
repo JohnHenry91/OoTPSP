@@ -1,0 +1,65 @@
+{{Actor|name=ovl_Bg_Dy_Yoseizo}}
+
+'''ovl_Bg_Dy_Yoseizo''' is the [[Great Fairy]] [[Actor]].
+
+[[Category:Great Fairy]]
+== General Notes ==
+
+There are six different encounters with the Great Fairy actor. Rather than use a different variable for each one, the "version" of the Great Fairy is hardcoded, using the [[scene]] number (59 for upgrades, 61 for spells) combined with the [[Entrance Table|entrance]] (specifically the "entrance" number defined by the entrance table) used to enter the scene.
+
+{|class="wikitable"
+! Scene || Entrance # || Reward
+|-
+| 59 || 00 || Magic / Spin Attack
+|-
+| 59 || 01 || Double Magic
+|-
+| 59 || 02 || Double Defense 
+|-
+| 59 || 03 || ???
+|-
+| 61 || 00 || Farore's Wind
+|-
+| 61 || 01 || Din's Fire
+|-
+| 61 || 02 || Nayru's Love
+|}
+
+Additionally, the player must obtain Magic / Spin Attack first to be able to encounter the other Great Fairies.
+
+{{clear}}
+
+== Debug Rom Notes ==
+ ROM: 0xC44228 Farore's Wind
+ ROM: 0xC44229 Din's Fire
+ ROM: 0xC4422A Nayru's Love
+
+==Console Output Strings==
+
+{{investigate|Check out which code MODE and SPIN ATTACK SPEED UP reference.}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ 大妖精の泉 ☆☆☆☆☆ %d||[32m☆☆☆☆☆ GREAT FAIRY FOUNTAIN ☆☆☆☆☆ %d
+|-
+| [m[32m☆☆☆☆☆ 石妖精の泉 ☆☆☆☆☆ %d||[m[32m☆☆☆☆☆ STONE FAIRY FOUNTAIN ☆☆☆☆☆ %d
+|-
+| [m[33m☆☆☆☆☆ もうど ☆☆☆☆☆ %d||[m[33m☆☆☆☆☆ MODE ☆☆☆☆☆ %d
+|-
+| [m[32m ☆☆☆☆☆ 回転切り速度ＵＰ ☆☆☆☆☆ ||[m[32m ☆☆☆☆☆ SPIN ATTACK SPEED UP ☆☆☆☆☆ 
+|-
+| [m[33m ☆☆☆☆☆ 魔法ゲージメーター倍増 ☆☆☆☆☆ ||[m[33m ☆☆☆☆☆ MAGIC METER DOUBLED ☆☆☆☆☆ 
+|-
+| [m[35m ☆☆☆☆☆ ダメージ半減 ☆☆☆☆☆ ||[m[35m ☆☆☆☆☆ DAMAGE HALVED ☆☆☆☆☆ 
+|-
+| [m../z_bg_dy_yoseizo.c||[m../z_bg_dy_yoseizo.c
+|-
+| ../z_bg_dy_yoseizo.c||../z_bg_dy_yoseizo.c
+|-
+| ../z_bg_dy_yoseizo.c||../z_bg_dy_yoseizo.c
+|-
+| ../z_bg_dy_yoseizo.c||../z_bg_dy_yoseizo.c
+|-
+| ../z_bg_dy_yoseizo.c||../z_bg_dy_yoseizo.c
+|}

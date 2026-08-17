@@ -1,0 +1,79 @@
+{{Actor|name=ovl_En_Wonder_Talk2|ispage=true}}
+
+'''ovl_En_Wonder_Talk2''' is an [[actor]] for checkable spots.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{{investigate|Specificly references to the Gerudo Training Grounds. Could there be a hardcoded check for that scene for some reason?}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ 透明メッセージ君 ☆☆☆☆☆ %x[m||[32m☆☆☆☆☆ MR. TRANSPARENT MESSAGE ☆☆☆☆☆ %x[m
+|-
+| 　||　
+|-
+| [33m☆☆☆☆☆ 元は？       ☆☆☆☆☆ %d[m||[33m☆☆☆☆☆ ORIGIN?       ☆☆☆☆☆ %d[m
+|-
+| [35m☆☆☆☆☆ レンジは？   ☆☆☆☆☆ %d[m||[35m☆☆☆☆☆ RANGE?   ☆☆☆☆☆ %d[m
+|-
+| [36m☆☆☆☆☆ は、範囲わ？ ☆☆☆☆☆ %f[m||[36m☆☆☆☆☆ SPAN? ☆☆☆☆☆ %f[m
+|-
+| 　||　
+|-
+| [32m☆☆☆☆☆ Ｙｏｕ ａｒｅ Ｓｈｏｃｋ！  ☆☆☆☆☆ %d[m||[32m☆☆☆☆☆ Ｙｏｕ ａｒｅ Ｓｈｏｃｋ！  ☆☆☆☆☆ %d[m
+|-
+| [35m☆☆☆☆☆ セーブしたよ！おもいっきり！ %x[m||[35m☆☆☆☆☆ SAVED! WITH ALL MY MIGHT! %x[m
+|-
+| 　||　
+|-
+| [32m☆☆☆☆☆ 透明メッセージ君せっと %x[m||[32m☆☆☆☆☆ MR. TRANSPARENT MESSAGE - SETTINGS %x[m
+|-
+| [33m☆☆☆☆☆ セーブ情報            %x[m||[33m☆☆☆☆☆ SAVE DATA            %x[m
+|-
+| [35m☆☆☆☆☆ 指定メッセージ種類     %x[m||[35m☆☆☆☆☆ DESIGNATED MESSAGE TYPE     %x[m
+|-
+| [36m☆☆☆☆☆ 実質メッセージ種類     %x[m||[36m☆☆☆☆☆ REAL MESSAGE TYPE     %x[m
+|-
+| [32m☆☆☆☆☆ 指定範囲               %d[m||[32m☆☆☆☆☆ DESIGNATED SPAN               %d[m
+|-
+| [33m☆☆☆☆☆ 処理範囲               %f[m||[33m☆☆☆☆☆ PROCESS SPAN               %f[m
+|-
+| [35m ☆☆ 通常 ☆☆ [m||[35m ☆☆ NORMAL ☆☆ [m
+|-
+| [35m ☆☆ チェックのみ ☆☆ [m||[35m ☆☆ CHECK ONLY ☆☆ [m
+|-
+| [35m ☆☆ ロックのみ ☆☆ [m||[35m ☆☆ LOCK-ON ONLY ☆☆ [m
+|-
+| [35m☆☆☆☆☆ わー %d[m||[35m☆☆☆☆☆ WOW %d[m
+|-
+| [35m☆☆☆☆☆ (強制)セーブしたよ！おもいっきり！ %x[m||[35m☆☆☆☆☆ (FORCED) SAVED! WITH ALL MY MIGHT! %x[m
+|-
+| [35m☆☆☆☆☆ きょり %f[m||[35m☆☆☆☆☆ DISTANCE %f[m
+|-
+| 　||　
+|-
+| [32m☆☆☆☆☆ 透明メッセージ君せっと %x[m||[32m☆☆☆☆☆ MR. DESIGNATED MESSAGE - SETTINGS %x[m
+|-
+| [33m☆☆☆☆☆ セーブ情報            %x[m||[33m☆☆☆☆☆ SAVE DATA            %x[m
+|-
+| [35m☆☆☆☆☆ 指定メッセージ種類     %x[m||[35m☆☆☆☆☆ DESIGNATED MESSAGE TYPE     %x[m
+|-
+| [36m☆☆☆☆☆ 実質メッセージ種類     %x[m||[36m☆☆☆☆☆ REAL MESSAGE TYPE     %x[m
+|-
+| [32m☆☆☆☆☆ 指定範囲               %d[m||[32m☆☆☆☆☆ DESIGNATED SPAN               %d[m
+|-
+| [33m☆☆☆☆☆ 処理範囲               %f[m||[33m☆☆☆☆☆ PROCESS SPAN               %f[m
+|-
+| [35m☆☆☆☆☆ レンジは？    %d[m||[35m☆☆☆☆☆ RANGE?    %d[m
+|-
+| 　||　
+|-
+| [35m ☆☆ 強制 ☆☆ [m||[35m ☆☆ FORCED ☆☆ [m
+|-
+| [31m ☆☆ ゲルドの修練場強制チェックのみ ☆☆ [m||[31m ☆☆ GERUDO TRAINING AREA FORCED CHECK ONLY ☆☆ [m
+|}
+
+[[Category:Target Spots]]

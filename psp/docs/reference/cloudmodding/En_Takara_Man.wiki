@@ -1,0 +1,31 @@
+{{actor|name=ovl_En_Takara_Man}}
+
+'''ovl_En_Takara_Man''' is the actor file for the [[Treasure Box Shop]] [[minigame]] owner. 
+
+{{clear}}
+
+== Debug Rom Notes ==
+
+ROM: 0xECD864 (24060071) As below?
+
+ROM: 0xECD934 (24060071) Buying a Small Key for 10 Rupees to play the Treasure Chest game.
+
+==Console Output Strings==
+
+{{translate}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ もういてる原 ☆☆☆☆☆ ||
+|-
+| [m||
+|-
+| [35m☆☆☆☆☆ ばぅん！ ☆☆☆☆☆ %x||
+|-
+| [m../z_en_takara_man.c||
+|-
+| ../z_en_takara_man.c||
+|}
+
+[[Category:Treasure Box Shop]]

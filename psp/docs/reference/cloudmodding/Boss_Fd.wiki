@@ -1,0 +1,35 @@
+{{Actor|ispage=true|name=ovl_Boss_Fd}}
+'''ovl_Boss_Fd''' (Flying Volvagia) is one of two actors that make up [[Volvagia]]. Specifically, this actor makes up the Volvagia that rises from underneath the ground and flies around the boss room, whereas [[ovl_Boss_Fd2]] (Hole Vovlagia) is the actor that pops up out of the ground and attacks Link.
+
+Flying Volvagia (0x0096) is used to spawn Hole Volvagia.
+
+{{clear}}
+== Debug Rom Notes ==
+<pre>
+ROM - C9B530 -
+RAM - 22F630 - ADDIU - T4, R0, 0x012C - Timer for Volvagia's Flight in Flight form (240C012C)
+
+ROM - C9B4CC -
+RAM - 22F5CC - ADDIU - T6, R0, 0x0014 - Timer for Volvagia's preparation for diving and rising. (240E0014)
+
+ROM - C9B5E0 -
+RAM - 22F6E0 - ADDIU - T1, R0, 0x0096 - Timer for Volvagia's diving (24090096)
+
+ROM - C9B708 -
+RAM - 22F808 - ADDIU - T1, R0, 0x0032 - Timer for Volvagia's Emergence from hole (240D0032)
+
+ROM - C9D978 -
+RAM - 231A78 - ADDIU - T9, T8, 0xFFFE - Deal 2 Damage (Negative Hex) to Volvagia while in
+Flight Form. (2719FFFE)
+
+ROM - C9D98C -
+RAM - 231A8C - ANDI - T1, T0, 0x1000 - Is the Weapon Ice Arrows? (Refer to Damage Identifier Bytes) (31091000)
+
+ROM - C9D998 -
+RAM - 231A98 - ADDIU - T9, T8, 0xFFFE - Then deal an additional 2 Damage (Negative Hex) to Volvagia while in Flight Form. (272BFFFE)
+
+ROM - C9D9A4 -
+RAM - 231AA4 - ADDIU - T5, R0, 0x0002 - Amount of HP Volvagia recovers if he was to be killed while in the air. (240D0002)
+</pre>
+
+[[Category:Volvagia]]

@@ -1,0 +1,33 @@
+{{actor|name=ovl_En_Wf|ispage=true}}
+'''ovl_En_Wf''' is the actor file for the [[Wolfos]] actor.
+<gallery>
+File:200pxWolfos.png|Wolfos - OOT
+</gallery>
+
+== Debug Rom Notes ==
+=== Overlay ===
+Virtual Address: '''80B33CB0 - 80B38060'''
+{| class="wikitable"
+|-
+! Offset !! Reference !! Type !! Length !! Description/Info
+|-
+| 0x0000 || File || Function || N/A || Gets called to store current function Wolfos uses to its instance variables, and read by another function during runtime. Used to determine Wolfos's next action.
+
+AC8502DC <- stores function reference relative to 0x2DC of Wolfos's actor instance in RAM.
+|-
+| 0x0934 || File || Function || N/A || Back turned to Link (exposed)
+|-
+| 0x0BCC || File || Function || N/A || Wolfos runs towards Link
+|-
+| 0x190C || File || Function || N/A || Attack Link (swings arms)
+|}
+
+=== Instance ===
+{| class="wikitable"
+|-
+! Offset !! Reference !! Type !! Length !! Description/Info
+|-
+| 0x2DC || RAM Actor Instance || Instance Variable || 4 bytes [word] || RAM address reference to current function being used
+|}
+
+[[Category:Wolfos]]

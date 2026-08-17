@@ -1,0 +1,13 @@
+{{actor|name=ovl_Boss_Ganon2|ispage=true}}
+'''ovl_Boss_Ganon2''' is the [[actor]] for [[Ganon]], the final form of [[Ganondorf]].
+{{clear}}
+
+== NTSC 1.0 Notes ==
+=== Overlay ===
+ 0x530C - Set entrance index for cutscene after the final blow
+ 0x531C - Set cutscene number for cutscene after the final blow
+
+== Instance ==
+ 0xAF - Health 
+
+[[Category: Ganon| ]]

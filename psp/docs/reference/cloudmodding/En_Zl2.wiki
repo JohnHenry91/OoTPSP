@@ -1,0 +1,56 @@
+{{actor|name=ovl_En_Zl2}}
+'''ovl_En_Zl2''' is the [[Princess Zelda|Adult Zelda]] actor used for the Light Arrows cutscene. See also [[ovl_En_Zl3]], which is the Adult Zeldaa actor used for the "Tower Collapse" sequence at the end of the game.
+{{clear}}
+[[Category:Princess Zelda]]
+
+== Debug Rom Notes ==
+
+ ROM: 0xF05C64 (24050012) Light Arrows
+
+== Console Output Strings ==
+
+{{translate}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| ../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| En_Zl2_inAgain_Check_DemoMode:そんな動作は無い!!!!!!!!||
+|-
+| En_Zl2_inEnding_Check_DemoMode:そんな動作は無い!!!!!!!!||
+|-
+| En_Zl2_inRunning_Check_DemoMode:そんな動作は無い!!!!!!!!||
+|-
+| [31m En_Oa2 の arg_data がおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| [m[31mEn_Zl2_main_bankアニメーションのバンクを読めない!!!!!!!!!!!!||
+|-
+| [m[31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| [m[31m描画前処理モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| [m../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| ../z_en_zl2.c||
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||
+|}

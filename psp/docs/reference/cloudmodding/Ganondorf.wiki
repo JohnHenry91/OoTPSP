@@ -1,0 +1,17 @@
+{{Fix|more actors}}
+== Actors ==
+=== Cutscenes ===
+* {{actor ref|ovl_En_Viewer}} - Actor for Ganondorf and others for Intro Nightmare and Zelda Escape cutscenes
+* {{actor ref|42}}
+=== Ganondorf Battle ===
+* {{actor ref|E8}}
+* {{actor ref|106}}
+* {{actor ref|15E}}
+* {{actor ref|16F}}
+=== Ganon Battle ===
+* {{actor ref|17A}}
+* {{actor ref|1B1}}
+== Objects ==
+* {{object ref|17C}}
+* {{object ref|17D}}
+[[Category:Ganondorf| ]]

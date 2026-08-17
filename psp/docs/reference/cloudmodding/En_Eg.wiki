@@ -1,0 +1,3 @@
+{{add links}}
+{{actor|name=ovl_En_Eg}}
+'''ovl_En_Eg''' appears to be an actor that returns you back to the top of the [[Tower Collapse]] sequence when you run out of time.

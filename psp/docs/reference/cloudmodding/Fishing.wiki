@@ -1,0 +1,178 @@
+{{actor|name=ovl_Fishing}}
+
+'''ovl_Fishing''' is the Fishing Minigame [[actor]]. It spawns the Fishing man, the pond water, and the fish themselves.
+
+{{clear}}
+== NTSC 1.0 ==
+
+=== Potential Anti-Piracy system ===
+During the boot process, address <tt>A02FB1F4</tt>, which maps to RDRAM <tt>002FB1F4</tt>, is assigned the seemingly arbitrary value of AD090010, which is then copied by function <tt>80001570</tt> to address <tt>800088A0</tt>. During the actor's initialization routine at <tt>80A3514C</tt>, it tests if <tt>800088A0</tt> is storing the correct value, assigning <tt>80A47EE4</tt> to 0 if true, or 1 if false. The routine for checking if a fish should drop off a hook then looks up that byte at <tt>80A3EC84</tt>. If set to 1, the fish will always let go after 51 frames.
+
+== Dev Notes ==
+
+<pre>子供時代で50ｃｍ以上の魚を釣って
+「ハートのかけら」を「つりぼり屋」のオヤジさんからもらう、
+もしくは大人時代で60ｃｍ以上の魚を釣って
+「金のうろこ」をオヤジさんからもらうと、
+「つりぼり」内の４カ所（草むら、流木の上、岩付近、滝付近）
+のうちの１カ所にランダムで「沈むルアー」がセットされます。
+その場所までリンクが移動することで入手出来ます。
+（子供時代は26～55ｃｍのバス、
+　大人時代は35～75ｃｍのバスがいます。）
+
+If you catch a fish larger than 50 cm as a child and receive the Piece of Heart from the Fishing Pond Owner, or catch a fish larger than 60 cm as an adult and receive the Gold Scale, the Sinking Lure is set to appear randomly in one of four places around the Fishing Pond. (The grass, on top of the sunken tree, near the rocks, or near the waterfall.) Link can obtain it by going to that area. (In the child era, one can find bass from 26~55 cm, and in the adult era, one can find bass from 35~75 cm.)
+
+■「ハイラルどじょう」出現条件
+
+Appearance Conditions for the Hylian Loach
+
+4回に1回、「つりぼり屋」に入る（入り口のドアに入る〕度に
+「ハイラルどじょう（60～99ｃｍ）」がセットされます。
+「ハイラルどじょう」は水中深くにいるので、
+「沈むルアー」でないと釣れにくいと思われます。
+
+A Hylian Loach (ranging in size from 60~99 cm) is set to appear 1/4 times you enter the Fishing Pond (from the door to the outside).
+
+■ヒット率
+
+Hit Ratio
+
+夕暮れ　　　　　　　　　　/1.75 倍
+早朝　　　　　　　　　　　/1.5倍
+濁っている日（雨の翌日）　/1.5倍
+雨の日（８回に１回くらい）/3.0倍
+
+Dusk                               /1.75x
+Early Morning                      /1.5x
+Cloudy Water Day (Day After Rain)  /1.5x
+Rainy Day (Est. 1/8 Times)         /3.0x
+
+（数値の大きい状況が優先されます）
+
+(Numbers rounded up.)</pre>
+
+== Debug Rom Notes ==
+
+{{todo|There's still some things missing here...}}
+
+<pre>ROM: 0xF2DD28 (24190055) 50 Rupees for catching Hylian Loach?
+
+ROM: 0xF2DED4 (24060038) Golden Scale for large fish as Child
+
+ROM: 0xF33E60 (2406004F) Heart Container?!</pre>
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| HIT FISH %dcm
+|-
+| 　
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| [32m
+|-
+| [33mplays %x
+|-
+| ys %x[m
+|-
+| [32mzelda_time %x[m
+|-
+| HI_SCORE = %x
+|-
+| 　
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|-
+| ../z_fishing.c
+|}
+
+[[Category:Fishing]] [[Category:Minigames]]

@@ -1,0 +1,42 @@
+{{stub}}
+'''Game States''' are the top level states of the Zelda 64 engine.
+
+== Types of Game States ==
+Ocarina of Time has six normally usable game states:
+
+{|class="wikitable"
+|+ Core Game States
+! Code File || Description
+|-
+| n/a || Initial Game State
+|-
+| [[ovl_title]] || Displays the Nintendo Logo
+|-
+| [[ovl_opening]] || Initializes the Title Screen cutscene
+|-
+| n/a || Main Game
+|-
+| [[ovl_file_choose]] || File Select menu
+|-
+| [[ovl_select]] || Map Select menu
+|}
+
+== Game State Table ==
+{{:Game State Table}}
+
+== prenmi State ==
+
+The prenmi game state is an otherwise unusable game state that does not appear on the game state overlay table. In the Debug Rom, it is invoked by having a controller plugged into port two during boot-up, then resetting the game at any time. This will force a swap to the prenmi state, but the state will not be invoked due to it not having a record on the on the overlay table; instead the graph thread will silently end execution.
+
+The prenmi game state has a working draw function. It runs at 60 fps, and draws for a few frames before exiting. It draws a horizontal line across the screen that moves upwards vertically, as well as the normal input display in the bottom right corner.
+
+=== Notes ===
+<pre>
+//Variables
+8012DBC0 s32 //set to 1 on boot if a controller is plugged into port 2
+//Functions
+80092330 //prenmi_move
+80092384 //prenmi_draw
+800924B0 //prenmi_destructor
+800924B8 //prenmi_init
+</pre>

@@ -1,0 +1,339 @@
+This page shows the relations between the Debug ROM's internal filenames for room and scene files to the actual areas in-game. When using an editor like Utility of Time, and when the area you want to view or modify isn't one of the "SPOT"s on the Map Select, you might have some problems guessing which room/scene combination is the area you need. This list was made to help with this.
+
+{| border="1" cellspacing="0" cellpadding="5" align="center" width="75%"
+! Filename
+! In-Game Area
+|- 
+| Bmori1_room_#<br>Bmori1_scene
+| Forest Temple
+|-
+| FIRE_bs_room_#<br>FIRE_bs_scene
+| Fire Temple (Boss Room)
+|- 
+| HAKAdanCH_room_#<br>HAKAdanCH_scene
+| Bottom of the Well
+|- 
+| HAKAdan_bs_room_#<br>HAKAdan_bs_scene
+| Shadow Temple (Boss Room)
+|- 
+| HAKAdan_room_#<br>HAKAdan_scene
+| Shadow Temple
+|- 
+| HIDAN_room_#<br>HIDAN_scene
+| Fire Temple
+|- 
+| MIZUsin_bs_room_#<br>MIZUsin_bs_scene
+| Water Temple (Boss Room)
+|- 
+| MIZUsin_room_#<br>MIZUsin_scene
+| Water Temple
+|- 
+| alley_shop_room_#<br>alley_shop_scene
+| Potion Shop (Market)
+|- 
+| bdan_boss_room_#<br>bdan_boss_scene
+| Inside Jabu-Jabu's Belly (Boss Room)
+|- 
+| bdan_room_#<br>bdan_scene
+| Inside Jabu-Jabu's Belly
+|- 
+| besitu_room_#<br>besitu_scene
+| <i>UNUSED: Besitu/Strongbox Warp</i>
+|- 
+| bowling_room_#<br>bowling_scene
+| Bombchu Bowling Alley
+|- 
+| daiyousei_izumi_room_#<br>daiyousei_izumi_scene
+| Great Fairy Fountain
+|- 
+| ddan_boss_room_#<br>ddan_boss_scene
+| Dodongo's Cavern (Boss Room)
+|- 
+| ddan_room_#<br>ddan_scene
+| Dodongo's Cavern
+|- 
+| depth_test_room_#<br>depth_test_scene
+| <i>UNUSED: Depth Test</i>
+|- 
+| drag_room_#<br>drag_scene
+| Potion Shop (Kakariko Village)
+|- 
+| enrui_room_#<br>enrui_scene
+| Market Entrance (Adult Link)
+|- 
+| entra_n_room_#<br>entra_n_scene
+| Market Entrance (Child Link, night)
+|- 
+| entra_room_#<br>entra_scene
+| Market Entrance (Child Link, day)
+|- 
+| face_shop_room_#<br>face_shop_scene
+| Happy Mask Shop
+|- 
+| ganon_boss_room_#<br>ganon_boss_scene
+| Inside Ganon's Tower (Boss Room)
+|- 
+| ganon_demo_room_#<br>ganon_demo_scene
+| Collapsing Ganon's Castle (Cutscene)
+|- 
+| ganon_final_room_#<br>ganon_final_scene
+| Escaping Ganon's Castle (outside parts of castle)
+|- 
+| ganon_room_#<br>ganon_scene
+| Inside Ganon's Tower
+|- 
+| ganon_sonogo_room_#<br>ganon_sonogo_scene
+| Inside Ganon's Tower (collapsing)
+|- 
+| ganon_tou_room_#<br>ganon_tou_scene
+| Outside Ganon's Castle
+|- 
+| ganontika_room_#<br>ganontika_scene
+| Ganon's Castle
+|- 
+| ganontikasonogo_room_#<br>ganontikasonogo_scene
+| Ganon's Castle (collapsing)
+|- 
+| gerudoway_room_#<br>gerudoway_scene
+| Thieves' Hideout
+|- 
+| golon_room_#<br>golon_scene
+| Goron Shop
+|- 
+| hairal_niwa2_room_#<br>hairal_niwa2_scene
+| <i>UNUSED: Alternate Pathway to Castle Courtyard</i> ???
+|- 
+| hairal_niwa_n_room_#<br>hairal_niwa_n_scene
+| Pathway to Castle Courtyard (night)
+|- 
+| hairal_niwa_room_#<br>hairal_niwa_scene
+| Pathway to Castle Courtyard (day)
+|- 
+| hakaana2_room_#<br>hakaana2_scene
+| Grave w/ Fairy Fountain
+|- 
+| hakaana_ouke_room_#<br>hakaana_ouke_scene
+| Grave w/ Sun's Song
+|- 
+| hakaana_room_#<br>hakaana_scene
+| Grave
+|- 
+| hakasitarelay_room_#<br>hakasitarelay_scene
+| Dampé's Grave Maze & Kakariko Windmill
+|- 
+| hiral_demo_room_#<br>hiral_demo_scene
+| Empty area, used for cutscenes
+|- 
+| hut_room_#<br>hut_scene
+| Dampé's Hut
+|- 
+| hylia_labo_room_#<br>hylia_labo_scene
+| Laboratory at Lake Hylia
+|- 
+| ice_doukutu_room_#<br>ice_doukutu_scene
+| Ice Cavern
+|- 
+| impa_room_#<br>impa_scene
+| Puppy Woman's house
+|- 
+| jyasinboss_room_#<br>jyasinboss_scene
+| Spirit Temple (Boss Room)
+|- 
+| jyasinzou_room_#<br>jyasinzou_scene
+| Spirit Temple
+|- 
+| kakariko3_room_#<br>kakariko3_scene
+| Dog Guy's House (in Back Alley)
+|- 
+| kakariko_room_#<br>kakariko_scene
+| Stew Lady's House
+|- 
+| kakusiana_room_#<br>kakusiana_scene
+| Grottos
+|- 
+| kenjyanoma_room_#<br>kenjyanoma_scene
+| Chamber of the Sages
+|- 
+| kinsuta_room_#<br>kinsuta_scene
+| House of Skulltula
+|- 
+| kokiri_home3_room_#<br>kokiri_home3_scene
+| Twins' House
+|- 
+| kokiri_home4_room_#<br>kokiri_home4_scene
+| Mido's House
+|- 
+| kokiri_home5_room_#<br>kokiri_home5_scene
+| Saria's House
+|- 
+| kokiri_home_room_#<br>kokiri_home_scene
+| Know-It-All Brothers' House
+|- 
+| kokiri_shop_room_#<br>kokiri_shop_scene
+| Kokiri Forest Shop
+|- 
+| labo_room_#<br>labo_scene
+| Kakariko Village - House with Cow
+|- 
+| link_home_room_#<br>link_home_scene
+| Link's House
+|- 
+| mahouya_room_#<br>mahouya_scene
+| Granny's Potion Shop
+|- 
+| malon_stable_room_#<br>malon_stable_scene
+| Stable
+|- 
+| market_alley_n_room_#<br>market_alley_n_scene
+| Back Alley (night)
+|- 
+| market_alley_room_#<br>market_alley_scene
+| Back Alley (day)
+|- 
+| market_day_room_#<br>market_day_scene
+| Market (Child Link, day)
+|- 
+| market_night_room_#<br>market_night_scene
+| Market (Child Link, night)
+|- 
+| market_ruins_room_#<br>market_ruins_scene
+| Market (Adult Link)
+|- 
+| men_room_#<br>men_scene
+| Gerudo Training Grounds
+|- 
+| miharigoya_room_#<br>miharigoya_scene
+| Guard House/"Lots'o'Pots"
+|- 
+| moribossroom_room_#<br>moribossroom_scene
+| Forest Temple (Boss Room)
+|- 
+| nakaniwa_room_#<br>nakaniwa_scene
+| Castle Courtyard
+|- 
+| night_shop_room_#<br>night_shop_scene
+| Bombchu Shop
+|- 
+| sasatest_room_#<br>sasatest_scene
+| <i>UNUSED: 'Bamboo Grass Test'</i>
+|- 
+| shop1_room_#<br>shop1_scene
+| Bazaar
+|- 
+| shrine_n_room_#<br>shrine_n_scene
+| Front of Temple of Time (Child Link, night)
+|- 
+| shrine_r_room_#<br>shrine_r_scene
+| Front of Temple of Time (Adult Link)
+|- 
+| shrine_room_#<br>shrine_scene
+| Front of Temple of Time (Child Link, day)
+|- 
+| souko_room_#<br>souko_scene
+| Lon Lon Ranch - House & Storage
+|- 
+| spot00_room_#<br>spot00_scene
+| Hyrule Field
+|- 
+| spot01_room_#<br>spot01_scene
+| Kakariko Village
+|- 
+| spot02_room_#<br>spot02_scene
+| Graveyard
+|- 
+| spot03_room_#<br>spot03_scene
+| Zora's River
+|- 
+| spot04_room_#<br>spot04_scene
+| Kokiri Forest
+|- 
+| spot05_room_#<br>spot05_scene
+| Sacred Forest Meadow
+|- 
+| spot06_room_#<br>spot06_scene
+| Lake Hylia
+|- 
+| spot07_room_#<br>spot07_scene
+| Zora's Domain
+|- 
+| spot08_room_#<br>spot08_scene
+| Zora's Fountain
+|- 
+| spot09_room_#<br>spot09_scene
+| Gerudo Valley
+|- 
+| spot10_room_#<br>spot10_scene
+| Lost Woods
+|- 
+| spot11_room_#<br>spot11_scene
+| Desert Colossus
+|- 
+| spot12_room_#<br>spot12_scene
+| Gerudo's Fortress
+|- 
+| spot13_room_#<br>spot13_scene
+| Haunted Wasteland
+|- 
+| spot15_room_#<br>spot15_scene
+| Hyrule Castle
+|- 
+| spot16_room_#<br>spot16_scene
+| Death Mountain Trail
+|- 
+| spot17_room_#<br>spot17_scene
+| Death Mountain Crater
+|- 
+| spot18_room_#<br>spot18_scene
+| Goron City
+|- 
+| spot20_room_#<br>spot20_scene
+| Lon Lon Ranch
+|- 
+| sutaru_room_#<br>sutaru_scene
+| <i>UNUSED: Obsolete</i>
+|- 
+| syatekijyou_room_#<br>syatekijyou_scene
+| <i>UNUSED: Alternate Shooting Gallery</i> ???
+|- 
+| syotes2_room_#<br>syotes2_scene
+| <i>UNUSED: Alpha Boss Stalfo Room, "121"</i>
+|- 
+| syotes_room_#<br>syotes_scene
+| <i>UNUSED: Alpha Stalfo Room, "120"</i>
+|- 
+| takaraya_room_#<br>takaraya_scene
+| Treasure Box Shop
+|- 
+| tent_room_#<br>tent_scene
+| Tent
+|- 
+| test01_room_#<br>test01_scene
+| <i>UNUSED: Test Map</i>
+|- 
+| testroom_room_#<br>testroom_scene
+| <i>UNUSED: Test Room</i>
+|- 
+| tokinoma_room_#<br>tokinoma_scene
+| Temple of Time
+|- 
+| turibori_room_#<br>turibori_scene
+| Fishing Pond
+|- 
+| ydan_boss_room_#<br>ydan_boss_scene
+| Inside the Deku Tree (Boss Room)
+|- 
+| ydan_room_#<br>ydan_scene
+| Inside the Deku Tree
+|- 
+| yousei_izumi_tate_room_#<br>yousei_izumi_tate_scene
+| Fairy grotto
+|- 
+| yousei_izumi_yoko_room_#<br>yousei_izumi_yoko_scene
+| Great Fairy Fountain
+|- 
+| zoora_room_#<br>zoora_scene
+| Zora Shop
+|}
+[[Category:Documentation]]
+[[Category:Debug ROM]]
+[[Category:Scene Listings]]

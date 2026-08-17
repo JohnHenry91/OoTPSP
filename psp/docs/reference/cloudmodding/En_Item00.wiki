@@ -1,0 +1,131 @@
+{{actor|name=En_Item00|ispage=true}}
+'''En_Item00''' is the file name for the [[Collectible Items]] [[actor]]. Unlike most actors, En_Item00 is stored within [[code]], rather than an [[overlay]], making it trickier to find information related to it.
+
+{{clear}}
+
+==Notes ==
+
+{|class="wikitable"
+!NTSC 1.0 || Debug || Purpose
+|-
+| B5D6B0 || B8C660 || "Data" block start. 0x20 bytes contains the standard actor information
+|-
+| B5D720 || B8C6D0 || [[Segment offset]] to the item drop icons in [[gameplay_keep]]. 17 records.
+|-
+| B5D764 ||B8C714 || Randomized item drop table. 15 records, 0x10 bytes long each. 1 byte corresponds to an item it becomes, FF is no item.       
+|-
+| B5D854 ||B8C804 || Item multiplier. Spawns self? N number of items. 1 byte for each byte in the table above.
+|-
+| 800E7770 || || Collision Cylinder (At least for 3D hearts)
+|}
+
+=== Item Drop Icons ===
+
+{| class="wikitable" style="text-align: left; font-family: monospace; margin: left;"
+! 1.0 || Debug || Item Icon
+|-
+| 04044E50 || 04042140 || Green Rupee
+|-
+| 04044E70 || 04042160 || Blue Rupee
+|-
+| 04044E90 || 04042180 || Red Rupee
+|-
+| 04044ED0 || 040421C0 || Orange Rupee
+|-
+| 04044EB0 || 040421A0 || Pink Rupee
+|-
+| 04040D80 || 0403E870 || Recovery Heart
+|-
+| 0403F580 || 0403E070 || Bomb
+|-
+| 0403E580 || 0403D070 || Arrow x1
+|-
+| 0403DD80 || 0403C870 || Arrow x2
+|-
+| 0403ED80 || 0403D870 || Arrow x3
+|-
+| 0403F580 || 0403E070 || Bomb
+|-
+| 04042E50 || 04040140 || Deku Nut
+|-
+| 04043E50 || 04041140 || Deku Stick
+|-
+| 04044650 || 04041940 || Large Magic Jar
+|-
+| 04042650 || 0403F940 || Small Magic Jar
+|-
+| 04043650 || 04040940 || Deku Seeds
+|-
+| 04041E50 || 0403F140 || Small Key
+|}
+
+=== Drop Table Types ===
+{|class="wikitable"
+!ID || Purpose
+|-
+|00||Green Rupee
+|-
+|01||Blue Rupee
+|-
+|02||Red Rupee
+|-
+|03||Recovery Heart
+|-
+|04||Bomb
+|-
+|05||Arrow (1)
+|-
+|06||Piece of Heart
+|-
+|07||Heart Container [Early]
+|-
+|08||Deku Seeds or Arrows (5)
+|-
+|09||Deku Seeds (5) or Arrows (10)
+|-
+|0A||Deku Seeds (5) or Arrows (30)
+|-
+|0B||Bomb (5)
+|-
+|0C||Deku Nut
+|-
+|0D||Deku Stick
+|-
+|0E||Large Magic Jar
+|-
+|0F||Small Magic Jar
+|-
+|10||Deku Seeds or Arrows (5)
+|-
+|11||Small Key
+|-
+|12||Flexible Drop
+|-
+|13||Orange Rupee
+|-
+|14||Pink Rupee
+|-
+|15||Deku Shield
+|-
+|16||Hylian Shield
+|-
+|17||Zora Tunic
+|-
+|18||Goron Tunic
+|-
+|19||Bomb (5)
+|}
+
+The flexible drop is a special drop that will be converted into an item that you're low on. The rules are as follows: 
+* If you have <= 1 heart it becomes a fairy
+* else if 1 < hearts <= 3 it becomes three hearts, or triple green Rupee if at max health
+* else if 3 < hearts <= 5 it becomes a single heart, or green Rupee if at max health
+* if you don't have magic, it skips past the MP check 
+* else if you have 0 MP it becomes a Large Magic Jar
+* else if you are child and you have <= 5 seeds it becomes Deku Seeds (5), or nothing without a slingshot
+* else if you are adult and you have <= 5 arrows it becomes a large arrow bundle (10), or nothing without a bow
+* else if you have <= 5 bombs it becomes bombs (5), or nothing without a bomb item
+* else if you have <= 10 Rupees it becomes a red Rupee
+* else it becomes nothing
+
+[[Category:Items]]

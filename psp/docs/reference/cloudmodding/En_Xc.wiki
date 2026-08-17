@@ -1,0 +1,80 @@
+{{Actor|name=ovl_En_Xc}}
+
+'''ovl_En_Xc''' is the [[actor]] for [[Sheik]].
+
+{{clear}}
+
+== Notes ==
+
+There are 9 different forms of Sheik (0-8).
+
+* 8 = Sheik that teaches Serenade
+
+=== NTSC 1.0 ===
+==== Overlay ==
+ 0xA88 // Function that determines whether type 8 Sheik will remain spawned
+ 0x5D58 //Jump table for executing each version of Sheik
+
+=== Debug Rom ===
+
+All three of these songs are learned as soon as the cutscene begins. The songs are learned again at some time during the cutscene that we have yet to pinpoint.
+
+<pre>
+ROM: 0xEF2874 (2405005A) Minuet of Forest (Meeting Sheik in Sacred Forest Meadow)<br>
+ROM: 0xEF2A1C (2405005B) Bolero of Fire (Meeting Sheik in Death Mountain Crater)<br>
+ROM: 0xEF2B78 (2405005C) Serenade of Water (Meeting Sheik in the Ice Cavern)
+
+0xEF2B7F (Point of Interest)
+0xEF2CF4
+0xEF2D78
+0xEF2E74
+0xEF2EB8
+</pre>
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| シーク誕生!!!!!!!!!!!!!!!!!!||SHEIK IS BORN!!!!!!!!!!!!!!!!!!
+|-
+| 水のセレナーデ シーク消滅!!!!!!!!!!!!!!!!!!||SERENADE OF WATER - SHEIK VANISHES!!!!!!!!!!!!!!!!!!
+|-
+| ブーツを取った!!!!!!!!!!!!!!!!!!||OBTAINED BOOTS!!!!!!!!!!!!!!!!!!
+|-
+| はやくブーツを取るべし!!!!!!!!!!!!!!!!!!||HURRY AND OBTAIN THE BOOTS!!!!!!!!!!!!!!!!!!
+|-
+| MAX speed = %f||MAX speed = %f
+|-
+| ../z_en_oA2_inSpot05.c||../z_en_oA2_inSpot05.c
+|-
+| ../z_en_oA2_inSpot05.c||../z_en_oA2_inSpot05.c
+|-
+| ../z_en_oA2_inSpot05.c||../z_en_oA2_inSpot05.c
+|-
+| ../z_en_oA2_inSpot05.c||../z_en_oA2_inSpot05.c
+|-
+| ../z_en_oA2_inMetamol.c||../z_en_oA2_inMetamol.c
+|-
+| ../z_en_oA2_inMetamol.c||../z_en_oA2_inMetamol.c
+|-
+| ../z_en_oA2_inMetamol.c||../z_en_oA2_inMetamol.c
+|-
+| En_Oa2_Stalker_Check_DemoMode:そんな動作は無い!!!!!!!!||En_Oa2_Stalker_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| ../z_en_oA2_inStalker.c||../z_en_oA2_inStalker.c
+|-
+| ../z_en_oA2_inStalker.c||../z_en_oA2_inStalker.c
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mMAIN MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|-
+| [31m En_Oa2 の arg_data がおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31m En_Oa2 arg_data IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|-
+| ../z_en_oA2.c||../z_en_oA2.c
+|-
+| ../z_en_oA2.c||../z_en_oA2.c
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||[31mDRAW MODE IS ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!![m
+|}
+
+[[Category:Sheik]]

@@ -1,0 +1,3 @@
+{{actor|name=ovl_En_Bdfire}}
+{{clear}}
+[[Category:King Dodongo]]

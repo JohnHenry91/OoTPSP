@@ -1,0 +1,73 @@
+{{address3|space=code|name=Game State
+|ver1=Debug|ref1=rom|start1=B969D0|size1=120
+|ver2=NTSC 1.0|ref2=rom|start2=B672A0|size2=120
+|ver3=PAL MQ|ref3=rom|start3=B65290|size3=120
+}}
+This table defines the top-level states the game can execute in (Map Select, Boot Logo, the playable game itself, etc.), and reserves variable space for each state
+=== Format ===
+<pre style="display: inline-block;">
+/* 0x00 */ uint RamStart; //location of overlay in ram, or 0 in rom
+/* 0x04 */ int VRomStart; //if applicable
+/* 0x08 */ int VRomEnd;   //if applicable
+/* 0x0C */ int VRamStart; //if applicable
+
+/* 0x10 */ int VRamEnd;   //if applicable
+/* 0x14 */ uint unknown2;
+/* 0x18 */ ptr VRamInitialization; //initializes and executes the given context
+/* 0x1C */ ptr VRamDeconstructor; //"deconstructs" the context, and sets the next context to load
+
+/* 0x20-0x2B */ //unknown
+
+/* 0x2C */ int AllocateSize; //Size of initialized instance of the overlay</pre>
+
+===Debug Rom ===
+{| class="wikitable sortable"  style="text-align: center; font-family: monospace; margin: left;"
+!VRom Start||VRom End||VRam Start||VRam End||VRam<br>Initialization||VRam<br>Deconstructor||Instance<br>Variables||File || Description
+|-
+|00000000||00000000||00000000||00000000||800C4104||800C40FC||000000A4|| N/A ||
+|-
+|00BCFAC0||00BD2B20||80800B90||80803BF0||80801E44||80801E0C||00000240|| [[ovl_select]] || Map Select
+|-
+|00BCEF30||00BCFAC0||80800000||80800B90||80800878||80800858||000001E8|| [[ovl_title]]|| Nintendo Logo (on Boot)
+|-
+|00000000||00000000||00000000||00000000||800BCA64||800BC8EC||00012518|| [[game_play]] || Main Game
+|-
+|00BD2B20||00BD2C70||80803BF0||80803D40||80803CAC||80803CA4||000001D0|| [[ovl_opening]]|| Initializes the game into the title screen
+|-
+|00BD2C70||00BE2730||80803D40||80813820||80811A20||80811A18||0001CAE0|| [[ovl_file_choose]]|| File Select
+|}
+
+===NTSC 1.0 ===
+{| class="wikitable sortable"  style="text-align: center; font-family: monospace; margin: left;"
+!VRom Start||VRom End||VRam Start||VRam End||VRam<br>Initialization||VRam<br>Deconstructor||Instance<br>Variables||File || Description
+|-
+|00000000||00000000||00000000||00000000||800A0748||800A073C||000000A4|| N/A ||
+|-
+|00B9E400||00BA1160||808009C0||80803720||80801C14||80801C08||00000240|| [[ovl_select]] || Map Select
+|-
+|00B9DA40||00B9E400||80800000||808009C0||808007B0||80800750||000001E8|| [[ovl_title]]||Nintendo Logo (on Boot)
+|-
+|00000000||00000000||00000000||00000000||8009A750||8009A5C0||00012518|| [[game_play]] || Main Game
+|-
+|00BA1160||00BA12C0||80803720||80803880||808037E8||808037DC||000001D0|| [[ovl_opening]] || Initializes the game into the title screen
+|-
+|00BA12C0||00BB11E0||80803880||808137C0||80812394||80812388||0001CAD0|| [[ovl_file_choose]] || File Select
+|}
+
+=== PAL MQ ===
+{| class="wikitable sortable"  style="text-align: center; font-family: monospace; margin: left;"
+!VRom Start||VRom End||VRam Start||VRam End||VRam<br>Initialization||VRam<br>Deconstructor||Instance<br>Variables||File || Description
+|-
+|00000000||00000000||00000000||00000000||800A02D8||800A02CC||000000A4|| N/A ||
+|-
+|00B8AA80||00B8D700||80800850||808034D0||80801A40||80801A34||00000240|| [[ovl_select]] || Map Select
+|-
+|00B8A230||00B8AA80||80800000||80800850||808006C0||808006A0||000001E8|| [[ovl_title]] || Nintendo Logo (on Boot)
+|-
+|00000000||00000000||00000000||00000000||8009A4CC||8009A360||00012518|| [[game_play]] || Main Game
+|-
+|00B8D700||00B8D860||808034D0||80803630||80803598||8080358C||000001D0|| [[ovl_opening]] || Initializes the game into the title screen
+|-
+|00B8D860||00B9C470||80803630||80812260||80810C54||80810C48||0001CAE0|| [[ovl_file_choose]] || File Select
+|}
+<noinclude>[[Category:Actors]][[Category: Code (File)]][[Category:Overlays]]</noinclude>

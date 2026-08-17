@@ -1,0 +1,9 @@
+'''Grog''' is the son of the master carpenter [[Mutoh]].
+== Actors ==
+* [[ovl_En_Hs]] - Grog (Adult)
+* [[ovl_En_Hs2]] - Grog (Child)
+
+== Objects ==
+* [[object_hs]] - Grog
+
+[[Category:Grog| ]]

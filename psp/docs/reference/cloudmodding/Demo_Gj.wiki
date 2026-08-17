@@ -1,0 +1,41 @@
+{{Actor|name=ovl_Demo_Gj|ispage=true}}
+
+'''ovl_Demo_Gj''' is the [[actor]] for the rubble during the battle with Ganon.
+
+{{todo|Double check that this statement is true.}}
+
+{{clear}}
+
+== Console Output Strings ==
+
+{{translate}}
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| Demo_Gj_Search_Boss_Ganon %d:ガノン発見!!!!||
+|-
+| Demo_Gj_Search_Boss_Ganon %d:ガノン発見出来ず||
+|-
+| ../z_demo_gj.c||
+|-
+| ../z_demo_gj.c||
+|-
+| ../z_demo_gj.c||
+|-
+| ../z_demo_gj.c||
+|-
+| ../z_demo_gj.c||
+|-
+| ../z_demo_gj.c||
+|-
+| [31mDemo_Gj_common_Reflect : そんなarg_dataには対応していない = %d[m||
+|-
+| [31mDemo_Gj_Setup_Move_common : そんなarg_dataには対応していない = %d[m||
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||
+|-
+| [31mDemo_Gj_Actor_ct そんな引数は無い!!!!!!!!!!!!!!!!!!!!!![m||
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!![m||
+|}

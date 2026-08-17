@@ -1,0 +1,29 @@
+{{Actor|name=ovl_En_Ex_Ruppy|ispage=true}}
+
+'''ovl_En_Ex_Ruppy''' is the [[actor]] for the Rupees you receive in the Slingshot [[Minigame]].
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [32m☆☆☆☆☆ インデックス ☆☆☆☆☆ %x[m||[32m☆☆☆☆☆ INDEX ☆☆☆☆☆ %x[m
+|-
+| [32m☆☆☆☆☆ わーなーコイン ☆☆☆☆☆ [m||[32m☆☆☆☆☆ TRAP COIN ☆☆☆☆☆ [m
+|-
+| [32m☆☆☆☆☆ ノーマルルピー ☆☆☆☆☆ [m||[32m☆☆☆☆☆ NORMAL RUPEE ☆☆☆☆☆ [m
+|-
+| [32m☆☆☆☆☆ そ、そんなばかな！エラー！！！！！ ☆☆☆☆☆ [m||[32m☆☆☆☆☆ S, STUPID! AN ERROR!!!!! ☆☆☆☆☆ [m
+|-
+| [32m☆☆☆☆☆ バカめ！ ☆☆☆☆☆ [m||[32m☆☆☆☆☆ IDIOT! ☆☆☆☆☆ [m
+|-
+| ../z_en_ex_ruppy.c||../z_en_ex_ruppy.c
+|-
+| ../z_en_ex_ruppy.c||../z_en_ex_ruppy.c
+|-
+| ../z_en_ex_ruppy.c||../z_en_ex_ruppy.c
+|}
+
+[[Category:Slingshot Minigame]]

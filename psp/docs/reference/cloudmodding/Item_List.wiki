@@ -1,0 +1,665 @@
+Below are two lists of all items in Ocarina of Time. The first list contains item 0x00 to 0x77. After item 0x77 the IDs serve different purposes depending on situation, so those items are listed separately, without IDs. For example: ID 0x78 and 0x79 is the Small and Big Magic Jar in the function which uses item ID as the argument to give link items, but for chest content both 0x78 and 0x79 give you a Blue Rupee instead.
+
+Only items 0x00-0x3A are properly usable as inventory items as they have [[Action Parameters]] asigned to them. The item action id table have two blank entries at the end for item 0x3B and 0x3C, making it possible to turn [[Kokiri Sword|Kokiri Sword]] and [[Master Sword|Master Sword]] into usable inventory items.
+
+Items past 0x59 do not appear correctly when used as inventory or equipment items due to their icon textures being located in different files, using different formats.
+
+{| class="wikitable sortable" style="text-align: center; font-family: monospace; margin: left;"
+! ID || Item || Used
+|-
+! colspan=3 | Inventory Items
+|-
+| 00
+| style="text-align: left;" | Deku Stick
+| class="bg-yes" | ✔
+|-
+| 01
+| style="text-align: left;" | Deku Nut
+| class="bg-yes" | ✔
+|-
+| 02
+| style="text-align: left;" | Bomb
+| class="bg-yes" | ✔
+|-
+| 03
+| style="text-align: left;" | Fairy Bow
+| class="bg-yes" | ✔
+|-
+| 04
+| style="text-align: left;" | Fire Arrow
+| class="bg-yes" | ✔
+|-
+| 05
+| style="text-align: left;" | Din's Fire
+| class="bg-yes" | ✔
+|-
+| 06
+| style="text-align: left;" | Fairy Slingshot
+| class="bg-yes" | ✔
+|-
+| 07
+| style="text-align: left;" | Fairy Ocarina
+| class="bg-yes" | ✔
+|-
+| 08
+| style="text-align: left;" | Ocarina of Time
+| class="bg-yes" | ✔
+|-
+| 09
+| style="text-align: left;" | Bombchu (10)
+| class="bg-yes" | ✔
+|-
+| 0A
+| style="text-align: left;" | Hookshot
+| class="bg-yes" | ✔
+|-
+| 0B
+| style="text-align: left;" | Longshot
+| class="bg-yes" | ✔
+|-
+| 0C
+| style="text-align: left;" | Ice Arrow
+| class="bg-yes" | ✔
+|-
+| 0D
+| style="text-align: left;" | Farore's Wind
+| class="bg-yes" | ✔
+|-
+| 0E
+| style="text-align: left;" | Boomerang
+| class="bg-yes" | ✔
+|-
+| 0F
+| style="text-align: left;" | Lens of Truth
+| class="bg-yes" | ✔
+|-
+| 10
+| style="text-align: left;" | Magic Bean
+| class="bg-yes" | ✔
+|-
+| 11
+| style="text-align: left;" | Megaton Hammer
+| class="bg-yes" | ✔
+|-
+| 12
+| style="text-align: left;" | Light Arrow
+| class="bg-yes" | ✔
+|-
+| 13
+| style="text-align: left;" | Nayru's Love
+| class="bg-yes" | ✔
+|-
+| 14
+| style="text-align: left;" | Empty Bottle
+| class="bg-yes" | ✔
+|-
+| 15
+| style="text-align: left;" | Red Potion
+| class="bg-yes" | ✔
+|-
+| 16
+| style="text-align: left;" | Green Potion
+| class="bg-yes" | ✔
+|-
+| 17
+| style="text-align: left;" | Blue Potion
+| class="bg-yes" | ✔
+|-
+| 18
+| style="text-align: left;" | Bottled Fairy
+| class="bg-yes" | ✔
+|-
+| 19
+| style="text-align: left;" | Fish
+| class="bg-yes" | ✔
+|-
+| 1A
+| style="text-align: left;" | Lon Lon Milk & Bottle
+| class="bg-yes" | ✔
+|-
+| 1B
+| style="text-align: left;" | [Ruto's] Letter
+| class="bg-yes" | ✔
+|-
+| 1C
+| style="text-align: left;" | Blue Fire
+| class="bg-yes" | ✔
+|-
+| 1D
+| style="text-align: left;" | Bug
+| class="bg-yes" | ✔
+|-
+| 1E
+| style="text-align: left;" | Big Poe
+| class="bg-yes" | ✔
+|-
+| 1F
+| style="text-align: left;" | Lon Lon Milk (Half)
+| class="bg-yes" | ✔
+|-
+| 20
+| style="text-align: left;" | Poe
+| class="bg-yes" | ✔
+|-
+| 21
+| style="text-align: left;" | Weird Egg
+| class="bg-yes" | ✔
+|-
+| 22
+| style="text-align: left;" | Chicken
+| class="bg-yes" | ✔
+|-
+| 23
+| style="text-align: left;" | Zelda's Letter
+| class="bg-yes" | ✔
+|-
+| 24
+| style="text-align: left;" | Keaton Mask
+| class="bg-yes" | ✔
+|-
+| 25
+| style="text-align: left;" | Skull Mask
+| class="bg-yes" | ✔
+|-
+| 26
+| style="text-align: left;" | Spooky Mask
+| class="bg-yes" | ✔
+|-
+| 27
+| style="text-align: left;" | Bunny Hood
+| class="bg-yes" | ✔
+|-
+| 28
+| style="text-align: left;" | Goron Mask
+| class="bg-yes" | ✔
+|-
+| 29
+| style="text-align: left;" | Zora Mask
+| class="bg-yes" | ✔
+|-
+| 2A
+| style="text-align: left;" | Gerudo Mask
+| class="bg-yes" | ✔
+|-
+| 2B
+| style="text-align: left;" | Mask of Truth
+| class="bg-yes" | ✔
+|-
+| 2C
+| style="text-align: left;" | SOLD OUT
+| class="bg-no" | ✘
+|-
+| 2D
+| style="text-align: left;" | Pocket Egg
+| class="bg-yes" | ✔
+|-
+| 2E
+| style="text-align: left;" | Pocket Cucco
+| class="bg-yes" | ✔
+|-
+| 2F
+| style="text-align: left;" | Cojiro
+| class="bg-yes" | ✔
+|-
+| 30
+| style="text-align: left;" | Odd Mushroom
+| class="bg-yes" | ✔
+|-
+| 31
+| style="text-align: left;" | Odd Potion
+| class="bg-yes" | ✔
+|-
+| 32
+| style="text-align: left;" | Poacher's Saw
+| class="bg-yes" | ✔
+|-
+| 33
+| style="text-align: left;" | Goron's Sword (Broken)
+| class="bg-yes" | ✔
+|-
+| 34
+| style="text-align: left;" | Prescription
+| class="bg-yes" | ✔
+|-
+| 35
+| style="text-align: left;" | Eyeball Frog
+| class="bg-yes" | ✔
+|-
+| 36
+| style="text-align: left;" | Eye Drops
+| class="bg-yes" | ✔
+|-
+| 37
+| style="text-align: left;" | Claim Check
+| class="bg-yes" | ✔
+|-
+| 38
+| style="text-align: left;" | Fairy Bow & Fire Arrow
+| class="bg-yes" | ✔
+|-
+| 39
+| style="text-align: left;" | Fairy Bow & Ice Arrow
+| class="bg-yes" | ✔
+|-
+| 3A
+| style="text-align: left;" | Fairy Bow & Light Arrow
+| class="bg-yes" | ✔
+|-
+! colspan=3 | Equipment
+|-
+| 3B
+| style="text-align: left;" | Kokiri Sword
+| class="bg-yes" | ✔
+|-
+| 3C
+| style="text-align: left;" | Master Sword
+| class="bg-yes" | ✔
+|-
+| 3D
+| style="text-align: left;" | Giant's Knife & Biggoron's Sword
+| class="bg-yes" | ✔
+|-
+| 3E
+| style="text-align: left;" | Deku Shield
+| class="bg-yes" | ✔
+|-
+| 3F
+| style="text-align: left;" | Hylian Shield
+| class="bg-yes" | ✔
+|-
+| 40
+| style="text-align: left;" | Mirror Shield
+| class="bg-yes" | ✔
+|-
+| 41
+| style="text-align: left;" | Kokiri Tunic
+| class="bg-yes" | ✔
+|-
+| 42
+| style="text-align: left;" | Goron Tunic
+| class="bg-yes" | ✔
+|-
+| 43
+| style="text-align: left;" | Zora Tunic
+| class="bg-yes" | ✔
+|-
+| 44
+| style="text-align: left;" | Kokiri Boots
+| class="bg-yes" | ✔
+|-
+| 45
+| style="text-align: left;" | Iron Boots
+| class="bg-yes" | ✔
+|-
+| 46
+| style="text-align: left;" | Hover Boots
+| class="bg-yes" | ✔
+|-
+| 47
+| style="text-align: left;" | Bullet Bag (Holds 30)
+| class="bg-yes" | ✔
+|-
+| 48
+| style="text-align: left;" | Bullet Bag (Holds 40)
+| class="bg-yes" | ✔
+|-
+| 49
+| style="text-align: left;" | Bullet Bag (Holds 50)
+| class="bg-yes" | ✔
+|-
+| 4A
+| style="text-align: left;" | Quiver (Holds 30)
+| class="bg-yes" | ✔
+|-
+| 4B
+| style="text-align: left;" | Big Quiver (Holds 40)
+| class="bg-yes" | ✔
+|-
+| 4C
+| style="text-align: left;" | Biggest Quiver (Holds 50)
+| class="bg-yes" | ✔
+|-
+| 4D
+| style="text-align: left;" | Bomb Bag (Holds 20)
+| class="bg-yes" | ✔
+|-
+| 4E
+| style="text-align: left;" | Big Bomb Bag (Holds 30)
+| class="bg-yes" | ✔
+|-
+| 4F
+| style="text-align: left;" | Biggest Bomb Bag (Holds 40)
+| class="bg-yes" | ✔
+|-
+| 50
+| style="text-align: left;" | Goron's Bracelet
+| class="bg-yes" | ✔
+|-
+| 51
+| style="text-align: left;" | Silver Gauntlets
+| class="bg-yes" | ✔
+|-
+| 52
+| style="text-align: left;" | Golden Gauntlets
+| class="bg-yes" | ✔
+|-
+| 53
+| style="text-align: left;" | Silver Scale
+| class="bg-yes" | ✔
+|-
+| 54
+| style="text-align: left;" | Golden Scale
+| class="bg-yes" | ✔
+|-
+| 55
+| style="text-align: left;" | Giant's Knife (Broken)
+| class="bg-yes" | ✔
+|-
+| 56
+| style="text-align: left;" | Adult's Wallet
+| class="bg-yes" | ✔
+|-
+| 57
+| style="text-align: left;" | Giant's Wallet
+| class="bg-yes" | ✔
+|-
+| 58
+| style="text-align: left;" | Deku Seeds (5)
+| ?
+|-
+| 59
+| style="text-align: left;" | Fishing Pole
+| class="bg-yes" | ✔
+|-
+! colspan=3 | Quest Items
+|-
+| 5A
+| style="text-align: left;" | Minuet of Forest
+| class="bg-yes" | ✔
+|-
+| 5B
+| style="text-align: left;" | Bolero of Fire
+| class="bg-yes" | ✔
+|-
+| 5C
+| style="text-align: left;" | Serenade of Water
+| class="bg-yes" | ✔
+|-
+| 5D
+| style="text-align: left;" | Requiem of Spirit
+| class="bg-yes" | ✔
+|-
+| 5E
+| style="text-align: left;" | Nocturne of Shadow
+| class="bg-yes" | ✔
+|-
+| 5F
+| style="text-align: left;" | Prelude of Light
+| class="bg-yes" | ✔
+|-
+| 60
+| style="text-align: left;" | Zelda's Lullaby
+| class="bg-yes" | ✔
+|-
+| 61
+| style="text-align: left;" | Epona's Song
+| class="bg-yes" | ✔
+|-
+| 62
+| style="text-align: left;" | Saria's Song
+| class="bg-yes" | ✔
+|-
+| 63
+| style="text-align: left;" | Sun's Song
+| class="bg-yes" | ✔
+|-
+| 64
+| style="text-align: left;" | Song of Time
+| class="bg-yes" | ✔
+|-
+| 65
+| style="text-align: left;" | Song of Storms
+| class="bg-yes" | ✔
+|-
+| 66
+| style="text-align: left;" | Forest Medallion
+| class="bg-yes" | ✔
+|-
+| 67
+| style="text-align: left;" | Fire Medallion
+| class="bg-yes" | ✔
+|-
+| 68
+| style="text-align: left;" | Water Medallion
+| class="bg-yes" | ✔
+|-
+| 69
+| style="text-align: left;" | Spirit Medallion
+| class="bg-yes" | ✔
+|-
+| 6A
+| style="text-align: left;" | Shadow Medallion
+| class="bg-yes" | ✔
+|-
+| 6B
+| style="text-align: left;" | Light Medallion
+| class="bg-yes" | ✔
+|-
+| 6C
+| style="text-align: left;" | Kokiri's Emerald
+| class="bg-yes" | ✔
+|-
+| 6D
+| style="text-align: left;" | Goron's Ruby
+| class="bg-yes" | ✔
+|-
+| 6E
+| style="text-align: left;" | Zora's Sapphire
+| class="bg-yes" | ✔
+|-
+| 6F
+| style="text-align: left;" | Stone of Agony
+| class="bg-yes" | ✔
+|-
+| 70
+| style="text-align: left;" | Gerudo's Card
+| class="bg-yes" | ✔
+|-
+| 71
+| style="text-align: left;" | Gold Skulltula [Token]
+| class="bg-yes" | ✔
+|-
+| 72
+| style="text-align: left;" | Heart Container
+| class="bg-yes" | ✔
+|-
+| 73
+| style="text-align: left;" | Piece of Heart [?]
+| ?
+|-
+! colspan=3 | Dungeon Items
+|-
+| 74
+| style="text-align: left;" | Big Key
+| class="bg-yes" | ✔
+|-
+| 75
+| style="text-align: left;" | Compass
+| class="bg-yes" | ✔
+|-
+| 76
+| style="text-align: left;" | Dungeon Map
+| class="bg-yes" | ✔
+|-
+| 77
+| style="text-align: left;" | Small Key
+| class="bg-yes" | ✔
+|-
+! colspan=3 | Collectibles
+|-
+| 78
+| style="text-align: left;" | Small Magic Jar
+| class="bg-yes" | ✔
+|-
+| 79
+| style="text-align: left;" | Large Magic Jar
+| class="bg-yes" | ✔
+|-
+| 7A
+| style="text-align: left;" | Piece of Heart
+| class="bg-yes" | ✔
+|-
+! colspan=3 | Removed Items
+|-
+| 7B
+| style="text-align: left;" | [Removed]
+| class="bg-no" | ✘
+|-
+| 7C
+| style="text-align: left;" | [Removed]
+| class="bg-no" | ✘
+|-
+| 7D
+| style="text-align: left;" | [Removed]
+| class="bg-no" | ✘
+|-
+| 7E
+| style="text-align: left;" | [Removed]
+| class="bg-no" | ✘
+|-
+| 7F
+| style="text-align: left;" | [Removed]
+| class="bg-no" | ✘
+|-
+| 80
+| style="text-align: left;" | [Removed]
+| class="bg-no" | ✘
+|-
+| 81
+| style="text-align: left;" | [Removed]
+| class="bg-no" | ✘
+|-
+! colspan=3 | Other Items
+|-
+| 82
+| style="text-align: left;" | Lon Lon Milk
+| class="bg-yes" | ✔
+|-
+| 83
+| style="text-align: left;" | Recovery Heart
+| class="bg-yes" | ✔
+|-
+| 84
+| style="text-align: left;" | Green Rupee
+| class="bg-yes" | ✔
+|-
+| 85
+| style="text-align: left;" | Blue Rupee
+| class="bg-yes" | ✔
+|-
+| 86
+| style="text-align: left;" | Red Rupee
+| class="bg-yes" | ✔
+|-
+| 87
+| style="text-align: left;" | Purple Rupee
+| class="bg-yes" | ✔
+|-
+| 88
+| style="text-align: left;" | Huge Rupee
+| class="bg-yes" | ✔
+|-
+| 89
+| style="text-align: left;" | [Removed]
+| class="bg-no" | ✘
+|-
+| 8A
+| style="text-align: left;" | Deku Sticks (5)
+| ?
+|-
+| 8B
+| style="text-align: left;" | Deku Sticks (10)
+| ?
+|-
+| 8C
+| style="text-align: left;" | Deku Nuts (5)
+| class="bg-yes" | ✔
+|-
+| 8D
+| style="text-align: left;" | Deku Nuts (10)
+| class="bg-yes" | ✔
+|-
+| 8E
+| style="text-align: left;" | Bombs (5)
+| class="bg-yes" | ✔
+|-
+| 8F
+| style="text-align: left;" | Bombs (10)
+| class="bg-yes" | ✔
+|-
+| 90
+| style="text-align: left;" | Bombs (20)
+| class="bg-yes" | ✔
+|-
+| 91
+| style="text-align: left;" | Bombs (30)
+| class="bg-yes" | ✔
+|-
+| 92
+| style="text-align: left;" | Arrows (5 or 10)
+| class="bg-yes" | ✔
+|-
+| 93
+| style="text-align: left;" | Arrows (10 or 30)
+| class="bg-yes" | ✔
+|-
+| 94
+| style="text-align: left;" | Arrows (30 or 50)
+| class="bg-yes" | ✔
+|-
+| 95
+| style="text-align: left;" | Deku Seeds (30)
+| class="bg-yes" | ✔
+|-
+| 96
+| style="text-align: left;" | Bombchu (5)
+| class="bg-yes" | ✔
+|-
+| 97
+| style="text-align: left;" | Bombchu (20)
+| class="bg-yes" | ✔
+|-
+| 98
+| style="text-align: left;" | Deku Stick Upgrade (Holds 20 Sticks)
+| class="bg-yes" | ✔
+|-
+| 99
+| style="text-align: left;" | Deku Stick Upgrade (Holds 30 Sticks)
+| class="bg-yes" | ✔
+|-
+| 9A
+| style="text-align: left;" | Deku Nut Upgrade (Holds 30 Nuts)
+| class="bg-yes" | ✔
+|-
+| 9B
+| style="text-align: left;" | Deku Nut Upgrade (Holds 40 Nuts)
+| class="bg-yes" | ✔
+|-
+| FF
+| style="text-align: left;" | [No Item]
+| ?
+|}
+
+{|class="wikitable"
+!Collectibles
+|-
+|[[Heart|Heart]]
+|-
+|[[Rupee|Rupee]]
+|-
+|[[Magic Jar|Magic Jar]]
+|-
+|[[Arrow|Arrow]]
+|}
+
+[[Category:Items| ]]

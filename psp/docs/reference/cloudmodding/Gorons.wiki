@@ -1,0 +1,15 @@
+They all look alike to me...
+
+== Actors ==
+* {{actor ref|ovl_En_Go}}
+* {{actor ref|ovl_En_Go2}}
+* {{actor ref|ovl_Demo_Go}}
+
+== Objects ==
+* {{object ref|object_spot18_obj}}
+* {{object ref|object_oF1d_map}}
+=== See Also ===
+* [[Darunia]]
+* [[Medigoron]]
+
+[[Category:Gorons| ]]

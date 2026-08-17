@@ -1,0 +1,39 @@
+{{actor|name=ovl_Demo_Sa}}
+'''ovl_Demo_Sa''' is the [[Saria]] actor used in cutscenes, typically when Saria becomes a sage.
+{{clear}}
+[[Category:Saria]]
+
+== NTSC 1.0 Notes ==
+
+* <tt>00D4EA58</tt> Forest Medallion Cutscene
+
+
+== Debug Rom Notes ==
+ROM: 0xD47F70 (24050066) Forest Medallion (From Sage Saria)
+
+==Console Output Strings==
+{| class="wikitable"
+! Original Text||Translation
+|-
+| ../z_demo_sa_inKenjyanomaDemo02.c||../z_demo_sa_inKenjyanomaDemo02.c
+|-
+| ../z_demo_sa_inKenjyanomaDemo02.c||../z_demo_sa_inKenjyanomaDemo02.c
+|-
+| Demo_Sa_inEnding_Check_DemoMode:そんな動作は無い!!!!!!!!||Demo_Sa_inEnding_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| Demo_Sa_inPresent_Check_DemoMode:そんな動作は無い!!!!!!!!||Demo_Sa_inPresent_Check_DemoMode: OPERATION DOESN'T EXIST!!!!!!!!
+|-
+| [31mメインモードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||[31m MAIN MODE ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!!
+|-
+| [m||[m
+|-
+| ../z_demo_sa.c||../z_demo_sa.c
+|-
+| ../z_demo_sa.c||../z_demo_sa.c
+|-
+| [31m描画モードがおかしい!!!!!!!!!!!!!!!!!!!!!!!!!||[31m DRAW MODE ABNORMAL!!!!!!!!!!!!!!!!!!!!!!!!!
+|-
+| [m||[m
+|}
+
+[[Category:Cutscenes]]

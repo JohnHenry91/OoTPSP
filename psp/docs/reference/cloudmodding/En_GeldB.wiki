@@ -1,0 +1,7 @@
+{{Actor|name=ovl_En_GeldB}}
+
+'''ovl_En_GeldB''' is the [[actor]] for the Gerudo Guard minibosses.
+
+{{clear}}
+
+[[Category:Gerudos]]

@@ -26,6 +26,11 @@
 #include "save.h"
 #include "overlays/actors/ovl_En_Horse/z_en_horse.h"
 
+#if TARGET_PSP
+/* Probe/containment for the indirect camera-function call; see its use site. */
+u32 gPspCamFuncProbe[8] = { 0 };
+#endif
+
 #pragma increment_block_number "gc-eu:128 gc-eu-mq:128 gc-jp:128 gc-jp-ce:128 gc-jp-mq:128 gc-us:128 gc-us-mq:128" \
                                "ique-cn:64 ntsc-1.0:128 ntsc-1.1:128 ntsc-1.2:128 pal-1.0:128 pal-1.1:128"
 
@@ -8161,7 +8166,39 @@ Vec3s Camera_Update(Camera* camera) {
     }
 
     if (sOOBTimer < 200) {
+#if TARGET_PSP
+        /* The indirect call below is the one that crashed with "Bad Execution
+         * Address / CPU Jump to 07d802bc" on switching link_home to
+         * VIEWPOINT_PIVOT. Two ways it can produce a wild pointer, and this
+         * records enough to tell them apart:
+         *   funcIdx == 0 (CAM_FUNC_NONE)  -> sCameraFunctions[0] is literally
+         *                                     NULL, so the jump goes to 0
+         *   mode out of range              -> cameraModes[] is sized per setting
+         *                                     (sCamSetPreRendPivotModes has only
+         *                                     4 entries), so a larger mode reads
+         *                                     past it and funcIdx is garbage */
+        {
+            s32 probeFunc = sCameraSettings[camera->setting].cameraModes[camera->mode].funcIdx;
+
+            gPspCamFuncProbe[0] = (u32)camera->setting;
+            gPspCamFuncProbe[1] = (u32)camera->mode;
+            gPspCamFuncProbe[2] = (u32)probeFunc;
+            gPspCamFuncProbe[3] = (u32)(uintptr_t)sCameraFunctions[probeFunc];
+            gPspCamFuncProbe[4] = sCameraSettings[camera->setting].unk_00;
+            gPspCamFuncProbe[5]++;
+
+            /* Containment: refuse the call rather than jumping to a null or
+             * junk address. A skipped camera update costs one frame of camera
+             * motion; a wild jump costs the process. */
+            if (sCameraFunctions[probeFunc] == NULL) {
+                gPspCamFuncProbe[6]++;
+            } else {
+                sCameraFunctions[probeFunc](camera);
+            }
+        }
+#else
         sCameraFunctions[sCameraSettings[camera->setting].cameraModes[camera->mode].funcIdx](camera);
+#endif
     } else if (camera->player != NULL) {
         eyeAtAngle = OLib_Vec3fDiffToVecGeo(&camera->at, &camera->eye);
         Camera_CalcAtDefault(camera, &eyeAtAngle, 0.0f, false);

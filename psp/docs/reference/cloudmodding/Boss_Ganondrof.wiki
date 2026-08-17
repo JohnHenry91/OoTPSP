@@ -1,0 +1,117 @@
+{{Actor|name=ovl_Boss_Ganondrof|ispage=true}}
+{{Template:Stub}}
+{{clear}}
+[[Category:Ganondorf]]
+== Debug Notes ==
+<pre>
+CDE341 Phantom Ganon's Energy Ball Attack
+CDE36D Phantom Ganon's Spear Attack
+
+ROM - F1A778 (There might be more to boss building than what's in their file, because this is Far outside of the boss file, proper)
+
+RAM - 234C98 - SLTI, ST, T6, 0x0019 - 29C10019 - The amount of HP Damage that Phantom Ganon will have to take to jump off of his horse. Change accordingly if you plan on changing Phanton Ganon's base HP.
+
+ROM - CDD4BC
+RAM - 2308AC - ADDIU, T0, T9, 0xFFFE - 2728FFFE - (Negative Hex!) The damage a projectile will do to Phantom Ganon during the first phase. Change accordingly keeping Negative Hex in mind)
+
+
+ROM - CDD3C4
+RAM - 2307B4 - JAL 0x635D0 - 0C018D74 Jump to Link's Generic Weapons Routine.
+
+ROM - CDD3E0
+RAM - 2307D0 - ADDIU A0, R0, 0x0002 - 24040002 If it is a weapon, deal 2 Damage.
+RAM - 2307D4 - ADDIU, A1, R0, 0x0001 - 24050001 If it is a sword, deal damage based by the Generic Weapons Routine.
+
+
+ROM - CDD45C
+RAM - 23084C - ADDIU T3, R0, 0x0078 - 240B0078 - Phantom Ganon's Stun Duration in his second phase.
+
+ROM - CDD360
+RAM - 230750 - LUI, AT, 0x0001 - 3C010001 - Add 1 to Phantom Ganon's Defense Mode (guarding against Spirit Arrows/Unused Arrow 3)
+
+ROM - CDD364
+RAM - 230754 - ORI AT, AT, 0x0000 - 3421F8A4 - Add F8A4 to Phantom Ganon's Defense Mode (See below)
+
+ROM - CDD49C
+RAM - 23088C - 3C010001 3421F8A4 - Except it is reversed to what is above. These are the only Damage Identifier Bytes that can damage him. As you can see only the Boomerang cannot hit him. Again this works only for projectiles in the first place.
+
+1F8A4 is the answer. It is a kind of... "let only numbers that don't equal these bit values through". (Refer to Damage Identifier Bytes here
+
+4 is Slingshot.
+20 is Arrow, 80 is Hookshot = A0
+800 is Fire Arrow
+F takes care of Ice/Light/Wind/Shadow Arrows...
+And the 1 takes care of Spirit Arrows. One at first glance might think this makes Phantom Ganon vulnerable to a lot of things, but his Defense Mode only activates with projectiles.If you wish to change his defenses, (like say, take away his vulnerability to Boomerangs) you would add a 10 to the overall value. And to remove them just take away in accordance with the Damage Identifier Bytes.
+</pre>
+
+==Console Output Strings==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| DT1||
+|-
+| DT2||
+|-
+| SW %d------------------------------------------------||
+|-
+| RUN 1||
+|-
+| RUN 2||
+|-
+| RUN 3||
+|-
+| RUN 4||
+|-
+| this->fwork[GND_END_FRAME] = %d||
+|-
+| this->work[GND_SHOT_FRAME] = %d||
+|-
+| VOISE               2  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| VOISE               2  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!||
+|-
+| DAMAGE   .................................||
+|-
+| TIME0 %d ********************************************||
+|-
+| YP %f @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@||
+|-
+| PYP %f||
+|-
+| 7||
+|-
+| 8||
+|-
+| hit != 0 ||
+|-
+| MOVE START %d||
+|-
+| MOVE START EEEEEEEEEEEEEEEEEEEEEE%d||
+|-
+| MOVE END||
+|-
+| F 1||
+|-
+| F 15||
+|-
+| F 2||
+|-
+| ../z_boss_ganondrof.c||
+|-
+| MOVE P = %x||
+|-
+| STOP TIMER = %d ==============||
+|-
+| YP %f||
+|-
+| DRAW 11||
+|-
+| EYE_COL %d||
+|-
+| DRAW 22||
+|-
+| ../z_boss_ganondrof.c||
+|-
+| DRAW END %d||
+|}

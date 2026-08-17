@@ -1,0 +1,4 @@
+{{actor|name=ovl_En_Scene_Change|ispage=true}}
+'''ovl_En_Scene_Change''' is an [[actor]] with unknown functionality. 
+
+{{clear}}

@@ -1,0 +1,27 @@
+{{actor|name=ovl_Boss_Tw||isPage=True}}
+'''ovl_Boss_Tw''' is the [[Twinrova]] boss [[actor]]
+
+== NTSC 1.0 Notes ==
+=== Instances ===
+ 0x00AF byte = Number of hits during phase one, type 0 instance
+ 0x013C ptr ActorStateFunc; //function pointer to state-specific code. Main update function for the Twinrova instance jumps to this pointer every frame. Twinrova instance is coded to check this instance several times
+
+
+==== Actor State Func ====
+'''Twinrova Instance'''
+<pre>
+809D4D18 //Initial State
+809D4DDC //Phase 1 completed, Twinrova Appears cutscene
+809E238C //Post Twinrova Appears CS, begin moving to new position
+809E15A8 //Arrive at destination, prepare for attack
+809E1734 //Attack Animation Start
+809E19A8 //Attack Animation choose Spell, launch
+809E1C44 //Attack Animation Idle
+809E2734 //Twinrova laughs at your shortcomings as a man
+809E2658 //Spins to evade attack
+809D7EC4 //Death hit
+809E1E08 //Stunned by Mirror Shield
+809E2120 //Recovered from Charged Mirror Shield
+</pre>
+
+[[Category:Twinrova]]

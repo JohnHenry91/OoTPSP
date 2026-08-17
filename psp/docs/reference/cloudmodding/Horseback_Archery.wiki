@@ -1,0 +1,4 @@
+{{Fix|more actors}}
+==Actors==
+* {{actor ref|ovl_En_Ge1}}, talked to in order to start the [[minigame]].
+[[Category:Horseback Archery| ]]

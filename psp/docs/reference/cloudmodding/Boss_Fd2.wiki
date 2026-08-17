@@ -1,0 +1,159 @@
+{{Actor|name=ovl_Boss_Fd2|ispage=true}}
+'''ovl_Boss_Fd2''' (Hole Volvagia) is one of two actors that make up [[Volvagia]]. Specifically, this actor makes up the Volvagia that hides underneath the ground, whereas [[ovl_Boss_Fd]] is the actor that flies around the boss room (Flying Vovlagia).
+
+Flying Volvagia (0x0096) is used to spawn Hole Volvagia.
+
+{{clear}}
+== Notable Bugs ==
+Hole Volvagia is not invincible when hiding within a hole. 
+
+== Debug Rom Notes ==
+{|class=wikitable
+!ROM
+!RAM
+!Instruction
+!style="width: 70%;"|Description
+|-
+|CA1974
+|23AA34
+|ADDIU T4, R0, 0x000A
+|Volvagia Inactive Timer 1 (240C000A)
+|-
+|CA2074
+|23B134
+|ADDIU T8, R0, 0x0019
+|Volvagia Inactive Timer 2 (24180019)
+|-
+|CA1B24
+|23ABE4
+|ADDIU V0, R0, 0x001E
+|The amount of time it takes for Volvagia to emerge from hole. (2402001E)
+|}
+
+Important Section on SLTI's and "Before Shooting Fire" Phase.
+
+{|class=wikitable
+!ROM
+!RAM
+!Instruction
+!style="width: 70%;"|Description
+|-
+|CA1DDC
+|23AE9C
+|LB V0, 0x00AF (T9)
+|Load Volvagia's HP (Only Flying Form has HP and any damage to the Ground form goes to that form) (832200AF)
+|-
+|CA1DE4
+|23AEA4
+|SLTI AT, V0, 0x0012
+|(Set On Less Than Immediate) If Volvagia's HP is below 12 (18) then add a 1 to AT. This will load a different time before Volvagia Shoots Fire. (28410012)
+|-
+|CA1DEC
+|23AEAC
+|ADDIU V0, R0, 0x0032
+|The amount of time it takes before Volvagia shoots fire (12 (18) HP+) (24020032)
+|-
+|CA1DF0
+|23AEB0
+|SLTI AT, V0, 0x0012
+|(Looks to be a repeat of Data and doesn't seem to be used since if the value above reads less than 12 already it will jump past this in the first place. I guess they were just covering their bases? If this is altered but the one above is not, this one is still used, it may be safe to change both though) (28410012)
+|-
+|CA1DF8
+|23AEB8
+|SLTI AT, V0, 0x000C
+|If Volvagia's HP is below 0C (12) then add a 1 to AT. This will load a different time before Volvagia Shoots Fire. (2841000C)
+|-
+|CA1E00
+|23AEC0
+|ADDIU V0, R0, 0x0028
+|The amount of time it takes before Volvagia shoots fire (Less than 12 (18) HP) (24020028)
+|-
+|CA1E04
+|23AEC4
+|SLTI AT, V0, 0x000C
+|(Repeat, read other repeat entry) (2841000C)
+|-
+|CA1E0C
+|23AECC
+|SLTI AT, V0, 0x0006
+|If volvagia's HP is below 06 (06) then add a 1 to AT. This will load a different time before Volvagia Shoots Fire. (28410006)
+|-
+|CA1E14
+|23AED4
+|ADDIU V0, R0, 0x0028
+|I could find no instance of this being used, but it is suggested that you also switch this to whatever you changed the 28 to. (24020028)
+|-
+|CA1E18
+|23AED8
+|SLTI AT, V0, 0x0006
+|(Repeat, read other repeat entry) (28410006)
+|-
+|CA1E20
+|23AEE0
+|ADDIU V0, R0, 0x0014
+|The Amount of Time it takes before Volvagia shoots fire (Less than 06 (06) HP) (24020014)
+|-
+|CA1E28
+|23AEE8
+|ADDIU V0, R0, 0x001E
+|The amount of time it takes before volvagia shoots fire (Less than 0C (12) HP) (2402001E)
+|}
+
+{|class=wikitable
+!ROM
+!RAM
+!Instruction
+!style="width: 70%;"|Description
+|-
+|CA3590
+|23C650
+|LUI AT, 0x4000
+|Loading the Hammer Jump Attack damage byte check. (Refer to Damage Identifier Bytes) (3C014000)
+|-
+|CA3594
+|23C654
+|AT, AT, 0x0040
+|Loading both the Hammer Jump Attack damage byte check from above and the Hammer check, if either succeed then it is a successful stun. (Refer to Damage Identifier Bytes)(34210040)
+|-
+|CA35B0
+|23C670
+|ADDIU T5, T, 0xFFFE
+|Damage done by the Megaton Hammer on the initial stunning hit to Volvagia) (258DFFFE)
+|-
+|CA29C0
+|23BA80
+|ADDIU T2, R0, 0x003C
+|Volvagia's Stun Time after being hit with the Megaton Hammer. (240A003C)
+|-
+|CA370C
+|23C7CC
+|JAL 635D0
+|Generic Weapon Routine, is checking to see whether the weapon is a swung weapon or something else. (0C018D74) (Likely should not change! Only mentioned for the purposes of logical progression)
+|-
+|CA3720
+|23C7E0
+|ANDI T5, V0, 0x1000
+|Is the Weapon Ice Arrows? (Refer to Damage Identifier Bytes) (304D1000)
+|-
+|CA3730
+|23C7F0
+|ADDIU S1, R0, 0x0004
+|Then deal 4 Damage to Volvagia. (24110004)
+|-
+|CA3738
+|23C7F8
+|ADDIU S1, R0, 0x0002
+|If it is a normal item deal 2 Damage to Volvagia. (24110002)
+|-
+|CA373C
+|23C7FC
+|ADDIU S1, R0, 0x0001
+|If it is a Swung Weapon defer to damage done through Generic Weapon Routine. (241200001)
+|-
+|
+|23C680
+|SLTI AT, T7, 0x0003
+|Check for Volvagia's HP to see if it 3 or below?
+|}
+
+[[Category:Volvagia]]

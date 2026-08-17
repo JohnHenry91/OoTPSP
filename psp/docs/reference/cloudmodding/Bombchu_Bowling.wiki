@@ -1,0 +1,11 @@
+'''Bombchu Bowling''' is a [[minigame]] located in Market Town. In order to play the minigame, you will need to beat Dodongo's Cavern.
+
+== Actors ==
+* {{actor ref|01A5}}
+* {{actor ref|014C}}
+* {{actor ref|014B}}
+* {{actor ref|01BD}}
+* {{actor ref|01BE}}
+* {{actor ref|0143}}
+* {{actor ref|0168}}
+[[Category:Bombchu Bowling| ]]

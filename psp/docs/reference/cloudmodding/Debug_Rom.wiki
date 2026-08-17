@@ -1,0 +1,74 @@
+The '''Debug Rom''' is a prototype build of Ocarina of Time: Master Quest. It's release has brought about an incredible wealth of knowledge to the Ocarina of Time modding community. [https://tcrf.net/index.php?title=Proto:The_Legend_of_Zelda:_Ocarina_of_Time_Master_Quest The Cutting Room Floor] contains a lot of information on different features of the Debug Rom.
+
+== Emulating the Debug Rom ==
+
+===Project64===
+<ol>
+<li> Load the rom in Project 64</li>
+<li> When it starts to run, Go to Options -> Settings -> ROM Settings </li>
+<li> Set the following:<br>
+{|class="wikitable"
+!CPU CORE STYLE
+|RECOMPILER
+|-
+!SELF-MODIFYING CODE METHOD
+|CHECK MEMORY ADVANCE
+|-
+!MEMORY SIZE
+|8MB
+|-
+!ADVANCED BLOCK LINKING
+|DEFAULT
+|-
+!DEFAULT SAVE TYPE
+|USE FIRST USED
+|-
+!COUNTER FACTOR
+|2
+|-
+!LARGE COMPILE BUFFER
+|NO
+|-
+!USE TLB
+|NO
+|-
+!REGISTER CACHING
+|YES
+|-
+!DELAY SI INTERRUPT
+|NO
+|-
+!SP HACK
+|NO
+|-
+!RSP AUDIO SIGNAL
+|NO
+|}
+</li>
+<li>After all this is done, reset the game, if it does not show up, press generate bitmap, then reset the game again.</li>
+<li>IF done correctly, you should see the correct graphics, if not see, Trouble with Video. If you do not have any sound, see Trouble with Sound</li>
+</ol>
+
+===Nemu===
+# Set memory size to 8MB
+# Use any other plugin than the default
+
+There are probably more steps involved.
+
+===Wii64===
+# Set expansion pack to 8 mb if not by default
+# Set Framebuffer textures on
+# If you have v1.2 use rice video to avoid texture mapping and z-buffer glitches.
+# If rom crashes after the second load screen or doesn't stop loading after 35 seconds, recopy the rom to the /wii64/roms/ directory on your SD card
+
+===Troubleshooting===
+Q: I don't see any video but I hear sound!<br>
+A: Change your plugin.
+
+Q: During game, I hear some sorta annoying sound that keeps popping up<br>
+A: Go to Sound Options -> Sync Sound to game (or w/e)
+
+Q: I don't hear sound but I have video!<br>
+A: Try switching your sound options around
+
+[[Category: Debug ROM | ]]

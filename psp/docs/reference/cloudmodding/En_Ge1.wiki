@@ -1,0 +1,43 @@
+{{Actor|name=ovl_En_Ge1}}
+
+'''ovl_En_Ge1''' is the [[actor]] for the white-clad [[Gerudo]] that triggers the [[Horseback Archery]] [[minigame]].
+
+{{todo|Is she also the Gerudo at the bottom of Gerudo Valley?}}
+
+{{clear}}
+
+== Debug Rom Notes ==
+<pre>
+ROM: 0xDE860C (24060030) Big Quiver from Gerudo Horseback Game
+ROM: 0xDE8614 (24060031) Biggest Quiver from Gerudo Horseback Game
+
+ROM: 0xDE86D8 (24060030) As above?
+ROM: 0xDE86D8 (24060030) As above?</pre>
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| [36m谷底 ゲルド 撤退 [m||[36mVALLEY BOTTOM GERUDO RETREAT [m
+|-
+| [36mやぶさめ ゲルド EVENT_INF(0) = %x[m||[36mHORSEBACK ARCHERY GERUDO EVENT_INF(0) = %x[m
+|-
+| ../z_en_ge1.c||../z_en_ge1.c
+|-
+| z_common_data.yabusame_total = %d||z_common_data.yabusame_total = %d
+|-
+| ../z_en_ge1.c||../z_en_ge1.c
+|-
+| z_common_data.memory.information.room_inf[127][ 0 ] = %d||z_common_data.memory.information.room_inf[127][ 0 ] = %d
+|-
+| ../z_en_ge1.c||../z_en_ge1.c
+|-
+| ../z_en_ge1.c||../z_en_ge1.c
+|-
+| ../z_en_ge1.c||../z_en_ge1.c
+|-
+| ../z_en_ge1.c||../z_en_ge1.c
+|}
+
+[[Category:Gerudos]] [[Category:Horseback Archery]]

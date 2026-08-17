@@ -1,0 +1,8 @@
+{{actor|name=ovl_En_Holl|ispage=true}}
+'''ovl_En_Holl''' is the [[actor]] used for invisible [[room transition]] planes, making it possible to seamlessly swap out rooms
+{{clear}}
+
+== Notes ==
+ovl_En_Holl performs a very odd and specialized check. On every frame, it will check to see if the current [[entrance index]] is set to 00EE (Kokiri Forest cutscene), and the [[scene setup]] is 8 (cutscene 4). When these conditions are met, ovl_En_Holl will indefinitely keep both rooms that it links to loaded simultaneously once the camera comes close to the transition. 
+
+[[Category:Room Transition Actors]]

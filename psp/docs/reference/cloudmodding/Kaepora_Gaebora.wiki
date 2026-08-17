@@ -1,0 +1,25 @@
+'''Kaepora Gaebora''' is that helpful owl that tries his best to make sure that new players hear what he has to say by switching up the position of the option that makes him go away.
+
+Do you understand?<br>
+{|
+|➨||No
+|-
+| ||Yes
+|}
+
+'''Kaepora Gaebora''' is that helpful owl that tries his best to make sure that new players hear what he has to say by switching up the position of the option that makes him go away.
+
+Do you understand?<br>
+{|
+| ||No
+|-
+|➨||Yes
+|}
+
+== Actors ==
+* [[ovl_En_Owl]] - Kaepora Gaebora actor
+
+== Objects ==
+* [[object_owl]] - Kaepora Gaebora
+
+[[Category:Kaepora Gaebora| ]]

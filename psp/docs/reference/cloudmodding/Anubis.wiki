@@ -1,0 +1,10 @@
+'''Anubis''' is a strange enemy that moves in the opposite direction that Link moves. It will phase through walls like ghosts. Anubis monsters were intended to be a more puzzle oriented enemy, but sadly their weakness to fire makes them trivial foes. 
+
+== Actors ==
+* {{actor ref|ovl_En_Anubice_Tag}} - Anubis enemy (actor spawned directly)
+* {{actor ref|ovl_En_Anubice}} - Anubis enemy (actor indirectly spawned by above)
+* {{actor ref|ovl_En_Anubice_Fire}} - Anubis's fire attack.
+
+== Objects ==
+* {{object ref|00D6}}
+[[Category:Anubis| ]]

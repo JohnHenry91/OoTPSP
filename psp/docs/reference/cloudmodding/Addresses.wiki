@@ -1,0 +1,104 @@
+{{article link|Addresses}}
+{{todo|write an intro}}
+
+== ROM ==
+ROM is an acronym for Read-Only Memory, or memory that cannot be modified. ROM addresses do not start with a special prefix, since they are able to address more than 16 MiB of space.
+
+N64 games typically take up either 16 or 32 MiB of ROM, and rarely 64 MiB of ROM. Dev flash carts (which are re-writable) are 256 MiB in size. 
+
+Commercial releases of Ocarina of Time have a maximum capacity of 32 MiB, while the Debug Rom is 64 MiB.
+
+== VROM ==
+
+VROM stands for virtual rom. In commercial releases, the majority of the game files are compressed so that the game is able to fit on the limited space of the 32 MiB rom. VROM addresses are thus used to represent the space that the file would be located if none of the files were compressed. See [[Filesystem]] for more information.
+
+== RAM ==
+RAM is an acronym for Random Access Memory. It's the space where variables are stored. RAM addresses typically begin with the 80 prefix.
+
+N64 games can address either 4 or 8 MiB of ram (addresses <tt>80000000</tt> to <tt>803FFFFF</tt> or <tt>807FFFFF</tt>).
+
+Ocarina of Time is designed to only address 4 MiB, but the Debug Rom and the canceled "Ura" expansion require 8 MiB of ram.
+
+== VRAM ==
+VRAM stands for virtual ram. It is the addressable space beyond the range of physical ram. The purpose of VRAM is that it allows the compiler to allocate more space than is available, so that the sub programs (stored in [[overlays|overlay files]]) for actors and similar are able to have their own addressable space without needing to take up physical ram space.
+
+Overlays cannot be used without being loaded into RAM. When the overlay is in ram, any virtual addresses must be re-calculated to a ram address.
+
+N64 games can address 8 MiB of virtual ram (addresses <tt>80800000</tt> to <tt>80FFFFFF</tt>).
+
+== Segment Addresses ==
+{{hatnote|Note: Referred to as "Bank Offsets" in older documentation}}
+The N64's Reality Signal Processor (RSP) utilizes a segment address system to locate matrix, vector, and texture data required to render a frame. The RSP maintains an array of 16 addresses used to reference pure data files. Unlike addresses, segment addresses share the same addressable space across a set of files, rather than allocate a unique space for every file used in the game. Since the CPU is used to generate display lists during runtime, it maintains it's own separate segment address table.
+
+Segment addresses take the form <tt>ssoooooo</tt>:
+* '''s''' is the segment id, which is used as an index to the segment address table. 
+* '''o''' is an offset, relative to the start of the pointer referenced by the segment index. 
+
+Almost always, a segment address of ss00 0000 will reference the start of some file.
+
+=== Segment Address Table ===
+The segment address table is an array of 16 pointers, located at 80166FA8 in ram (debug rom), which define the start address for offset 0 of all 16 segment ids. Ocarina of Time typically assigns segment addresses in a consistent way:
+
+{| {{ts|al}} | class="wikitable sortable" {{ts|ac|ml5|font-family: monospace}}
+! # || Destination || Notes
+|-
+| 00
+| {{ts|al}} | Direct Reference
+| {{ts|al}} | 
+|-
+| 01
+| {{ts|al}} | [[nintendo_rogo_static]]<br />[[title_static]]
+| {{ts|al}} | 
+|-
+| 02
+| {{ts|al}} | Current Scene<br />[[parameter_static]]
+| {{ts|al}} | Only the current scene is tracked by the CPU.
+|-
+| 03
+| {{ts|al}} | Current Room
+| {{ts|al}} | 
+|-
+| 04
+| {{ts|al}} | [[gameplay_keep]]
+| {{ts|al}} | 
+|-
+| 05
+| {{ts|al}} | [[gameplay_field_keep]]<br />[[gameplay_dangeon_keep]]
+| 
+|-
+| 06
+| {{ts|al}} | Current Object
+| {{ts|al}} | 
+|-
+| 07
+| {{ts|al}} | [[link_animetion]]<br />[?]
+| 
+|-
+! colspan=4 | Segments 08+ are determined by in-game circumstances, and aren't tracked by the CPU.
+|-
+| 08
+| {{ts|al}} | [[icon_item_static]]
+| {{ts|al}} | 
+|-
+| 09
+| {{ts|al}} | [[icon_item_24_static]]
+| {{ts|al}} | 
+|-
+| 0C
+| {{ts|al}} | [[icon_item_field_static]]<br />[[icon_item_dungeon_static]]
+| {{ts|al}} | 
+|-
+| 0D
+| {{ts|al}} | [[icon_item_nes_static]]<br />[[icon_item_ger_static]]<br />[[icon_item_fra_static]]
+| {{ts|al}} | 
+|-
+| 0E
+| {{ts|al}} | Z-Buffer
+| {{ts|al}} | RSP only.
+|-
+| 0F
+| {{ts|al}} | Frame Buffer
+| {{ts|al}} | RSP only.
+|}
+
+[[Category:Documentation]]

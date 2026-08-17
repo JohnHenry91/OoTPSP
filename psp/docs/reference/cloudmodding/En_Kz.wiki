@@ -1,0 +1,13 @@
+{{actor|name=ovl_En_Kz}}
+'''ovl_En_Kz''' is the King Zora actor, ruler of the [[Zoras]]. Mweep.
+{{clear}}
+== Notable Bugs ==
+King Zora is notoriously buggy.
+
+In NTSC versions 1.0 and 1.1, when receiving items from King Zora, there exists a one frame window between when the dialog ends to when the item is awarded that allows Link to move/use items normally. The reward given appears to depend on whether Link is Z-Targeting King Zora, and his location within the room when given the item. It is possible to receive the Eyeball Frog in place of the Zora Tunic (if an item occupies the adult trade item slot), and vice versa. The glitch is known as the HOLD R LOL glitch as it can be performed trivially. This glitch is part of the collection delay series of glitches that affect most actors that award items.
+
+In all versions, it's possible to defrost King Zora without blue fire by manipulating the camera in a specific way that results in King Zora failing to find the red ice actor that encases him. This causes King Zora to set the flag noting the ice has been melted prematurely. The ice will still appear when the glitch is performed correctly, but will disappear when the [[room]] is reloaded. 
+
+== Debug Rom Notes ==
+ ROM: 0xE53540 (2406002D) Zora Tunic for freeing King Zora from the Red Ice
+ ROM: 0xE53550 (24060024) Eyeball Frog to deliver to the Professor

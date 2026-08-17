@@ -1,0 +1,10 @@
+== Actors ==
+* {{actor ref|ovl_En_Goma}}
+
+== Objects ==
+* {{object ref|object_gol}}
+
+== Similar ==
+[[Queen Gohma]]
+
+[[Category:Gohma| ]]

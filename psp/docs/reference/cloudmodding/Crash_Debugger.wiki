@@ -1,0 +1,86 @@
+{{hatnote|See [https://tcrf.net/The_Legend_of_Zelda:_Ocarina_of_Time/Crash_Debugger TCRF Crash Debugger] for a more in-depth explanation of the crash debugger}}
+
+Ocarina of Time is one of many N64 games developed by Nintendo that contains a crash debugger, making it considerably easier to debug Ocarina of Time. 
+
+== Input Sequence ==
+
+# '''L''' + '''R''', then while holding both press '''Z'''
+# '''D-Up'''
+# '''C-Down'''
+# '''C-Up''' 
+# '''D-Down'''
+# '''D-Left'''
+# '''C-Left'''
+# '''C-Right'''
+# '''D-Right'''
+# '''A''' + '''B''', then while holding both press '''Start'''
+
+== Invoking the Crash Debugger ==
+
+There are two scenarios in which the crash debugger will be invoked: 
+
+* If an unexpected exception occurs, the fault thread will be resumed, which resumes execution of the crash debugger.
+* A thread can choose to jump to the crash debugger on it's own, executing it on it's own thread.
+
+In either case, the crash debugger will run on it's own thread without blocking the remaining live [[threads]], meaning that music and input polling will continue normally (unless their relevant threads crashed). Typically, the most likely thread to crash is the "graph" thread, as it manages the core game and is very complex in nature. However, there have been rare but documented cases of the "padmgr" (input) and "audio" threads crashing.
+
+=== fault Thread Execution ===
+
+The "fault" thread is created on boot, and is halted immediately. Whenever a fatal exception occurs on a different thread, that thread is stopped on the faulting code and the "fault" thread is woken up and executes the crash debugger. Normally when the crash debugger is initialized this way, it's possible to see the Registers, Stack Dump, and PC dump pages as the faulting thread will have stopped on the faulting code. However, if the "fault" thread itself faults (as is the case with the Gamecube versions, and possibly the iQue version), then the debugger will fail to execute.
+
+=== Processing Thread Execution ===
+
+In some situations, the crash debugger is called manually by the executing thread. One example of this is the "RCP is HUNG UP!!!" crash. In this particular scenario, the "graph" thread (which runs the core game engine) initializes an approximately 3 second timer for the RCP to complete it's task. If the task takes too long, an interrupt is fired and execution branches into the crash debugger. Since no thread was halted, the Registers, Stack Dump, and PC dump pages will not be shown. 
+
+== Processing the Crash Debugger ==
+
+Once initialized, the crash debugger will start draw a red bar
+
+== The Null Pointer Dereference Glitch==
+The Gamecube (which includes the Debug Rom) and iQue releases of Ocarina of Time contain a glitch that results in the crash debugger process crashing, displaying only a red bar and no useful crash data. The root cause of this glitch is not well understood, but final cause is that a null pointer is dereferenced, resulting in a misaligned memory read.
+
+== Emulation Issues ==
+
+Since the crash debugger uses the CPU to draw directly to one of the two frame buffers, it's impossible to directly view the debugger on emulators that don't accurately emulate the frame buffer (i.e. high level emulation (HLE)). Still, it's possible to view this data by using an external program to dump the raw data in the frame buffers and convert it into a RGB5A1 image, even on older emulators like Project64 1.6 and Nemu64, provided that interpreter mode is enabled.
+
+The "Null Pointer" glitch in the Gamecube, Debug Rom, and iQue releases is not handled accurately in older emulators like Nemu64 and Project64 1.6. If the processing thread invokes the crash debugger deliberately, on some emulators it's possible for the handler function to "fall through" and return, allowing "normal" execution to resume on the thread. The best known example of this is the dmadata "segment boundary exceeded" crash. On Nemu64 this exception is seemingly never handled correctly, while on Project64 1.6 this will result in a crash the next time a new scene is loaded.
+
+== NTSC 1.0 Notes ==
+
+<pre>
+800AF734 //code, Crash Debugger Entrypoint, Displays source + line of exception
+//A0 = source file str pointer
+//A1 = line the exception occurred 
+//Calls 800AF564
+
+800AF564 //code, graph, Crash Debugger Entrypoint
+//Displays small box exception
+//A0 = Str Pointer 1
+//A1 = Str Pointer 2 (can be null)
+// RCP is HUNG UP!!
+
+800AF190 //code, fault thread, thread main function
+800ADEF8 //code, Crash Debugger Screen 1?
+800AD984 //fault, Crash Debugger, Draw Crash Bar top level
+800AD984 //fault, Crash Debugger, draw Red Bar
+800AD9C0 //fault, Crash Debugger, draw Yellow Bar
+800AD930 //fault, Crash Debugger, Draw Error Bar
+//A0 = color
+800AD6B4 //fault, Crash Debugger, Draw Error Bar Inner
+
+800AE6BC //Function related to the crash debugger
+E744 jal	800A279C	//input related code on fault thread
+//relevant pad info seems to be transfered to 80121230
+800AE808 //Jump to a specific part of the input sequence.
+//8010977C contains a jump table containing 0xB items
+//V1 = combined input
+//V0 = new buttons this frame
+
+800A279C //fault, crash debugger/Input Related?
+//A0 = 8011D500 this pass
+//A1 = Game Play + 0x14, controller 1 button struct
+//A2 = ?, 1 pass A
+//A1 = 80121230 pass B
+//A2 = ?, 0 pass B
+//input data is transferred to 80121230?
+</pre>

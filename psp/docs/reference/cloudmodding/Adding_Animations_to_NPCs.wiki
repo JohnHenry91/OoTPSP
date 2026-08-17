@@ -1,0 +1,560 @@
+This tutorial will show you how to view animations within object files, as well as add your own.
+
+==Getting Started==
+
+For this exercise, we're going to add an animation from the animation file '''object_oE_anime''' to the object '''object_oE3''' (Early Saria).
+
+===Understanding Animation Headers===
+
+Animation headers are 32 hex digits long. Unlike [[map and scene headers]], they appear after the data they define. An example of an animation header can be seen below.
+
+More details about these commands can be found on the [[Scenes and Rooms]] page.
+
+0027 0000 0600 47F0 0600 4F58 000C 0000
+
+{| class="wikitable" style="font-family: monospace; font-size: 125%"
+| 00<span style="color:red">ff</span> || 0000 || 06<span style="color:blue">rr</span> || <span style="color:blue">rrrr</span>
+|-
+| 06<span style="color:green">ii</span> || <span style="color:green">iiii</span> || 000<span style="color:purple">l</span> || 0000
+|}
+
+* '''Frames:''' <span style="color:black">18000000 bboooooo</span>
+** Optional. If it doesn't exist, the scene only has one setup. If it does exist, it will have multiple scene setups
+
+* '''Rotation Index List:''' <span style="color:red">16000000 000000yy</span>
+** '''y''' sets the echo level of the sound effects
+
+* '''Rotation Index Value List:''' 06<span style="color:green; font-family: monospace; font-size: 125%">ii iiii</span>
+** '''x''' and '''z''' affect various properties, such as Link's idling animation. This command hasn't been fully documented yet.
+
+* '''Limiter:''' <span style="color:green">12000000 xx000000</span>
+** If '''x ≠ 0''', the skybox will be disabled.
+
+* '''Time Settings:''' <span style="color:blue">10000000 xxxxyy00</span>
+** '''x''' sets the time of day when entering the room.
+*** If '''x = FFFF''', the room defaults to the current game time.
+** '''y''' sets the speed at which time flows. The value can be negative.
+
+* '''Mesh Header Location:''' <span style="color:navy">0A000000 bboooooo</span>
+** '''b''' is the bank index. 03 is used to reference the current room file.
+** '''o''' is the location of the room's mesh header, relative to the start of the file. This renders the room's model.
+*** '''room header address''' + '''o''' = location of mesh header
+
+* '''Object List:''' <span style="color:purple">0Bxx0000 bboooooo</span>
+** '''x''' indicates the number of objects.
+** '''b''' is the bank index. 03 is used to reference the current room file.
+** '''o''' is the location of the room's object list, relative to the start of the file.
+*** '''room header address''' + '''o''' = location of object list
+
+* '''Actor List:''' <span style="color:maroon">01xx0000 bboooooo</span>
+** '''x''' indicates the number of actors.
+** '''b''' is the bank index. 03 is used to reference the current room file.
+** '''o''' is the location of the room's actor list, relative to the start of the file.
+*** '''room header address''' + '''o''' = location of actor list
+
+* '''End of Header Command:''' <span style="color:magenta">14000000 00000000</span>
+** This command tells the game that the header ends here.
+
+===Finding Animation Headers===
+
+# Download the files '''[http://www.spinout182.com/mqd/object_oE_anime.zobj object_oE_anime]''' and '''[http://www.spinout182.com/mqd/object_oE3.zobj object_oE3]'''.
+# Open these files in a hex editor.
+# 
+
+# Open the '''Ocarina of Time Debug ROM''' or '''Ocarina of Time 1.0''' in '''Nemu64'''.
+# Go to the room you wish to find the header for.
+# Go to Nemu's '''Plugins''' menu and choose '''Debugger:Memory'''.
+# Type '''80223CE8''' (Debug ROM) or '''80120C44''' (1.0) into the address box.
+#* This will bring you to '''80223CE8''', where you'll find the current room address in the first column.
+# Paste the address of the current room into the address box.
+# This will bring you to the room header.
+
+===Understanding Actor Lists===
+
+Each line represents a different actor.
+
+{| class="wikitable"
+| <span style="color:red">aaaaxxxx yyyyzzzz</span> || <span style="color:red">ccddee0B 0000vvvv</span>
+|-
+| <span style="color:orange">aaaaxxxx yyyyzzzz</span> || <span style="color:orange">ccddee00 0000vvvv</span>
+|-
+| <span style="color:green">aaaaxxxx yyyyzzzz</span> || <span style="color:green">ccddee9F 0000vvvv</span>
+|-
+| <span style="color:blue">aaaaxxxx yyyyzzzz</span> || <span style="color:blue">ccddee00 0000vvvv</span>
+|-
+| <span style="color:navy">aaaaxxxx yyyyzzzz</span> || <span style="color:navy">ccddee00 0000vvvv</span>
+|-
+| <span style="color:purple">aaaaxxxx yyyyzzzz</span> || <span style="color:purple">ccddee00 0000vvvv</span>
+|-
+| <span style="color:maroon">aaaaxxxx yyyyzzzz</span> || <span style="color:maroon">ccddee00 0000vvvv</span>
+|}
+
+* '''aaaa''' = [[Actor List|Actor Number]]
+* '''xxxx''' = X Coordinates (Hex)
+* '''yyyy''' = Y Coordinates (Hex)
+* '''zzzz''' = Z Coordinates (Hex)
+* '''cc''' = X Rotation (Hex)
+* '''dd''' = Y Rotation (Hex)
+* '''ee''' = Z Rotation (Hex)
+* '''vvvv''' = [[Actor List (Variables)|Variable Number]]
+
+===Understanding Object Lists===
+
+Each group of four digits/two bytes (ex. 01A5) comprises an object number. If a room has an odd number of objects (05 in this example), you only need to pay attention to the first five groups of four digits.
+
+{| class="wikitable"
+|-
+| <span style="color:red">aaaa</span><span style="color:green">bbbb</span> <span style="color:blue">cccc</span><span style="color:navy">dddd</span> || <span style="color:purple">eeee</span>0000 0163FFC8
+|}
+
+* <span style="color:red">aaaa</span> = Object #1
+* <span style="color:green">bbbb</span> = Object #2
+* <span style="color:blue">cccc</span> = Object #3
+* <span style="color:navy">dddd</span> = Object #4
+* <span style="color:purple">eeee</span> = Object #5
+* 0000 = Padding
+
+Look up the object numbers [[LINK|here]].
+
+==Tutorial: Replacing a Treasure Chest in Mido's House==
+
+===What You'll Need===
+
+# '''Nemu64 Emulator'''
+# '''Ocarina of Time Debug ROM'''
+# '''Hex Calculator'''
+
+Open Windows Calculator, change it to "Programmer" mode, and press the Hex button. Or, use an online calculator like [http://www.miniwebtool.com/hex-calculator/ this one].
+
+===Room Header===
+
+====Finding the Room Header====
+
+# Go to '''Mido's House''' (Map 49 in Map Select) as Child Link.
+# Go to Nemu's '''Plugins''' menu and choose '''Debugger:Memory'''.
+# Type '''80223CE8''' into the address box.
+#* This will bring you to '''80223CE8''', where you'll find the current room address in the first column.
+#* The memory address for Mido's House is '''80262880'''.
+# Paste the address of the current room ('''80262880''') into the address box.
+# This will bring you to '''80262880''', where you'll find the room header.
+
+====Deciphering the Room Header====
+
+Below is the room header for Mido's House, located at '''80262880'''. Use it to find the number of scene setups, the number of objects, the address of the object list, the number of actors, and the address of the actor list.
+
+{| class="wikitable"
+| <span style="color:red">16000000 00000003</span> || <span style="color:orange">08020000 00000005</span>
+|-
+| <span style="color:green">12000000 00010000</span> || <span style="color:blue">10000000 FFFF0000</span>
+|-
+| <span style="color:navy">0A000000 030000C0</span> || <span style="color:purple">0B050000 03000040</span>
+|-
+| <span style="color:maroon">01070000 0300004C</span> || <span style="color:magenta">14000000 00000000</span>
+|}
+
+* '''Scene Settings:''' <span style="color:red">xx000000 000000yy</span>
+** If '''xx = 16''', the room has one scene setup.
+** If '''xx = 18''', the room has multiple scene setups.
+
+ '''<span style="color:red">xx = 16</span>''' - Mido's house has one scene setup.
+
+* '''Object List:''' <span style="color:purple">0Bxx0000 000000yy</span>
+** '''xx''' indicates the number of objects.
+** '''yy''' is the location of the room's object list.
+*** '''room header address''' + '''yy''' = location of object list
+
+ '''<span style="color:purple">xx = 05</span>''' - There are 05 objects in the room.
+ '''<span style="color:purple">yy = 40</span>''' - The location of the object list is '''80262880 + 40''', which is '''802628C0'''.
+
+* '''Actor List:''' <span style="color:maroon">01xx0000 000000yy</span>
+** '''xx''' indicates the number of actors. 
+** '''yy''' is the location of the room's actor list.
+*** '''room header address''' + '''yy''' = location of actor list
+
+ '''<span style="color:maroon">xx = 07</span>''' - There are 07 actors in the room.
+ '''<span style="color:maroon">yy = 4C</span>''' - The location of the actor list is '''80262880 + 4C''', which is '''802628CC'''.
+
+===Actors===
+
+====Finding the Actor List====
+
+# Type '''802628CC''', the location of the actor list, into the address box.
+#* This will bring you to '''802628CC''', where you'll find a list of actors.
+# Look up the actor numbers.
+# Look up the variables.
+# Replace them with whatever you want.
+
+====Deciphering the Actor List====
+
+Below is the actor list for Mido's House, located at '''802628CC'''. Each line represents an actor. Mido's House has 07 actors, so there are 07 lines.
+
+{| class="wikitable"
+| <span style="color:red">0163FFC8 00100080</span> || <span style="color:red">0000960B 0000FF04</span>
+|-
+| <span style="color:orange">016D0003 00300086</span> || <span style="color:orange">00008000 0000FF00</span>
+|-
+| <span style="color:green">0163FF83 000C0048</span> || <span style="color:green">0000549F 0000FF00</span>
+|-
+| <span style="color:blue">000A003A 0000FFC9</span> || <span style="color:blue">00004000 000059A0</span>
+|-
+| <span style="color:navy">000A003A 00000023</span> || <span style="color:navy">00004000 000059A1</span>
+|-
+| <span style="color:purple">000AFFC4 0000FFC9</span> || <span style="color:purple">0000C000 00005982</span>
+|-
+| <span style="color:maroon">000AFFC4 00000023</span> || <span style="color:maroon">0000C000 00005903</span>
+|}
+
+The first four digits in each line comprise an actor number. Cross-reference them with [[LINK|this list]].
+
+{| class="wikitable"
+! Actor # || Filename || Actor ID || X || Y || Z || Variable # || Variable ID || Object #
+|-
+| <span style="color:red">0163</span> || ovl_En_Ko || Kokiri Child || <span style="color:red">FFC8</span> || <span style="color:red">0010</span> || <span style="color:red">0080</span> || <span style="color:red">FF04</span> || ??? || 0001
+|-
+| <span style="color:orange">016D</span> || ovl_En_Md || Mido || <span style="color:orange">0003</span> || <span style="color:orange">0030</span> || <span style="color:orange">0086</span> || <span style="color:orange">FF00</span> || ??? || 00FB
+|-
+| <span style="color:green">0163</span> || ovl_En_Ko || Kokiri Child || <span style="color:green">FF83</span> || <span style="color:green">000C</span> || <span style="color:green">0048</span> || <span style="color:green">FF00</span> || ??? || 0001
+|-
+| <span style="color:blue">000A</span> || ovl_En_Box || Treasure Chest || <span style="color:blue">003A</span> || <span style="color:blue">0000</span> || <span style="color:blue">FFC9</span> || <span style="color:blue">59A0</span> || ??? || 000E
+|-
+| <span style="color:navy">000A</span> || ovl_En_Box || Treasure Chest || <span style="color:navy">003A</span> || <span style="color:navy">0000</span> || <span style="color:navy">0023</span> || <span style="color:navy">59A1</span> || ??? || 000E
+|-
+| <span style="color:purple">000A</span> || ovl_En_Box || Treasure Chest || <span style="color:purple">FFC4</span> || <span style="color:purple">0000</span> || <span style="color:purple">FFC9</span> || <span style="color:purple">5982</span> || ??? || 000E
+|-
+| <span style="color:maroon">000A</span> || ovl_En_Box || Treasure Chest || <span style="color:maroon">FFC4</span> || <span style="color:maroon">0000</span> || <span style="color:maroon">0023</span> || <span style="color:maroon">5903</span> || ??? || 000E
+|}
+
+====Replacing Actors====
+
+# Find the actor number of the actor you wish to replace.
+#* Let's replace the treasure chest in line 4. ('''<span style="color:blue">000A</span>''')
+# Find the [[Actor List|actor number]] of the actor you wish to replace it with.
+#* Let's replace the treasure chest ('''<span style="color:blue">000A</span>''') with a sign ('''<span style="color:teal">0141</span>''').
+# Overwrite the old actor number with the new one.
+#* '''<span style="color:blue">000A003A 0000FFC9 00004000 000059A0</span> -> <span style="color:teal">000A</span><span style="color:blue">003A 0000FFC9 00004000 000059A0</span>'''
+# Find the variable number of the actor you wish to replace.
+#* The variable of the treasure chest in line 4 is <span style="color:blue">'''59A0'''</span>.
+# Find the [[LINK|variable number]] you will use for the new actor.
+#* Let's make our sign say "XXXX". ('''<span style="color:teal">XXXX</span>''')
+# Overwrite the old variable number with the new one.
+#* '''<span style="color:teal">000A</span><span style="color:blue">003A 0000FFC9 00004000 000059A0</span> -> <span style="color:teal">000A</span><span style="color:blue">003A 0000FFC9 00004000 0000</span><span style="color:teal">XXXX</span>'''
+
+===Objects===
+
+====Finding the Object List====
+
+# Type '''802628C0''', the location of the object list, into the address box.
+#* This will bring you to '''802628C0''', where you'll find a list of objects.
+# Look up the object numbers.
+# Replace them with whatever you want.
+
+====Deciphering the Object List====
+
+Below is the object list for Mido's House, located at '''802628C0'''. Each group of four digits comprises an object number. Cross-reference them with [[LINK|this list]]. Mido's House has 05 objects, so we only need to pay attention to the first five groups of four digits.
+
+{| class="wikitable"
+|-
+| <span style="color:red">00C5</span><span style="color:green">00FC</span> <span style="color:blue">00FD</span><span style="color:navy">00FB</span> || <span style="color:purple">000E</span>0000 0163FFC8
+|}
+
+These numbers correspond to the following:
+
+{| class="wikitable"
+! Object # || Filename || Object ID
+|-
+| <span style="color:red">00C5</span> || object_os_anime || Required by human-like npcs
+|-
+| <span style="color:green">00FC</span> || object_km1 || Strawberry-Haired Kokiri Boy
+|-
+| <span style="color:blue">00FD</span> || object_kw1 || Strawberry-Haired Kokiri Girl
+|-
+| <span style="color:navy">00FB</span> || object_md || Mido
+|-
+| <span style="color:purple">000E</span> || object_box || Treasure Chest/Boss Key Chest/Light When Opening Chest
+|}
+
+====Replacing Objects====
+
+# Use the [[Actor List|Actor List]] to find the object linked to the actor you wish to replace.
+#* We've chosen to replace a treasure chest, which is linked to object '''<span style="color:purple">000E</span>''' (Treasure Chest/Boss Key Chest/Light When Opening Chest).
+# Use the [[Actor List|Actor List]] to find the object linked to the actor you wish to replace it with.
+#* We've chosen to replace the treasure chest (object '''<span style="color:purple">000E</span>''') with a sign (object '''<span style="color:magenta">012F</span>''').
+# Overwrite the old object number with the new one.
+#* '''00C500FC 00FD00FB <span style="color:purple">000E</span>0000 0163FFC8 -> 00C500FC 00FD00FB <span style="color:magenta">012F</span>0000 0163FFC8'''
+
+==Gameshark Codes==
+
+===Debug ROM===
+
+====Spin Attack Spawner====
+
+Spawns an actor that uses object '''0000''', '''0001''', '''0002''', or '''0003''' each time Link performs a spin attack.
+
+<pre>813D7756 aaaa
+813D7740 2409
+813D7742 vvvv</pre>
+
+* '''0000''' = Always Loaded
+* '''0001''' = Loaded Indoors 
+* '''0002''' = Loaded Outdoors
+* '''0003''' = Loaded in Dungeons
+
+====Replace Saria in Saria's House (Child)====
+
+Replaces Saria in Saria's House as Child Link.
+
+<pre>
+8126A956 oooo
+8126A96C aaaa
+8126A97A vvvv</pre>
+
+Replaces Saria in Saria's House as Child Link, for actors that use object '''0000''' or '''0001'''.
+
+<pre>
+8126A96C aaaa
+8126A97A vvvv</pre>
+
+====Replace Warp Pad in Temple of Time (Child)====
+
+Replaces the Light Medallion warp pad in the Temple of Time as Child Link.
+
+<pre>
+81288060 oooo
+81288064 aaaa
+81288072 vvvv</pre>
+
+Replaces the Light Medallion warp pad in the Temple of Time as Child Link, for actors that use object '''0000''' or '''0001'''.
+
+<pre>
+81288064 aaaa
+81288072 vvvv</pre>
+
+====Replace Nabooru in Spirit Temple (Child)====
+
+Replaces Nabooru kneeling beside the crawling hole in the first room of the Spirit Temple.
+
+<pre>
+81273086 oooo
+81273174 aaaa
+81273182 vvvv</pre>
+
+Replaces Nabooru kneeling beside the crawling hole in the first room of the Spirit Temple, for actors that use object '''0000''' or '''0003'''.
+
+<pre>
+81273174 aaaa
+81273182 vvvv</pre>
+
+====Replace Beamos in Fire Temple Mini-Dungeon====
+
+Replaces the Beamos in the fire temple mini-dungeon in Ganon's Tower.
+
+<pre>
+8128D0BC oooo
+8128D1C0 aaaa
+8128D1CE vvvv</pre>
+
+For actors using object '''0000''' or '''0003''':
+
+<pre>
+8128D1C0 aaaa
+8128D1CE vvvv</pre>
+
+====Replace Fishing Pond Objects in Fishing Pond (Child)====
+
+Replaces the fishing pond objects actor (the fisherman, the sign, the fish, etc.), placing the new actor in the center of the pond.
+
+<pre>
+81283780 oooo
+81283784 aaaa
+81283792 vvvv</pre>
+
+For actors using object '''0000''' or '''0002'''(?):
+
+<pre>
+81283784 aaaa
+81283792 vvvv</pre>
+
+====Replace Warp Pad in Desert Colossus (Child)====
+
+Replaces the warp pad in the Desert Colossus.
+
+<pre>
+81284538 oooo
+812846D0 aaaa
+812846DE vvvv</pre>
+
+For actors using object '''0000''' or '''0002''':
+
+<pre>
+812846D0 aaaa
+812846DE vvvv</pre>
+
+====Replace Warp Pad in Death Mountain Crater====
+
+Replaces the warp pad in the Death Mountain Crater.
+
+<pre>
+81281710 oooo
+81281878 aaaa
+81281886 vvvv</pre>
+
+For actors using object '''0000''' or '''0002''':
+
+<pre>
+81281878 aaaa
+81281886 vvvv</pre>
+
+====Replace Boy in Kokiri Forest (Child)====
+
+Replaces the rock-pulling boy in Kokiri Forest.
+
+<pre>
+8128D7C0 oooo
+8128D844 aaaa
+8128D852 vvvv</pre>
+
+For actors using object '''0000''' or '''0002''':
+
+<pre>
+8128D844 aaaa
+8128D852 vvvv</pre>
+
+====Replace Freezard in Ice Cavern====
+
+Replaces the first Freezard when going through the Ice Cavern.
+
+<pre>
+8129AE7E oooo
+8129AE94 aaaa
+8129AEA2 vvvv</pre>
+
+For actors using object '''0000''' or '''0003''':
+
+<pre>
+8129AE94 aaaa
+8129AEA2 vvvv</pre>
+
+====Replace Bonooru in Sasa Test====
+
+Replaces Bonooru the Scarecrow in the Child (Day) setup of Sasa Test.
+
+<pre>
+812965DC oooo
+812964E4 aaaa
+812964F2 vvvv</pre>
+
+For actors using object '''0000''' or '''0002''':
+
+<pre>
+812964E4 aaaa
+812964F2 vvvv</pre>
+
+====Replace Dark Link in Sutaru====
+
+Replaces Dark Link in Sutaru.
+
+<pre>
+812B0BD0 oooo
+812B0BE0 aaaa
+812B0BEE vvvv</pre>
+
+For actors using object '''0000''' or '''0003''':
+
+<pre>
+812B0BE0 aaaa
+812B0BEE vvvv</pre>
+
+===OoT (U/J) 1.0===
+
+====Replace Boy in Kokiri Forest====
+
+Replaces the boy pulling rocks outside of Mido's House in Kokiri Forest.
+
+<pre>
+81244096 oooo
+81244124 aaaa
+81244132 vvvv</pre>
+
+Replaces the boy pulling rocks outside of Mido's House in Kokiri Forest, for actors that use object '''0000''' or '''0002'''.
+
+<pre>
+81244124 aaaa
+81244132 vvvv</pre>
+
+====Replace Heart in Saria's House====
+
+Replaces the heart closest to the door and furthest from the camera in Saria's House.
+
+<pre>
+81221108 oooo
+8122112C aaaa
+8122113A vvvv</pre>
+
+Replaces the heart closest to the door and furthest from the camera in Saria's House, for actors that use object '''0000''' or '''0001'''.
+
+<pre>
+8122112C aaaa
+8122113A vvvv</pre>
+
+====Replace Treasure Chest in Deku Tree====
+
+Replaces the treasure chest in the central room of the Deku Tree.
+
+<pre>
+81234128 oooo
+81234218 aaaa
+81234226 vvvv</pre>
+
+Replaces the treasure chest in the central room of the Deku Tree, for actors that use object '''0000''' or '''0003'''.
+
+<pre>
+81234218 aaaa
+81234226 vvvv</pre>
+
+====Replace Wolfos in Sacred Forest Meadow====
+
+Replaces the Wolfos at the entrance to the Sacred Forest Meadow.
+
+<pre>81259F3A oooo
+81259F50 aaaa
+81259F5E vvvv</pre>
+
+====Replace Guard in Kakariko Village====
+
+Replaces the guard beside the entrance in Kakariko Village.
+
+<pre>8123A92C oooo
+8123AC34 aaaa
+8123AC42 vvvv</pre>
+
+====Replace Pot in Lon Lon Ranch====
+
+Replaces the pot nearest the entrance in Lon Lon Ranch.
+
+<pre>8124851C oooo
+81248564 aaaa
+81248572 vvvv</pre>
+
+====Replace Sign in Zora's Domain====
+
+Replaces the sign beside the entrance in Zora's Domain.
+
+<pre>8126097C oooo
+81260A38 aaaa
+81260A46 vvvv</pre>
+
+====Replace Sign in Gerudo Valley====
+
+Replaces the sign beside the entrance in Gerudo Valley.
+
+<pre>81247260 oooo
+8124732C aaaa
+8124733A vvvv</pre>
+
+====Replace Wolfos in Forest Temple Entryway====
+
+Replaces the Wolfos in the first room of the Forest Temple.
+
+<pre>81231CD4 oooo
+81231CE4 aaaa
+81231CF2 vvvv</pre>

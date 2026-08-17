@@ -1,0 +1,7 @@
+{{actor|name=ovl_En_River_Sound|ispage=true}}
+
+'''ovl_En_River_Sound''' is an [[actor]] used to play various sound effects.
+
+{{Investigate|Look more into this actor}}
+
+[[Category:Entities]]

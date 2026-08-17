@@ -1,0 +1,129 @@
+{{For|a listing of the contents of the entrance table|Entrance Table (Data)}}
+{{address3|space=code|name=Entrance Table
+|ver1=Debug|ref1=rom|start1=B9F360|size1=1850
+|ver2=NTSC 1.0|ref2=rom|start2=B6FBF0|size2=1850
+|ver3=NTSC 1.2|ref3=rom|start3=B6FC00|size3=1850}}
+
+The entrance table is used to create a means of linking between scenes. Each entrance record stores 4 bytes of data, and the table indexer is typically stored as a signed short, but the table lookup routine will ignore the sign bit, such that index 0x8000 equivalent to 0x0000 for example. 
+
+== Format ==
+<syntaxhighlight lang="csharp">
+/*0x00*/ byte Scene; 
+/*0x01*/ byte Spawn;
+/*0x02*/ short Variable //Bitpacked variable defined as below:
+
+// & 8000 = Continue playing background music when exiting. 0 stops it, 1 continues playing it. 
+// & 4000 = Displays title card. (Also sets property in Link?)
+// & 3F80 = Fade In Transition Animation
+// & 007F = Fade Out Transition Animation
+</syntaxhighlight>
+* '''Scene''' is the [[scene]] index used to reference what scene to load.
+* '''Spawn''' sets what "entrance" within the scene to spawn at. Additionally, this value affects dynamic exits, and is used to determine which Fairy Fountain you've entered (see below). Entrances are defined by the Entrance List scene/room command. See [[Scenes_and_Rooms#Entrance_List|Scenes and Rooms: Entrance List]].
+
+=== Transition Animations ===
+{|class="wikitable"
+! Id || Transition Animation
+|-
+| 00 || Spiky (Glitched?)
+|-
+| 01 || Triforce
+|-
+| 02 || Slow fade to/from black
+|-
+| 03 || Slow fade to/from white during the day, black during night
+|-
+| 04 || Fast fade to/from black during the day, slow fade to/from black during night
+|-
+| 05 || Fast fade to/from white during the day, slow fade to/from black during night
+|-
+| 06 || Very slow fade to/from white during the day, slow fade to/from black during night
+|-
+| 07 || Very slow fade to/from white during the day, slow fade to/from black during night
+|-
+| 0E || Slow fade into sandstorm, sets sandstorm animation leaving, keeps animation running
+|-
+| 0F || Fast fade to sandstorm, sets sandstorm animation on leaving, ends animation on entering
+|-
+| 20 || Iris transition, used for going into Kakariko doors
+|-
+| 2C || Shortcut Transition Animation
+|}
+
+Both sandstorm transition effects are dependent on object {{Object ref|0002}}.
+
+== Look-up Routine ==
+When resolving a spawn, the entrance table is not looked up directly. Instead, a "final" entrance index is computed usually by using the following variables: 
+* The "base" entrance index (Save Context + 0x00, int32_t). The base index can be thought of as being the starting point to an array of possible entrances. 
+* Link's age (Save Context + 0x04, 4 bytes)
+* The current cutscene number variable (Save Context + 0x08, 4 bytes) and the next cutscene number variable (Save Context + 0x1412)
+* The time of day (Save Context + 0x0C, 2 bytes stores actual time, while Save Context + 0x10 stores whether it's night time)
+* The "scene setup" index
+
+The order of operations is something like this: 
+* The base entrance index is checked to see if it's -1. If so, the game goes back to the title screen.
+* The next cutscene number variable is read.
+** If next cutscene number is 0xFFFD, the current cutscene number is set to 0
+** If the next cutscene number is not 0xFFEF, the next cutscene number is copied to the current cutscene number
+
+* The scene setup index is computed. Starting with a value of 0...
+** If the cutscene number's value is 0x0000, the scene setup index is +1 if night, +2 if Link is an adult
+** If the cutscene number's value is 0xFFF0-0xFFFC, the scene setup index is set to 4 + the rightmost hex digit in the cutscene number.
+* The base entrance index is added to the scene setup index, returning a final entrance index that is used to resolve the spawn further.
+
+This means that for every spawn location, you will need 4 sequential records on the entrance table. If you wish to trigger a cutscene stored within a scene setup, you will also need additional records for each cutscene you want to spawn at. Nintendo conserves space by using the same base index (which ends up being the entrance with the lowest index) for all cutscenes within a scene. 
+
+=== Day/Night, Child Adult Examples ===
+If you touch the entrance to the Great Deku Tree, the base index is set to 0x0000, and the cutscene number should be 0x0000. The records at the following index will be looked up with the given time of day/age conditions.
+* 0000 Day/Child
+* 0001 Night/Child
+* 0002 Day/Adult
+* 0003 Night/Adult 
+
+=== Cutscene Setup Example ===
+If you start an unmodified rom, the first cutscene that plays will be the title screen cutscene. This sets a base index of 0x00CD, with a cutscene number of 0xFFF3.
+  00CD
+     4
+ +0003
+ =====
+  00D4
+
+== Other Info ==
+Certain index values are coded to have special functionality.
+
+=== Hardcoded Checks ===
+* The first time you are set to spawn at entrance index 0x05E0 (Kokiri Forest->Lost Woods Bridge), your entrance index will be converted to 0x011E (Kokiri Forest->Lost Woods entrance 0) in order to play the cutscene where Saria gives you the Fairy Ocarina without crashing.
+* For every {{actor ref|23}} spawned, the actor will run a check once per frame to see if the current entrance index is 00EE (Kokiri Forest's cutscene entrance), and the current scene setup is 8. If both conditions are true, the actor will force two rooms to load simultaneously when Link walks near one.
+* On every frame, a check located within [[code]] is performed on the current entrance index to see if it's value is 00CD (Hyrule Field cutscene entrance)
+* Whenever Link game overs, the game will check his current entrance index to determine whether to "death warp" him to a new destination, specifically for when warping him back to the start of a dungeon.
+
+=== Entrance Cutscenes ===
+There exists a table in code which references various cutscenes that trigger when spawning with a specific entrance index. See [[Entrance Cutscenes]] for more details
+
+=== Soft Reset Functionality ===
+Setting an entrance index of -1 (0xFFFF or 0xFFFFFFFF, depending on the variable size) will "soft reset" the game, returning you to the title screen.
+=== Dynamic Exits ===
+Indexes 0x7FF9 - 0x7FFE are used for dynamic scene exits, enabling the devs to reuse the same scenes. When Link touches an exit set to one of these index values, a table look-up is performed based on the index, plus the entrance id for the area spawned in.
+
+:''[[ovl_player_actor]] (Debug):''
+<pre>
+C23398 - Exit list for index 7FFE (Great Fairy Fountain, Upgrades)
+C2339E - Exit list for index 7FFB (Potion Shop? must have been only one scene at one time)
+C233A2 - Exit list for index 7FFC (Bazaar)
+C233AA - Exit list for index 7FFA (Shooting Gallery)
+C233AE - Exit list for index 7FF9 (Great Fairy Fountain, Magic Spells)
+</pre>
+
+Index 0x7FFF is used to return a player to a previously saved grotto respawn point.
+
+==== Example ====
+If you walk into the Great Fairy Fountain (Upgrades) from Death Mountain Trail, the following entrance look-up will occur.
+
+{|class="wikitable"
+!Index||Scene||Entrance||Variable||Scene Name||Spawn Info
+|-
+|04BE||3B||01||4102||Great Fairy's Fountain (Upgrades)||From Death Mountain Crater
+|}
+
+This sets the spawn entrance to (01). Then later when you touch the exit (which is set to 7FFE), The game will look at the two byte value at C2339A (2 * entrance + C2339A). 
+
+[[Category:Code (File)]]

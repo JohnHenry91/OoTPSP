@@ -1,0 +1,19 @@
+{{Actor|name=ovl_En_Horse|ispage=true}}
+
+'''ovl_En_Horse''' is the Epona [[Actor]].
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text
+|-
+| this->race.rider != NULL
+|-
+| ../z_en_horse.c
+|-
+| ../z_en_horse.c
+|-
+| ../z_en_horse.c
+|}

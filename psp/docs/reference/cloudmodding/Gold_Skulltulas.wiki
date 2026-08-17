@@ -1,0 +1,16 @@
+== Actors ==
+
+* {{actor ref|ovl_En_Sw}} - Also Gold Skulltula
+* {{actor ref|ovl_Obj_Makekinsuta}}
+* {{actor ref|ovl_Obj_Kibako2}} - can spawn Gold Skulltula
+* {{actor ref|ovl_En_Si}}
+
+== Objects ==
+* {{object ref|0024}}
+* {{object ref|0170}}
+
+== Similar ==
+* [[Skulltulas]]
+* [[Skulltula Family]]
+
+[[Category: Gold Skulltulas| ]]

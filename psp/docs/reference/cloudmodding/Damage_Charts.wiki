@@ -1,0 +1,548 @@
+== Information ==
+Damage charts are a common table found in multiple actors. It determines how an enemy should react when hit with various attacks, allowing for a great deal of customization. 
+
+== Structure ==
+
+The damage chart is a structure that is 0x20 bytes long. Each byte within the damage chart stores info on being hit by a particular attack (or attack group).
+
+ & 0F = Damage
+ & F0 = Effect Type //The effect of any value is actor dependent. 
+
+{|class="wikitable"
+! Index || Weapon(s) || Attack Type
+|-
+| 00 || Deku Nuts ||
+|-
+| 01 || Deku Stick <br> Pot || Slash <br> Throw
+|-
+| 02 || Slingshot ||
+|-
+| 03 || Explosions ||
+|-
+| 04 || Boomerang ||
+|-
+| 05 || Arrow ||
+|-
+| 06 || Hammer Swing ||
+|-
+| 07 || Hookshot <br> Longshot ||
+|-
+| 08 || Kokiri Sword || Slash
+|-
+| 09 || Master Sword || Slash
+|-
+| 0A || Biggoron's Sword <br> Epona's Hooves || Slash
+|-
+| 0B || Fire Arrows ||
+|-
+| 0C || Ice Arrows ||
+|-
+| 0D || Light Arrows ||
+|-
+| 0E || "Wind" Arrows ||
+|-
+| 0F || "Spirit" Arrows ||
+|-
+| 10 || "Shadow" Arrows ||
+|-
+| 11 || Fire Magic ||
+|-
+| 12 || Ice Magic (Confirmed) ||
+|-
+| 13 || Light Magic (Confirmed) ||
+|-
+| 14 || Deku/Hylain Shield (Unconfirmed) || Block
+|-
+| 15 || Mirror Shield (Unconfirmed) || Block
+|-
+| 16 || Kokiri Sword || Spin Attack (Basic to Blue)
+|-
+| 17 || Giant's Knife || Spin Attack (Basic to Blue)
+|-
+| 18 || Master Sword || Spin Attack (Basic to Blue)
+|-
+| 19 || Kokiri Sword <br> Broken Giant's Knife || Jump Attack<br>Spin Attack (Red)
+|-
+| 1A || Giant's Knife || Jump Attack<br>Spin Attack (Red)
+|-
+| 1B || Master Sword <br> Deku Stick || Jump Attack<br>Spin Attack (Red)
+|-
+| 1C || ? ||
+|-
+| 1D || ? ||
+|-
+| 1E || Hammer || Jump Attack
+|-
+| 1F || ? ||
+|}
+
+===Example===
+Let's look at a Deku Baba
+<pre>
+DEKU BABA
+10 02 01 02 E2 02 02 02 F1 F2 F4 24 02 02 02 02
+02 24 00 00 00 00 F1 F4 F2 F2 F8 F4 00 00 04 00
+</pre> 
+The <tt>10</tt> byte stores the effect and damage that will occur when a Deku Baba is hit with a Deku Nut. The 1 digit is the effect that occurs when the Deku Baba is hit, which a stun effect in this case, while the 0 is the amount of damage the Deku Nut will deal. So the deku nut stuns it without doing any damage. Effect ids vary from enemy to enemy. For instance, the freeze effect id is 3 in a guay, but is 0xF in a tektite.
+
+Arrows 6, 7, and 8 are not simply repeats of the fire arrow. The fire arrow animation may act as a place holder, but these arrows have their own damage mappings within the enemy damage charts. <br>
+Also the 3 additional arrows don't use magic when used.<br>
+
+==Item drops==
+Like Likes only give the large purple rupee when defeated with light arrows. So? Well, all 3 beta arrows give unique items when used to defeat the like like.<br>
+
+{|class="wikitable"
+!Item || Drop
+|-
+|Light Arrow || Huge Purple Rupee
+|-
+|"Wind" Arrow || Magic Jar
+|-
+|"Spirit" Arrow || Arrow
+|-
+|"Shadow" Arrow || Fairy
+|-
+|}
+==Loading the arrows in-game==
+The arrows can be loaded by modifying function 80834380 in {{actor ref|0000}}, or by execute breakpointing 80032458 in RAM and changing the variable before the ActorSpawn function is called.
+
+==Finding damage charts in any actor==
+A bit of knowledge of MIPS assembly helps to understand this part.
+
+Finding the damage chart in RAM is quite easy; there is a pointer to it that is located 0x98 bytes after the start of the [[Actors#Loading_Actors|actor type lists]]. Finding the damage chart in ROM takes a little more effort.
+
+First, get the assembly source of the actor you want. They can be found [http://spinout182.com/mqd/a here] for MQ Debug and [http://spinout182.com/mmde/a here] for MM Debug.
+
+Once you have the actors' source (in assembly), look for the first <tt>jal</tt> to <tt>0x800FA958</tt> (for MM Debug) or <tt>0x8005C364</tt> for MQ Debug. Before the call to that function, you will see something like: <tt>lui t6 %(data_''offset'')</tt> - In MM Debug <tt>t6</tt> will not be the register, it will be <tt>a3</tt>. Regardless, <tt>data_''offset''</tt> will be the label of the damage chart of that enemy.
+
+An alternate method (but mostly the same) can be seen [http://glitchkill.proboards.com/index.cgi?board=tuts2&action=display&thread=5879&page=1 here].
+
+==Damage Chart Offset Documentation==
+<b>NOTE:</b> Keep in mind that these offsets were found before there was any accurate way of locating damage charts; some documentation and definitions may be incorrect.
+
+===RAW Damage Charts in Actor Files===
+<pre>
+Deku Baba
+10 02 01 02 E2 02 02 02 F1 F2 F4 24 02 02 02 02
+02 24 00 00 00 00 F1 F4 F2 F2 F8 F4 00 00 04 00
+
+Alternate Deku Baba
+10 02 01 02 E2 02 02 10 F1 F2 F4 24 02 02 02 02
+02 24 00 00 00 00 F1 F4 F2 F2 F8 F4 00 00 04 00
+
+Guay
+10 02 01 02 01 02 02 02 01 02 04 24 32 02 04 02
+02 24 00 00 00 00 01 04 02 02 08 04 00 00 04 00
+
+Deku Scrubs
+10 02 01 02 01 02 02 02 01 02 04 24 02 02 02 02
+02 24 00 00 00 00 01 04 02 02 08 04 00 00 04 00
+
+Dodongo
+10 02 01 02 10 01 02 10 01 02 04 02 F4 02 02 02
+02 60 F3 60 00 00 01 04 02 02 08 04 00 00 04 00
+
+Diving Stinger
+10 02 01 02 10 02 02 02 01 02 04 02 02 02 02 02 
+02 00 04 04 00 00 01 04 02 02 08 04 00 00 04 00
+
+Fire Keese
+10 02 01 02 01 02 02 02 01 02 04 F2 34 02 02 02 
+02 20 34 00 00 00 01 04 02 02 08 04 00 00 04 00
+
+Floor Master
+10 02 01 02 10 02 02 10 01 02 04 24 02 44 04 02
+02 24 00 44 00 00 01 04 02 02 08 04 00 00 04 00
+
+Gerduo Fighter
+10 02 01 02 10 02 02 10 01 02 04 02 F2 02 02 02
+02 E4 60 D3 00 00 01 04 02 02 08 04 04 00 04 00
+
+Tektite
+10 02 01 02 10 02 02 10 01 02 04 02 F4 02 02 02
+02 E0 F3 E0 00 00 01 04 02 02 08 04 00 00 04 00
+
+Dark Link
+10 02 01 02 10 02 02 10 01 02 04 02 02 02 02 02
+02 E2 60 D3 00 00 01 04 02 02 08 04 00 00 04 00
+
+Wallmaster
+10 02 01 02 10 02 02 10 01 02 04 24 02 44 04 02
+02 24 00 44 00 00 01 04 02 02 08 04 00 00 04 00
+
+Stinger outside of water
+10 02 01 02 10 02 02 02 01 02 04 02 02 02 02 00
+00 00 00 00 00 00 01 04 02 02 08 04 00 00 04 00
+
+Wolfos
+10 02 01 02 10 02 02 10 01 02 04 E4 02 02 02 02
+02 E4 60 D3 00 00 01 04 02 02 08 04 00 00 04 00
+
+Barinade
+10 02 01 02 10 02 02 10 01 02 04 02 02 02 02 02
+02 E0 60 D0 00 00 01 04 02 02 08 04 00 00 04 00
+
+Stalfos
+10 02 D1 02 10 02 02 10 01 02 04 02 F4 E2 02 02
+02 60 F3 E0 00 00 01 04 02 02 08 04 00 00 04 00
+
+Bongo Bongo?
+00 02 01 02 00 02 02 02 01 02 04 02 34 02 04 02 
+02 00 34 44 00 00 01 04 02 02 08 04 00 00 04 00
+
+Blue/Red/Green Bubbles?
+F0 02 01 A2 F0 E2 A2 F0 01 02 04 E2 C4 B4 00 00
+00 60 93 83 A0 A0 01 04 02 02 08 04 60 00 A4 00
+
+Biri
+10 02 E0 02 01 02 02 02 F1 F2 F4 24 34 02 02 02
+02 24 34 00 00 00 01 04 02 02 08 04 00 00 04 00
+
+Oktorok
+00 02 01 02 01 02 02 02 01 02 04 02 34 02 02 02
+02 00 00 00 00 00 01 04 02 02 08 04 00 00 04 00
+
+Peehat
+F0 02 01 02 E0 02 02 D2 01 02 04 C4 02 02 02 02
+02 C3 60 60 00 00 01 04 02 02 08 04 00 00 04 00
+
+Field Poe
+00 02 01 02 11 02 02 12 01 02 04 02 02 02 02 02
+02 00 00 00 00 00 01 04 02 02 08 04 00 00 04 00
+
+Poe/Poe Composers
+00 02 01 02 11 02 02 12 01 02 04 02 02 02 02 02
+02 00 00 00 00 00 01 04 02 02 08 04 00 00 04 00
+
+Stalchild
+00 00 00 00 00 00 02 00 F1 F2 F4 00 00 00 00 00
+00 00 00 00 00 00 01 04 02 02 08 04 00 00 00 00
+
+Lizalfos
+10 02 D1 02 10 02 02 10 01 02 04 D2 F4 D2 D2 D2 
+D2 60 F3 60 00 00 01 04 02 02 08 04 00 00 04 00
+
+Big Octo
+10 02 00 F0 10 00 00 00 01 00 00 00 00 00 00 00
+00 00 00 00 00 00 01 00 00 02 00 04 00 00 00 00
+
+Bubble? (This damage chart may be inaccurate)
+01 01 00 00 00 00 00 00 00 00 00 00 10 00 64 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 28 24 00
+
+Taliparisan?
+10 F2 00 00 F1 00 E2 00 E1 E2 E4 00 00 00 00 00 
+00 00 00 00 00 00 E1 E4 E2 E2 E8 E4 00 00 E4 00
+
+Dead Hand
+00 F2 00 00 00 00 00 00 F2 F2 F4 00 00 00 00 00
+00 00 00 00 00 00 F2 F4 F2 F4 F8 F4 00 00 F4 00
+
+Dead Hand's Hands
+00 F2 00 00 00 00 00 00 F2 F2 F4 00 00 00 00 00
+00 00 00 00 00 00 F2 F4 F2 F4 F8 F4 00 00 F4 00
+
+Armos
+10 02 01 F2 60 F2 F2 60 01 F2 F4 F2 D4 F2 02 02
+02 E0 D3 E0 00 00 01 F4 F2 02 F8 F4 00 00 F4 00
+
+Redead
+00 F2 00 00 00 00 F2 10 F1 F2 F4 00 00 00 00 00 
+00 E4 60 D3 00 00 F1 F4 F2 F2 F8 F4 00 00 F4 00
+
+Poe Sisters
+F0 02 01 02 00 02 02 02 E1 E2 E4 02 02 02 02 02 
+02 00 00 00 00 00 E1 E4 E2 E2 E8 E4 00 00 04 00
+
+Shell Blade
+00 00 00 F2 00 F2 F2 12 D1 D2 D4 24 F2 F2 E4 F2 
+F2 24 00 00 00 00 D1 D4 D2 D2 D8 D4 00 00 00 00
+
+Like Like? (Chart may be inaccurate)
+00 F2 F1 F2 10 F2 F2 10 F1 F2 F4 24 34 BF D4 CF
+EF 24 33 4A 00 00 F1 F4 F2 F2 F8 F4 EA 00 00 00
+
+Blocking Tentacle from Jabu Jabu (Chart may be inaccurate)
+10 00 00 00 00 00 01 00 00 08 00 00 00 00 00 00 
+00 00 14 00 64 00 00 00 00 20 00 00 00 00 04 00
+
+Frezzard
+00 F0 F0 F2 F0 F0 F2 F2 F0 F2 F4 24 F0 F0 F0 F0 
+F0 24 00 00 00 00 F0 F4 F2 F0 F8 F4 00 00 00 00
+
+Iron Knuckle
+00 00 D0 F2 E1 F2 D0 E2 F2 D0 F1 F2 F4 E2 E2 
+E2 E2 E2 EF 60 60 60 00 00 F1 F4 F2 F2 F8 F4
+
+Torch Slug
+00 00 F2 00 F2 F2 10 00 F2 F4 F2 E4 F2 F2 F2
+F2 60 E3 60 00 00 F1 F4 F2 F2 F8 F4 00 00 F4
+
+Anubis
+F0 F0 F0 F0 F0 F1 F2 F0 F2 F6 22 F0 F0 F0 F0 
+F0 23 00 00 00 00 F0 F6 F2 F0 FC F4 00 00 00
+
+Spike Enemy
+00 00 F2 00 F2 F2 12 00 F2 F4 24 F2 F2 E4 
+00 00 24 00 00 00 00 00 F4 F2 00 F8 F4 00
+
+Moblin
+50 F2 F1 F2 10 F2 F2 F2 F1 F2 F4 F2 64 F2 F4 F2 
+F2 50 63 50 00 00 F1 F4 F2 F2 F8 F4 50 00 F4 00
+
+Alternate Moblin
+50 F2 00 F2 00 F2 F2 10 F1 F2 F4 F2 64 F2 F4 F2
+F2 50 63 50 00 00 F1 F4 F2 F2 F8 F4 50 00 F4 00
+</pre>
+
+===Damage Chart Offsets===
+<pre>
+D1E290- Barinade
+D7ACA8- Biri
+D98298- Guay
+D9FBD0- Deku Baba
+DA1774- Deku Scrubs
+DB15CC- Dodongo
+DB8594- Underwater Stinger?
+DCBB5C- Fire Keese
+DD1094- Floormaster
+DF0CC4- Gerudo Fighter
+ED1494- Tektite
+ED5898- Dark Link
+EE6B74- Wallmaster
+EE98F4- Stinger
+EED8B8- Wolfos
+EDE774- Vali (large jellyfish?)
+DA3210- Dead Hand?
+DA4240- Dead Hand's Hands?
+C333E8- Stalfos
+CFC37C- Bongo Bongo
+E788F0- Oktorok
+E88860- Peehat
+E8D150- Field Poe
+E97ABB- Poe
+EB75C4- Stalchild?
+EFFF64- Lizalfos
+D78A98- Big Octo
+D86465- Bubble?
+ED8914- Taliparisan
+DA3210- Dead Hand
+DA4240- Dead Hand's Hands
+D69658- Armos
+E98ACC- Redead
+E93740- Poe Sisters
+EAE9DC- Shell Blade
+EA0960- Like Like
+D716CA- Blocking Tentacle from Jabu Jabu
+DD87F4- Frezzard
+D8AAC7- Torch Slug
+???- Iron Knuckle
+???- Anubis
+???- Spike Enemy
+E5FD74- Moblin
+</pre>
+
+== Credits ==
+jsa - Testing the arrows and their effects in-game, most of the text here<br>
+DeathBasket - Providing jsa with a way to load the beta arrows<br>
+Jason777 - Fixing/updating up this article a bit, locating the damage chart in RAM, and the alternate method to finding damage charts.<br>
+Xu Yuan - Documentation of damage chart offsets in many actor files
+
+== Damage Chart ==
+
+{| class="wikitable" {{ts|ac|ml5|font-family: monospace}}
+! 
+||[[File:Item-Deku_Nut.png]]
+||[[File:Item-Deku_Stick.png]]
+[[File:Item-Pot.png]]
+||[[File:Item-Fairy_Slingshot.png]]
+||[[File:Item-Bomb.png]]
+||[[File:Item-Boomerang.png]]
+||[[File:Item-Fairy_Bow_and_Arrow.png]]
+||Hammer Swing
+||[[File:Item-Short_Hookshot.png]]
+||Kokiri Sword Slash
+||Kokiri Sword  Spin/Jump Attack, Master Sword Slash
+||Biggoron Sword Slash
+||[[File:Item-Fire_Arrow.png]]
+||[[File:Item-Ice_Arrow.png]]
+||[[File:Item-Light_Arrow.png]]
+||Arrow 4
+||Arrow 5
+||Arrow 6
+||[[File:Item-Din's_Fire.png]]
+||Ice Magic
+||Light Magic
+||?
+||?
+||Kokiri Sword Blue Spin
+||Giant's Knife Blue Spin
+||Master Sword Blue Spin
+||[[File:Item-Broken_Giant's_Knife.png|Broken Giant's Knife]] Jump Attack
+||Giant's Knife Jump Attack/Red Spin
+||Master Sword Jump Attack/Red Spin
+||?
+||?
+||Hammer Jump Attack
+||?
+|-
+| '''Anubis'''||0||F0||F0||F0||F0||F0||F1||F2||F0||F2||F6||22||F0||F0||F0||F0||F0||23||0||0||0||0||F0||F6||F2||F0||FC||F4||0||0||0||0
+|-
+| '''Armos'''||10||2||1||F2||60||F2||F2||60||1||F2||F4||F2||D4||F2||2||2||2||E0||D3||E0||0||0||1||F4||F2||2||F8||F4||0||0||F4||0
+|-
+| '''Bari'''||10||2||E0||2||10||2||2||2||F1||F2||F4||24||34||2||2||2||2||24||34||0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Barinade'''||10||2||1||2||10||2||2||10||1||2||4||2||2||2||2||2||2||E0||60||D0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Big Octorok'''||10||2||0||F0||10||0||0||0||1||0||0||0||0||0||0||0||0||0||0||0||0||0||1||0||0||2||0||4||0||0||0||0
+|-
+| '''Biri'''||10||2||E0||2||1||2||2||2||F1||F2||F4||24||34||2||2||2||2||24||34||0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Blue/Green Bubble'''||F0||2||1||A2||F0||E2||A2||F0||1||2||4||E2||C4||B4||0||0||0||60||93||83||A0||A0||1||4||2||2||8||4||60||0||A4||0
+|-
+| '''Bongo Bongo'''||0||2||1||2||0||2||2||2||1||2||4||2||34||2||4||2||2||0||34||44||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Dark Link'''||10||2||1||2||10||2||2||10||1||2||4||2||2||2||2||2||2||E2||60||D3||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Dead Hand'''||0||F2||0||0||0||0||0||0||F2||F2||F4||0||0||0||0||0||0||0||0||0||0||0||F2||F4||F2||F4||F8||F4||0||0||F4||0
+|-
+| '''Dead Hand’s Hands'''||0||F2||0||0||0||0||0||0||F2||F2||F4||0||0||0||0||0||0||0||0||0||0||0||F2||F4||F2||F4||F8||F4||0||0||F4||0
+|-
+| '''Deku Baba'''||10||2||1||2||E2||2||2||2||F1||F2||F4||24||2||2||2||2||2||24||0||0||0||0||F1||F4||F2||F2||F8||F4||0||0||4||0
+|-
+| '''Deku Baba 2'''||10||2||1||2||E2||2||2||10||F1||F2||F4||24||2||2||2||2||2||24||0||0||0||0||F1||F4||F2||F2||F8||F4||0||0||4||0
+|-
+| '''Deku Scrub'''||10||2||1||2||1||2||2||2||1||2||4||24||2||2||2||2||2||24||0||0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Diving Stinger'''||10||2||1||2||10||2||2||2||1||2||4||2||2||2||2||2||2||0||4||4||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Dodongo'''||10||2||1||2||10||1||2||10||1||2||4||2||F4||2||2||2||2||60||F3||60||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Dry Stinger'''||10||2||1||2||10||2||2||10||1||2||4||24||2||44||4||2||2||24||0||44||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Field Poe'''||0||2||1||2||11||2||2||12||1||2||4||2||2||2||2||2||2||0||0||0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Fire Keese'''||10||2||1||2||1||2||2||2||1||2||4||F2||34||2||2||2||2||20||34||0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Floormaster'''||10||2||1||2||10||2||2||10||1||2||4||24||2||44||4||2||2||24||0||44||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Freezard'''||0||F0||F0||F2||F0||F0||F2||F2||F0||F2||F4||24||F0||F0||F0||F0||F0||24||0||0||0||0||F0||F4||F2||F0||F8||F4||0||0||0||0
+|-
+| '''Gerudo Thief'''||10||2||1||2||10||2||2||10||1||2||4||2||F2||2||2||2||2||E4||60||D3||0||0||1||4||2||2||8||4||4||0||4||0
+|-
+| '''Guay'''||10||2||1||2||1||2||2||2||1||2||4||24||32||2||4||2||2||24||0||0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Iron Knuckle'''||D0||F2||E1||F2||D0||E2||F2||D0||F1||F2||F4||E2||E2||E2||E2||E2||EF||60||60||60||0||0||F1||F4||F2||F2||F8||F4||FA||0||F4||0
+|-
+| '''Like Like'''||0||F2||F1||F2||10||F2||F2||10||F1||F2||F4||24||34||BF||D4||CF||EF||24||33||4A||0||0||F1||F4||F2||F2||F8||F4||EA||0||0||0
+|-
+| '''Lizalfos'''||10||2||D1||2||10||2||2||10||1||2||4||D2||F4||D2||D2||D2||D2||60||F3||60||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Moblin (Club)'''||50||F2||F1||F2||10||F2||F2||F2||F1||F2||F4||F2||64||F2||F4||F2||F2||50||63||50||0||0||F1||F4||F2||F2||F8||F4||50||0||F4||0
+|-
+| '''Moblin (Spear)'''||50||F2||0||F2||0||F2||F2||10||F1||F2||F4||F2||64||F2||F4||F2||F2||50||63||50||0||0||F1||F4||F2||F2||F8||F4||50||0||F4||0
+|-
+| '''Octorok'''||0||2||1||2||1||2||2||2||1||2||4||2||34||2||2||2||2||0||0||0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Parasitic Tentacle'''||10||0||0||0||0||0||1||0||0||8||0||0||0||0||0||0||0||0||14||0||64||0||0||0||0||20||0||0||0||0||4||0
+|-
+| '''Peahat'''||F0||2||1||2||E0||2||2||D2||1||2||4||C4||2||2||2||2||2||C3||60||60||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Poe Sisters'''||F0||2||1||2||0||2||2||2||E1||E2||E4||2||2||2||2||2||2||0||0||0||0||0||E1||E4||E2||E2||E8||E4||0||0||4||0
+|-
+| '''Poe/Composer Brothers'''||0||2||1||2||11||2||2||12||1||2||4||2||2||2||2||2||2||0||0||0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Redead'''||0||F2||0||0||0||0||F2||10||F1||F2||F4||0||0||0||0||0||0||E4||60||D3||0||0||F1||F4||F2||F2||F8||F4||0||0||F4||0
+|-
+| '''Shabom'''||1||1||0||0||0||0||0||0||0||0||0||0||1||0||64||0||0||0||0||0||0||0||0||0||0||0||0||0||0||28||24||0
+|-
+| '''Shell Blade'''||0||0||0||F2||0||F2||F2||12||D1||D2||D4||24||F2||F2||E4||F2||F2||24||0||0||0||0||D1||D4||D2||D2||D8||D4||0||0||0||0
+|-
+| '''Skullkid'''||0||0||0||0||0||0||2||0||F1||F2||F4||0||0||0||0||0||0||0||0||0||0||0||1||4||2||2||8||4||0||0||0||0
+|-
+| '''Spike'''||0||0||0||F2||0||F2||F2||12||0||F2||F4||24||F2||F2||E4||0||0||24||0||0||0||0||0||F4||F2||0||F8||F4||0||0||0||0
+|-
+| '''Stalchild'''||0||0||0||0||0||0||2||0||F1||F2||F4||0||0||0||0||0||0||0||0||0||0||0||1||4||2||2||8||4||0||0||0||0
+|-
+| '''Stalfos'''||10||2||D1||2||10||2||2||10||1||2||4||2||F4||E2||2||2||2||60||F3||E0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Tailpasaran'''||10||F2||0||0||F1||0||E2||0||E1||E2||E4||0||0||0||0||0||0||0||0||0||0||0||E1||E4||E2||E2||E8||E4||0||0||E4||0
+|-
+| '''Tektite'''||10||2||1||2||10||2||2||10||1||2||4||2||F4||2||2||2||2||E0||F3||E0||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''Torch Slug'''||10||0||0||F2||0||F2||F2||10||0||F2||F4||F2||E4||F2||F2||F2||F2||60||E3||60||0||0||F1||F4||F2||F2||F8||F4||0||0||F4||0
+|-
+| '''Wallmaster'''||10||2||1||2||10||2||2||10||1||2||4||24||2||44||4||2||2||24||0||44||0||0||1||4||2||2||8||4||0||0||4||0
+|-
+| '''White Bubble'''||F0||E2||E1||A2||F0||E2||A2||F0||E1||E2||E4||54||E2||E2||E4||E2||E2||74||60||60||A0||A0||E1||E4||E2||E2||E8||E4||60||0||A4||0
+|-
+| '''Wolfos'''||10||2||1||2||10||2||2||10||1||2||4||E4||2||2||2||2||2||E4||60||D3||0||0||1||4||2||2||8||4||0||0||4||0
+|}
+
+=== Damage Charts Not Yet Found ===
+
+{{todo|Find these!}}
+
+{| class="wikitable"
+! Not Found:||Potentially Shares Damage Chart With:
+|-
+| Baby Dodongo||Dodongo
+|-
+| Dinolfos||Lizalfos
+|-
+| Gibdo||Redead
+|-
+| Peahat Larva||Peahat
+|-
+| Red Bubble||Blue/Green Bubble or White Bubble
+|-
+| White Wolfos|| Confirmed to share with Wolfos.
+|}
+
+{| class="wikitable"
+! Not Found:||Notes:
+|-
+| Gohma Larva||Does not exist. Uses generic routines.
+|-
+| Leever||Does not exist. Uses custom routines.
+|-
+| Beamos||
+|}
+
+==== May Not Have Charts ====
+
+{| class="wikitable"
+! May Not Have Charts:
+|-
+| Flying Pot
+|-
+| Flying Tile
+|-
+| Blade Trap
+|-
+| Fire Eye
+|}
+
+=== Information to Untangle ===
+
+{{todo|Figure this out!}}
+
+{| class="wikitable"
+! Charts to Untangle||Notes
+|-
+| Deku Baba/Withered Deku Baba/Big Deku Baba||2 Deku Baba charts found.
+|-
+| Poe/Graveyard Poe/Field Poe/Big Poe/Poe Sis./Poe Bros.||Poe/Poe Bros. found.
+|-
+| Big Skulltula/Skulltula/Skullwalltula/Gold Skulltula||None found.
+|-
+| Keese/Ice Keese/Fire Keese||Keese found.
+|-
+| Blue/Red Tektite||Tektite found.
+|-
+| Deku Scrub/Business Scrub/Mad Scrub/Puzzle Scrubs||Deku Scrub found.
+|}
+
+
+[[Category: Documentation]]
+[[Category: Actors]]

@@ -1,0 +1,21 @@
+{{actor|name=ovl_En_Torch|ispage=true}}
+
+'''ovl_En_Torch''' is a special [[actor]] that spawns an instance of {{actor ref|000A}} within a specific [[grottos|grotto]]. The information is passed in by actor {{actor ref|009B}}.
+
+{{clear}}
+
+== NTSC 1.0 Notes ==
+
+===Relative to rom===
+
+0xE9A550 - List of chest contents. See [[Get Items]]
+
+
+===Relative to Save Start===
+Save start is 11A5D0
+
+0x1397 - Byte where chest contents and chest flag is stored. & E0 = Contents, & 1F = flags
+
+
+[[Category:Treasure Chests]]
+[[Category:Grottos]]

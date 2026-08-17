@@ -1,0 +1,12 @@
+Actor List may refer to one of the following:
+== Pages ==
+* [[Actor List (Variables)]] - Documents the initialization parameters for actors
+* [[Actor Overlay Table]]
+
+== File Listings ==
+A listing of all actors within the game
+
+* [[Actor List/Debug]]
+* [[Actor List/NTSC 1.0]]
+
+[[Category:Actors]]

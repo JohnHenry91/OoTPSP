@@ -1,0 +1,408 @@
+Ocarina of Time's dynamic content is loaded on the "main heap"
+
+== Allocation Structures ==
+There are at least two different structures used to manage dynamic memory allocation in the Zelda 64 engine.
+=== Free List ===
+The free list structure allows for memory to be allocated and reclaimed arbitrarily. The main disadvantage to free lists are "memory bubbles", or spaces with gaps of free space that can sometimes be too small to be allocated to, that can pop up over time. To mitigate this, longer living/less volatile data is allocated to the tail end (higher address) of the free list. 
+
+==== Free List Reference Structure ====
+{{address3|space=ram|name=Main Heap Free List Reference|hideend=true
+|ver1=Debug|ref1=ram|start1=
+|ver2=NTSC 1.0|ref2=ram|start2=12BAA0
+|ver3=NTSC 1.1|ref3=ram|start3=12BC60
+|ver4=NTSC 1.2|ref4=ram|start4=
+|ver5=PAL 1.0|ref5=ram|start5=
+|ver6=PAL 1.1|ref6=ram|start6=129B00
+|ver7=PAL MQ|ref7=ram|start7=
+}}
+The free list reference "owns" an instance of a free list. It structure seems to be in the following form, but it's full length is unknown.
+{{clear}}
+<syntaxhighlight lang="c">
+/* 0x00 */ void* HeapStartA; // pointer to the allocated heap space, and pointer to the first node in the heap
+/* 0x04 */ void* HeapStartB; // pointer passed in when allocating the free list. This is possibly used for re-mapping, but is the same as A
+/* 0x08 */ s32 size; // is the size of the heap.
+/* 0x0c */ s8 unk; // this appears to be incremented when an object can't be allocated.
+</syntaxhighlight>
+
+==== Free List Node ====
+
+The free list node is 0x10 bytes long, with an optional extra 0x18 bytes of data for debugging purposes, for a total allocated size of either 0x10 in the Gamecube and iQue releases, or 0x30 bytes in the N64 releases and the Debug Rom.
+
+{| class="wikitable" {{ts|ac|ml5|font-family: monospace}}
+! Start
+! End
+! Size
+! Type
+! Identification
+! Description
+|-
+| 0000
+| 0002
+| {{ts|ar}} | 2
+| s16
+| {{ts|al}} | Node Start
+| {{ts|al}} | "7373" magic number, indicating the start of a node. Used for checking for heap corruption.
+|-
+| 0002
+| 0004
+| {{ts|ar}} | 2
+| s16
+| {{ts|al}} | Block Free for Re-allocation
+| {{ts|al}} | Denotes whether the block is free for re-allocation. (0: No, 1: Yes)
+|-
+| 0004
+| 0008
+| {{ts|ar}} | 4
+| s32
+| {{ts|al}} | Size of Memory Block
+| {{ts|al}} | Size of the memory block being managed. Doesn't include node itself.
+|-
+| 0008
+| 000C
+| {{ts|ar}} | 4
+| ptr
+| {{ts|al}} | Pointer to Next Node
+| {{ts|al}} | Pointer to the next node in the heap.
+|-
+| 000C
+| 0010
+| {{ts|ar}} | 4
+| ptr
+| {{ts|al}} | Pointer to Previous Node
+| {{ts|al}} | Pointer to the previous node in the heap.
+|-
+! colspan=6 | End of Node for Some Versions
+|-
+| 0010
+| 0014
+| {{ts|ar}} | 4
+| ptr
+| {{ts|al}} | Pointer to Name of Node Source
+| {{ts|al}} | 
+|-
+| 0014
+| 0018
+| {{ts|ar}} | 4
+| s32
+| {{ts|al}} | [?]
+| {{ts|al}} | 
+|-
+| 0018
+| 001C
+| {{ts|ar}} | 4
+| s32
+| {{ts|al}} | Thread ID
+| {{ts|al}} | Thread responsible for creating the node.
+|-
+| 001C
+| 0020
+| {{ts|ar}} | 4
+| ptr
+| {{ts|al}} | Pointer to Free List Reference Struct
+| {{ts|al}} | Pointer to the free list reference structure (or head).
+|-
+| 0020
+| 0028
+| {{ts|ar}} | 8
+| OSTime
+| {{ts|al}} | creationTime
+| {{ts|al}} | Time the node was created.
+|}
+
+== Functions ==
+=== Debug Rom ===
+{{see also|Function Map}}
+
+=== NTSC 1.0 ===
+
+<pre>
+800005A0 //???, low level function, calls 800A1C50
+
+
+800A1C50 //Main boot routine, calls 80051B50
+1C54 LUI	V0, 0x8012
+1C58 ADDIU	V0, V0, 0xD2A0 (V0 = 8011D2A0)
+1C5C SW 	RA, 0x001C(SP)
+1C94 JAL	800AD410 //DD boot routine
+1CC4 JAL	800AD488 //Zeroes 80121210 if 80121211 is zero
+1CFC JAL	800CD390 //Allocates main heap
+1D04 JAL	80051B50
+
+
+800AD410 //Disk Drive boot routine 
+//called by A1C50
+//Writes to 80121211, possibly stores whether the dd can be loaded from
+D418 LUI	T6, 0x8012
+D41C LBU	T6, 0x1210(T6)
+D420 LUI	V0, 0x00B9
+D424 ADDIU	A1, V0, 0xAD30 //A1 = B8AD30, or the disk drive code file start
+D428 BNEZ	T6, 800AD478 
+D42C LUI	A0, 0x801C
+D430 LUI	T7, 0x00BA
+D434 ADDIU	T7, T7, 0xDA40 //T7 = B9DA40, or disk drive code file end
+D438 SUBU	A2, T7, A1 //A2 = file size
+
+D43C JAL	800000DF0 //DMA read function
+D440 ADDIU	A0, A0, 0x6E80 //A0 = 801C6E80, or the heap start?
+
+
+80051B50 //???, calls 800CDA20
+1B58 JAL	800CDA20
+1B5C ADDIU	A0, R0, 0x15D4 //Size of block?
+
+
+800CD320 //? Checks state of 80105430
+D320 LUI	V0, 0x8010
+D324 LW 	V0, 0x5430(V0)//load from 80105430
+
+D32C SW 	S0, 0x0014(SP)
+D330 SW 	S1, 0x0018(SP)
+D334 LUI	S0, 0x8010
+D338 SW 	RA, 0x001C(SP)
+D33C ADDIU	S0, S0, 0x5430 //S0 = 80105430
+D340 BEQ	V0, R0, 0x800CD374
+D344 OR 	S1, R0, R0 //S1 = 0
+
+D388 JR 	RA
+
+
+800CD390 //Allocates main heap 
+//A0 = Block start (801C6E60)
+//A1 = Block size (001EE1A0)
+//starts by moving A0/A1 into A1/A2
+D3A4 LUI	A0, 0x8013
+D3A8 JAL	800CDD90
+D3AC ADDIU	A0, 0xBAA0 //A0 = 8012BAA0
+D3B0 JAL	800CD320
+D3B4 NOP
+//End
+D3C0 JR
+
+
+800CDD90 //Creates a new free list with one node, and attaches the list to some structure
+//A0 = External Ptr (8012BAA0)
+//A1 = Free List Start ptr (801C6E60)
+//A2 = Size (001EE1A0)
+DD90 ADDIU	V0, A1, 0x000F
+DD94 ADDIU	AT, R0, 0xFFF0 //AT = -0x10
+DD98 AND	V0, V0, AT //V0 is aligned
+DD9C SUBU	T6, V0, A1 //Store delta
+DDA0 SUBU	A2, A2, T6 //if not aligned, sub size?
+DDA4 AND	A2, A2, AT //Round down size to nearest 0x10
+DDA8 ADDIU	T7, A2, 0xFFD0 //T2 = allocated block size - size of mem ll node
+DDAC ADDIU	T8, R0, 0x0001 //T1 = 1, block is free for subdivision
+DDB0 ADDIU	T9, R0, 0x7373 //Mem LL "header"?
+//populate the node
+DDB4 SW 	R0, 0x0008(V0)
+DDB8 SW 	R0, 0x000C(V0)
+DDBC SW 	T7, 0x0004(V0)
+DDC0 SH 	T8, 0x0002(V0)
+DDC4 SH 	T9, 0x0000(V0)
+DDC8 SW 	V0, 0x0000(A0) //store the re-mapped address
+DDCC SW 	A1, 0x0004(A0) //stores the original address sent into the function
+DDD0 JR 	RA
+DDD4 SW 	A2, 0x0008(A0) //stores block size
+
+
+800CDA20 //mem, Allocates block to head of the main heap
+//A0 = Space to allocate
+//V0 = Ptr to allocated space
+DA28 SW 	A0, 0x0020(SP) //Store allocate space for later
+DA2C JAL	80003CC0 // osSetIntMask(OS_IM_NONE), disables interrupts
+DA30 ADDIU	A0, R0, 0x0001
+DA34 LUI	A0, 0x8013
+DA3C ADDIU	A0, A0, 0xBAA0 //A0 = 12BAA0
+DA40 JAL	800CE060
+DA44 LW 	A1, 0x0020(SP) //A1 = allocate space
+DA4C jal	8003CC0 // osSetIntMask, restores interrupt mask state
+
+0x800CE17C – allocate at tail end
+A0 = reference struct
+A1 = size
+
+CE17C		addiu $sp, $sp, 0xffe0 // allocate stack space for local shit
+CE180 		sw $ra, 0x14(sp) // save return address
+CE184		sw $a0, 0x20(sp) // save arg 0
+CE188		lw $a2, 0x00(a0) // derereference first arg: a2 = node
+CE18C		addiu $t0, $r0, 0xfff0 // $t0 = -0x10
+CE190		addiu $t6, $a1, 0x000f // add new size to 0x0f
+CE194 		lw $v0, 0x08(a2) // v0 = node->next
+CE198		and $a1, $t6, $t0 // new size is now 16 byte aligned
+CE19C		or $a3, $r0, $r0 // a3 = 0
+// ce1a0 – ce1b8, a2 is the furthest node. This appears to be a traversal
+CE1A0 		beq $v0, $r0, 0x800CE1B8 // if next is null then branch
+CE1A4 		addiu $t9, $a1, 0x000f // t9 = aligned size + 0x0f
+CE1A8		or $a2, $v0, $r0 // a2 = next node
+CE1AC		lw $v0, 0x0008($v0) // v0 = next node in sequence, looped
+CE1B0		bnel $v0, $r0, 0x800CE1AC // this is a loop that continues getting the next node until it reaches the final node. 
+CE1B4		or $a2, $v0, $r0 // a2 = last working node
+CE1B8		beq $a2, $r0, 0x800CE278 // this appears to be the case when there are no nodes
+
+// a2 now has the last node in the list
+
+CE1BC		and $a0, $t9, $t0 // umm its aligned again I guess. What was that for?
+CE1C0		lh $t8, 0x02(a2) // t8 = whether last node is allocated
+CE1C4		beql $t8, $r0, 0x800CE270 // last node is allocated already. 
+CE1C8		lw $a2, 0x0c(a2) // branch delay. Traverse backwards with a2
+CE1CC		lw $v0, 0x04(a2) // v0 = block size
+CE1D0		sltu $at, $v0, $a1 // set $at if block size is less than aligned size
+CE1D4		bnel $at, $r0, 0x800CE270 // block size is bad, go to 270
+CE1D8		lw $a2, 0x000c(a2) // branch delay, traverse back a2
+
+// This code appears to create the new node assuming the current pointer is open.
+
+CE1DC		addiu $a0, $a0, 0x30 // add size of header, a0 = size with header
+CE1E0 		sltu $at, $a0, $v0 // set $at if the size is good.
+CE1E4		beq $at, $r0, 0x800CE22C // branch if size is bad
+
+CE1E8		addu $t1, $a2, $v0 // t1 = node location + size allocated
+CE1EC		lw $t2, 0x0008(a2) // t2 = next node
+CE1F0		subu $v1, $t1, $a1 // v1 = t1 – aligned size; would be location of new node
+CE1F4		addiu $t3, $r0, 0x7373 // t3 = marker
+
+// v1 appears to be the location of a new node
+
+CE1F8		sw $a2, 0x000c(v1) // a2 is now previous node
+CE1FC		sw $a1, 0x0004(v1) // aligned size is size
+CE200		sh $t3, 0(v1) // marker
+CE204		sw $t2, 8(v1) // next node is current node’s next
+CE208		lw $t4, 0x0004(a2) // get previous nodes size
+CE20C		sw $v1, 0x08(a2) // a2’s next = newn ode
+CE210		subu $t5, $t4, $a0 // subtract old node with new node size
+CE214		sw $t5, 0x0004(a2) // set new size
+CE218		lw $a3, 0x0008(v1) // current node’s next n a3
+CE21C		or $a2, $v1, $r0 // a2 = new node 
+CE220		beq $a3, $r0, 0x800CE22C // ? haven’t continued, its set to 0
+
+// a2 appears to be the node created in this context
+
+CE224		nop
+CE228		sw $v1, 0x000c(a3) // whats a3?
+CE22C		sh $r0, 0x0002(ac) // set as taken
+CE230		sw $r0, 0x0010(a2) // debug info, irrelevant
+CE234		sw $r0, 0x0010(a2) // same
+CE238		sw $a2, 0x001c(sp) // save node as local var
+
+// a0 = 0
+// a1 = size without header
+// a2 = node
+// a3 = ? (not set if everything goes smoothly)
+
+CE23C		jal 0x80003ca0 // weird function. If a0 is 0 it returns *((*0x80006340) + 0x14), otherwise it returns a0 addressed with 0x14. Oh wait, I think it’s the current thread
+CE240		or $a0, $r0, $r0 // branch delay a0 = 0, zero
+
+CE244		lw $a2, 0x001C(sp) // restore node
+CE248		sw $v0, 0x0018(a2) // save thread id
+CE24C		lw $t6, 0x0020(sp) // restore original first arg
+CE250		jal 0x800048c0 // fuckin weird function, I think it stores os time
+CE254		sw $t6, 0x001c(a2) // save reference structure
+CE258		lw $a2, 0x001C(sp) // restore node again? Lol
+CE25C		sw $v0, 0x0020(a2) // time creation
+CE260		sw $v1, 0x0024(a2) // same
+CE264		beq $r0, $r0, 0x800ce278 // unconditional branch to ce278
+CE268		addiu $a3, $a2, 0x0030 // branch delay, a3 now has location of place	
+// jumped to if the last node is bad
+
+CE270		bnel $a2, $r0, 0x800CE1C4 // CE1C4 traverses backwards if the node is allocated. The “is allocated” is stored in t8
+CE274		lh $t8, 0x0002(a2) // branch delay. loads “is allocated” of current node in t8
+CE278		bnez $a3, 0x800CE2A0 // a3 should store the location of the node I think. If its not 0 (no node found), go to ce2a0
+CE27C		lui $v0, 0x8010
+CE280		addiu $v0, $v0, 0x5450 // li $v0, 0x80105450
+
+// increment 0x80095450
+
+CE284		lw $t7, 0(v0) // t7 = *0x80095450
+CE288		lw $t9, 0x0020(sp) // load reference struct again
+CE28C		addiu $t8, $t7, 0x0001 // u8 = 1 + *0x80095450
+CE290		sw $t8, 0(v0) 
+
+// increment 0xc in the ref structure
+
+CE294		lbu $t1, 0x000c(t9) // load reference struct + 0xc
+CE298		addiu $t2, $t1, 0x0001 // increment 
+CE29C		sb $t2, 0x000c(t9)
+
+// final stretch
+
+CE2A0		lw $ra, 0x0014(sp) // restore return address
+CE2A4		addiu $sp, $sp, 0x0020 // restore stack
+CE2A8		or $v0, $a3, $r0 // v0 = a3, location of node
+CE2AC		jr $ra // return
+
+800CE060 //mem, malloc
+//Allocates memory on free list. Called before 800CE2B4 func
+//A0 = ptr to free list reference
+//A1 = space size, not adjusted for alignment?
+//V0 = ptr to free space
+E06C LW 	A2, 0x0000(A0)//load first word in struct
+E070 ADDIU	T0, R0, 0xFFF0	//T0 = -0x10
+E074 ADDIU	T6, A1, 0x000F
+E084 LH 	T8, 0x0002 (A2)	//load "freed memory" byte, seek for free space
+E0A0 //begin to allocate the mem node
+
+800CE2B4 //mem, free
+// Marks a memory node as being free for re-use, and combines if next to free nodes
+//void osFree(void *region, void *addr);
+//A0 = ptr region (e.g. 8011BEF0, 8012BAA0)
+//A1 = Pointer to memory node's allocated space (rather than the node itself)
+//
+E2B4 ADDIU	SP, SP, 0xFFD8
+E2BC BEQ	A1, R0, 800CE3D4
+E2C0 OR 	A3, A0, R0 //A3 = 12BAA0 (what is this space)
+E2C4 LH 	T6, 0xFFD0(A1) //T6 = ? or 0x7373
+E2C8 ADDIU	AT, R0, 0x7373
+E2CC ADDIU	A1, A1, 0xFFD0 //A1 -= 0x30, A1 points to mem node
+E2D0 BEQ	T6, AT, 800CE2E8 //if the mem node is defined, branch
+E2D4 LUI	A0, 0x3F
+E2D8 JAL	80003CC0
+E2DC ORI	A0, A0, 0xFF01 //A0 = 003FFF01
+E2E0 BEQ	R0, R0, 800CE3D8 //jump to function end
+E2E4 LW 	RA, 0x0014(SP)
+//
+E2E8 LH 	T7, 0x0002(A1) //T7 = whether node is free or not
+E2EC ADDIU	T8, R0, 0x0001 
+E2F0 OR 	A0, R0, R0 //A0 = 0
+E2F4 BEQL	T7, R0, 800CE314
+E2F8 SH 	T8, 0x0002(A1) //Mark mem node A1's memory as being freed
+//
+E314 SW 	R0, 0x0010(A1) //zero out something? in the mem node's structure
+E318 SW 	R0, 0x0014(A1) //zero out something? in the mem node's structure
+E31C SW 	A3, 0x0028(SP) //store reference node on stack
+E320 JAL	80003CA0 //dunno what this does
+E324 SW 	A1, 0x0018(SP)
+E328 LW 	A1, 0x0018(SP)
+E32C LW 	A3, 0x0028(SP)
+E330 SW 	V0, 0x0018(A1) //save some number here to the ll
+E334 JAL 	800048C0
+E338 SW 	A3, 0x001C(A1) //save main ref
+E33C LW 	A1, 0x0018(SP) //A1 = actor space mem node ptr
+E340 LW 	A0, 0x0008(A1) //A0 = mem node next ptr
+E344 SW 	V0, 0x0020(A1) //dunno what this is still
+E348 SW 	V1, 0x0024(A1) //store instruction count
+E34C BEQL	A0, R0, 800CE394 //branch if mem node next is null
+E350 LW 	V1, 0x000C(A1) //if branched, V1 = mem node next ptr
+E354 LH 	T9, 0x0002(A0) //T9 = next node's free state
+E358 OR 	V0, A0, R0 //V0 = curnode->next
+E35C BEQL	T9, R0, 800CE394 //branch if next node is allocated
+E360 LW 	V1, 0x000C(A1) //if branched, V1 = mem node next ptr
+//next node is not allocating space
+E364 LW 	V1, 0x0008(A0) // v1 = mem node next's next node (curnode->next->next)
+E368 BEQL	V1, R0, 800CE378 //branch if memnode->next->next == null
+E36C LW 	T0, 0x0004(A1) //T0 = cur mem node's allocated size
+//
+E378 LW 	T1, 0x0004(V0) //T1 = next mem node's allocated size
+E37C ADDU	T2, T0, T1 //T2 = cur + next mem node's allocated size
+E380 ADDIU	T3, T2, 0x0030 //T3 = cur + next mem node's allocated size + node itself space
+E384 SW 	T3, 0x0004(A1) //update cur node's (un)allocated size
+E388 LW 	T4, 0x0008(V0) //T4 = (curnode->next->next ptr)
+E38C SW 	T4, 0x0008(A1) //curnode->next = curnode->next->next
+E390 LW 	V1, 0x000C(A1) //V1 = curnode->prev
+E394 BEQL	V1, R0, 800CE3D8 //branch if curnode->prev == null
+E398 LW 	RA, 0x0014(SP)
+E39C LH 	T5, 0x0002(V1) //T5 = curnode->prev.isfree
+E3A0 BEQL	T5, R0, 800CE3D8 //branch if node is not free
+E3A4 LW 	RA, 0x0014(SP)
+//
+E3DC JR 	RA
+</pre>
+[[Category:Code (File)]] [[Category:Ram]] [[Category:Documentation]]

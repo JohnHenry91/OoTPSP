@@ -1,0 +1,4 @@
+{{actor|name=ovl_En_Hintnuts}}
+'''ovl_En_Hintnuts''' is the [[Deku Scrub]] [[actor]] that gives out dialog hints when defeated. It's dialog may be dependent on the room it is spawned in.
+{{clear}}
+[[Category:Deku Scrubs]]

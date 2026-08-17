@@ -1,0 +1,13 @@
+{{Actor|name=ovl_En_Ge3}}
+
+'''ovl_En_Ge3''' is the [[actor]] for the leader of the [[Gerudos]], who presents you with the Membership Card.
+
+{{clear}}
+
+== Debug ROM Notes ==
+
+<pre>ROM: 0xDEB6C4 (2406003A) Receiving Membership Card 
+
+ROM: 0xDEB758 (2406003A) As above?</pre>
+
+[[Category:Gerudos]]

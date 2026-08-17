@@ -1,0 +1,4 @@
+{{actor|name=ovl_En_Fd|ispage=true}}
+'''ovl_En_Fd''' is the [[Flare Dancer]] [[actor]].
+{{clear}}
+[[Category:Flare Dancer]]

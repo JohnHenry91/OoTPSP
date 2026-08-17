@@ -1,0 +1,18 @@
+Cuccos are those white birdies that flap around and ruin speedruns. 
+
+==Actors==
+* {{actor ref|ovl_En_Niw}}
+* {{actor ref|ovl_En_Syateki_Niw}}
+* {{actor ref|ovl_En_Attack_Niw}}
+* {{actor ref|ovl_En_Nwc}} - Baby Cucco (unused)
+
+== Objects==
+* [[object_niw]] - Cucco
+* [[object_gi_niwatori]] - [[Get Item]] Cucco
+* [[object_nwc]] - Baby Cucco (unused)
+
+== Related ==
+* [[Anju|Anju/Cucco Lady]]
+* [[Cucco-Chasing Girl]]
+
+[[Category:Cuccos| ]]

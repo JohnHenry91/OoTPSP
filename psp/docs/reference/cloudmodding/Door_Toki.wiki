@@ -1,0 +1,10 @@
+{{actor|name=ovl_Door_Toki|ispage=true}}
+
+'''ovl_Door_Toki''' is the [[actor]] that manages the collision model for the [[Door of Time]]. It is spawned by [[ovl_Demo_Kankyo]], an actor that spawns various objects within the Temple of Time, specifically when ovl_Demo_Kankyo is set to take form of the Door of Time.  
+
+{{clear}}
+
+== Notes ==
+{{Investigate|This actor is allocated immediately after ovl_Demo_Kankyo, meaning that actors can run routines before all actors set to spawn in the room file are initialized}}
+
+[[Category: Temple of Time Objects]]

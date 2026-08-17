@@ -1,0 +1,9 @@
+The '''Master Sword''' is the bane of all evil, and apparently also lets you travel through time.
+
+== Actors ==
+* {{actor ref|006C}}
+
+== Objects ==
+* {{object ref|object_toki_objects}}
+
+[[Category:Master Sword|Master Sword]]

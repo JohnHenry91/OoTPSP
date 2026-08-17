@@ -1,0 +1,8 @@
+==Admin List==
+
+{{admins}}
+
+==Admin Tasks==
+
+*[[:Category:Delete|Remove files marked for deletion.]]
+*[[:Category:Rename|Rename files or articles.]]

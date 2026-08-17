@@ -1,0 +1,4396 @@
+==Camera Presets I==
+
+<pre>
+NONE
+NORMAL0
+NORMAL1
+DUNGEON0
+DUNGEON1
+NORMAL3
+HORSE0
+BOSS_GOMA
+BOSS_DODO
+BOSS_BARI
+BOSS_FGANON
+BOSS_BAL
+BOSS_SHADES
+BOSS_MOFA
+BOSS_TWIN0
+BOSS_TWIN1
+BOSS_GANON1
+BOSS_GANON2
+TOWER0
+TOWER1
+FIXED0
+FIXED1
+CIRCLE0
+CIRCLE2
+CIRCLE3
+PREREND0
+PREREND1
+PREREND3
+DOOR0
+DOORC
+RAIL3
+START0
+START1
+FREE0
+FREE2
+CIRCLE4
+CIRCLE5
+DEMO0
+DEMO1
+MORI1
+ITEM0
+ITEM1
+DEMO3
+DEMO4
+UFOBEAN
+LIFTBEAN
+SCENE0
+SCENE1
+HIDAN1
+HIDAN2
+MORI2
+MORI3
+TAKO
+SPOT05A
+SPOT05B
+HIDAN3
+ITEM2
+CIRCLE6
+NORMAL2
+FISHING
+DEMOC
+UO_FIBER
+DUNGEON2
+TEPPEN
+CIRCLE7
+NORMAL4
+NORMAL
+PARALLEL
+KEEPON
+TALK
+BATTLE
+CLIMB
+SUBJECT
+BOWARROW
+BOWARROWZ
+FOOKSHOT
+BOOMERANG
+PACHINCO
+CLIMBZ
+JUMP
+HANG
+HANGZ
+FREEFALL
+CHARGE
+STILL
+PUSHPULL
+BOOKEEPON
+</pre>
+
+==Camera Presets II==
+
+<pre>
+NONE NORM0()
+NORM1()NORM2()
+NORM3()NORM4()
+PARA0()PARA1()
+PARA2()PARA3()
+PARA4()KEEP0()
+KEEP1()KEEP2()
+KEEP3()KEEP4()
+SUBJ0()SUBJ1()
+SUBJ2()SUBJ3()
+SUBJ4()JUMP0()
+JUMP1()JUMP2()
+JUMP3()JUMP4()
+BATT0()BATT1()
+BATT2()BATT3()
+BATT4()FIXD0()
+FIXD1()FIXD2()
+FIXD3()FIXD4()
+DATA0()DATA1()
+DATA2()DATA3()
+DATA4()UNIQ0()
+UNIQ1()UNIQ2()
+UNIQ3()UNIQ4()
+UNIQ5()UNIQ6()
+UNIQ7()UNIQ8()
+UNIQ9()DEMO0()
+DEMO1()DEMO2()
+DEMO3()DEMO4()
+DEMO5()DEMO6()
+DEMO7()DEMO8()
+DEMO9()SPEC0()
+SPEC1()SPEC2()
+SPEC3()SPEC4()
+SPEC5()SPEC6()
+SPEC7()SPEC8()
+SPEC9()
+</pre>
+
+==Save Checksum (Debug)==
+
+<pre>
+!ZELDA
+</pre>
+
+==Save Checksum (Default)==
+
+<pre>
+ZELDAZ
+</pre>
+
+==Cutscene Editor==
+
+<pre>
+Frame
+Key / (Centerpoint)
+
+(Origin)
+
+(Player)
+
+(Alignment)
+
+(Settings)
+
+(Object)
+
+Point No.
+Viewing Angle
+
+N Frame
+
+Z Rotation
+
+Mode
+
+R Focus
+P Time
+Distance
+X Rotation
+Y Rotation
+
+d
+Frame
+Total
+Key /
+0
+
+</pre>
+
+==[?]==
+
+<pre>
+ABZSuldr*+LRudlr
+</pre>
+
+==Inagaki Check==
+
+<pre>
+dist over! flag: %04X ptr: %08X pos: %f-%f-%f[m
+
+SEQ H
+L
+
+</pre>
+
+==[?]==
+
+<pre>
+new
+</pre>
+
+==En_A_Keep==
+
+<pre>
+../z_en_a_keep.c
+../z_en_a_keep.c
+../z_en_a_keep.c
+</pre>
+
+==En_Item_00==
+
+<pre>
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+../z_en_item00.c
+</pre>
+
+==Eff_Blure==
+
+<pre>
+Blur Vertex Addition Processing: Table Too High %d
+Blur Space Addition Processing: Table Too High %d
+../z_eff_blure.c
+../z_eff_blure.c
+../z_eff_blure.c
+
+z_eff_blure.c
+::SQ_NoInterpolate_disp() Vertex Allocation isn't possible.
+../z_eff_blure.c
+../z_eff_blure.c
+
+index - 1 >= 0
+../z_eff_blure.c
+
+index + 2 < this2->now_edge_num
+../z_eff_blure.c
+
+z_eff_blure.c
+::SQ_HermiteInterpolate_disp() Vertex Allocation isn't possible.
+../z_eff_blure.c
+../z_eff_blure.c
+../z_eff_blure.c
+../z_eff_blure.c
+../z_eff_blure.c
+../z_eff_blure.c
+../z_eff_blure.c
+../z_eff_blure.c
+
+EffectBlureInfo2_disp_makeDisplayList() Matrix cannot be obtained, so process will be forced to end.
+../z_eff_blure.c
+
+Blur Display: Vertex allocation isn't possible. Force End
+../z_eff_blure.c
+
+Blur Display: Vertex table allocation isn't possible.
+../z_eff_blure.c
+</pre>
+
+==Eff_Shield_Particle==
+
+<pre>
+[31mEffectShieldParticle_ct(): Particle Count is too high.[m
+../z_eff_shield_particle.c
+../z_eff_shield_particle.c
+</pre>
+
+==Eff_Spark==
+
+<pre>
+spark(): u_div,v_div 0では困る。
+table_size Too High
+EffectSparkInfo_proc(): Spark Pointer is NULL
+../z_eff_spark.c
+
+EffectSparkInfo_disp(): Memory Allocation Failure graph_malloc
+../z_eff_spark.c
+</pre>
+
+==Eff_Ss_Dead==
+
+<pre>
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+../z_eff_ss_dead.c
+</pre>
+
+==Effect_Soft_Sprite==
+
+<pre>
+EffectAdd(): Allocation not possible. Please be careful. Type %d
+Ending without adding effect.
+Total Effect Deallocation
+Total Effect Deallocation End
+
+effect index %3d: size=%6dbyte romsize=%6dbyte
+../z_effect_soft_sprite.c
+
+EffectSS2Info.data_table != NULL
+../z_effect_soft_sprite.c
+../z_effect_soft_sprite.c
+
+type < EFFECT_SS2_TYPE_LAST_LABEL
+../z_effect_soft_sprite.c
+
+EffectSoftSprite2_makeEffect(): Not an overlay.
+../z_effect_soft_sprite.c
+
+
+[31mEffectSoftSprite2_makeEffect(): Due to zelda_malloc_r(), %dbyte memory allocation is impossible. As a result, neither is program loading. Things aren't looking good! Needless to say, no effect will be produced. [m
+[32mEFFECT SS OVL: SegRom %08x %08x, Seg %08x %08x, RamStart %08x, type: %d[m
+EffectSoftSprite2_makeEffect(): The effect is already fully loaded, but the constructor is NULL, so addition will be suspended. Please fix this. (Waste of memory.) %08x %d
+[32mEffectSoftSprite2_makeEffect(): Construction failed for some reason. The constructor returned an error. Effect addition will be suspended.[m
+[31mEffectSoftSprite2_disp(): Position is out of range, so deletion will occur. Effect Label No. %d: Seeking a response from the program. The label is at z_effect_soft_sprite_dlftbls.decl here  ==> pos(%f, %f, %f).
+[32mPlease consult me if the position is being used for something else.[m
+</pre>
+
+==Effect_Soft_Sprite_Old_Init==
+
+<pre>
+../z_effect_soft_sprite_old_init.c
+../z_effect_soft_sprite_old_init.c
+</pre>
+
+==Flg_Set==
+
+<pre>
+event_chk_inf[0]
+event_chk_inf[1]
+event_chk_inf[2]
+event_chk_inf[3]
+event_chk_inf[4]
+event_chk_inf[5]
+event_chk_inf[6]
+event_chk_inf[7]
+event_chk_inf[8]
+event_chk_inf[9]
+event_chk_inf[10]
+event_chk_inf[11]
+event_chk_inf[12]
+event_chk_inf[13]
+item_get_inf[0]
+item_get_inf[1]
+item_get_inf[2]
+item_get_inf[3]
+inf_table[0]
+inf_table[1]
+inf_table[2]
+inf_table[3]
+inf_table[4]
+inf_table[5]
+inf_table[6]
+inf_table[7]
+inf_table[8]
+inf_table[9]
+inf_table[10]
+inf_table[11]
+inf_table[12]
+inf_table[13]
+inf_table[14]
+inf_table[15]
+inf_table[16]
+inf_table[17]
+inf_table[18]
+inf_table[19]
+inf_table[20]
+inf_table[21]
+inf_table[22]
+inf_table[23]
+inf_table[24]
+inf_table[25]
+inf_table[26]
+inf_table[27]
+inf_table[28]
+inf_table[29]
+event_inf[0]
+event_inf[1]
+event_inf[2]
+event_inf[3]
+../flg_set.c
+
+1
+0
+
+../flg_set.c
+</pre>
+
+==DLF==
+
+<pre>
+Already linked.
+Loading failed.
+[32mOVL(d): Seg: %08x-%08x Ram: %08x-%08x Off: %08x %s[m
+../z_DLF.c
+</pre>
+
+==Actor==
+
+<pre>
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+
+
+Actor class destruct doesn't exist. [%s][m
+z_actor.c
+3529 eye=[%f(%f) %f %f] object=[%f %f %f] light_direction=[%f %f %f]
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+
+z_actor.c
+3637 game_play->view.eye=[%f(%f) %f %f]
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+
+-------- DISPLAY Y=%f
+../z_actor.c
+../z_actor.c
+../z_actor.c
+
+MaxProfile == ACTOR_DLF_MAX
+../z_actor.c
+
+ACTOR NAME is NULL
+
+Actor Name (%08x: %s)
+Comment: %s
+ACTOR NAME %08x: %s
+Actor_draw
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+
+Magic Lens START
+Magic Lens Invisible Actor Display START
+Magic Lens Invisible Actor Display
+Magic Lens Invisible Actor Display END
+Blue Lens ( Exterior )
+Blue Lens ( Exterior )
+Magic Lens END
+../z_actor.c
+../z_actor.c
+
+
+invisible_actor_counter < INVISIBLE_ACTOR_MAX
+../z_actor.c
+../z_actor.c
+
+Absolute Magic Range Deallocation
+../z_actor.c
+
+[36m Actor Client is now 0.
+Overlay won't be deallocated.
+Absolute magic range is allocated, so it won't be deallocated.
+Overlay will be deallocated.
+../z_actor.c
+
+%d remain for actor client.[m
+profile < ACTOR_DLF_MAX
+../z_actor.c
+
+
+Actor Class Addition [%d: %s]
+
+[43;30m Actor Set Count Too High[m
+Not an overlay. Already loaded.
+actor_segsize <= AM_FIELD_SIZE
+../z_actor.c
+
+AMF: Absolute Magic Range 
+Absolute Magic Range Allocation %d Byte Allocation
+
+[41;37m Actor Program Memory が Allocation Not Possible[m
+[32mOVL(a): Seg: %08x-%08x Ram: %08x-%08x Off: %08x %s[m
+[41;37m Data bank doesn't exist!!< Data Bank＝%d>(profilep->bank=%d)[m
+[41;37m Actor Class Allocation Not Possible ! %s < Size＝%d Byte >[m
+actor_dlftbl->clients < 255
+../z_actor.c
+
+Actor Client is number %d.
+Actor Class Deletion [%s]
+../z_actor.c
+
+Not an overlay.
+actor_dlftbl->allocp != NULL
+../z_actor.c
+
+actor_dlftbl->clients > 0
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+../z_actor.c
+</pre>
+
+==Cheap_Proc==
+
+<pre>
+../z_cheap_proc.c
+../z_cheap_proc.c
+../z_cheap_proc.c
+../z_cheap_proc.c
+../z_cheap_proc.c
+../z_cheap_proc.c
+</pre>
+
+==Actor List==
+
+<pre>
+Player
+En_Test
+En_GirlA
+En_Part
+En_Light
+En_Door
+En_Box
+Bg_Dy_Yoseizo
+Bg_Hidan_Firewall
+En_Poh
+En_Okuta
+Bg_Ydan_Sp
+En_Bom
+En_Wallmas
+En_Dodongo
+En_Firefly
+En_Horse
+En_Item00
+En_Arrow
+En_Elf
+En_Niw
+En_Tite
+En_Reeba
+En_Peehat
+En_Butte
+En_Insect
+En_Fish
+En_Holl
+En_Scene_Change
+En_Zf
+En_Hata
+Boss_Dodongo
+Boss_Goma
+En_Zl1
+En_Viewer
+En_Goma
+Bg_Pushbox
+En_Bubble
+Door_Shutter
+En_Dodojr
+En_Bdfire
+En_Boom
+En_Torch2
+En_Bili
+En_Tp
+En_St
+En_Bw
+En_A_Obj
+En_Eiyer
+En_River_Sound
+En_Horse_Normal
+En_Ossan
+Bg_Treemouth
+Bg_Dodoago
+Bg_Hidan_Dalm
+Bg_Hidan_Hrock
+En_Horse_Ganon
+Bg_Hidan_Rock
+Bg_Hidan_Rsekizou
+Bg_Hidan_Sekizou
+Bg_Hidan_Sima
+Bg_Hidan_Syoku
+En_Xc
+Bg_Hidan_Curtain
+Bg_Spot00_Hanebasi
+En_Mb
+En_Bombf
+En_Zl2
+Bg_Hidan_Fslift
+En_OE2
+Bg_Ydan_Hasi
+Bg_Ydan_Maruta
+Boss_Ganondrof
+En_Am
+En_Dekubaba
+En_M_Fire1
+En_M_Thunder
+Bg_Ddan_Jd
+Bg_Breakwall
+En_Jj
+En_Horse_Zelda
+Bg_Ddan_Kd
+Door_Warp1
+Obj_Syokudai
+Item_B_Heart
+En_Dekunuts
+Bg_Menkuri_Kaiten
+Bg_Menkuri_Eye
+En_Vali
+Bg_Mizu_Movebg
+Bg_Mizu_Water
+Arms_Hook
+En_fHG
+Bg_Mori_Hineri
+En_Bb
+Bg_Toki_Hikari
+En_Yukabyun
+Bg_Toki_Swd
+En_Fhg_Fire
+Bg_Mjin
+Bg_Hidan_Kousi
+Door_Toki
+Bg_Hidan_Hamstep
+En_Bird
+En_Wood02
+En_Lightbox
+En_Pu_box
+En_Trap
+En_Arow_Trap
+En_Vase
+En_Ta
+En_Tk
+Bg_Mori_Bigst
+Bg_Mori_Elevator
+Bg_Mori_Kaitenkabe
+Bg_Mori_Rakkatenjo
+En_Vm
+Demo_Effect
+Demo_Kankyo
+Bg_Hidan_Fwbig
+En_Floormas
+En_Heishi1
+En_Rd
+En_Po_Sisters
+Bg_Heavy_Block
+Bg_Po_Event
+Obj_Mure
+En_Sw
+Boss_Fd
+Object_Kankyo
+En_Du
+En_Fd
+En_Horse_Link_Child
+Door_Ana
+Bg_Spot02_Objects
+Bg_Haka
+Magic_Wind
+Magic_Fire
+En_Ru1
+Boss_Fd2
+En_Fd_Fire
+En_Dh
+En_Dha
+En_Rl
+En_Encount1
+Demo_Du
+Demo_Im
+Demo_Tre_Lgt
+En_Fw
+Bg_Vb_Sima
+En_Vb_Ball
+Bg_Haka_Megane
+Bg_Haka_MeganeBG
+Bg_Haka_Ship
+Bg_Haka_Sgami
+En_Heishi2
+En_Encount2
+En_Fire_Rock
+En_Brob
+Mir_Ray
+Bg_Spot09_Obj
+Bg_Spot18_Obj
+Boss_Va
+Bg_Haka_Tubo
+Bg_Haka_Trap
+Bg_Haka_Huta
+Bg_Haka_Zou
+Bg_Spot17_Funen
+En_Syateki_Itm
+En_Syateki_Man
+En_TanaEn_Nb
+Boss_MoEn_Sb
+En_Bigokuta
+En_Karebaba
+Bg_Bdan_Objects
+Demo_Sa
+Demo_Go
+En_In
+En_Tr
+Bg_Spot16_Bombstone
+Bg_Hidan_Kowarerukabe
+Bg_Bombwall
+Bg_Spot08_Iceblock
+En_Ru2
+Obj_Dekujr
+Bg_Mizu_Uzu
+Bg_Spot06_Objects
+Bg_Ice_Objects
+Bg_Haka_Water
+En_Ma2
+En_Bom_Chu
+En_Horse_Game_Check
+Boss_Tw
+En_Rr
+En_Ba
+En_Bx
+En_Anubice
+En_Anubice_Fire
+Bg_Mori_Hashigo
+Bg_Mori_Hashira4
+Bg_Mori_Idomizu
+Bg_Spot16_Doughnut
+Bg_Bdan_Switch
+En_Ma1
+Boss_Ganon
+Boss_Sst
+En_Ny
+En_Fr
+Item_Shield
+Bg_Ice_Shelter
+En_Ice_Hono
+Item_Ocarina
+Magic_Dark
+Demo_6K
+En_Anubice_Tag
+Bg_Haka_Gate
+Bg_Spot15_Saku
+Bg_Jya_Goroiwa
+Bg_Jya_Zurerukabe
+Bg_Jya_Cobra
+Bg_Jya_Kanaami
+Fishing
+Obj_Oshihiki
+Bg_Gate_Shutter
+Eff_Dust
+Bg_Spot01_Fusya
+Bg_Spot01_Idohashira
+Bg_Spot01_Idomizu
+Bg_Po_Syokudai
+Bg_Ganon_Otyuka
+Bg_Spot15_Rrbox
+Bg_Umajump
+Arrow_Fire
+Arrow_Ice
+Arrow_Light
+Item_Etcetera
+Obj_Kibako
+Obj_Tsubo
+En_Wonder_Item
+En_Ik
+Demo_Ik
+En_Skj
+En_Skjneedle
+En_G_Switch
+Demo_Ext
+Demo_Shd
+En_Dns
+Elf_Msg
+En_Honotrap
+En_Tubo_Trap
+Obj_Ice_Poly
+Bg_Spot03_Taki
+Bg_Spot07_Taki
+En_Fz
+En_Po_Relay
+Bg_Relay_Objects
+En_Diving_Game
+En_Kusa
+Obj_Bean
+Obj_Bombiwa
+Obj_Switch
+Obj_Elevator
+Obj_Lift
+Obj_Hsblock
+En_Okarina_Tag
+En_Yabusame_Mark
+En_Goroiwa
+En_Ex_Ruppy
+En_Toryo
+En_Daiku
+En_Nwc
+En_Blkobj
+Item_Inbox
+En_Ge1
+Obj_Blockstop
+En_Sda
+En_Clear_Tag
+En_Niw_Lady
+En_Gm
+En_Ms
+En_Hs
+Bg_Ingate
+En_Kanban
+En_Heishi3
+En_Syateki_Niw
+En_Attack_Niw
+Bg_Spot01_Idosoko
+En_Sa
+En_Wonder_Talk
+Bg_Gjyo_Bridge
+En_Ds
+En_Mk
+En_Bom_Bowl_Man
+En_Bom_Bowl_Pit
+En_Owl
+En_Ishi
+Obj_Hana
+Obj_Lightswitch
+Obj_Mure2
+En_Go
+En_Fu
+En_Changer
+Bg_Jya_Megami
+Bg_Jya_Lift
+Bg_Jya_Bigmirror
+Bg_Jya_Bombchuiwa
+Bg_Jya_Amishutter
+Bg_Jya_Bombiwa
+Bg_Spot18_Basket
+En_Ganon_Organ
+En_Siofuki
+En_Stream
+En_Mm
+En_Ko
+En_Kz
+En_Weather_Tag
+Bg_Sst_Floor
+En_Ani
+En_Ex_Item
+Bg_Jya_Ironobj
+En_Js
+En_Jsjutan
+En_Cs
+En_Md
+En_Hy
+En_Ganon_Mant
+En_Okarina_Effect
+En_Mag
+Door_Gerudo
+Elf_Msg2
+Demo_Gt
+En_Po_Field
+Efc_Erupc
+Bg_Zg
+En_Heishi4
+En_Zl3
+Boss_Ganon2
+En_Kakasi
+En_Takara_Man
+Obj_Makeoshihiki
+Oceff_Spot
+End_Title
+En_Torch
+Demo_Ec
+Shot_Sun
+En_Dy_Extra
+En_Wonder_Talk2
+En_Ge2
+Obj_Roomtimer
+En_Ssh
+En_Sth
+Oceff_Wipe
+Oceff_Storm
+En_Weiyer
+Bg_Spot05_Soko
+Bg_Jya_1flift
+Bg_Jya_Haheniron
+Bg_Spot12_Gate
+Bg_Spot12_Saku
+En_Hintnuts
+En_Nutsball
+Bg_Spot00_Break
+En_Shopnuts
+En_It
+En_GeldB
+Oceff_Wipe2
+Oceff_Wipe3
+En_Niw_Girl
+En_Dog
+En_Si
+Bg_Spot01_Objects2
+Obj_Comb
+Bg_Spot11_Bakudankabe
+Obj_Kibako2
+En_Dnt_Demo
+En_Dnt_Jiji
+En_Dnt_Nomal
+En_Guest
+Bg_Bom_Guard
+En_Hs2
+Demo_Kekkai
+Bg_Spot08_Bakudankabe
+Bg_Spot17_Bakudankabe
+Obj_Mure3
+En_Tg
+En_Mu
+En_Go2
+En_Wf
+En_Skb
+Demo_Gj
+Demo_Geff
+Bg_Gnd_Firemeiro
+Bg_Gnd_Darkmeiro
+Bg_Gnd_Soulmeiro
+Bg_Gnd_Nisekabe
+Bg_Gnd_Iceblock
+En_Gb
+En_Gs
+Bg_Mizu_Bwall
+Bg_Mizu_Shutter
+En_Daiku_Kakariko
+Bg_Bowl_Wall
+En_Wall_Tubo
+En_Po_Desert
+En_Crow
+Door_Killer
+Bg_Spot11_Oasis
+Bg_Spot18_Futa
+Bg_Spot18_Shutter
+En_Ma3
+En_Cow
+Bg_Ice_Turara
+Bg_Ice_Shutter
+En_Kakasi2
+En_Kakasi3
+Oceff_Wipe4
+En_Eg
+Bg_Menkuri_Nisekabe
+En_Zo
+Obj_Makekinsuta
+En_Ge3
+Obj_Timeblock
+Obj_Hamishi
+En_Zl4
+En_Mm2
+Bg_Jya_Block
+Obj_Warp2block
+
+actor_dlftbls %u
+RomStart RomEnd SegStart SegEnd allocp profile segname
+%08x %08x %08x %08x %08x %08x %s
+?
+actor_dlftbls %u
+No. RamStart- RamEnd cn Name
+%3d %08x-%08x %3d %s
+</pre>
+
+==BGcheck==
+
+<pre>
+[31mT_BGCheck_PosErrorCheck(): Position invalid. pos (%f,%f,%f) file: %s line: %d[m
+new_node != SS_NULL
+../z_bgcheck.c
+psst->tbl != NULL
+../z_bgcheck.c
+[41;37mT_Polygon_GetVertex_bg_ai(): Error %d %d %d argument is invalid. Processing will now end.[m
+!IS_ZERO(ac_size)
+../z_bgcheck.c
+!IS_ZERO(ac_size)
+../z_bgcheck.c
+/*---------------- BGCheck Buffer ー Memory Size -------------*/
+/* BGCheck LonLon Size %dbyte */
+/* BGCheck Mini Size %dbyte */
+/* BGCheck Spot Size %dbyte */
+/* BGCheck Normal Size %dbyte */
+../z_bgcheck.c
+../z_bgcheck.c
+[32m/*---Final BG Size %dbyte---*/[m
+[43;30mT_BGCheck_getBGDataInfo(): That bg_actor_index is not used. index=%d[m
+../z_bgcheck.c
+this,pself_actor->name %d
+../z_bgcheck.c
+../z_bgcheck.c
+this,pself_actor->name %d
+../z_bgcheck.c
+this,pself_actor->name %d
+../z_bgcheck.c
+../z_bgcheck.c
+this,pself_actor->name %d
+pself_actor == NULL, offender unclear.
+../z_bgcheck.c
+this,pself_actor->name %d
+this->short_slist_node_tbl != NULL
+../z_bgcheck.c
+../z_bgcheck.c
+this->polygon_check != NULL
+../z_bgcheck.c
+this->short_slist_node_last_index < this->short_slist_node_size
+../z_bgcheck.c
+new_index < this->short_slist_node_size
+../z_bgcheck.c
+ptbl->pbuf != NULL
+../z_bgcheck.c
+ptbl->pbuf != NULL
+../z_bgcheck.c
+[31mDynaPolyInfo_setActor(): Dynamic polygon free index doesn't exist.[m
+[32mDynaPolyInfo_setActor(): index %d[m
+[32mDynaPolyInfo_delReserve(): index %d[m
+[32mDynaPolyInfo_delReserve(): Due to the fact that index (== -1) should have been deleted (?), processing will be suspended.[m
+[31mDynaPolyInfo_delReserve(): Not/couldn't be allocated. Due to the index being deallocated, processing will be suspended. index == %d[m
+[31mDynaPolyInfo_expandSRT(): Polygon too high. %d cannot exceed %d.
+
+[31mDynaPolyInfo_expandSRT(): Vertex too high. %d cannot exceed %d.
+pdyna_poly_info->poly_num >= *pstart_poly_index + pbgdata->poly_num
+../z_bgcheck.c
+pdyna_poly_info->vert_num >= *pstart_vert_index + pbgdata->vtx_num
+../z_bgcheck.c
+[32mDynaPolyInfo_setup(): Deletion index=%d[m
+[32mDynaPolyInfo_setup(): Deletion index=%d[m!IS_ZERO(ac_size)
+../z_bgcheck.c
+!IS_ZERO(ac_size)
+../z_bgcheck.c
+
+[31mBGCheckCollection_typicalActorPos(): Position isn't valid. pos (%f,%f,%f) file: %s line: %d[m
+</pre>
+
+==Camera==
+
+<pre>
+[43;30mcamera: foward check: too many layer![m
+camera: res: stat (%d/%d/%d)
+camera: res: PREG(%02d) = %d
+camera: res: %d = PREG(%02d)
+[43;30mcamera: corner check no cross point %x %x[m
+%f (%f %f %f) %f
+[43;30mcamera: climb: no floor[m
+[43;30mcamera: warning: battle: target is not valid, change parallel[m
+camera: battle: target actor name
+[34m%d[m
+camera: battle: target actor name
+[41;37m%d[m
+camera: battle: change target %d ->
+[34m%d[m
+
+[43;30mcamera: warning: keepon: target is not valid, change parallel[m
+[43;30mcamera: warning: talk: target is not valid, change parallel[m
+camera: talk: BG&collision check %d time(s)
+[43;30mcamera: item: item type changed %d -> %d[m
+camera: item: type %d
+camera: item: BG&collision check %d time(s)
+[43;30mcamera: warning: talk: target is not valid, change normal camera[m
+camera: position change %d
+chau!chau!
+camera: demo: player demo set WAIT
+camera: demo: player demo set %d
+[43;30mcamera: warning: demo C: actor is not valid[m
+[43;30mcamera: warning: demo C: actor is not valid[m
+[43;30mcamera: warning: demo C: actor is not valid[m
+[43;30mcamera: warning: demo C: actor is not valid[m
+static SplinedatZ %s[] = {
+/* key frame %2d */ {
+/* code */ %d,
+/* z */ %d,
+/* T */ %d, /* zoom */ %f,
+/* pos */ { %d, %d, %d }
+},
+};
+[1m%06u:[m camera: spline demo: start %s
+Absolute
+相対
+CENTER
+EYE
+[41;37mcamera: spline demo: owner dead[m
+[43;30mcamera: warning: attention: target is not valid, stop![m
+[43;30mcamera: attention demo: this door is dummy door![m
+[43;30mcamera: warning: circle: target is not valid, stop![m
+../z_camera.c
+
+
+[34mcamera: create --- allocate %d byte[m
+[41;37mcamera: create: not enough memory[m
+[34mcamera: destroy ---[m
+../z_camera.c
+
+
+[43;30mcamera: destroy: already cleared[m
+[34mcamera: initialize ---[m UID %d
+camera: room type: default set field
+camera: room type: default set etc (%d)
+camera: room type: prerender
+[34mcamera: personalize ---[m
+camera: change camera status: cond %c%c
+camera: res: stat (%d/%d/%d)
+camera: change camera status: PREG(%02d) = %d
+S: 
+M: 
+F: 
+I: 
+camera: water: off
+kankyo changed water, sound on
+kankyo changed water off, sound off
+attention sound URGENCY
+attention sound NORMAL camera: force change SET to %s!
+camera: in %x
+camera: cut out %x
+camera: wait out %x
+camera: engine (%d %d %d) %04x
+camera: shrink_and_bitem %x(%d)
+camera: engine (%s(%d) %s(%d) %s(%d)) ok!
+camera: debug out
+dir (%d) %d(%f) %d(%f) 0(0)
+real (%d) %d(%f) %d(%f) 0(0)
+camera: out (%f %f %f) (%f %f %f)
+camera: dir (%f %d(%f) %d(%f)) (%f)
+camera: foot(%f %f %f) dist (%f)
+camera: player demo end!!
++=+(%d)+=+ recive request -> %s
+camera: error sound
+[43;30mcamera: change camera mode: force NORMAL: %s %s refused[m
++=+=+=+ recive asking -> %s (%s)
+[41;37mcamera: error: illegal camera set (%d) !!!![m
+[1m%06u:[m camera: change camera[%d] set %s
+[41;37mcamera: error: illegal camera ID (%d) !! (%d|%d|%d)[m.... change default door camera (set %d)
+....change door camera ID %d (set %d)
+[41;37mcamera: setCameraData: last argument not alive![m
+</pre>
+
+==Collision_Check==
+
+<pre>
+CollisionBtlTbl_get(): Index Too High
+
+../z_collision_check.c
+vtx_tbl != NULL
+../z_collision_check.c
+../z_collision_check.c
+../z_collision_check.c
+../z_collision_check.c
+[31mClObjJntSph_set(): zelda_malloc() not possible.[m
+../z_collision_check.c
+[31mClObjJntSph_set3(): zelda_malloc_ not possible.[m
+../z_collision_check.c
+[31mClObjJntSph_set5(): zelda_malloc not possible.[m
+pclobj_jntsph->elem_tbl != NULL
+../z_collision_check.c
+../z_collision_check.c
+../z_collision_check.c
+[31mClObjTris_set3(): zelda_malloc() not possible.[m
+../z_collision_check.c
+[31mClObjTris_set5(): zelda_malloc not possible.[m
+pclobj_tris->elem_tbl != NULL
+../z_collision_check.c
+pcl_obj->data_type <= CL_DATA_LBL_SWRD
+../z_collision_check.c
+CollisionCheck_setAT(): Index too high, addition impossible.
+pcl_obj->data_type <= CL_DATA_LBL_SWRD
+../z_collision_check.c
+CollisionCheck_setAT_SAC(): Attempting to register to somewhere larger than the total data count.
+CollisionCheck_setAT(): Index too high, addition impossible.
+pcl_obj->data_type <= CL_DATA_LBL_SWRD
+../z_collision_check.c
+CollisionCheck_setAC(): Index too high, addition impossible.
+pcl_obj->data_type <= CL_DATA_LBL_SWRD
+../z_collision_check.c
+CollisionCheck_setAC_SAC(): Attempting to register to somewhere larger than the total data count.
+CollisionCheck_setAC(): Index too high, addition impossible.
+pcl_obj->data_type <= CL_DATA_LBL_SWRD
+../z_collision_check.c
+CollisionCheck_setOC(): Index too high, addition impossible.
+pcl_obj->data_type <= CL_DATA_LBL_SWRD
+../z_collision_check.c
+CollisionCheck_setOC_SAC(): Attempting to register to somewhere larger than the total data count.
+CollisionCheck_setOC(): Index too high, addition impossible.
+CollisionCheck_setOCLine(): Index too high, addition impossible.
+CollisionCheck_OC(): Incompatible %d, %d
+pclobj_elem->ac_hit_elem != NULL
+../z_collision_check.c
+CollisionCheck_generalLineOcCheck(): Incompatible %d Type
+</pre>
+
+==Debug==
+
+<pre>
+../z_debug.c
+
+%s
+%s%02d%6d
+../z_debug.c
+../z_debug.c
+
+</pre>
+
+==Debug_Display==
+
+<pre>
+../z_debug_display.c
+../z_debug_display.c
+../z_debug_display.c
+../z_debug_display.c
+../z_debug_display.c
+../z_debug_display.c
+</pre>
+
+==Demo==
+
+<pre>
+%s
+FLAME
+%06d
+%s
+SKIP=(START) or (Cursole Right)
+Cutscene Start Request Announced!
+Designated Fork!!=#[%d]
+../z_demo.c
+../z_demo.c
+Here, huh?
+game_info.mode=[%d] restart_flag
+</pre>
+
+==Draw==
+
+<pre>
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+../z_draw.c
+</pre>
+
+==Elf_Message==
+
+<pre>
+../z_elf_message.c
+"企画外 条件" = %s
+企画外 条件
+0
+../z_elf_message.c
+../z_elf_message.c
+"企画外 条件" = %s
+企画外 条件0
+../z_elf_message.c
+</pre>
+
+==Fcurve_Data_Skelanime==
+
+<pre>
+../z_fcurve_data_skelanime.c
+
+this->now_joint != NULL
+../z_fcurve_data_skelanime.c
+../z_fcurve_data_skelanime.c
+../z_fcurve_data_skelanime.c
+../z_fcurve_data_skelanime.c
+../z_fcurve_data_skelanime.c
+../z_fcurve_data_skelanime.c
+
+FcSkeletonInfo_draw_child(): Incompatible
+../z_fcurve_data_skelanime.c
+</pre>
+
+==Horse==
+
+<pre>
+player->ride.actor != NULL
+../z_horse.c
+
+horse_actor != NULL
+../z_horse.c
+
+Set by Existence of Horse %d %d %d
+horse_actor != NULL
+../z_horse.c
+
+[41;37mHorse_SetNormal(): %d set spot is no good.[m
+horse_actor != NULL
+../z_horse.c
+
+horse_actor != NULL
+../z_horse.c
+
+player->ride.actor != NULL
+../z_horse.c
+
+player->ride.actor != NULL
+../z_horse.c
+
+player->ride.actor != NULL
+../z_horse.c
+
+player->ride.actor != NULL
+../z_horse.c
+
+[41;37mHorse_Set_Check(): %d set spot is no good.[m
+</pre>
+
+==JPEG==
+
+<pre>
+MARKER_SOI
+MARKER_APP0 %d
+MARKER_APP1 %d
+MARKER_APP2 %d
+MARKER_DQT %d %d %02x
+MARKER_DHT %d %d %02x
+MARKER_DRI %d
+MARKER_SOF %d Accuracy%02x Vertical%d Horizontal%d Compo%02x (1: Y)%d (H0=2,V0=1(422) or 2(420))%02x (Quantization Table)%02x (2: Cb)%d (H1=1,V1=1)%02x (Quantization Table )%02x (3: Cr)%d (H2=1,V2=1)%02x (Quantization Table)%02x
+MARKER_SOS %d
+MARKER_EOI
+Marker Unclear %02x
+worksize >= sizeof(JPEGWork) + MB_SIZE * (PROC_OF_MBS - 1)
+../z_jpeg.c
+*** fifo buffer synchronized wait time = %6.3f ms *** *** Check time for each marker segment = %6.3f ms ***
+*** Quantization Table Creation time = %6.3f ms ***
+Error: Cant' make huffman table.
+Error: Cant' make huffman table.
+Error: Cant' make huffman table.
+Error: Cant' make huffman table.
+Error: Cant' make huffman table.
+*** Huffman Table Creation time = %6.3f ms ***
+[31mError: Can't decode jpeg[m
+*** Expand & Draw time = %6.3f ms ***
+</pre>
+
+==Kanfont==
+
+<pre>
+Ｍｏｄｅ=%d eye.x=%f, eye.z=%f kscp_pos=%d
+../z_kanfont.c
+../z_kanfont.c
+../z_kanfont.c
+msg_data=%x, msg_data0=%x jj=%x
+ＥＲＲＯＲ!! Error !!! error───!!!!
+nes_mes_buf[%d]=%d
+../z_kanfont.c
+</pre>
+
+==Kankyo==
+
+<pre>
+[43;30m Sun settings outside of Field Static! Forced release will occur![m
+[41;37m Something's up with the frames of end_frame and start_frame!!![m
+[41;37m by get_parcent_forAccelBrake!!!!!!!!![m
+[41;37m Failed to obtain environment VR data! Go tell Sasaki![m
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+
+[43;30m Underwater colour isn't set for water polygon data![m
+T%03d
+E%03d
+%s
+ZELDATIME
+%02d
+%s
+: 
+%s
+
+%02d
+%s
+VRBOXTIME
+%02d
+%s
+: 
+%s
+
+%02d
+%s
+NIGHT
+%s
+DAY
+next_zelda_time=[%x]
+../z_kankyo.c
+../z_kankyo.c
+
+
+[41;37m Something's up with the colour palette settings![m
+[41;37m Set Palette＝[%d] Last Palette Number＝[%d][m
+
+[31m Something's up with the colour palette!
+
+[33m Settings Palette＝[%d] Palette Count＝[%d][m
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+
+BGM Settings game_play->sound_info.BGM=[%d] old_bgm=[%d]
+-----------------
+Force BGM=[%d]
+BGM=[%d]
+ENB=[%d]
+status=[%d]
+Na_StartMorinigBgm
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+../z_kankyo.c
+</pre>
+
+==[?]==
+
+<pre>
+pp=%x data=%f
+</pre>
+
+==Lifemeter==
+
+<pre>
+../z_lifemeter.c
+../z_lifemeter.c
+</pre>
+
+==Lights==
+
+<pre>
+../z_lights.c
+../z_lights.c
+../z_lights.c
+../z_lights.c
+../z_lights.c
+</pre>
+
+==Zelda Alloc==
+
+<pre>
+%s: %u Byte %s failed.
+%s: %u Byte %s succeeded.
+zelda_malloc
+Allocation
+zelda_malloc_DEBUG
+Allocation
+zelda_malloc_r
+Allocation
+zelda_malloc_r_DEBUG
+Allocation
+zelda_realloc
+Reallocation
+zelda_realloc_DEBUG
+Reallocation
+zelda_calloc
+Allocation
+Zelda Heap Display
+</pre>
+
+==Map_Mark==
+
+<pre>
+../z_map_mark.c
+dlftbl->allocp
+../z_map_mark.c
+[41;37m Room number too high, %d/%d MapMarkDraw process will be interrupted.[m
+../z_map_mark.c
+../z_map_mark.c
+</pre>
+
+==Moji==
+
+<pre>
+../z_moji.c
+moji_tlut --> %X
+../z_moji.c
+../z_moji.c
+font_ff --> %X
+../z_moji.c
+</pre>
+
+==OnePointDemo==
+
+<pre>
+%s(%d): xyz_t: %s (%f %f %f)
+../z_onepointdemo.c
+
+[41;37monepointdemo camera: demo number not found !! (%d)[m
+[41;37monepoint demo: error: too many cameras ... give up! type=%d[m
+[43;30monepointdemo camera[%d]: killed 'coz low priority (%d < %d)[m
+onepointdemo camera[%d]: delete timer=%d next=%d
+[43;30mactor attention demo camera: canceled by other camera[m
+[43;30mactor attention demo camera: change mode BOOKEEPON -> NORMAL[m
+[43;30mactor attention demo camera: %d: unkown part of actor %d[m
+[36m%06u:[m actor attention demo camera: request %d
+→
+[35m×[m (%d) →
+[34m○[m (%d)
+
+[41;37mactor attention demo: give up![m
+</pre>
+
+==Map_EXP==
+
+<pre>
+[33mPALETTE Set 【 i=%x: room=%x 】Room_Inf[%d][4]=%x ( map_palete_no = %d )[m
+[34mＫＫＫ＝%d[m
+../z_map_exp.c
+[33mDeku Tree Dungeon MAP Texture DMA (%x) scene_id_offset=%d VREG(30)=%d[m
+../z_map_exp.c
+MAP Floor ON Check
+＊＊＊＊＊＊＊ ＊＊＊＊＊＊＊ room_no=%d (%d)(%d) ＊＊＊＊＊＊＊ ＊＊＊＊＊＊＊
+ROOM_INF＝%d
+[33m Room Room＝%d[m
+../z_map_exp.c
+MAP Texture Initialization scene_data_ID=%d mapSegment=%x
+parameter->mapSegment != NULL
+../z_map_exp.c
+../z_map_exp.c
+../z_map_exp.c
+../z_map_exp.c
+../z_map_exp.c
+../z_map_exp.c
+Game_play_demo_mode_check=%d
+../z_map_exp.c
+Current Floor＝%d Current Room＝%x Room Count＝%d
+[33mLevel Change＝%x[m
+
+</pre>
+
+==Parameter==
+
+<pre>
+ＡＬＰＨＡーＴＹＰＥ＝%d LAST_TIME_TYPE=%d
+a_alpha=%d, c_alpha=%d →
+a_alpha=%d, c_alpha=%d
+***(i=%d)***
+???????? alpha_change( 50 ); ?????
+game_play->fade_direction || game_play->fbdemo_wipe_modem
+Button Display-Related Data Settings scene_data_ID=%d
+[33mparameter->button_status = %x,%x,%x
+h_gage=%d, b_button=%d, a_button=%d, c_bottle=%d
+c_warasibe=%d, c_hook=%d, c_ocarina=%d, c_warp=%d
+c_sunmoon=%d, m_wind=%d, m_magic=%d, another=%d[m
+Register_Item_Pt(%d)=%d
+Register_Item_Pt(%d)=%d
+../z_parameter.c
+../z_parameter.c
+
+[33mitem_get_setting=%d pt=%d z=%x[m
+[33m Seal = %x[m
+[33m Sheet Music = %x
+Sheet Music = %x (%x) (%x)[m
+[33m Spiritual Stone = %x[m
+[33m Item = %x[m
+[33m N Coin = %x(%d)[m
+Deku Nut %d(%d)=%d BS_count=%d
+Bomb Bomb Bomb Bomb Bomb Bomb Bomb
+%d Units Item_MaxGet=%d
+Recovery Heart Recovery Heart Recovery Heart Item_Pt(1)=%d Item_Pt(2)=%d Item_Pt(3)=%d Empty Bottle=%d Contents=%d
+Item_Register(%d)=%d %d
+[32mitem_get_non_setting=%d pt=%d z=%x[m Magic Jar Get_Inf_Table( 25, 0x0100)=%d
+Item_Register(%d)
+Item Delete(%d)
+item_no=%x, c_no=%x, Pt=%x Item_Register=%x Fairies Used＝%d
+../z_parameter.c
+../z_parameter.c
+
+＊＊＊＊＊ Fluctuation=%d (now=%d, max=%d) ＊＊＊
+Hearts decreased by half!!＝%d Life=%d ＊＊＊ %d ＊＊＊＊＊＊
+Item = (%d) Count = (%d + %d)
+Total = (%d)
+Charge MAGIC_NOW=%d (%d)
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+../z_parameter.c
+
+EVENT_INF=%x
+event_xp[1]=%d, event_yp[1]=%d TOTAL_EVENT_TM=%d
+TOTAL_EVENT_TM=%d
+../z_parameter.c
+
+J_N=%x J_N=%x
+J_N=%x J_N=%x
+J_N=%x J_N=%x
+case 50: alpha=%d alpha1=%d
+now_life=%d max_life=%d
+S_Private.now_life=%d S_Private.max_life=%d
+Rupee Count ＭＡＸ = %d
+[33m Magic Staaaaaart!!!!!!!!!
+MAGIC_MAX=%d
+MAGIC_NOW=%d
+Z_MAGIC_NOW_NOW=%d
+Z_MAGIC_NOW_MAX=%d[m
+</pre>
+
+==Prenmi==
+
+<pre>
+[43;30mprenmi_move[m
+../z_prenmi.c
+
+(int)volume = %d
+[43;30mprenmi_draw[m
+../z_prenmi.c
+../z_prenmi.c
+
+[43;30mquake: too many request %d is changed new one !![m
+[43;30mquake: stopped! 'coz camera [%d] killed!![m
+</pre>
+
+==RCP==
+
+<pre>
+n != f
+../z_rcp.c
+n != f
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+../z_rcp.c
+</pre>
+
+==Room==
+
+<pre>
+../z_room.c
+../z_room.c
+../z_room.c
+polygon2->num <= SHAPE_SORT_MAX
+../z_room.c
+../z_room.c
+JPEG Data expanding.
+JPEG Data Address %08x
+Work Buffer Address （Ｚ Buffer ）%08x
+Successful... I think. time = %6.3f ms
+Rewriting to original address from work buffer. If the original buffer size isn't 150 kilobytes, bad things will happen.
+Failure! Why~
+../z_room.c
+../z_room.c
+[41;37mz_room.c
+: Data corresponding to the camera ID doesn't exist. camid=%d[m
+../z_room.c
+../z_room.c
+../z_room.c
+../z_room.c
+ROOM%d size=%d
+../z_room.c
+game_play->room_rom_address.num = %d
+DOOR%d=<%d> ROOM1=<%d, %d> ROOM2=<%d, %d>
+[33m Room Buffer Size =%08x(%5.1fK)
+../z_room.c
+Room Buffer Start Pointer =%08x
+Room Buffer End Pointer =%08x[m
+read_room_ID < game_play->room_rom_address.num
+../z_room.c
+../z_room.c
+this->ground_shape->polygon.type < number(Room_Draw_Proc)
+../z_room.c
+</pre>
+
+==Sample==
+
+<pre>
+../z_sample.c
+../z_sample.c
+../z_sample.c
+../z_sample.c
+</pre>
+
+==Scene==
+
+<pre>
+Equipment Item Deletion = %d zzz=%d
+OBJECT[%d] SIZE %fK SEG=%x
+num=%d adrs=%x end=%x
+this->num < OBJECT_EXCHANGE_BANK_MAX && (this->status[this->num].Segment + size) < this->endSegment
+../z_scene.c
+../z_scene.c
+
+[32m Object Exchange Bank Data %8.3fKB[m
+../z_scene.c
+
+OBJECT EXCHANGE BANK-%2d SIZE %8.3fK SEG=%08x
+../z_scene.c
+
+OBJECT[%d] SIZE %fK SEG=%x
+num=%d adrs=%x end=%x
+../z_scene.c
+
+OBJECT EXCHANGE NO=%2d BANK=%3d SIZE=%8.3fK
+nextptr < this->endSegment
+../z_scene.c
+
+Object Exchange Free Size =%08x
+*** Scene_Word = { code=%d, data1=%02x, data2=%04x } ***
+[31mSomething's up with the code value.[m
+scene_info->object_bank.num <= OBJECT_EXCHANGE_BANK_MAX
+../z_scene.c
+
+[ZU]sceneset age =[%X]
+[ZU]sceneset time =[%X]
+[ZU]sceneset counter=[%X]
+Guhh! The designated data doesn't exist!
+Adult (Day) Data will be used instead!! game_play->demo_play.data=[%x]０００ ａｒｅａ＿ａｒｒｉｖａｌ＝%x (%d)
+</pre>
+
+==Scene_Table==
+
+<pre>
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+../z_scene_table.c
+</pre>
+
+==Skelanime==
+
+<pre>
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+
+[31mSi2_Lod_draw(): skel is NULL.[m
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+
+[31mSi2_Lod_draw_SV(): skel is NULL.[m
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+
+[31mSi2_draw(): skel is NULL.[m
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+
+[31mSi2_draw_SV(): skel is NULL.[m
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+
+out = %08x
+../z_skelanime.c
+
+ref_tbl = %08x
+../z_skelanime.c
+
+frame_tbl = %08x
+../z_skelanime.c
+
+tbl = %08x
+../z_skelanime.c
+
+[31mSi2_draw2(): skel is NULL. NULL will be returned.[m
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+
+[31mSi2_draw2_SV(): skel is NULL. NULL will be returned.[m
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+../z_skelanime.c
+
+joint_buff_num == joint_num
+../z_skelanime.c
+
+[31mSkeleton_Info_Rom_SV_ct Memory Allocation Error[m
+../z_skelanime.c
+../z_skelanime.c
+
+joint_buff_num == this->joint_num
+../z_skelanime.c
+
+[31mSkeleton_Info2_ct Memory Allocation Error[m
+../z_skelanime.c
+../z_skelanime.c
+
+joint_buff_num == this->joint_num
+../z_skelanime.c
+
+[31mSkeleton_Info_Rom_SV_ct Memory Allocation Error[m
+../z_skelanime.c
+../z_skelanime.c
+
+[31mSkeleton_Info2_skin2_ct Memory Allocation Error[m
+../z_skelanime.c
+
+now_joint can't be opened!!
+../z_skelanime.c
+
+morf_joint can't be opened!!
+</pre>
+
+==Skin==
+
+<pre>
+../z_skin.c
+../z_skin.c
+../z_skin.c
+../z_skin.c
+../z_skin.c
+../z_skin.c
+../z_skin.c
+../z_skin.c
+</pre>
+
+==Skin_AWB==
+
+<pre>
+../z_skin_awb.c
+pskin_awb->avb_tbl != NULL
+../z_skin_awb.c
+../z_skin_awb.c
+psavb->buf[0] != NULL
+../z_skin_awb.c
+../z_skin_awb.c
+psavb->buf[1] != NULL
+../z_skin_awb.c
+../z_skin_awb.c
+../z_skin_awb.c
+../z_skin_awb.c
+
+
+[43;30mSkin_Matrix_InverseMatrix(): Cannot create inverse matrix.[m
+Skin_Matrix_to_Mtx_new() Allocation Failure: Returning NULL, process will end.
+</pre>
+
+==SRAM==
+
+<pre>
+Personal File Creation
+Point＝%x(%d)
+[33mSCENE_DATA_ID = %d SceneNo = %d
+scene_no = %d[m
+[34m ====================================================================
+%d,
+====================================================================[m
+[32m ====================================================================
+%d,
+====================================================================[mＳＲＡＭ ＳＴＡＲＴ─ＬＯＡＤ
+Point＝%x(%d) SAVE_MAX=%d
+＝＝＝＝＝＝＝＝＝＝＝＝＝ Ｓ（%d）＝＝＝＝＝＝＝＝＝＝＝＝＝
+ＳＡＶＥ Checksum Calculation j=%x mmm=%x
+ＥＲＲＯＲ!!!＝ %x(%d) ================= ＢＡＣＫ─ＵＰ ========================
+（Ｂ）ＳＡＶＥ Checksum Calculation j=%x mmm=%x
+ＥＲＲＯＲ!!!＝ %x(%d+3)
+newf=%x,%x,%x,%x,%x,%x
+--------------------------------------------------------------
+%x
+
+Check_Sum=%x(%x)
+????#%x,%x,%x,%x,%x,%x
+Point＝%x(%d+3) check_sum=%x(%x)
+Point＝%x(%d) check_sum=%x(%x)
+ＳＡＶＥ Data ＯＫ!!!!
+SAVECT=%x, NAME=%x, LIFE=%x, ITEM=%x, 64DD=%x, HEART=%x
+f_64dd=%d, %d, %d
+heart_status=%d, %d, %d
+now_life=%d, %d, %d
+６４ＤＤ Flag=%d
+newf=%x,%x,%x,%x,%x,%x
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+%x
+
+Checksum＝%x
+I=%x no=%d I=%x no=%d
+ＳＡＶＥ End
+z_common_data.file_no = %d
+SAVECT=%x, NAME=%x, LIFE=%x, ITEM=%x, SAVE_64DD=%x
+f_64dd[%d]=%d
+heart_status[%d]=%d
+now_life[%d]=%d
+ＣＬＥＡＲ End
+ＲＥＡＤ=%d(%x) ＣＯＰＹ=%d(%x)
+f_64dd[%d]=%d
+heart_status[%d]=%d
+ＣＯＰＹ End
+sram_initialize( Game *game, Sram *sram )
+ＳＲＡＭ broken!!!!!!
+ＳＲＡＭ broken!!!!!!
+ＧＯＯＤ!ＧＯＯＤ! Size＝%d + %d＝ %d
+
+[34mNa_SetSoundOutputMode = %d
+Na_SetSoundOutputMode = %d
+Na_SetSoundOutputMode = %d[m
+../z_sram.c
+sram->read_buff != NULL
+../z_sram.c
+ L L L L L L L L L L L L L L    d l x       
+
+
+
+ssSRAMReadWrite: %08x %08x %08x %d
+</pre>
+
+==View==
+
+<pre>
+../z_view.c
+../z_view.c
+view: initialize ---
+ulx >= 0
+../z_view.c
+uly >= 0
+../z_view.c
+lrx <= SCREEN_WD
+../z_view.c
+lry <= SCREEN_HT
+../z_view.c
+../z_view.c
+../z_view.c
+../z_view.c
+../z_view.c
+vp
+../z_view.c
+projection
+../z_view.c
+fovy %f near %f far %f scale %f aspect %f normal %08x
+projection
+%f%f%f%f
+
+viewing
+../z_view.c
+viewing
+%f%f%f%f
+
+../z_view.c
+../z_view.c
+vp
+../z_view.c
+projection
+../z_view.c
+../z_view.c
+../z_view.c
+vp
+../z_view.c
+projection
+../z_view.c
+../z_view.c
+../z_view.c
+vp
+../z_view.c
+projection
+../z_view.c
+viewing
+../z_view.c
+../z_view.c
+../z_view.c
+../z_view.c
+vp
+../z_view.c
+projection
+../z_view.c
+projection
+../z_view.c
+viewing
+../z_view.c
+[31meye is too big. eye=[%8.3f %8.3f %8.3f] error=%d[m
+F
+NF
+</pre>
+
+==ViMode==
+
+<pre>
+../z_vimode.c
+
+osvimodep = %08x
+../z_vimode.c
+
+osvimodep->comRegs.c
+trl = %08x
+../z_vimode.c
+
+osvimodep->comRegs.width = %08x
+../z_vimode.c
+
+osvimodep->comRegs.burst = %08x
+../z_vimode.c
+
+osvimodep->comRegs.vSync = %08x
+../z_vimode.c
+
+osvimodep->comRegs.hSync = %08x
+../z_vimode.c
+
+osvimodep->comRegs.leap = %08x
+../z_vimode.c
+
+osvimodep->comRegs.hStart = %08x
+../z_vimode.c
+
+osvimodep->comRegs.xScale = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[0].vStart = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[0].vBurst = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[0].origin = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[0].yScale = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[0].vIntr = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[1].vStart = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[1].vBurst = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[1].origin = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[1].yScale = %08x
+../z_vimode.c
+
+osvimodep->fldRegs[1].vIntr = %08x
+osViModePalLan1
+osViModeFpalLan1
+Custom
+</pre>
+
+==ViMono==
+
+<pre>
+../z_vismono.c
+../z_vismono.c
+glistp_end = %08x
+../z_vismono.c
+mono_dl = %08x
+../z_vismono.c
+mono_dl + (1+3+1+1+80*(7+2+2+3)+1) = %08x
+../z_vismono.c
+(1+3+1+1+80*(7+2+2+3)+1) = %08x
+glistp_end <= mono_dl + DLSIZE
+../z_vismono.c
+../z_vismono.c
+../z_vismono.c
+glistp_end <= this->mono_dl + DLSIZE
+../z_vismono.c
+</pre>
+
+==VR_Box==
+
+<pre>
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[1] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[1] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+
+ＳＩＺＥ = %d
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[1] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+
+ＳＩＺＥ = %d
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[0] != NULL
+../z_vr_box.c
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->vr_box_staticSegment[2] != NULL
+../z_vr_box.c
+../z_vr_box.c
+
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊ ＴＹＰＥ＝%d ＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+[32m../z_vr_box.c
+
+vr_box->dpList != NULL
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->roomVtx != NULL
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->dpList != NULL
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->roomVtx != NULL
+../z_vr_box.c
+../z_vr_box.c
+
+vr_box->roomVtx != NULL
+../z_vr_box.c
+[m
+</pre>
+
+==FBDemo==
+
+<pre>
+col * (1 + this->row * (1 + 7 + 1)) + 1 + 1 = %d
+../z_fbdemo.c
+
+gp - this->gfxtbl = %d fbdemo_cleanup(%08x)
+msleep(100);
+../z_fbdemo.c
+../z_fbdemo.c
+../z_fbdemo.c
+../z_fbdemo.c
+
+fbdemo_init(%08x, %d, %d)
+../z_fbdemo.c
+../z_fbdemo.c
+../z_fbdemo.c
+../z_fbdemo.c
+
+fbdemo_init allocation error
+../z_fbdemo.c
+../z_fbdemo.c
+../z_fbdemo.c
+../z_fbdemo.c
+</pre>
+
+==DB_Camera==
+
+<pre>
+rate=%f tx=%f ty=%f rotate=%f
+< >
+< <
+< >
+*Player*
+E Mode Relative
+E Mode Absolute
+Screen Cutscene
+Screen Normal
+P Time MAX
+Link Flashback
+Link Ignore
+*View Position*
+*Camera Position*
+DEBUG CAMERA
+Center/Lock Center/Free
+DEMO CONTROL
+Inadequate Memory
+p
+e
+s
+l
+c
+Memory Pack
+Save
+Load
+Clear
+shouldn't be removed.
+FREE BYTE
+NEED BYTE
+*Memory Pack*
+cannot be found.
+File
+OK?
+Currently edited
+ﾌｧｲﾙﾊﾊｷｻﾚﾏｽ
+Yes
+No
+now.
+Overwriting
+complete.
+USE BYTE
+failed.
+E Mode Fixed
+static SplinedatZ %s[] = {
+/* key frame %2d */ {
+
+/* code */ %d,
+/* z */ %d,
+/* T */ %d,
+/* zoom */ %f,
+/* pos */ { %d, %d, %d }
+
+},
+};
+
+
+%d,%d,%d,%d,
+
+%d,%d,
+
+%d,%d,
+
+0,0,0,2,/* Look Camera */
+
+0,1,/* action */
+
+0,0,/* Start Frame */
+/* End Frame */
+0,0,/* Dummy */
+
+
+%d, /* code */
+
+%d, /* z */
+/* speed */
+/* zoom */
+/* x pos */
+/* y pos */
+/* z pos */
+
+0,0,/* Dummy*/
+
+
+0,0,0,1,/* Position Camera */
+
+0,1,/* action */
+
+0,0,/* Start Flame*//* End Flame */
+
+0,0,/* Dummy*/
+
+
+%d, /* code */
+
+%d, /* z */
+/* speed */
+/* zoom */
+/* x pos */
+/* y pos */
+/* z pos */
+
+0,0, /* Dummy */
+
+
+
+/* *** spline point data ** start here *** */
+
+Lookat
+Position
+
+static short nPoints = %d;
+
+static short nFrames = %d;
+
+static short Mode = %d;
+
+
+
+
+/* *** spline point data ** finish! *** */
+
+../db_camera.c
+%s: %d: Debug Camera Memory Allocation Failure !!
+../db_camera.c
+../db_camera.c
+%s: %d: Debug Camera Memory Allocation Failure !!
+../db_camera.c
+../db_camera.c
+../db_camera.c
+../db_camera.c
+../db_camera.c
+%s: %d: Debug Camera Memory Allocation Failure !!
+../db_camera.c
+../db_camera.c
+%s: %d: Debug Camera Memory Allocation Failure !!
+../db_camera.c
+
+
+
+/* ****** spline point data ** start here ***** */
+
+
+/* ** %d ** */
+
+Lookat
+Position
+
+static short nPoints = %d;
+
+static short nFrames = %d;
+
+static short Mode = %d;
+
+
+
+
+/* ****** spline point data ** finish! ***** */
+
+PRESS B BUTTON
+PRESS B BUTTON
+PRESS B BUTTON
+_
+>
+###%2d: (%c) (%d %d) %d %d %d
+
+/* CUT [%d]*/
+</pre>
+
+==Kaleido_Manager==
+
+<pre>
+mempak: find '%c' (%d)
+mempak: find '%c' - '%c' %02x
+mempak: write %d byte '%c' (%d)->%d
+mempak: read %d byte '%c' (%d)<-%d
+mempak: alloc %d byte '%c' (%d)
+mempak: resize %d byte '%c' (%d)
+mempak: alloc %d byte '%c' (%d) with search
+mempak: delete '%c' (%d)
+
+
+kaleido_scope
+player_actor
+KaleidoArea_allocp
+../z_kaleido_manager.c
+[32mOVL(k): Seg: %08x-%08x Ram: %08x-%08x Off: %08x %s[m
+[32mKaleidoArea's max size allocating %d bytes.[m
+../z_kaleido_manager.c
+KaleidoArea_allocp
+../z_kaleido_manager.c
+[32mKaleidoArea %08x - %08x[m
+Odd
+</pre>
+
+==Kaleido_Scope_Call==
+
+<pre>
+[32m Kaleido Range Forced Removal[m
+[32m Player Actor Call[m
+Kaleido ・ Scope Exchange Construct
+../z_kaleido_scope_call.c
+
+kaleido_scope_move = %08x
+../z_kaleido_scope_call.c
+
+kaleido_scope_move_func = %08x
+../z_kaleido_scope_call.c
+
+kaleido_scope_draw = %08x
+../z_kaleido_scope_call.c
+
+kaleido_scope_draw_func = %08x
+Kaleido ・ Scope Exchange Destruct
+PR_KAREIDOSCOPE_MODE=%d
+[32m Kaleido Range Player Forced Removal[m
+[32m Kaleido Range Kaleido Scope Call[m
+[32m Kaleido Range Kaleido Scope Removal[m
+</pre>
+
+==Play==
+
+<pre>
+point == 1 || point == 2
+../z_play.c
+Game_play_shop_pr_vr_switch_set()
+../z_play.c
+SCENE_NO=%d COUNTER=%d
+The ending's gonna start!
+Return?
+ZELDA ALLOC SIZE=%x
+../z_play.c
+Zelda Heap %08x-%08x
+player has start camera ID (
+[34m%d[m)
+kawauso_data=[%x]
+object_exchange_rom_address %u
+RomStart RomEnd Size %08x-%08x %08x(%8.3fKB)
+
+Failed to call fbdemo_init!
+Sound initial has arrived. 111
+Sound initial has arrived. 222
+../z_play.c
+"It's here!!!!!!!!!!!!!!!!!!!!!" = %s
+It's here!!!!!!!!!!!!!!!!!!!!!
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+FINISH=%d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+[36m POV cannot be changed while in Kaleido Scope.[m
+[36m POV cannot be changed during cutscenes.[m
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+../z_play.c
+../z_play.c
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+1 = %d
+../z_play.c
+../z_play.c
+SCENE SIZE %fK
+this->sceneSegment != NULL
+../z_play.c
+ROOM SIZE=%fK
+[41;37mcamera control: error: fulled sub camera system area[m
+camera control: 
+[46m
+[47;34m create new sub camera [%d]
+[46m[m
+[41;37mcamera control: error: never clear camera !![m
+camera control: 
+[46m
+[47;34m clear sub camera [%d]
+[46m[m
+
+[41;37mcamera control: error: camera No.%d already cleared[m
+[41;37mcamera control: error: return to main, other camera left. %d cleared!![m
+</pre>
+
+==PreRender==
+
+<pre>
+this
+../PreRender.c
+glistpp../PreRender.c
+glistp
+../PreRender.c
+this
+../PreRender.c
+glistpp
+../PreRender.c
+glistp
+../PreRender.c
+this
+../PreRender.c
+glistpp../PreRender.c
+glistp
+../PreRender.c
+this
+../PreRender.c
+glistpp
+../PreRender.c
+glistp
+../PreRender.c
+this->zbuf_save../PreRender.c
+this->zbuf
+../PreRender.c
+this->fbuf_save
+../PreRender.c
+this->fbuf
+../PreRender.c
+this->cvg_save
+../PreRender.c
+this
+../PreRender.c
+glistpp
+../PreRender.c
+glistp
+../PreRender.c
+Error, should not be in here
+red=%3d %3d %3d %3d grn=%3d %3d %3d %3d blu=%3d %3d %3d %3d
+Audio Manager received OS_SC_PRE_NMI_MSG.
+Audio Manager Thread Execution Start
+
+
+Zelda Common Data Initialization
+
+last_button=%04x
+%08x
+%c
+</pre>
+
+==Game==
+
+<pre>
+../game.c
+
+Hyrule's destruction will occur in %08x bytes. (game_alloc)
+../game.c
+../game.c
+../game.c
+../game.c
+../game.c
+
+Hyrule Allocation Size＝%u Bytes
+../game.c
+
+Hyrule Allocation Success
+Hyrule Allocation Failure
+../game.c
+
+Hyrule temporarily deallocated!!
+%c
+[31m Memory insufficient. Hyrule's size will be adjusted to the largest size possible.
+(hyral=%08x max=%08x free=%08x alloc=%08x)[m
+Hyrule Reallocation Size＝%u Byte
+../game.c
+
+Hyrule Reallocation Success
+Hyrule Reallocation Failure ../game.c
+
+game Constructor Start
+game_set_next_game_null Processing Time %d us gamealloc_init Processing Time %d us
+init Processing Time %d us
+this->cleanup
+../game.c
+
+Other Initialization Processing Time %d us
+game Constructor End
+game Destructor Start
+this->cleanup
+../game.c
+
+game Destructor End
+Hyrule is being destroyed.
+Hyrule is close to destruction! Only %d bytes left.（Destruction will occur in %d bytes.）
+Hyrule was destroyed.
+</pre>
+
+==Game_Alloc==
+
+<pre>
+[32mgame_alloc(%08x) %08x-%08x [%s: %d][m
+
+this = %08x
+ptr = %08x size = %d
+../gamealloc.c
+ptr->prev
+../gamealloc.c
+ptr->next
+../gamealloc.c
+../gamealloc.c
+../gamealloc.c
+</pre>
+
+==Graph==
+
+<pre>
+vtx_cnt=%d
+spvtx_cnt=%d
+tri1_cnt=%d
+tri2_cnt=%d
+quad_cnt=%d
+line_cnt=%d
+sync_err=%d
+loaducode_cnt=%d
+dl_depth=%d
+dl_cnt=%d
+../graph.c
+game_init_func = %08x
+[31mRCP didn't return.[m
+RCP is HUNG UP!!
+Oh! MY GOD!!
+../graph.c
+../graph.c
+../graph.c
+WORK_DISP Start
+POLY_OPA_DISP Start
+POLY_XLU_DISP Start
+OVERLAY_DISP Start
+../graph.c
+../graph.c
+WORK_DISP End
+POLY_OPA_DISP End
+POLY_XLU_DISP End
+OVERLAY_DISP End
+../graph.c
+../graph.c
+../graph.c
+do_count_fault
+%c
+[41;37mDynamic range head is broken.[m
+../graph.c
+%c
+[41;37mDynamic range tail is broken.[m
+../graph.c
+%c
+[41;37m Zelda 0 has perished. (graph_alloc is empty)[m
+%c
+[41;37m Zelda 1 has perished. (graph_alloc is empty)[m
+%c
+[41;37m Zelda 4 has perished. (graph_alloc is empty)[m
+[43;30mPRE-NMI switching to reset mode.[m
+Graphic Thread Execution Start
+Class Size＝%d Byte
+../graph.c
+Allocation Failure
+CLASS SIZE= %d bytes
+GAME CLASS MALLOC FAILED
+../graph.c
+Graphic Thread Execution End
+graph_alloc siz=%d thga size=%08x bufp=%08x head=%08x tail=%08x
+graph_alloc siz=%d thga size=%08x bufp=%08x head=%08x tail=%08x
+</pre>
+
+==ListAlloc==
+
+<pre>
+../listalloc.c
+../listalloc.c
+[32mSystem Heap Size %08x(%dKB) Start Address %08x[m
+</pre>
+
+==Main==
+
+<pre>
+mainproc Execution Start
+System Heap Initialization %08x-%08x %08x
+../main.c
+
+debug_InitArena(%08x, %08x)
+irqmgr
+Task Scheduler Initialization
+sched
+audio
+padmgr
+graph
+main.c
+:Looks like it's been reset.
+mainproc Cleanup
+mainproc Execution End
+
+%2d %d Waiting to Lock serialMsgQ %08x %08x %08x
+%2d %d serialMsgQ Locked %08x
+%2d %d serialMsgQ Lock Will Be Released %08x %08x %08x
+%2d %d serialMsgQ Lock Released %08x %08x %08x
+</pre>
+
+==PadMgr==
+
+<pre>
+[33mpadmgr: Controller %d: %s Rumble Pack ~Rumble Rumble Rumble~[m
+[33mpadmgr: Controller %d: %s Rumble Pack transmission error has occurred.[m
+[33mpadmgr: Controller %d: %s Rumble Pack Stop[m
+[33mpadmgr: Controller %d: %s Rumble Pack transmission error has occurred.[m
+[33mpadmgr: Controller %d: %s Rumble Pack has been removed.[m
+[33mpadmgr: Controller %d: %s A non-Rumble Pack controller pack has been removed.[m
+[33mpadmgr: Controller %d: %s Rumble Pack recognized.[m
+../padmgr.c
+++errcnt = %d
+[33mpadmgr: Controller %d: %s Controller Pack Transmission Error[m
+[33mpadmgr: Controller %d: %s Rumble Pack Stop[m
+[33mpadmgr: Controller %d: %s recognized.[m
+../padmgr.c
+this->Key_switch[i] = %d
+[33mpadmgr: Controller %d: %s Too high: Run error occurred.[m
+[33mpadmgr: Controller %d: %s isn't responding.[m
+../padmgr.c
+padnow1->errno = %x
+../padmgr.c
+../padmgr.c
+this->pad_status[i].type = %x
+An unknown controller type is connected.
+padmgr_HandlePreNMI()
+Controller Thread Execution Start
+Waiting on Controller Thread Event %lld
+msg
+../padmgr.c
+padmgr_HandleRetraceMsg START %lld
+padmgr_HandleRetraceMsg END %lld
+Controller Thread Execution End
+Pad Manager Creation padmgr_Create()
+</pre>
+
+==Sched==
+
+<pre>
+cfbinfo->swapbuffer
+../sched.c
+osViSwapBuffer %08x %08x %08x
+../sched.c
+(((u64)(now - audio_rsp_start_time)*(1000000LL/15625LL))/((62500000LL*3/4)/15625LL)) = %lld
+../sched.c
+(((u64)(now - graph_rsp_start_time)*(1000000LL/15625LL))/((62500000LL*3/4)/15625LL)) = %lld
+../sched.c
+(((u64)(now - rdp_start_time)*(1000000LL/15625LL))/((62500000LL*3/4)/15625LL)) = %lld
+(type == M_AUDTASK) || (type == M_GFXTASK) || (type == M_NJPEGTASK) || (type == M_NULTASK)
+../sched.c
+Audio task entered.
+Graph task entered.
+sc->curRSPTask->list.t.type != M_AUDTASK
+../sched.c
+%08d: osSpTaskYield
+sc->pending_swapbuffer1
+../sched.c
+sc->pending_swapbuffer2../sched.c
+sc->pending_swapbuffer1
+../sched.c
+sc->curRSPTask == NULL
+../sched.c
+%08d: osSpTaskStartGo(%08x) %s
+AUDIO
+GRAPH
+OTHER
+[YIELD B]
+EN sc: %08x sp: %08x dp: %08x state: %x
+%08d: scHandleRetrace %08x
+%08x %08x %08x %d
+sc->curRSPTask
+../sched.c
+RSP DONE %d %d
+[YIELDED]
+[NOT YIELDED]
+SP sc: %08x sp: %08x dp: %08x state: %x
+sc->curRDPTask
+../sched.c
+sc->curRDPTask->list.t.type == M_GFXTASK
+../sched.c
+DP sc: %08x sp: %08x dp: %08x state: %x
+osScKickEntryMsg
+%08d: Standby
+%08d: ENTRY_MSG %08d: RSP_DONE_MSG
+%08d: RDP_DONE_MSG
+</pre>
+
+==Speed_Meter==
+
+<pre>
+this
+../speed_meter.c
+../speed_meter.c
+../speed_meter.c
+
+[31m../speed_meter.c
+
+this->maxval = %d[m
+../speed_meter.c
+../speed_meter.c
+</pre>
+
+==Sys_CFB==
+
+<pre>
+Over 8M bytes of memory is equipped.
+RAM 8M mode (N64DD Compatible)
+The margins of this verison are %dK bytes.
+RAM4M mode
+../sys_cfb.c
+
+The last address used by the system is %08x.
+The frame buffer addresses are %08x and %08x.
+</pre>
+
+==[?]==
+
+<pre>
+[43;30mMath3D_lineVsPosSuisenCross(): Linear length doesn't exist.
+cross = pos will be returned.[m
+[43;30mMath3DLengthPlaneAndPos(): Normal vector size is close to zero. %f %f %f[m
+[43;30mMath3DSignedLengthPlaneAndPos(): Normal vector size is close to zero. %f %f %f[m
+</pre>
+
+==Sys_Matrix==
+
+<pre>
+../sys_matrix.c
+Matrix_now >= Matrix_stack
+../sys_matrix.c
+%s %d: [%s] = / %12.6f %12.6f %12.6f %12.6f \ | %12.6f %12.6f %12.6f %12.6f | | %12.6f %12.6f %12.6f %12.6f | \ %12.6f %12.6f %12.6f %12.6f /
+</pre>
+
+==IRQMgr==
+
+<pre>
+[31m **** Freeze!! ****[m
+this
+../irqmgr.c
+c
+../irqmgr.c
+msgQ
+../irqmgr.c
+this
+../irqmgr.c
+c
+../irqmgr.c
+[41;37mirqmgr_SendMesgForClient: Message queue is full. mq=%08x cnt=%d[m
+[41;37mirqmgr_JamMesgForClient: Message queue is full. mq=%08x cnt=%d[m
+irqmgr.c
+: 0.5 seconds passed since PRENMI
+The stack seems alright.
+%c
+[31mSomething's wrong - Possible stack overflow. Hurry and increase the stack size, or avoid consuming the stack.[m
+osAfterPreNMI returned %d?!
+ＩＲＱ Manager Thread Execution Start
+PRE_NMI_MSG
+Scheduler：PRE_NMI Message Received
+PRENMI450_MSG
+Scheduler：PRENMI450 Message Received
+PRENMI480_MSG
+Scheduler：PRENMI480 Message Received
+PRENMI500_MSG
+Scheduler：PRENMI500 Message Received
+irqmgr.c
+: Unexpected message received. (%08x)
+IRQ Manager Thread Execution End
+this
+../irqmgr.c
+stack
+../irqmgr.c
+</pre>
+
+==[?]==
+
+<pre>
+%s: %u Bytes %s Failure
+%s: %u Bytes %s Success
+debug_malloc
+Allocation
+debug_malloc_DEBUG
+Allocation
+debug_malloc_r
+Allocation
+debug_malloc_r_DEBUG
+Allocation
+debug_realloc
+Reallocation
+debug_realloc_DEBUGReallocation
+debug_calloc
+Allocation
+Zelda Heap Display
+</pre>
+
+==Crash Debugger==
+
+<pre>
+Interrupt
+TLB modification
+TLB exception on load
+TLB exception on store
+Address error on load
+Address error on store
+Bus error on inst.
+Bus error on data
+System call exception
+Breakpoint exception
+Reserved instruction
+Coprocessor unusable
+Arithmetic overflow
+Trap exception
+Virtual coherency on inst.
+Floating point exception
+Watchpoint exception
+Virtual coherency on data
+Unimplemented operationInvalid operation
+Division by zero
+Overflow
+Underflow
+Inexact operation
+[41;37mfault_AddClient: %08x is already listed.[m
+[41;37mfault_RemoveClient: %08x doesn't match the list.[m
+[41;37mfault_AddressConverterAddClient: %08x is already listed.[m
+[41;37mfault_AddressConverterRemoveClient: %08x is already listed.[m
+F%02d: %14.7e
+F%02d: %08x(16)
+F%02d: %14.7e
+F%02d: %08x(16)
+FPCSR: %08xH
+(%s)
+
+FPCSR: %08xH
+(%s)
+THREAD: %d (%d: %s)
+PC: %08xH SR: %08xH VA: %08xH
+AT: %08xH V0: %08xH V1: %08xH A0: %08xH A1: %08xH A2: %08xH
+A3: %08xH T0: %08xH T1: %08xH
+T2: %08xH T3: %08xH T4: %08xH
+T5: %08xH T6: %08xH T7: %08xH S0: %08xH S1: %08xH S2: %08xH
+S3: %08xH S4: %08xH S5: %08xH
+S6: %08xH S7: %08xH T8: %08xH
+T9: %08xH GP: %08xH SP: %08xH S8: %08xH RA: %08xH LO: %08xH
+
+
+
+
+
+
+
+
+
+
+THREAD ID: %d (%d: %s)
+PC: %08xH SR: %08xH VA: %08xH AT: %08xH V0: %08xH V1: %08xH A0: %08xH A1: %08xH A2: %08xH A3: %08xH T0: %08xH T1: %08xH T2: %08xH T3: %08xH T4: %08xH T5: %08xH T6: %08xH T7: %08xH S0: %08xH S1: %08xH S2: %08xH S3: %08xH S4: %08xH S5: %08xH S6: %08xH S7: %08xH T8: %08xH T9: %08xH GP: %08xH SP: %08xH S8: %08xH RA: %08xH LO: %08xH
+
+
+
+
+
+
+
+
+
+[37mKeyWaitB (ＬＲＺ
+[37mUp
+[33mDown
+[33mUp
+[37mDown
+[37mLeft
+[33mLeft
+[33mRight
+[37mRight
+[32mB
+[34mA
+[31mSTART
+[37m)[m
+[37mKeyWaitB'(ＬＲ Left
+[33mRight +
+[31mSTART
+[37m)[m
+%s %08x
+PrintDump
+%06x
+%08x
+Dump
+SP PC (VPC)
+%08x %08x
+-> %08x
+STACK TRACE SP PC (VPC)
+%08x %08x
+-> %08x
+
+8CallBack (%d) %08x %08x %08x 7
+Fault Manager: OS_EVENT_CPU_BREAK received.
+Fault Manager: OS_EVENT_FAULT received.
+Fault Manager: Unclear message received.
+__osGetCurrFaultedThread()=%08x
+FindFaultedThread()=%08x
+STACK TRACE
+CONGRATURATIONS!
+All Pages are displayed.
+THANK YOU!
+You are great debugger!
+fault
+HungUp on Thread %d
+%s
+(NULL)
+%s
+(NULL)
+HungUp on Thread %d
+%s
+(NULL)
+%s
+(NULL)
+HungUp %s: %d
+ T T U U( UD U` U| U U U VH
+</pre>
+
+==Microcode==
+
+<pre>
+[m
+[3%dm
+[4%dm
+[%d;%dH
+[2J
+
+%c
+G_ZBUFFER
+G_TEXTURE_ENABLE
+G_SHADE
+G_SHADING_SMOOTH
+G_CULL_FRONT
+G_CULL_BACK
+G_FOG
+G_LIGHTING
+G_TEXTURE_GEN
+G_TEXTURE_GEN_LINEAR
+G_LOD
+G_MTX_PROJECTION
+G_MTX_MODELVIEWG_MTX_LOAD
+G_MTX_MUL
+G_MTX_PUSH
+G_MTX_NOPUSH
+?
+COMBINED
+TEXEL0
+TEXEL1
+PRIMITIVE
+SHADE
+ENVIRONMENT
+CENTER
+SCALE
+1
+NOISE
+K4
+COMBINED_ALPHA
+0
+TEXEL0_ALPHA
+TEXEL1_ALPHA
+PRIMITIVE_ALPHA
+SHADE_ALPHA
+ENV_ALPHA
+LOD_FRACTION
+PRIM_LOD_FRAC
+K5
+0
+0
+?
+LOD_FRACTION
+COMBINED
+TEXEL0
+TEXEL1
+PRIMITIVE
+SHADE
+ENVIRONMENT
+PRIM_LOD_FRAC
+1
+0
+Inconsistent microcode.
+|
+%s
+AA_EN
+Z_CMP
+Z_UPD
+IM_RD
+CLR_ON_CVG
+CVG_DST_CLAMP
+CVG_DST_WRAP
+CVG_DST_FULL
+CVG_DST_SAVE
+ZMODE_OPA
+ZMODE_INTERZMODE_XLU
+ZMODE_DEC
+CVG_X_ALPHA
+ALPHA_CVG_SEL
+FORCE_BL
+G_BL_CLR_IN
+G_BL_CLR_MEM
+G_BL_CLR_BL
+G_BL_CLR_FOG
+G_BL_A_IN
+G_BL_A_FOG
+G_BL_A_SHADE
+G_BL_0
+G_BL_CLR_IN
+G_BL_CLR_MEM
+G_BL_CLR_BLG_BL_CLR_FOG
+G_BL_1MA
+G_BL_A_MEM
+G_BL_1
+G_BL_0
+%s|
+GBL_c1(%s, %s, %s, %s)|
+GBL_c2(%s, %s, %s, %s) {{%6d, %6d, %6d, %d, %6d, %6d, %3d, %3d, %3d, %3d}}, /* vc%d */
+{{%6d, %6d, %6d, %d, %6d, %6d, %3d, %3d, %3d, %3d}}, /* vn%d */
+%08x: 
+%08x-%08x: 
+
+gsSPNoOp(),
+gsSPDisplayList(0x%08x),
+gsSPBranchList(0x%08x),RDPHALF_1(0x%08x),
+gsSPTextureRectangle(%d,%d,%d,%d,%d,%d,%d,%d,%d),
+gsSPLoadUcode(0x%08x, 0x%08x),
+gsSPLoadUcodeEx(0x%08x, 0x%08x, 0x%05x),
+gsSPEndDisplayList(),
+gsDPSetTile(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d),
+### TileSync is required.
+gsDPLoadTile(%d,%d,%d,%d,%d),
+gsDPLoadBlock(%d,%d,%d,%d,%d),
+### LoadSync is required.
+gsDPSetTileSize(%d,%d,%d,%d,%d),
+gsDPLoadTLUTCmd(%d,%d),
+gsDPSetCombineLERP(%s,%s,%s,%s, %s,%s,%s,%s, %s,%s,%s,%s, %s,%s,%s,%s),
+### PipeSync is required.
+SetAlphaDither
+G_AD_PATTERN
+G_AD_NOTPATTERN
+G_AD_NOISE
+G_AD_DISABLE
+SetColorDither
+G_CD_MAGICSQ
+G_CD_BAYER
+G_CD_NOISE
+-1
+SetCombineKey
+G_CK_NONE
+G_CK_KEY
+-1
+-1
+SetTextureConvert
+G_TC_CONV
+G_TC_FILTCONV
+G_TC_FILT
+-1
+SetTextureFilter
+G_TF_POINT
+G_TF_AVERAGE
+G_TF_BILERP
+-1
+SetTextureLUT
+G_TT_NONE
+G_TT_RGBA16
+G_TT_IA16
+-1
+SetTextureLOD
+G_TL_TILE
+G_TL_LOD
+-1
+-1
+SetTextureDetail
+G_TD_CLAMP
+G_TD_SHARPEN
+G_TD_DETAIL
+-1
+SetTexturePersp
+G_TP_PERSP
+G_TP_NONE
+-1
+-1
+SetCycleType
+G_CYC_1CYCLE
+G_CYC_2CYCLE
+G_CYC_COPY
+G_CYC_FILL
+SetColorDither
+G_CD_MAGICSQ
+G_CD_BAYER
+G_CD_NOISE
+-1
+PipelineMode
+G_PM_1PRIMITIVE
+G_PM_NPRIMITIVE
+-1
+-1
+gsDP%s(%s),gsSPSetOtherModeH(%d, %d, 0x%08x),
+### PipeSync is required.
+gsDPSetAlphaCompare
+G_AC_NONE
+G_AC_THRESHOLD
+G_AC_DITHER
+-1
+gsDPSetDepthSource
+G_ZS_PIXEL
+G_ZS_PRIM
+-1
+-1
+gsDPSetRenderBlender(
+),gsDP%s(%s),
+gsSPSetOtherModeL(%d, %d, 0x%08x),
+### PipeSync is required.
+gsDPSetOtherMode(0x%08x, 0x%08x),
+### PipeSync is required.
+G_SC_NON_INTERLACE
+G_SC_ODD_INTERLACE
+G_SC_EVEN_INTERLACE
+???
+gsDPSetScissorFrac(%s, %d, %d, %d, %d),
+gsDPSetScissor(%s, %d, %d, %d, %d),
+gsDPFillRectangle(%d, %d, %d, %d),
+gsDPSetColorImage(G_IM_FMT_%s, G_IM_SIZ_%s, %d, 0x%08x(0x%08x) ),
+
+RGBA
+YUV
+CI
+IA
+I
+4b
+8b
+16b
+32b
+
+### PipeSync is required.
+gsDPSetDepthImage(0x%08x(0x%08x)),
+### PipeSync is required.
+gsDPSetTextureImage(G_IM_FMT_%s, G_IM_SIZ_%s, %d, 0x%08x(0x%08x)),
+
+RGBA
+YUV
+CI
+IA
+I
+4b
+8b
+16b
+32b
+
+gsDPSetEnvColor(%d, %d, %d, %d),
+### PipeSync is required.
+gsDPSetBlendColor(%d, %d, %d, %d),
+### PipeSync is required.
+gsDPSetFogColor(%d, %d, %d, %d),
+### PipeSync is required.
+gsDPSetFillColor(0x%08x),
+### PipeSync is required.
+gsDPSetPrimDepth(%d, %d),
+### PipeSync is required.
+gsDPSetPrimColor(%d, %d, %d, %d, %d, %d),
+gsDPFullSync(),
+### PipeSync is required.
+gsDPTileSync(),
+gsDPPipeSync(),
+gsDPLoadSync(),
+gsDPNoOp(),
+gsDPNoOpTag(%08x),
+count_gsDPNoOpHere([%s: %d]),
+count_gsDPNoOpOpenDisp([%s: %d]),
+count_gsDPNoOpCloseDisp([%s: %d]),
+count_gsDPNoOpString(%c%s%c, %d),
+count_gsDPNoOpWord(0x%08x, %d),
+count_gsDPNoOpFloat(%8.3f, %d),
+count_gsDPNoOpQuiet(),
+count_gsDPNoOpVerbose(),
+count_gsDPNoOpCallBack(%08x,%d),
+gsDPNoOpTag3(%02x, %08x, %04x),
+gsSPMatrix(0x%08x(%08x), 0
+|%s
+),
+
+/ %04x.%04x %04x.%04x %04x.%04x %.04x.%04x \/ %12.6f %12.6f %12.6f %12.6f \ | %04x.%04x %04x.%04x %04x.%04x %.04x.%04x || %12.6f %12.6f %12.6f %12.6f | | %04x.%04x %04x.%04x %04x.%04x %.04x.%04x || %12.6f %12.6f %12.6f %12.6f | \ %04x.%04x %04x.%04x %04x.%04x %.04x.%04x /\ %12.6f %12.6f %12.6f %12.6f /
+gsSPVertex(0x%08x(0x%08x), %d, %d),
+gsSPModifyVertex(%d, %s, %08x),
+G_MWO_POINT_RGBA
+G_MWO_POINT_ST
+G_MWO_POINT_XYSCREEN
+G_MWO_POINT_ZSCREEN
+G_MWO_POINT_????
+gsSP1Triangle(%d, %d, %d),
+gsSPLine3D(%d, %d),gsSPLineW3D(%d, %d, %d),
+gsSP2Triangles(%d, %d, %d, 0, %d, %d, %d, 0),
+gsSP1Quadrangle(%d, %d, %d, %d, 0),gsSPCullDisplayList(%d, %d),
+gsSPBranchLessZraw(0x%08x(0x%08x), %d, 0x%08x),gsSPTexture(%d, %d, %d, %d, %s),
+G_ON
+G_OFF
+gsSPTextureL(%d, %d, %d, %d, %d, %s),
+G_ON
+G_OFF
+gsSPPopMatrix(G_MTX_MODELVIEW),
+gsSPPopMatrixN(G_MTX_MODELVIEW, %d),
+gsSPLoadGeometryMode(),
+gsSPClearGeometryMode(),
+gsSPSetGeometryMode(),
+gsSPGeometryMode(, ),
+gsSPSegment(%d, 0x%08x),
+gsSPClipRatio(FRUSTRATIO_%d),
+gsSPNumLights(%d),
+gsSPLightColor(%d, %d),
+gsSPFogFactor(%d, %d),
+gsSPPerspNormalize(%d),gsMoveWd(%d, %d, %d),
+gsSPViewport(0x%08x(0x%08x)),
+# vscale=[%d %d %d %d],
+vtrans=[%d %d %d %d]
+gsSPForceMatrix(0x%08x),
+gsSPLookAtX(0x%08x),
+gsSPLookAtY(0x%08x),
+gsSPLight(0x%08x,%d),
+gsMoveMem(0x%08x, %d, %d, %d),
+AnyDisplayList(),
+gsSPBgRectCopy(0x%08x(0x%08x)),
+gsSPBgRect1Cyc(0x%08x(0x%08x)),
+gsSPObjSprite(0x%08x(0x%08x)),
+gsSPObjRectangle(0x%08x(0x%08x)),
+gsSPObjRectangleR(0x%08x(0x%08x)),
+RDPHALF_0(0x%02x, 0x%08x, 0x%04x),
+gsSPObjMatrix(0x%08x(0x%08x)),
+gsSPObjSubMatrix(0x%08x(0x%08x)),
+gsSPObjLoadTxtr(0x%08x(0x%08x)),
+gsSPObjLoadTxSprite(0x%08x(0x%08x)),
+gsSPObjLoadTxRect(0x%08x(0x%08x)),
+gsSPObjLoadTxRectR(0x%08x(0x%08x)),
+gsSPSelectDL(0x%08x, %d, 0x%08x, 0x%08x),
+gsSPSelectBranchDL(0x%08x, %d, 0x%08x, 0x%08x),
+gsSPSegment(%d, 0x%08x),
+gsSPSetStatus(0x%08x, 0x%08x),
+gsMoveWd(%d, %d, %d),
+gsSPObjRenderMode(0x%08x),
+AnyDisplayList(),
+
+</pre>
+
+==[?]==
+
+<pre>
+SUPERDMA
+FastCopy
+FastCopy
+SLOWCOPY
+BGCOPY
+</pre>
+
+==Audio Debugger==
+
+<pre>
+AUDIO: Ocarina Control Assign Normal
+AUDIO: Ocarina Control Assign Custom
+Presss NA_KEY_D4 %08x
+Presss NA_KEY_F4 %08x
+Presss NA_KEY_A4 %08x
+Presss NA_KEY_B4 %08x
+Presss NA_KEY_D5 %08x
+1
+Audio Debug Mode
+- %s -
+Audio ScrPrt
+%s
+%04X
+BGM CANCEL: %s
+SE MUTE: %s
+PUSH CONT-4 A-BTN
+SE HANDLE: %s
+%02x %04x %02x %08x
+*
+Seq 0: %2x
+Seq 1: %2x
+SE HD: %2x %s
+SE No.: %3x
+S-Out: %2x %s
+BGM Ent: %2x
+Spec: %2x
+Na Snd: %2x
+Cam Wt: %s
+Lnk Wt: %sSE Ent: %2x
+%s <%d>
+%2X %5d %5d %5d %02X %04X %04X
+FF ----- ----- ----- -- ---- ----
+%2X %5d %5d %5d %3d %3d %04X
+FF ----- ----- ----- --- --- ----
+%2X %5d %5d %5d %3d %3d %04X
+FF ----- ----- ----- --- --- ----
+%2X %04X
+FF ----
+*
+Swicth: %d
+Lines: %d
+Color: %d
+%s: %d
+%s: %d
+ENVRONM: %d
+%s: %d
+%s: %d
+%s: %d
+%s: %d
+SEQ ENT: %d
+SWAP OFF
+*
+V
+%04x %04x %s
+Group Track: %d
+Sub Track: %d
+TRK NO.
+ENTRY
+MUTE
+OPENNOTE
+%1X
+O
+X
+O
+X
+%1X
+%2d,%2d
+VOL
+E VOL
+BANK ID
+PROG
+PAN
+PANPOW
+FXMIX
+PRIO
+VIB PIT
+VIB DEP
+TUNE
+TUNE
+%02X
+%d
+%d
+%X
+%d
+%d
+%d
+%d
+%d
+%d
+%d
+%d
+TOTAL %d
+DRIVER %05X / %05X
+AT-SEQ %02X-%02X (%05X-%05X / %05X)
+AT-BNK %02X-%02X (%05X-%05X / %05X)
+ST-SEQ %02Xseqs (%05X / %06X)
+%02x
+ST-BNK %02Xbanks (%05X / %06X)
+%02x
+E-MEM %05X / %05X
+BGM No. %02XSCENE SET %02X %s
+*
+NEXT SCENE %02X %s
+NOW SCENE %02X %s
+NOW BLOCK %02XPORT
+%02X %02X %02X %02X
+%02X %02X %02X %02XSEQ INFO: %2d %02x %d
+PLAY INFO: %2d %02x %d8note REC POINTER: %08x
+%02x
+OCA: %02x SEQ: %04x PLAY: %02x REC: %02x
+*
+SE HD: %02x %s
+SE No.: %02x
+: %04x
+SE SW %s%s
+SE PR: %02x
+env_fx %d code_fx %d SPEC %d
+SOUND GAME FRAME NOW %f
+SOUND GAME FRAME MAX %f
+SWITCH BGM MODE %d %d %d (FLAG %d)
+ENEMY DIST %f VOL %3d
+GANON DIST VOL %3d
+DEMO FLAG %d
+MARON BGM DIST %f
+NATURE FAILED %01x
+SARIA BGM PTR %08x
+POLI %d(%d)
+%d
+Middle Boss BGM Start not stack
+</pre>
+
+==[?]==
+
+<pre>
+gfxprint_open: 2 layers open.
+</pre>
+
+==[?]==
+
+<pre>
+osSpGetStatus=%08x: 
+HALT
+BROKE
+DMA_BUSY
+DMA_FULL
+IO_FULL
+SSTEP
+INTR_BREAK YIELD
+YIELDED
+TASKDONE
+SIG3
+SIG4
+SIG5
+SIG6
+SIG7
+
+osDpGetStatus=%08x: XBUS_DMEM_DMA
+FREEZE
+FLUSH
+START_GCLK
+TMEM_BUSY
+PIPE_BUSY
+CMD_BUSY
+CBUF_READY
+DMA_BUSY
+END_VALID
+START_VALID
+</pre>
+
+==LoadFragment2==
+
+<pre>
+../loadfragment2.c
+OVL: SPEC(%08x-%08x) REAL(%08x-%08x) OFFSET(%08x)
+</pre>
+
+==MtxUty-Cvt==
+
+<pre>
+m1
+../mtxuty-cvt.c
+m2
+../mtxuty-cvt.c
+m1
+../mtxuty-cvt.c
+m2
+../mtxuty-cvt.c
+DoRelocation(%08x, %08x, %08x) text=%08x, data=%08x, rodata=%08x, bss=%08x
+%02d %08x %08x %08x
+%08x %08x %08x %08x
+Dynamic link function loading will begin.
+TEXT,DATA,RODATA+rel will undergo DMA transfer. (%08x-%08x)
+TEXT(%08x), DATA(%08x), RODATA(%08x), BSS(%08x)
+Relocating.
+BSSRange will be cleared. (%08x-%08x)
+RELRange will be cleared. (%08x-%08x)
+Dynamic link function loading will end.
+</pre>
+
+==[?]==
+
+<pre>
+%s: %u Bytes %s Failure
+%s: %u Bytes %s Success
+malloc
+Allocation
+malloc_DEBUG
+Allocation
+malloc_r
+Allocation
+malloc_r_DEBUG
+Allocation
+realloc
+Reallocation
+realloc_DEBUG
+Reallocation
+calloc
+Allocation
+System Heap Display
+
+
+[41;37mEmergency! Memory leak discovered! (block=%08x)[m
+[41;37mEmergency! Memory leak discovered! (block=%08x)[m
+[41;37mEmergency! Memory leak detected! (block=%08x s=%08x e=%08x p=%08x)[m
+[41;37m__osFree: Improper Deallocation (%08x)[m
+[41;37m__osFree: Double Deallocation (%08x)[m
+[41;37m__osFree: Allocation 時と違う方法でDeallocationしようとした (%08x: %08x)[m
+[41;37m__osFree: Improper Deallocation (%08x) [%s: %d ][m
+[41;37m__osFree: Double Deallocation (%08x) [%s: %d ][m
+[41;37m__osFree: Allocation 時と違う方法でDeallocationしようとした (%08x: %08x)[m
+__osRealloc(%08x, %d)
+Memory block size hasn't changed, so nothing will happen.
+A free block exists at the end of the current memory block, so linking will occur.
+Allocating new memory block and moving data.
+The free block at the end of the current memory block has been expanded.
+No free block exists at the end of the current memory block, so one will be created.
+Not enough space exists to create a free block.
+Arena isn't initialized.
+Arena Content (0x%08x)
+Memory Block Scope Status Size [Time s ms us ns: TID: src: Line]
+%08x-%08x%c %s %08x
+Free
+Allocation
+[%016llu: %2d: %s: %d]
+**NULL**
+
+%08x Block Invalid
+Allocation Block Size Total 0x%08x Bytes
+Free Block Size Total 0x%08x Bytes
+Max Free Block Size 0x%08x Byte ARENA INFO (0x%08x)
+Arena is uninitalized.
+Memory Block Region status size
+%08x-%08x%c %s %08x
+F
+A
+
+%08x Block Invalid
+Total Alloc Block Size %08x
+Total Free Block Size %08x
+Largest Free Block Size %08x
+Checking arena content... (%08x)
+[41;37mUh oh!! (%08x %08x)[m
+Looks like the arena will still be alright.
+</pre>
+
+==Message_PAL==
+
+<pre>
+Message found!!! = %x (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)
+Message found!!! = %x (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x)
+Message not found!!! = %x
+Message found!!! = %x (data=%x) (data0=%x) (data1=%x) (data2=%x) (data3=%x) Recording Start Recording Start Recording Start Recording Start ->
+Recording Playback Recording Playback Recording Playback Recording Playback ->
+8 Note Recording Start 8 Note Recording Start 8 Note Recording Start ->
+8 Note Playback 8 Note Playback 8 Note Playback ->
+Musical Round Start Musical Round Start Musical Round Start Musical Round Start ->
+Frog Chorus Frog Chorus ->
+Ocarina （%d） 000000000000 ->
+111111111111 ->
+222222222222 ->
+msg_mode=%d
+Timer (%x) (%x)
+Total wct=%x(%d) Sound (SFX)
+../z_message_PAL.c
+Item 32-0
+../z_message_PAL.c
+Item 24＝%d (%d) {%d}
+ＪＪ＝%d
+NZ_NEXTMSG=%x, %x, %x
+Name＝
+%x
+ＥＶＥＮＴ Timer＝
+Horseback Archery Score＝ %d
+Gold Skulltula Total Count＝ %d%x(%x)
+Fishing Pond Fish Size＝
+%x(%x)
+Ranking＝%d
+HI_SCORE( kanfont->mbuff.nes_mes_buf[message->rdp] & 0xff000000 ) = %x
+score=%d
+Zelda Time＝
+ITEM_NO=(%d) (%d)
+../z_message_PAL.c
+../z_message_PAL.c
+NZ_TIMER_END (key_off_flag=%d)
+NZ_BGM (key_off_flag=%d)
+[33m？？？？？？？？？？？？？？？？ z_message.c
+？？？？？？？？？？？？？？？？？？[m
+../z_message_PAL.c
+../z_message_PAL.c
+../z_message_PAL.c
+../z_message_PAL.c
+Text Box Type＝%d
+../z_message_PAL.c
+[34mMessage＝%x(%d)[m
+[32mMessage＝%x message->msg_data[m
+[32mocarina_check_bit[%d]=%x
+ocarina_bit = %x[m
+[31m☆☆☆☆☆ Ocarina Number＝%d(%d) ☆☆☆☆☆[m
+ocarina_set 000000000000000000 = %d
+222222222
+333333333
+Ocarina Mode = %d (%x)
+Performance Start
+?????Recording Playback Recording Playback Recording Playback Recording Playback ->
+Pedestal Performance
+Na_StartOcarinaSinglePlayCheck2( message->ocarina_no );
+Performance Check =%d
+locate=%d onpu_pt=%d
+Ocarina_Flog Correct Example Performance=%x
+Ocarina_Flog Correct Example Performance=%x
+Ocarina_Free Correct Example Performance=%x
+Correct Example Performance=%x
+KOKOKOKOKOKO
+Cancel
+
+[32mNa_StopOcarinaMode();
+Na_StopOcarinaMode();
+Na_StopOcarinaMode();[m
+ocarina_no=%d Song Chosen=%d
+Example Performance=%x
+[33m☆☆☆ocarina=%d message->ocarina_no=%d
+
+[33mOcarina_PC_Wind=%d(%d) ☆☆☆
+[32mOcarina_C_Wind=%d(%d) ☆☆☆[m→ OCARINA_MODE=%d
+onpu_buff[%d]=%x
+M_OCARINA20: ocarina_no=%x status=%x
+[33mz_message.c
+Obtained Melody＝%d[m
+Scarecrow Recording Initialization
+onpu_pt=%d, locate=%d
+Button Input 【%d】=%d
+Recording End !!!!!!!!! message->info->status=%d
+aaaaaaaaaaaaaa Recording End !!!!!!!!!Recording End
+
+[33m ====================================================================
+%d,[m ====================================================================
+status=%d (%d)
+bbbbbbbbbbb
+8 Note RecordingＯＫ!
+
+[33m ====================================================================
+%d,[m
+====================================================================
+Played an existing song!!!
+cccccccccccc
+Musical Round Failure !!!!!!!!!
+Musical Round Success !!!!!!!!!
+../z_message_PAL.c
+../z_message_PAL.c
+%s
+MESSAGE
+%s
+=
+%x
+../z_message_PAL.c
+../z_message_PAL.c
+msgno=%d
+Message found!!! = %x
+dxpos=%d dypos=%d dypos1 dypos2=%d
+message->msg_disp_type=%x
+OCARINA_MODE=%d ->
+InRaceSeq=%d(%d) OCARINA_MODE=%d --> OCARINA_MODE=%d
+select=%d
+[32mday_time=%x active_camera=%d
+=== day_time=%x[m
+OCARINA_MODE=%d chk_ocarina_no=%d
+</pre>
+
+==Construct==
+
+<pre>
+Static ＰＡＲＡＭＥＴＥＲ Segment =%x
+../z_construct.c
+
+parameter->parameterSegment=%x
+parameter->parameterSegment != NULL
+../z_construct.c
+../z_construct.c
+../z_construct.c
+
+ＤＯ Action Texture Init =%x
+parameter->do_actionSegment=%x parameter->do_actionSegment != NULL
+../z_construct.c
+../z_construct.c
+../z_construct.c
+../z_construct.c
+
+Icon Item Texture Init =%x
+parameter->icon_itemSegment=%x
+parameter->icon_itemSegment != NULL
+../z_construct.c
+
+Register_Item[%x, %x, %x, %x]
+../z_construct.c
+../z_construct.c
+../z_construct.c
+../z_construct.c
+../z_construct.c
+
+ＥＶＥＮＴ＝%d
+restart_flag=%d
+Timer Stop !!!!!!!!!!!!!!!!!!!!! = %d
+ＰＡＲＡＭＥＴＥＲRange＝%x
+../z_construct.c
+
+message->fukidashiSegment=%x
+Text Box game_alloc=%x
+message->fukidashiSegment != NULL
+../z_construct.c
+</pre>
+
+==F3DZEX==
+
+<pre>
+RSP Gfx ucode F3DZEX.NoN fifo 2.08J Yoshitaka Yasumoto/Kawasedo 1999.
+</pre>
+
+==S2DEX==
+
+<pre>
+RSP Gfx[Safe] S2DEX fifo 2.05 Yoshitaka Yasumoto 1998 Nintendo.
+</pre>

@@ -1,0 +1,7 @@
+'''Guru-Guru''' is the man in the windmill who teaches you the Song of Storms. 
+== Actors ==
+* {{actor ref|ovl_En_Fu}}
+== Objects ==
+* {{object ref|object_fu}}
+
+[[Category:Guru-Guru| ]]

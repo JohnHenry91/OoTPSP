@@ -1,0 +1,14 @@
+== Actors ==
+* [[ovl_En_Ge1]] - White Clothed Gerudos
+* [[ovl_En_Ge2]] - Purple Clothed Patrolling Gerudos
+* [[ovl_En_GeldB]] - Gerudo Fighters
+* [[ovl_En_Ge3]] - Gerudo Leader (Gives Membership Card)
+
+== Objects ==
+* {{object ref|object_ge1}}
+* {{object ref|object_gla}}
+* {{object ref|object_geldb}}
+
+== Related ==
+* [[Nabooru]]
+[[Category:Gerudos| ]]

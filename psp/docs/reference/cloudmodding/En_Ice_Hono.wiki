@@ -1,0 +1,23 @@
+{{Actor|name=ovl_En_Ice_Hono|ispage=true}}
+
+'''ovl_En_Ice_Hono''' is the [[actor]] for Blue Fire.
+
+{{clear}}
+
+== Console Output Strings ==
+
+{| class="wikitable"
+! Original Text||Translation
+|-
+| (ice 炎)(arg_data 0x%04x)||(ice FLAME)(arg_data 0x%04x)
+|-
+| ありえない値(ratio = %f)||IMPOSSIBLE VALUE (ratio = %f)
+|-
+| ../z_en_ice_hono.c||../z_en_ice_hono.c
+|-
+| ../z_en_ice_hono.c||../z_en_ice_hono.c
+|-
+| ../z_en_ice_hono.c||../z_en_ice_hono.c
+|}
+
+[[Category:Items]]

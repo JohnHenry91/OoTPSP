@@ -1,0 +1,505 @@
+Actors appear to use one of two types of collision models, simple bodies (cylinders, simplistic shapes), and poly based surfaces. 
+
+== Poly-based Collision ==
+Polygon based collision detection is managed primarily by '''z_bgcheck.c'''. Follows the [[Collision Mesh Format|Collision Mesh format]]. Most meshes are stored in object files, rather than actor files like above.
+
+=== Poly Lookup Table ===
+[[Game Play]] + 0x7C0 is the address of the struct managing background collision information.
+
+ 00 = ptr to scene collision mesh
+ 04 = float[3] minimum x,y,z for scene bounding box
+ 10 = float[3] maximum x,y,z for scene bounding box
+ 1C = int[3] x,y,z CollisionPoly lookup table length
+ 28 = float[3] x,y,z "unit size" factor for CollisionPoly lookup table
+ 34 = float[3] x,y,z "inverse unit size" for CollisionPoly lookup table
+ 40 = ptr to CollisionPoly lookup table, variable length, 0x06 bytes per record. 
+    //record struct
+    /* 0x00 */ short floorsId;   //CollisionPolyLink table index
+    /* 0x02 */ short wallsId;    //CollisionPolyLink table index
+    /* 0x04 */ short ceilingsId; //CollisionPolyLink table index
+ 44 = short, Max Records in CollisionPolyLink table
+ 46 = short, Number of Records Reserved in 0x48 table
+ 48 = ptr, CollisionPolyLink table, 0x04 bytes per record
+    //record struct
+    /* 0x00 */ short polyId;
+    /* 0x02 */ short next; //Next CollisionPolyLink table index
+ 4C = ptr, CollisionPoly has been tested table, 1 byte per record, one record per poly defined in the scene mesh
+
+In order to optimize collision detection, the scene mesh is subdivided into volumes, typically into 10 by 4 by 10 sections. Polys that cross within each section are categorized into floors, walls, and ceilings (likely based on their unit normals), and sorted into a linked list ordered by the polygon's lowest point (low y to high).
+
+=== Poly Mesh Actors ===
+
+Actors can have mesh-based collisions as well. The game engine can handle up to a maximum of 50 meshes, plus the scene file's mesh (which is assigned index 50 or 0x32).
+
+Game Play + 0x7C0 + 0x54 is the start address of the first actor mesh record. Each record is 0x64 bytes, as seen below. 
+Game Play + 0x1B9C is an array of halfwords storing whether an actor mesh is loaded or not.
+
+{|class="wikitable"
+!Offset||Type||Description
+|-
+|0x0000||Ptr|| Actor Instance
+|-
+|0x0004||Ptr|| Collision Mesh Pointer
+|-
+|0x0014||float[3]|| Actor x,y,z scale 1
+|-
+|0x0020||short[3]|| Actor x,y,z rotation 1
+|-
+|0x0028||float[3]|| Actor x,y,z coordinates 1
+|-
+|0x0034||float[3]|| Actor x,y,z scale 2
+|-
+|0x0040||short[3]|| Actor x,y,z rotation 2
+|-
+|0x0048||float[3]|| Actor x,y,z coordinates 2
+|}
+
+=== Mesh Locations ===
+"Dep. Actor" should be the Actor Id of the actor that uses the mesh. Offsets are for NTSC 1.0, but offsets for object files should almost always work regardless of version.
+{|class="sortable wikitable mw-collapsible mw-collapsed"
+! Type || Id || Offset || Dep. Actor
+|-
+| Actor || 0106 || 0024C0 || 0106
+|-
+| Actor || 016B || 004C20 || 016B
+|-
+| Object || 0002 || 0041B0 || 00D0
+|-
+| Object || 0003 || 004E98 || 00FF
+|-
+| Object || 0003 || 005FB8 || 012A
+|-
+| Object || 000E || 005FC8 || 000A
+|-
+| Object || 0019 || 0250A8 || 0059
+|-
+| Object || 001C || 01D9D0 || 002E
+|-
+| Object || 002A || 000E94 || 003E
+|-
+| Object || 002B || 001DDC || 003F
+|-
+| Object || 002B || 003CE0 || 0058
+|-
+| Object || 002B || 004F30 || 005C
+|-
+| Object || 002C || 00DA10 || 0040
+|-
+| Object || 002C || 00E2CC || 006F
+|-
+| Object || 002C || 00D054 || 0041
+|-
+| Object || 002F || 0005E0 || 004A
+|-
+| Object || 002F || 000280 || 004A
+|-
+| Object || 0036 || 006460 || 000F
+|-
+| Object || 0038 || 000118 || 0054
+|-
+| Object || 0040 || 001830 || 005A
+|-
+| Object || 0040 || 000A1C || 005A
+|-
+| Object || 0059 || 0003F0 || 0064
+|-
+| Object || 0059 || 003590 || 0064
+|-
+| Object || 0059 || 000998 || 0064
+|-
+| Object || 0059 || 0073F0 || 01BB
+|-
+| Object || 0059 || 001DE8 || 01BA
+|-
+| Object || 0061 || 000658 || 006E
+|-
+| Object || 0069 || 00A938 || 00F7
+|-
+| Object || 0069 || 010E10 || 00F7
+|-
+| Object || 0069 || 0131C4 || 00F7
+|-
+| Object || 0069 || 004780 || 00AE
+|-
+| Object || 0069 || 0044D0 || 00AE
+|-
+| Object || 006A || 000EE8 || 00D5
+|-
+| Object || 006B || 002594 || 01C7
+|-
+| Object || 0070 || 0043D0 || 0068
+|-
+| Object || 0072 || 0035F8 || 0087
+|-
+| Object || 0072 || 00221C || 0086
+|-
+| Object || 0072 || 0063B8 || 0088
+|-
+| Object || 0072 || 0089E0 || 00E3
+|-
+| Object || 0072 || 0087AC || 0089
+|-
+| Object || 0074 || 0039D4 || 01A8
+|-
+| Object || 0076 || 0000C0 || 0026
+|-
+| Object || 008D || 000C2C || 00BE
+|-
+| Object || 008D || 001830 || 00AE
+|-
+| Object || 0096 || 005CF8 || 00E6
+|-
+| Object || 0096 || 005580 || 00C8
+|-
+| Object || 0096 || 005048 || 00C8
+|-
+| Object || 0096 || 008CE0 || 00C8
+|-
+| Object || 0099 || 007860 || 0093
+|-
+| Object || 009A || 00169C || 0092
+|-
+| Object || 009C || 000D68 || 00AC
+|-
+| Object || 00A1 || 0128D8 || 009C
+|-
+| Object || 00A1 || 0133EC || 009C
+|-
+| Object || 00A2 || 000428 || 009D
+|-
+| Object || 00AE || 00283C || 00B8
+|-
+| Object || 00AF || 002154 || 015C
+|-
+| Object || 00AF || 000368 || 01C3
+|-
+| Object || 00AF || 000534 || 01C4
+|-
+| Object || 00AF || 00261C || 00B9
+|-
+| Object || 00AF || 002FE4 || 00B9
+|-
+| Object || 00B1 || 000A38 || 01A9
+|-
+| Object || 00E2 || 0180F8 || 0166
+|-
+| Object || 00F0 || 000348 || 0107
+|-
+| Object || 00F0 || 0004D0 || 00F8
+|-
+| Object || 00F1 || 0004A8 || 018E
+|-
+| Object || 00F9 || 00075C || 0103
+|-
+| Object || 0100 || 001438 || 0108
+|-
+| Object || 0112 || 000C98 || 011F
+|-
+| Object || 011C || 000730 || 012D
+|-
+| Object || 011C || 000578 || 012D
+|-
+| Object || 0125 || 007564 || 0136
+|-
+| Object || 0130 || 000DB8 || 0148
+|-
+| Object || 0161 || 000918 || 018D
+|-
+| Object || 0161 || 0012C0 || 018D
+|-
+| Object || 0162 || 00238C || 0191
+|-
+| Object || 0162 || 0011EC || 0190
+|-
+| Object || 0166 || 000AF0 || 0194
+|-
+| Object || 0166 || 000908 || 0194
+|-
+| Object || 016C || 000D48 || 0169
+|-
+| Object || 016C || 001430 || 0169
+|-
+| Object || 016F || 001A58 || 019F
+|-
+| Object || 0170 || 000B70 || 01A0
+|-
+| Object || 0181 || 001C58 || 019D
+|-
+| Object || 0181 || 001DA8 || 0100
+|-
+| Object || 018A || 000118 || 0059
+|-
+| Object || 0190 || 000B30 || 01D1
+|}
+
+Just look up any function calls to external_func_8005C050 in a disassembled actor file and you're sure to find what you need by looking at argument 3 which contains what seems to be the actor's hitbox header.
+
+== Simple Body Collision ==
+The simple body collision engine detects collision between three basic geometric shapes: cylinders, triangles, and quadrilaterals. Cylinders are used most often, typically to represent the body of something, like an NPC or sign. Quadrilaterals are typically used for sword attacks, Link's shield, and hit detection for bombable walls. Triangle collections are used for collision detection with the web in the center of the first room of the Deku Tree.
+
+A CollisionBody represents one of the following things:
+* A collection of cylinders (Type 0)
+* A single cylinder (Type 1)
+* A collection of triangles (Type 2)
+* A single quad (Type 3)
+
+In order to perform collision testing, an entity will "subscribe" a CollisionBody to one of three collision "category" on every frame (game update). After all actors have been processed, collision checks will processed. The results of these collision checks will become available to the actor on the next update frame.
+
+{|class="wikitable"
+! Name || Purpose
+|-
+| AT || Attack
+|-
+| AC || Attack Collider
+|-
+| OC || Object Collider
+|}
+
+CollisionBody elements subscribed to group AT will be collided into group AC. I believe group OT will be collided amongst themselves.
+
+=== [[Game Play]] ===
+
+<pre>
+//1DA300, start of collision array AT (Gohma, Skullwalltulas)
+0x11E60 short	//number of elements to process this frame
+0x11E64 ptr 	//first element in array 
+
+//1DA3CC, start of collision array AC (more inclusive, seems to follow actor category order, only one with 3d heart actor)
+0x11F2C int 	//number of elements to process this frame
+
+//1DA4C0, start of collision array OT (contains the most actors in Deku Tree)
+0x12020
+</pre>
+
+=== CollisionBody struct (Instance) ===
+Addresses in the following notes are for NTSC 1.0
+
+<pre>
+typedef struct {
+    /* 0x00 */ struct Actor* actor;
+    /* 0x04 */ struct Actor* at;
+    /* 0x08 */ struct Actor* ac;
+    /* 0x0C */ struct Actor* oc;
+    /* 0x10 */ u8 atFlags; // Compared to acFlags
+                           // if not & 0x0001, skip attack detection
+                           // & 0x0040 == ?
+    /* 0x11 */ u8 acFlags; // Compared to atFlags
+                           // if not & 0x0001, skip collision with attack.
+                           // if & 0x0002, is detecting a Deku Nut hit?
+    /* 0x12 */ u8 maskA;   // Bitwise-and compared to maskB
+    /* 0x13 */ u8 maskB;   // Bitwise-and compared to maskA
+    /* 0x14 */ u8 type;
+    /* 0x15 */ u8 shape; 
+                        //00 = Sphere Collection (JntSph)
+                        //01 = Cylinder
+                        //02 = Tris Collection
+                        //03 = Quad
+
+                        //references function pointer, start location at 800EFAB8
+                        //used to reference function pointer, start location at 800EFB4C.
+                        //Basically, on left compare to right, 
+                        //left's value * 0x10 + right's value * 0x04 = pointer look up
+} Collider; // size = 0x18
+
+//If Type == 0 (Sphere Collection) or Type == 2 (Triangle Collection), the following variables exist:
+/* 0x18 */ int     //Number of Cylinders or Triangles
+/* 0x1C */ ptr     //Collection Array Start
+</pre>
+
+=== CollisionBodyInfo ===
+Every cylinder, quad, and triangle contains a CollisionBodyInfo struct. This struct seems to store the collision properties for that shape.
+
+<pre>
+0x00 s32 //Toucher Attack Identifier Flags
+0x04 u8
+0x05 u8 //damage dealt when touched/stun timer
+0x08 s32 //Bumper Exclusion Mask
+0x0C u8 //Effect when collided into
+0x0D u8 //
+0x14 u8 //flags?
+0x15 u8 //Toucher flags?
+0x16 u8 //Bumper flags?
+0x17 u8 //flags?
+0x18 
+0x1C //stores pointer to CollisionBody? in some situations
+0x20 
+0x24 //pointer to CollisionBodyInfo of colliding entity
+</pre>
+
+=== Cylinder Body Collision Struct (Overlay) ===
+This is how the data is stored on file. Addresses are NTSC 1.0
+<pre>
+//803AAE7C for Link
+//0x2C bytes long, not the only type of collision struct
+0x00	byte	//?
+0x01	byte	//?
+0x02	byte	//?
+0x03	byte	//?
+0x04	byte	//?
+0x05	byte	//?
+0x08	byte	//?
+0x0C	int	//? (FFCF FFFF, used to compare to Link's FFCF FFFF?)
+0x10	byte	//?
+0x11	byte	//Damage dealt when touched
+0x14	int 	//? (FFCF FFFF)
+0x18	byte	//?
+0x19	byte	//?
+0x1C	byte	//?
+0x1D	byte	//?
+0x1E	byte	//?
+0x20	int?	//Contains cylinder radius or diameter
+0x24	int?	//?
+0x28	int?	//? (thought this struct was only 0x24 bytes)
+</pre>
+
+=== Cylinder Body Collision Struct (Actor Instance) ===
+This information is somewhat outdated. 
+
+This is the in-memory struct used for actor collision related stuff. In NTSC 1.0 at least, this struct is 0x4C bytes long
+<pre>
+//To simplify, CSO = Collision Struct (Overlay) reference, the struct above
+//801DAEB8 for Link
+0x00	ptr 	//Actor Instance
+0x08	ptr		//Colliding Actor Instance?
+0x10	byte	//CSO 0x01  collider_flags
+0x11	byte	//CSO 0x02  collide_flags //if & 0x0002, is detecting a Deku Nut hit?
+0x12	byte	//CSO 0x03, mask_a bitwise-and compared to opposing collision's 0x13 byte
+0x13	byte	//CSO 0x04, mask_b bitwise-and compared to opposing collision's 0x12 byte
+0x14	byte	//CSO 0x00
+0x15	byte	//CSO 0x05, used to reference function pointer, start location at 800EFB4C.
+				//Basically, on left compare to right, left's value * 0x10 + right's value * 0x04 = pointer look up
+0x18	int 	//CSO 0x0C
+0x1C	byte	//CSO 0x10  Damage effect (normal, burn, freeze, shock, knockback)
+0x1D	byte	//CSO 0x11, Damage Dealt when touched
+0x20	int 	//CSO 0x14  Collision exclusion mask (FFCF FFFF)
+0x24	byte	//CSO 0x18
+0x25	byte	//CSO 0x19
+0x2C	byte	//CSO 0x08 Flags
+0x2D	byte	//CSO 0x1C toucher_flags
+0x2E	byte	//CSO 0x1D bumper_flags
+0x2F	byte	//CSO 0x1E flags_2
+0x40	short	//CSO 0x20 Cylinder radius or diameter
+0x42	short	//CS0 0x22 Cylinder Height
+0x44	short	//CSO 0x24 y_shift
+0x46	short	//Cylinder X
+0x48	short	//Cylinder Y
+0x4A	short	//Cylinder Z
+</pre>
+
+=== Older Notes ===
+{{for|some old notes|Notes/Collision}}
+
+=== C Code ===
+<pre>
+typedef struct { /* Common CollisionBody Struct (Instance) */
+    z_actor_t  *actor;          /* 0x00 */
+    z_actor_t  *unk_actor_1;    /* 0x04 */
+    z_actor_t  *unk_actor_2;    /* 0x08 */
+    z_actor_t  *unk_actor_3;    /* 0x0C */
+    
+    uint8_t     collider_flags; /* 0x10 */ /* compared to 0x11 */
+    uint8_t     collide_flags;  /* 0x11 */ /* compared to 0x10 */
+    
+    /* values checked against opposing collision */
+    uint8_t     mask_a;         /* 0x12 */ /* bitwise-and compared to 0x13 */
+    uint8_t     mask_b;         /* 0x13 */ /* bitwise-and compared to 0x12 */ 
+    uint8_t     unk_0x14;       /* 0x14 */
+    
+    uint8_t     type;           /* 0x15 */ 
+                /* 00 = Cylinder Collection 
+                   01 = Cylinder            
+                   02 = Tri Collection     
+                   03 = Quad */
+    
+} z_collider_t; /* 0x18 */
+
+
+typedef struct { 
+    int32_t     flags;      /* 0x00 */ /* Toucher Attack Identifier Flags */
+    uint8_t     unk_0x04;   /* 0x04 */
+    uint8_t     damage;     /* 0x05 */ /* damage or stun timer */ 
+
+} z_collider_touch_t; /* 0x08 */
+
+typedef struct {
+    int32_t     flags;      /* 0x00 */ /* Collision exclusion mask */
+    uint8_t     effect;     /* 0x04 */
+    uint8_t     unk_0x05;   /* 0x05 */
+    int32_t     unk_0x08;   /* 0x08 */ 
+    
+} z_collider_bump_t; /* 0x0C */
+
+typedef struct z_collider_body_s z_collider_body_t;
+struct z_collider_body_s { /* Common CollisionBodyInfo: 0x28 bytes */
+    z_collider_touch_t  toucher;        /* 0x00 */    
+    z_collider_bump_t   bumper;         /* 0x08 */
+    uint8_t             flags;          /* 0x14 */
+    uint8_t             toucher_flags;  /* 0x15 */
+    uint8_t             bumper_flags;   /* 0x16 */
+    uint8_t             flags_2;        /* 0x17 */
+    int32_t             unk_0x18;       /* 0x18 */
+    z_collider_t       *collider;       /* 0x1C */
+    int32_t             unk_0x20;       /* 0x20 */
+    z_collider_body_t  *colliding;      /* 0x24 */
+}; /* 0x28 */
+
+typedef struct {
+    z_collider_body_t   body;           /* 0x00 */
+    vec3_f32_t          pointA;         /* 0x28 */
+    vec3_f32_t          pointB;         /* 0x34 */
+    vec3_f32_t          pointC;         /* 0x40 */
+    vec3_f32_t          unit_normal;    /* 0x4C */
+    float               normal_dist;    /* 0x58 */    
+    
+} z_collider_tri_t; /* 0x5C */
+
+typedef struct {
+    z_collider_body_t   body;           /* 0x00 */
+    vec3_s16_t          unk_0x28;       /* 0x28 */
+    int16_t             unk_0x2E;       /* 0x2E */
+    vec3_s16_t          position;       /* 0x30 */
+    int16_t             unk_0x36;       /* 0x36 */
+    int32_t             unk_0x38;       /* 0x38 */
+    uint8_t             unk_0x3C;       /* 0x3C */
+    
+} z_collider_cylinder_t; /* 0x40 */
+
+typedef struct {    /* Type 0 */
+    z_collider_t        base;   /* 0x00 */
+    int32_t             count;  /* 0x18 */
+    z_collider_cylinder_t   *list;   /* 0x1C */
+    
+} z_collider_cylinder_collection_t;
+
+typedef struct {    /* Type 1 */
+    z_collider_t        base;       /* 0x00 */
+    z_collider_body_t   body;       /* 0x18 */
+    int16_t             radius;     /* 0x40 */ 
+    int16_t             height;     /* 0x42 */
+    int16_t             y_shift;    /* 0x44 */
+    vec3_s16_t          position;   /* 0x46 */
+    
+} z_collider_cylinder_main_t; /* 0x4C? */
+
+
+typedef struct {    /* Type 2 */
+    z_collider_t        base;   /* 0x00 */
+    int32_t             count;  /* 0x18 */
+    z_collider_tri_t   *list;   /* 0x1C */
+    
+} z_collider_tri_collection_t;
+
+typedef struct {    /* Type 3 */
+    z_collider_t        base;           /* 0x00 */
+    z_collider_body_t   body;           /* 0x18 */
+    vec3_f32_t          pointA;         /* 0x40 */    
+    vec3_f32_t          pointB;         /* 0x4C */
+    vec3_f32_t          pointC;         /* 0x58 */
+    vec3_f32_t          pointD;         /* 0x64 */
+    vec3_s16_t          bounding_max;   /* 0x70 */
+    vec3_s16_t          bounding_min;   /* 0x76 */
+    
+} z_collider_quad_t; /* 0x7C? */
+</pre>
+
+[[Category:Actors]]

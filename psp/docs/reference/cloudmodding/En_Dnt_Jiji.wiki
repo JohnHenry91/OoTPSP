@@ -1,0 +1,12 @@
+{{actor|name=ovl_En_Dnt_Jiji}}
+'''ovl_En_Dnt_Jiji''' is the Deku Judge at the Mask Panel [[minigame]]
+{{clear}}
+[[Category:Deku Scrubs]]
+[[Category:Minigames]]
+== Debug Rom Notes ==
+
+ ROM: 0xDA8DF4 (240F0078) Receiving Deku Stick (30) if you have 20
+ ROM: 0xDA8DF8 (240E0077) Receiving Deku Stick (20) 
+
+ ROM: 0xDA9050 (2408007A) Receiving Deku Nut (40) if you have 30
+ ROM: 0xDA9054 (24190079) Receiving Deku Nut (30)
