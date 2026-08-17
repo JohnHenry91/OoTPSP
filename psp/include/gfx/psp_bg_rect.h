@@ -23,6 +23,16 @@
 
 #define G_PSP_BGRECT 0x0F
 
+/* Port-private marker, opcode 0x0E (unassigned in F3DEX2 and F3D, same
+ * reasoning as G_PSP_BGRECT above). w1 carries an arbitrary tag; gfx_pc.c uses
+ * it to attribute triangles to whatever part of the frame emitted them, which
+ * is otherwise impossible: the per-frame counters are filled while the display
+ * list is INTERPRETED, long after the code that built it has returned, so
+ * bracketing a draw in Play_Draw cannot work. Emitted only by diagnostics. */
+#define G_PSP_MARK 0x0E
+#define PSP_MARK_SKYBOX_BEGIN 1
+#define PSP_MARK_SKYBOX_END   2
+
 typedef struct {
     /* Segmented (0x03xxxxxx) address of the image, resolved by the
      * interpreter -- NOT resolved here, because the emitter runs before the

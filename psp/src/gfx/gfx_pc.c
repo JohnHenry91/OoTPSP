@@ -128,8 +128,16 @@ struct ColorCombiner {
     uint8_t shader_input_mapping[2][4];
 } __attribute__((packed, aligned(4)));
 
-static struct ColorCombiner color_combiner_pool[64];
-static uint8_t color_combiner_pool_size;
+/* 64 was inherited from sm64-port and is far too small for OoT: SM64 reuses a
+ * handful of combine modes, OoT's scenes and objects each bring their own. The
+ * recycle path below is a safety net, not a working mode -- if it fires per
+ * frame the pool thrashes and every draw pays a gfx_flush(). 256 entries cost
+ * 4 KB here and 14 KB for the matching shader pool; the size counters have to
+ * grow past uint8_t to match. Watch gPspCcPoolHighWater to see the real
+ * requirement. */
+#define COLOR_COMBINER_POOL_SIZE 512
+static struct ColorCombiner color_combiner_pool[COLOR_COMBINER_POOL_SIZE];
+static uint16_t color_combiner_pool_size;
 
 static struct RSP {
     float modelview_matrix_stack[11][4][4]__attribute__((aligned(16)));
@@ -162,6 +170,11 @@ static struct RDP {
         const uint8_t *addr;
         uint8_t siz;
         uint8_t tile_number;
+        /* Row width of the SOURCE image in texels, straight from G_SETTIMG.
+         * Only G_LOADTILE needs it -- G_LOADBLOCK always copies a contiguous
+         * run, so for that path source stride and tile row length are the same
+         * thing. Was discarded (_UNUSED) until the skybox needed it. */
+        uint32_t width;
     } texture_to_load;
     struct {
         const uint8_t *addr;
@@ -181,6 +194,10 @@ static struct RDP {
         uint8_t cms, cmt;
         uint16_t uls, ult, lrs, lrt; // U10.2
         uint32_t line_size_bytes;
+        /* Distance between successive SOURCE rows, in bytes. Differs from
+         * line_size_bytes only when a G_LOADTILE pulls a sub-rectangle out of a
+         * wider image; 0 means "same as line_size_bytes", i.e. contiguous. */
+        uint32_t src_stride_bytes;
     } texture_tile[2];
     bool textures_changed[2];
     
@@ -790,19 +807,125 @@ static void gfx_generate_cc(struct ColorCombiner *comb, uint32_t cc_id) {
     memcpy(comb->shader_input_mapping, shader_input_mapping, sizeof(shader_input_mapping));
 }
 
+/* Both fixed-size pools that a new combine mode consumes a slot in were filled
+ * with an UNCHECKED post-increment (`pool[pool_size++]`), and neither is ever
+ * reset -- they accumulate for the whole run, across every scene loaded.
+ *
+ * What the 65th entry lands on is not abstract. From the ELF (psp-nm -S):
+ *
+ *   color_combiner_pool  0x495a44 .. 0x495e44   (64 * 16 bytes)
+ *   gfx_texture_cache    0x495e44 ..            (hashmap[1024] FIRST)
+ *
+ * i.e. the overflow writes straight into the texture cache's hash table, whose
+ * entries are POINTERS that gfx_texture_cache_lookup then walks. The same holds
+ * one layer down for shader_program_pool (0x79a304 + 0xe00 = staticOffset, the
+ * VRAM bump allocator's cursor).
+ *
+ * The pressure is not evenly spread across scenes: cc_id carries SHADER_OPT_FOG
+ * (see gDebugFogCombinerBit below), so a scene whose display lists all use a
+ * fog render mode needs a SECOND, distinct combiner for every combine mode it
+ * shares with the scenes already loaded. link_home is exactly that -- all 7 of
+ * its render modes are G_RM_FOG_SHADE_A, against zero in hakaana2.
+ *
+ * Recycling the whole pool is safe where evicting one entry would not be:
+ * combiners only ever point AT ShaderPrograms, so dropping both pools together
+ * and letting the next draw re-derive what it needs cannot leave a dangling
+ * reference -- provided anything still holding a pointer is cleared too, which
+ * is what the three assignments below are for. */
+/* 1 = fogged draws get their own combiner/shader IDs (correct). 0 = fold them
+ * onto the un-fogged ID.
+ *
+ * DEFAULT 1, AND CLEARING IT IS NOT SAFE -- kept only as an A/B switch.
+ *
+ * The bit looks inert at first glance: gfx_cc_get_features copies it into
+ * cc_features.opt_fog, whose only reader is a block in gfx_scegu_apply_shader
+ * that is #if 0'd out. It was briefly defaulted to 0 on the theory that it
+ * therefore could not change a pixel, only double the ID space and overflow the
+ * (then 64-entry) pools.
+ *
+ * That reasoning was wrong, for a reason session 12 had already written down
+ * when it deliberately kept the cycle-2 tint OUT of cc_id: **shader_id is not
+ * just a cache key, it is dispatched on**. gfx_scegu.c switches on hardcoded
+ * ids inherited from sm64-port -- 0x0000038D (mario's eyes), 0x01045A00,
+ * 0x01200A00, 0x00000551, 0x01A00045, 0x01200200 -- each forcing a particular
+ * texture-environment mode. SHADER_OPT_FOG is bit 25 (0x02000000), so while it
+ * is set a fogged material CANNOT collide with any of those. Clearing it drops
+ * fogged materials onto ids that can, and a wrongly matched case silently
+ * replaces the texture function.
+ *
+ * That is not hypothetical here: every one of link_home's render modes is
+ * G_RM_FOG_SHADE_A, so in that scene it applies to the whole frame -- Link's
+ * tunic, his shield, the room's lit surfaces.
+ *
+ * The pool pressure that motivated clearing it is solved properly instead, by
+ * sizing the pools for the real requirement (see COLOR_COMBINER_POOL_SIZE). */
+int gDebugFogCombinerBit = 1;
+
+/* Triangles attributed to the skybox: submitted / clip-rejected / cull-rejected.
+ * The skybox is the Market's buildings and Link's House's interior walls, and
+ * neither shows up -- these say whether its geometry even survives to a draw. */
+uint32_t gPspSkyTri[4];
+uint32_t gPspSkyTriMark;
+
+uint32_t gPspCcPoolSize;      /* live occupancy, for the debugger */
+uint32_t gPspCcPoolRecycles;  /* how often we ran out; 0 == pool is big enough */
+uint32_t gPspCcPoolHighWater;
+
+extern void gfx_scegu_reset_shader_pool(void);
+extern int gfx_scegu_shader_pool_full(void);
+
+/* Smallest power of two >= v. Mirrors gfx_scegu.c's nextpow2/ispow2 pair, which
+ * is what gfx_scegu_upload_texture uses to decide whether a texture gets
+ * resampled -- the two must agree or the UV correction below corrects by the
+ * wrong factor. Returns v unchanged when it is already a power of two (and for
+ * 0, which callers guard against anyway). */
+static uint32_t psp_next_pow2(uint32_t v) {
+    uint32_t p = 1;
+
+    if (v == 0) {
+        return 0;
+    }
+    while (p < v) {
+        p <<= 1;
+    }
+    return p;
+}
+
 static struct ColorCombiner *gfx_lookup_or_create_color_combiner(uint32_t cc_id) {
     static struct ColorCombiner *prev_combiner;
     if (prev_combiner != NULL && prev_combiner->cc_id == cc_id) {
         return prev_combiner;
     }
-    
+
     for (size_t i = 0; i < color_combiner_pool_size; i++) {
         if (color_combiner_pool[i].cc_id == cc_id) {
             return prev_combiner = &color_combiner_pool[i];
         }
     }
     gfx_flush();
+
+    /* Either pool being full forces the recycle: one new combine mode can
+     * consume an entry in both, and they must never run out at different
+     * times (see gfx_scegu_create_and_load_new_shader). */
+    if (color_combiner_pool_size >= (sizeof(color_combiner_pool) / sizeof(color_combiner_pool[0])) ||
+        gfx_scegu_shader_pool_full()) {
+        /* gfx_flush() above already drew everything pending under the old
+         * state, so nothing in flight still refers to the entries being
+         * dropped. unload_shader(NULL) is the "forget whatever is bound" case
+         * and is handled; load_shader is never called with NULL. */
+        gfx_rapi->unload_shader(rendering_state.shader_program);
+        rendering_state.shader_program = NULL;
+        gfx_scegu_reset_shader_pool();
+        color_combiner_pool_size = 0;
+        prev_combiner = NULL;
+        ++gPspCcPoolRecycles;
+    }
+
     struct ColorCombiner *comb = &color_combiner_pool[color_combiner_pool_size++];
+    gPspCcPoolSize = color_combiner_pool_size;
+    if (color_combiner_pool_size > gPspCcPoolHighWater) {
+        gPspCcPoolHighWater = color_combiner_pool_size;
+    }
     gfx_generate_cc(comb, cc_id);
     return prev_combiner = comb;
 }
@@ -927,7 +1050,19 @@ static inline uint32_t tex_src_index(uint32_t i, bool unswap) {
 
 /* Read helpers used by every importer below. TEXSRC needs `tile` and
  * `tex_unswap` in scope, PALSRC needs `pal_unswap`. */
-#define TEXSRC(i) (rdp.loaded_texture[tile].addr[tex_src_index((i), tex_unswap)])
+/* Map a linear index within the TILE onto its offset in the SOURCE image. They
+ * differ only for a G_LOADTILE sub-rectangle; see gfx_dp_load_tile. */
+static inline uint32_t tex_row_index(int tile, uint32_t i) {
+    uint32_t line = rdp.texture_tile[tile].line_size_bytes;
+    uint32_t stride = rdp.texture_tile[tile].src_stride_bytes;
+
+    if (stride == 0 || line == 0 || stride == line) {
+        return i;
+    }
+    return (i / line) * stride + (i % line);
+}
+
+#define TEXSRC(i) (rdp.loaded_texture[tile].addr[tex_src_index(tex_row_index(tile, (i)), tex_unswap)])
 #define PALSRC(i) (rdp.palette[tex_src_index((i), pal_unswap)])
 /* ------------------------------------------------------------------------ */
 
@@ -1710,6 +1845,11 @@ static inline bool psp_depth_test_enabled(void) {
 }
 
 static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
+#if TARGET_PSP
+    if (gPspSkyTriMark) {
+        gPspSkyTri[0]++;
+    }
+#endif
     struct LoadedVertex *v1 = &rsp.loaded_vertices[vtx1_idx];
     struct LoadedVertex *v2 = &rsp.loaded_vertices[vtx2_idx];
     struct LoadedVertex *v3 = &rsp.loaded_vertices[vtx3_idx];
@@ -1856,7 +1996,7 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     }
     
     if (use_alpha) cc_id |= SHADER_OPT_ALPHA;
-    if (use_fog) cc_id |= SHADER_OPT_FOG;
+    if (use_fog && gDebugFogCombinerBit) cc_id |= SHADER_OPT_FOG;
     if (texture_edge) cc_id |= SHADER_OPT_TEXTURE_EDGE;
     if (use_noise) cc_id |= SHADER_OPT_NOISE;
     
@@ -2176,7 +2316,7 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
     }
     
     if (use_alpha) cc_id |= SHADER_OPT_ALPHA;
-    if (use_fog) cc_id |= SHADER_OPT_FOG;
+    if (use_fog && gDebugFogCombinerBit) cc_id |= SHADER_OPT_FOG;
     if (texture_edge) cc_id |= SHADER_OPT_TEXTURE_EDGE;
     if (use_noise) cc_id |= SHADER_OPT_NOISE;
     
@@ -2220,8 +2360,29 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
     }
     
     bool use_texture = used_textures[0] || used_textures[1];
-    //uint32_t tex_width = (rdp.texture_tile[0].lrs - rdp.texture_tile[0].uls + 4) / 4;
-    //uint32_t tex_height = (rdp.texture_tile[0].lrt - rdp.texture_tile[0].ult + 4) / 4;
+    uint32_t tex_width = (rdp.texture_tile[0].lrs - rdp.texture_tile[0].uls + 4) / 4;
+    uint32_t tex_height = (rdp.texture_tile[0].lrt - rdp.texture_tile[0].ult + 4) / 4;
+
+    /* NON-POWER-OF-TWO CORRECTION -- the reason the boot logo read "NINTENDC"
+     * with no "64".
+     *
+     * The GE only samples power-of-two textures, so gfx_scegu_upload_texture
+     * RESAMPLES anything else up to the next power of two: the console logo's
+     * 192x2 glyph strip is stretched to 256x2, content and all. The 3D path
+     * survives that because it hands the GE NORMALISED coordinates (u / tex_width,
+     * GU_TEXTURE_32BITF) -- 0..1 still spans the whole stretched image.
+     *
+     * This 2D path instead hands over RAW TEXELS (GU_TEXTURE_16BIT), computed
+     * from the tile's original size. So it asked for texels 0..192 of an image
+     * that had been stretched across 256, i.e. the leftmost 75% of the artwork
+     * blown up to fill the rectangle -- which is exactly "NINTENDO" without the
+     * "(R)64", with the final O clipped mid-glyph.
+     *
+     * Scaling by padded/original puts the request back on the stretched grid.
+     * General, not logo-specific: it applies to every non-pow2 texture rectangle
+     * in the game. */
+    uint32_t tex_pad_w = psp_next_pow2(tex_width);
+    uint32_t tex_pad_h = psp_next_pow2(tex_height);
 
     VertexColor tri_buf[2] = {{0}};
     int tri_num_vert = 0;
@@ -2232,8 +2393,18 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
         tri_buf[tri_num_vert].z = 0;
         
         if (use_texture) {
-            short u = (v_arr[i]->u - rdp.texture_tile[0].uls * 8)/ 32;
-            short v = (v_arr[i]->v - rdp.texture_tile[0].ult * 8) / 32;
+            int32_t u = (v_arr[i]->u - rdp.texture_tile[0].uls * 8) / 32;
+            int32_t v = (v_arr[i]->v - rdp.texture_tile[0].ult * 8) / 32;
+
+            /* See the tex_pad_* note above. Done in 32-bit: 192 -> 256 already
+             * exceeds what the intermediate would hold comfortably in a short
+             * once multiplied. */
+            if (tex_width != 0 && tex_pad_w != tex_width) {
+                u = (int32_t)((int64_t)u * tex_pad_w / tex_width);
+            }
+            if (tex_height != 0 && tex_pad_h != tex_height) {
+                v = (int32_t)((int64_t)v * tex_pad_h / tex_height);
+            }
             /*
             if ((rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT) {
                 // Linear filter adds 0.5f to the coordinates
@@ -2427,11 +2598,11 @@ static void gfx_dp_set_scissor(uint32_t mode, uint32_t ulx, uint32_t uly, uint32
 
 static void gfx_dp_set_texture_image(uint32_t format, uint32_t size, uint32_t width, const void* addr) {
     _UNUSED(format);
-    _UNUSED(width);
 
     GFXSTAT_INC(settimg);
     rdp.texture_to_load.addr = addr;
     rdp.texture_to_load.siz = size;
+    rdp.texture_to_load.width = width;
 }
 
 static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t tmem, uint8_t tile, UNUSED uint32_t palette, uint32_t cmt, uint32_t maskt, uint32_t shiftt, uint32_t cms, uint32_t masks, uint32_t shifts) {
@@ -2504,6 +2675,10 @@ static void gfx_dp_load_block(uint8_t tile, UNUSED uint32_t uls, UNUSED uint32_t
     assert(size_bytes <= 4096 && "bug: too big texture");
     rdp.loaded_texture[rdp.texture_to_load.tile_number].addr = rdp.texture_to_load.addr;
     
+    /* Contiguous by definition -- make sure a previous G_LOADTILE's stride does
+     * not leak into this tile. */
+    rdp.texture_tile[rdp.texture_to_load.tile_number].src_stride_bytes = 0;
+
     rdp.textures_changed[rdp.texture_to_load.tile_number] = true;
 }
 
@@ -2530,15 +2705,39 @@ static void gfx_dp_load_tile(uint8_t tile, uint32_t uls, uint32_t ult, uint32_t 
             break;
     }
 
-    uint32_t size_bytes = (((lrs >> G_TEXTURE_IMAGE_FRAC) + 1) * ((lrt >> G_TEXTURE_IMAGE_FRAC) + 1)) << word_size_shift;
+    /* G_LOADTILE pulls a SUB-RECTANGLE out of a wider image; the old maths here
+     * assumed the rectangle always started at (0,0) -- which the two
+     * SUPPORT_CHECKs above asserted, and which is true for everything the port
+     * had drawn until the skybox.
+     *
+     * The skybox is not that: Skybox_CalculateFace256 (z_vr_box.c:182) loads a
+     * 256-texel-wide CI8 face as a 4x4 grid of 64x32 tiles, stepping uls by 63
+     * and ult by 31. Taking lrs/lrt as the size ignores the origin, and reading
+     * the source linearly ignores that successive rows of a 64-wide tile sit
+     * 256 bytes apart -- which is exactly a shear, and exactly what the skybox
+     * looked like: diagonal bands. */
+    uint32_t tile_w = (lrs >> G_TEXTURE_IMAGE_FRAC) - (uls >> G_TEXTURE_IMAGE_FRAC) + 1;
+    uint32_t tile_h = (lrt >> G_TEXTURE_IMAGE_FRAC) - (ult >> G_TEXTURE_IMAGE_FRAC) + 1;
+    uint32_t row_bytes = tile_w << word_size_shift;
+    uint32_t size_bytes = row_bytes * tile_h;
+    uint32_t src_stride = (rdp.texture_to_load.width != 0 ? rdp.texture_to_load.width : tile_w)
+                          << word_size_shift;
+
     rdp.loaded_texture[rdp.texture_to_load.tile_number].size_bytes = size_bytes;
 
     assert(size_bytes <= 4096 && "bug: too big texture");
-    rdp.loaded_texture[rdp.texture_to_load.tile_number].addr = rdp.texture_to_load.addr;
+    /* Point at the sub-rectangle's own first texel. The UVs stay in SOURCE
+     * space and gfx_sp_tri1 subtracts texture_tile[].uls/ult from them, so the
+     * two together land on tile-local coordinates. */
+    rdp.loaded_texture[rdp.texture_to_load.tile_number].addr =
+        rdp.texture_to_load.addr + (ult >> G_TEXTURE_IMAGE_FRAC) * src_stride +
+        (((uls >> G_TEXTURE_IMAGE_FRAC) << word_size_shift));
     rdp.texture_tile[rdp.texture_to_load.tile_number].uls = uls;
     rdp.texture_tile[rdp.texture_to_load.tile_number].ult = ult;
     rdp.texture_tile[rdp.texture_to_load.tile_number].lrs = lrs;
     rdp.texture_tile[rdp.texture_to_load.tile_number].lrt = lrt;
+    rdp.texture_tile[rdp.texture_to_load.tile_number].line_size_bytes = row_bytes;
+    rdp.texture_tile[rdp.texture_to_load.tile_number].src_stride_bytes = src_stride;
 
     rdp.textures_changed[rdp.texture_to_load.tile_number] = true;
 }
@@ -3300,6 +3499,24 @@ static void gfx_run_dl(Gfx* cmd) {
                 break;
 #if defined(F3DEX_GBI) || defined(F3DLP_GBI)
             case (uint8_t)G_TRI2:
+            /* G_QUAD shares G_TRI2's decode -- verified by preprocessing
+             * gSP1Quadrangle with this build's own flags: under F3DEX_GBI_2 it
+             * emits opcode 0x07 with w0 = (v0,v1,v2) and w1 = (v0,v2,v3), i.e.
+             * the quad already split into two triangles.
+             *
+             * Session 13 found this case missing and recorded it as "harmless:
+             * neither Link's objects nor spot02 emit a single gsSPQuadrangle".
+             * That stopped being true the moment the skybox could run: the
+             * skybox is built ENTIRELY from gSP1Quadrangle
+             * (Skybox_CalculateFace256, z_vr_box.c:186), so every one of its
+             * faces fell through this switch -- which has no default -- and was
+             * silently dropped. Measured: 890 skybox display-list sections
+             * interpreted per run, 0 triangles submitted.
+             *
+             * That is why the Market had no buildings and Link's House in pivot
+             * no walls: both are skyboxes (SKYBOX_MARKET_CHILD_DAY /
+             * SKYBOX_HOUSE_LINK). */
+            case (uint8_t)G_QUAD:
                 gfx_sp_tri1(C0(16, 8) / 2, C0(8, 8) / 2, C0(0, 8) / 2);
                 gfx_sp_tri1(C1(16, 8) / 2, C1(8, 8) / 2, C1(0, 8) / 2);
                 break;
@@ -3441,6 +3658,19 @@ static void gfx_run_dl(Gfx* cmd) {
              * replaces), so it is deliberately NOT run through seg_addr. */
             case G_PSP_BGRECT:
                 gfx_psp_bg_rect((const PspBgRect *)(uintptr_t)cmd->words.w1);
+                break;
+            /* Diagnostic marker; see psp_bg_rect.h. Attributes the triangles
+             * between BEGIN and END to a named part of the frame. */
+            case G_PSP_MARK:
+                if (cmd->words.w1 == PSP_MARK_SKYBOX_BEGIN) {
+                    gPspSkyTriMark = 1;
+                    gPspSkyTri[0] = 0;
+                    gPspSkyTri[1]++; /* BEGIN markers actually interpreted */
+                } else {
+                    gPspSkyTriMark = 0;
+                    gPspSkyTri[2]++; /* END markers */
+                }
+                gPspSkyTri[3] = gPspGfxDlTrace.dl_calls;
                 break;
 #endif
             case G_SETZIMG:

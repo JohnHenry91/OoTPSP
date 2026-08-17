@@ -19,11 +19,17 @@
 #include <pspiofilemgr.h>
 #include <string.h>
 
+#include <pspge.h>
+
 #include "psp_texture_manager.h"
+#include "psp_scene_menu.h"
 
 #define BUF_WIDTH (512)
 #define SCR_WIDTH (480)
 #define SCR_HEIGHT (272)
+
+static void *sFbp0;
+static void *sFbp1;
 
 float identity_matrix[4][4] __attribute__((aligned(16))) = { { 1, 0, 0, 0 }, { 0, 1, 0, 0 }, { 0, 0, 1, 0 }, { 0, 0, 0, 1 } };
 
@@ -218,8 +224,14 @@ typedef struct VertexColor {
     unsigned short x, y, z;
 } VertexColor;
 
-static struct ShaderProgram shader_program_pool[64];
-static uint8_t shader_program_pool_size;
+/* Sized to match COLOR_COMBINER_POOL_SIZE in gfx_pc.c -- one shader per
+ * distinct combiner is the worst case, and the two pools are recycled together
+ * so they must not run out at different times. See the comment there. */
+#define SHADER_PROGRAM_POOL_SIZE 512
+static struct ShaderProgram shader_program_pool[SHADER_PROGRAM_POOL_SIZE];
+static uint16_t shader_program_pool_size;
+uint32_t gPspShaderPoolHighWater; /* read with the debugger; 64 == we hit the cap */
+uint32_t gPspShaderPoolClamped;
 static struct ShaderProgram *cur_shader = NULL;
 static struct SamplerState tmu_state[2];
 static bool gl_blend = false;
@@ -419,8 +431,46 @@ static inline int texenv_set_texture_texture(struct ShaderProgram *prg) {
     if (is_n64_logo_text_combine(prg)) {
         return GU_TFX_BLEND;
     }
-    /*@Note: hack shader 0x1A00A6F for Bowser/Peach Paintings (still broken, but just fixed on peach)*/
-    return GU_TFX_DECAL;
+
+    /* MODULATE, not DECAL -- this follows DaedalusX64, which solves the same
+     * problem on the same hardware (it is an N64 emulator for the PSP, so its
+     * GE has exactly one texture unit too).
+     *
+     * Source/SysPSP/HLEGraphics/RendererPSP.cpp, in the render-state loop:
+     *
+     *     // NB if install_texture0 and install_texture1 are both set,
+     *     // 0 wins out
+     *     texture_idx = install_texture0 ? 0 : 1;
+     *
+     * i.e. when a combine wants two textures, pick TEXEL0 and treat it as an
+     * ordinary single-texture draw. (Daedalus keeps a per-ROM T1_HACK flag for
+     * the handful of games where TEXEL1 is the one that matters, and decomposes
+     * genuinely two-stage combines into multiple passes -- worth copying if we
+     * ever need it.)
+     *
+     * DECAL was actively wrong here: it mixes by the TEXTURE's alpha and falls
+     * back to the vertex colour where that alpha is 0, so a draw whose texture
+     * has no alpha renders as flat vertex colour -- invisible against a black
+     * background. That is what hid the skybox: every skybox face uses
+     * SETUPDL_40, whose combine is
+     *     (TEXEL1 - TEXEL0) * PRIMITIVE_ALPHA + TEXEL0
+     * and whose PRIMITIVE alpha is the time-of-day blend, 0 outside a
+     * transition -- so the correct result is exactly TEXEL0, which is precisely
+     * what Daedalus's rule produces.
+     *
+     * The DECAL default came from sm64-port's Bowser/Peach painting hack
+     * (shader 0x1A00A6F), which no OoT content reaches.
+     *
+     * REPLACE rather than MODULATE, and that distinction is the whole point:
+     * in (A - B) * X + B the X operand is an INTERPOLATION FACTOR, not a tint,
+     * so nothing may multiply the surviving texel. gfx_pc.c's reduced combiner
+     * has no way to express that -- it picks the one colour register it sees
+     * (here CC_PRIM) and hands it over as the vertex colour, and Skybox_Draw
+     * sets that register to gDPSetPrimColor(..., 0, 0, 0, blend): RGB (0,0,0),
+     * with only the ALPHA carrying the time-of-day blend. MODULATE therefore
+     * multiplies every skybox texel by black. REPLACE takes the texel alone,
+     * which is exactly the N64 result while the blend factor is 0. */
+    return GU_TFX_REPLACE;
 }
 
 /* TEMPORARY DIAGNOSTIC (2026-08-14). Set to 1 to render every material with
@@ -524,13 +574,51 @@ static void gfx_scegu_load_shader(struct ShaderProgram *new_prg) {
         cur_shader->enabled = false;
 }
 
+/* Called by gfx_pc.c's gfx_lookup_or_create_color_combiner when it recycles the
+ * combiner pool -- see the long comment there for why the two pools have to be
+ * dropped together rather than one at a time. Safe only immediately after a
+ * gfx_flush(): it invalidates every ShaderProgram pointer handed out so far. */
+/* Is the shader pool out of room? gfx_pc.c checks this before creating a
+ * combiner, because a new combine mode can need a new entry in BOTH pools and
+ * they have to be recycled together. */
+int gfx_scegu_shader_pool_full(void) {
+    return shader_program_pool_size >= SHADER_PROGRAM_POOL_SIZE;
+}
+
+void gfx_scegu_reset_shader_pool(void) {
+    shader_program_pool_size = 0;
+    cur_shader = NULL;
+}
+
 static struct ShaderProgram *gfx_scegu_create_and_load_new_shader(uint32_t shader_id) {
     LogUnknownShaderId(shader_id); /* every distinct ID actually used, not just remap misses */
 
     struct CCFeatures ccf;
     gfx_cc_get_features(shader_id, &ccf);
 
+    /* Belt and braces against the same unchecked post-increment gfx_pc.c's
+     * combiner pool had: this array is immediately followed in .bss by
+     * staticOffset, the VRAM bump allocator's cursor, so running off the end
+     * corrupts framebuffer allocation.
+     *
+     * This must NOT reset the pool on its own. ColorCombiners in gfx_pc.c hold
+     * raw ShaderProgram pointers, so handing slot 0 back out while those are
+     * still live makes two different combiners share (and overwrite) one
+     * program -- silently wrong colours, which is worse than the overflow it
+     * was guarding. Recycling is gfx_lookup_or_create_color_combiner's job
+     * because only it can drop BOTH pools together; gfx_scegu_shader_pool_full
+     * below is how it knows to. Reaching here at all means that proactive check
+     * failed, so degrade to reusing the last slot -- no out-of-bounds write --
+     * and say so in the counter. */
+    if (shader_program_pool_size >= SHADER_PROGRAM_POOL_SIZE) {
+        ++gPspShaderPoolClamped;
+        shader_program_pool_size = SHADER_PROGRAM_POOL_SIZE - 1;
+    }
+
     struct ShaderProgram *prg = &shader_program_pool[shader_program_pool_size++];
+    if (shader_program_pool_size > gPspShaderPoolHighWater) {
+        gPspShaderPoolHighWater = shader_program_pool_size;
+    }
 
     prg->shader_id = shader_id;
     prg->cc = ccf;
@@ -947,6 +1035,59 @@ static void gfx_scegu_draw_n64_logo_cube_2pass(void *buf, size_t num_verts) {
     sceGuTexEnvColor(gRdpPrimColorPacked);
 }
 
+/* Tex-env colour for the "NINTENDO 64" text (is_n64_logo_text_combine).
+ *
+ * GU_TFX_BLEND computes  out = Cvertex*(1-Ct) + Ctexenv*Ct , i.e. it LERPs
+ * between two constants by the texture. The N64's two cycles here are
+ *
+ *     COMBINED = TEXEL0 + (TEXEL1 - PRIM) * ENV_ALPHA
+ *     out      = ENV + (PRIM - ENV) * COMBINED
+ *
+ * which is LINEAR in TEXEL0 -- so a lerp reproduces it EXACTLY, provided the
+ * two endpoints are the real combine evaluated at TEXEL0 = 1 and TEXEL0 = 0.
+ * The only approximation left is TEXEL1, the 32x32 shine texture that sweeps
+ * across the letters and that a single-TMU GE cannot sample at the same time.
+ *
+ * Feeding raw PRIM as the tex-env colour -- what this used to do -- is the
+ * TEXEL0 = 1 endpoint with TEXEL1 forced to WHITE, which saturates COMBINED to
+ * 1 and collapses out to PRIM = (170,255,255). That is why the letters came out
+ * flat cyan instead of the blue they should be.
+ *
+ * TEXEL1 is held at the shine texture's mean intensity (105/255, measured over
+ * nintendo_rogo_static_Tex_001800) rather than 0 or 1: it is the value that
+ * makes a static approximation of a moving highlight land in the middle of the
+ * range it actually sweeps through. With the stock PRIM/ENV this yields roughly
+ * (148,180,255) -- the light blue the console shows. The endpoint at TEXEL0 = 0
+ * works out to ENV itself once clamped, which the vertex colour already is, so
+ * only this end needs correcting.
+ *
+ * Computed from the live registers, not baked in, because ConsoleLogo_Draw
+ * ramps PRIM/ENV during the fade. */
+#define N64_LOGO_SHINE_MEAN (105.0f / 255.0f)
+
+static uint32_t n64_logo_text_env_color(void) {
+    float pr = (gRdpPrimColorPacked & 0xFF) / 255.0f;
+    float pg = ((gRdpPrimColorPacked >> 8) & 0xFF) / 255.0f;
+    float pb = ((gRdpPrimColorPacked >> 16) & 0xFF) / 255.0f;
+    float er = (gRdpEnvColorPacked & 0xFF) / 255.0f;
+    float eg = ((gRdpEnvColorPacked >> 8) & 0xFF) / 255.0f;
+    float eb = ((gRdpEnvColorPacked >> 16) & 0xFF) / 255.0f;
+    float ea = ((gRdpEnvColorPacked >> 24) & 0xFF) / 255.0f;
+    const float t = N64_LOGO_SHINE_MEAN;
+
+    /* COMBINED at TEXEL0 == 1, then cycle 2. */
+    float cr = 1.0f + (t - pr) * ea;
+    float cg = 1.0f + (t - pg) * ea;
+    float cb = 1.0f + (t - pb) * ea;
+
+    float outr = er + (pr - er) * cr;
+    float outg = eg + (pg - eg) * cg;
+    float outb = eb + (pb - eb) * cb;
+
+    return (gRdpPrimColorPacked & 0xFF000000u) | (uint32_t)clamp_u8_from_unit(outb) << 16 |
+           (uint32_t)clamp_u8_from_unit(outg) << 8 | clamp_u8_from_unit(outr);
+}
+
 static void gfx_scegu_draw_triangles(float buf_vbo[], UNUSED size_t buf_vbo_len, size_t buf_vbo_num_tris) {
     if (!is_shader_enabled(cur_shader->shader_id)) {
         gfx_scegu_apply_shader(get_shader_from_id(get_shader_remap(cur_shader->shader_id)));
@@ -980,7 +1121,7 @@ void gfx_scegu_draw_triangles_2d(float buf_vbo[], UNUSED size_t buf_vbo_len, UNU
     /* See gfx_scegu_draw_triangles' identical refresh -- "NINTENDO 64" text
      * quads (ConsoleLogo_Draw) go through this 2D path instead. */
     if (cur_shader->mix == SH_MT_TEXTURE_TEXTURE && is_n64_logo_text_combine(cur_shader)) {
-        sceGuTexEnvColor(gRdpPrimColorPacked);
+        sceGuTexEnvColor(n64_logo_text_env_color());
     }
 
     void *quad_buf = sceGuGetMemory(sizeof(VertexColor) * 2);
@@ -1109,8 +1250,10 @@ void gfx_scegu_draw_background(const void *img, int width, int height, int offse
 static void gfx_scegu_init(void) {
     sceGuInit();
 
-    void *fbp0 = getStaticVramBuffer(BUF_WIDTH, SCR_HEIGHT, GU_PSM_5650);
-    void *fbp1 = getStaticVramBuffer(BUF_WIDTH, SCR_HEIGHT, GU_PSM_5650);
+    sFbp0 = getStaticVramBuffer(BUF_WIDTH, SCR_HEIGHT, GU_PSM_5650);
+    sFbp1 = getStaticVramBuffer(BUF_WIDTH, SCR_HEIGHT, GU_PSM_5650);
+    void *fbp0 = sFbp0;
+    void *fbp1 = sFbp1;
     void *zbp = getStaticVramBuffer(BUF_WIDTH, SCR_HEIGHT, GU_PSM_4444);
 
     sceGuStart(GU_DIRECT, list);
@@ -1275,11 +1418,26 @@ static void gfx_scegu_start_frame(void) {
 void gfx_scegu_on_resize(void) {
 }
 
+/* Which of the two buffers the GE is currently DRAWING into. sceGuSwapBuffers
+ * exchanges them, so this toggles in lockstep with it. Tracked because
+ * PspSceneMenu_DrawOverlay writes to the framebuffer with the CPU and has to be
+ * given the buffer that is about to be displayed, not the one on screen now. */
+static int sDrawBufferIsFbp0 = 1;
+
 static void gfx_scegu_end_frame(void) {
+    /* Menu backdrop goes in BEFORE sceGuFinish, while the GE list is still
+     * open -- it is ordinary GE geometry, unlike the text below which the CPU
+     * pokes into the finished framebuffer. Splitting it this way also makes the
+     * overlay self-diagnosing: a visible panel with no text isolates the
+     * failure to the pspDebugScreen half, no panel at all to the input half. */
+    PspSceneMenu_DrawBackdrop();
+
     sceGuFinish();
     sceGuSync(0, 0);
+
     sceDisplayWaitVblankStart();
     sceGuSwapBuffers();
+    sDrawBufferIsFbp0 = !sDrawBufferIsFbp0;
 }
 
 static void gfx_scegu_finish_render(void) {
