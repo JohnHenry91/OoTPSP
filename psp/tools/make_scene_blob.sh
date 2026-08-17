@@ -123,6 +123,13 @@ compile() { $CC $CFLAGS $INCS -c "$1" -o "$2"; }
 
 compile "$DIR/${NAME}_scene.c" "$TMP/scene.o"
 
+# See psp/tools/blob_identity_mtx.c: a handful of rooms reference gIdentityMtx,
+# which lives in the main binary and so cannot be resolved here. Linked into
+# every blob unconditionally -- it is 64 bytes, and making its presence depend
+# on whether a given room happens to reference it would mean two link recipes to
+# keep in step. Unreferenced, it simply sits in the blob unused.
+compile psp/tools/blob_identity_mtx.c "$TMP/identity.o"
+
 link_one() {
     # $1 = room object or empty, $2 = output section script
     cat > "$TMP/seg.ld" <<LDEOF
@@ -133,7 +140,7 @@ SECTIONS {
         "$TMP/scene.o"(.data.${NAME}_scene)
         "$TMP/scene.o"(.data .data.* .rodata .rodata.* .text)
     }
-    .room  0x03000000 : { $1 }
+    .room  0x03000000 : { $1 "$TMP/identity.o"(.data .data.* .rodata .rodata.*) }
     /DISCARD/ : {
         *(.reginfo) *(.MIPS.abiflags) *(.pdr) *(.mdebug*)
         *(.comment) *(.gcc_compiled*) *(.note.*)

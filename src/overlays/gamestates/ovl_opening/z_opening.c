@@ -56,8 +56,15 @@ void TitleSetup_SetupTitleScreen(TitleSetupState* this) {
      * another. The scene must also be listed in Makefile.psp's BLOB_SCENES.
      *
      * Its actors all fall back to the shared no-op dummy ActorProfile (see
-     * psp/src/z_actor_dlftbls_psp.c) -- only Player has a real profile. */
-    gSaveContext.save.entranceIndex = ENTR_LINKS_HOUSE_0;
+     * psp/src/z_actor_dlftbls_psp.c) -- only Player has a real profile.
+     *
+     * Retarget by changing PSP_BOOT_ENTRANCE alone -- and note that SELECT now
+     * opens a warp menu (psp/src/psp_scene_menu.c) that reaches every scene at
+     * runtime, so this only decides where a fresh launch lands. */
+#ifndef PSP_BOOT_ENTRANCE
+#define PSP_BOOT_ENTRANCE ENTR_LINKS_HOUSE_0
+#endif
+    gSaveContext.save.entranceIndex = PSP_BOOT_ENTRANCE;
     /* No intro cutscene: link_home's alternate headers include the "Link asleep
      * in bed" opening (gLinkHouseIntroSleepCs), and the alternate-header path is
      * exactly what the gameMode fix above exists to stay out of. */

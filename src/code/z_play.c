@@ -92,6 +92,20 @@ void Play_SpawnScene(PlayState* this, s32 sceneId, s32 spawn);
 #define PLAY_LOG(line) (void)0
 #endif
 
+#if TARGET_PSP
+/* Coarse "how far did this frame get" marker. Written at each stage of
+ * Play_Draw and read back after a crash: the last value is the last stage
+ * ENTERED, so the fault lies between it and the next one. Cheap enough to leave
+ * in (one store per stage) and far quicker than bisecting by rebuild. */
+u32 gPspDrawStage = 0;
+u32 gPspSkyProbe[8] = { 0 };
+#define PSP_STAGE(n) (gPspDrawStage = (n))
+
+/* 0 = vanilla, 1 = force VIEWPOINT_LOCKED, 2 = force VIEWPOINT_PIVOT.
+ * Runtime-pokeable; see the use site in Play_Init. */
+int gDebugForceViewpoint = 0;
+#endif
+
 void Play_RequestViewpointBgCam(PlayState* this) {
     Camera_RequestBgCam(GET_ACTIVE_CAM(this), this->viewpoint - 1);
 }
@@ -720,36 +734,28 @@ void Play_Init(GameState* thisx) {
 
     if (R_SCENE_CAM_TYPE == SCENE_CAM_TYPE_FIXED_TOGGLE_VIEWPOINT) {
 #if TARGET_PSP
-        /* PORT DEVIATION, and a knowingly incomplete one -- see below.
+        /* Vanilla sets VIEWPOINT_PIVOT here, and that is CORRECT -- session 14's
+         * suspicion that something must refuse the per-frame re-request was
+         * wrong. CloudModding documents scene camera type 0x20 as "pre-rendered
+         * backgrounds that can rotate, in which pressing C-Up gives you a bird's
+         * eye view", and the scene data agrees: bgCam 0 (LOCKED) sits at y=345,
+         * the bird's-eye shot the background image was rendered from, while
+         * bgCam 1 (PIVOT) sits at y=34, eye level in the middle of the room.
+         * So PIVOT is the walk-around view and it legitimately draws no
+         * pre-rendered image -- what it shows is the untextured proxy geometry
+         * that exists to fill the depth buffer.
          *
-         * Vanilla sets VIEWPOINT_PIVOT here. Play_Update then re-requests that
-         * viewpoint's bgCam every frame (Play_RequestViewpointBgCam), which
-         * moves the camera off bgCam 0 (CAM_SET_PREREND_FIXED) onto bgCam 1
-         * (CAM_SET_PREREND_PIVOT) from the second frame onward -- and
-         * Room_DrawImageSingle only draws the pre-rendered background under
-         * PREREND_FIXED. Measured here: the background appeared for exactly one
-         * frame and never again.
-         *
-         * That cannot be what the console does, and the asset data proves it
-         * rather than any recollection of the game: link_home_room_0 is 162944
-         * bytes, of which 153600 are the background image slot -- the remaining
-         * 9344 hold the whole room, whose display lists contain ZERO texture
-         * commands and draw 209 flat-shaded triangles in two prim colours
-         * (blue, green). Every other pre-rendered scene checked (kokiri_home,
-         * kakariko, kokiri_shop, market_alley) is the same. That geometry exists
-         * to fill the depth buffer so actors occlude correctly behind furniture;
-         * the image is the only thing with any visual content. If PIVOT were the
-         * viewpoint one walks around in, every house and shop in the game would
-         * be untextured coloured blocks.
-         *
-         * So something in vanilla must refuse that per-frame request and keep
-         * the camera on bgCam 0. The likely candidate is CAM_BEHAVIOR_BG_PROCESSED
-         * (Camera_RequestBgCam drops the request when it is already set, and
-         * Camera_Update clears it at the top of each frame), but that has NOT
-         * been pinned down -- pinning the viewpoint here is a workaround at the
-         * symptom, not the fix. Revisit by measuring how often the request is
-         * issued and with which behaviorFlags. */
-        this->viewpoint = VIEWPOINT_LOCKED;
+         * gDebugForceViewpoint overrides it without a rebuild, because the two
+         * views exercise completely different code (PIVOT runs Camera_Unique7
+         * and the room's own display lists; LOCKED runs the background blit)
+         * and being able to pin either one is what makes them separable. */
+        /* Vanilla is VIEWPOINT_PIVOT (see above) but PIVOT currently faults --
+         * see the gPspGfxArenaProbe work in graph.c -- so the default stays
+         * LOCKED to keep the build usable. Poke gDebugForceViewpoint to 2 to
+         * reproduce the fault, 1 to pin the working view. */
+        this->viewpoint = (gDebugForceViewpoint == 1)   ? VIEWPOINT_LOCKED
+                          : (gDebugForceViewpoint == 2) ? VIEWPOINT_PIVOT
+                                                        : VIEWPOINT_PIVOT; /* vanilla */
 #else
         this->viewpoint = VIEWPOINT_PIVOT;
 #endif
@@ -782,6 +788,7 @@ void Play_Init(GameState* thisx) {
 }
 
 void Play_Update(PlayState* this) {
+    PSP_STAGE(200);
     Input* input = this->state.input;
     s32 isPaused;
     s32 pad1;
@@ -800,6 +807,12 @@ void Play_Update(PlayState* this) {
          * pre-rendered-background test scenes. See psp/src/psp_test_scenes.c. */
         extern void PspTestSceneCycle(PlayState * play);
         PspTestSceneCycle(this);
+    }
+    {
+        /* Development aid: SELECT opens the scene warp menu.
+         * See psp/src/psp_scene_menu.c. */
+        extern void PspSceneMenu_Update(PlayState * play);
+        PspSceneMenu_Update(this);
     }
 #endif
 
@@ -1277,7 +1290,8 @@ void Play_Update(PlayState* this) {
                     PLAY_LOG(3637);
 
                     if (!this->haltAllActors) {
-                        Actor_UpdateAll(this, &this->actorCtx);
+                        PSP_STAGE(210);
+            Actor_UpdateAll(this, &this->actorCtx);
                     }
 
                     PLAY_LOG(3643);
@@ -1327,6 +1341,7 @@ void Play_Update(PlayState* this) {
             }
 
             PLAY_LOG(3708);
+            PSP_STAGE(230);
             Skybox_Update(&this->skyboxCtx);
 
             PLAY_LOG(3716);
@@ -1348,7 +1363,8 @@ void Play_Update(PlayState* this) {
             Interface_Update(this);
 
             PLAY_LOG(3765);
-            AnimTaskQueue_Update(this, &this->animTaskQueue);
+                PSP_STAGE(240);
+        AnimTaskQueue_Update(this, &this->animTaskQueue);
 
             PLAY_LOG(3771);
             SfxSource_UpdateAll(this);
@@ -1379,6 +1395,7 @@ skip:
         for (i = 0; i < NUM_CAMS; i++) {
             if ((i != this->nextCamId) && (this->cameraPtrs[i] != NULL)) {
                 PLAY_LOG(3809);
+            PSP_STAGE(220);
                 Camera_Update(this->cameraPtrs[i]);
             }
         }
@@ -1425,6 +1442,7 @@ void Play_DrawOverlayElements(PlayState* this) {
 }
 
 void Play_Draw(PlayState* this) {
+    PSP_STAGE(1);
     GraphicsContext* gfxCtx = this->state.gfxCtx;
     Lights* sp228;
     Vec3f sp21C;
@@ -1570,10 +1588,12 @@ void Play_Draw(PlayState* this) {
     Gfx_SetupFrame(gfxCtx, 0, 0, 0);
 
     if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_RUN_DRAW) {
+            PSP_STAGE(10);
         POLY_OPA_DISP = Play_SetFog(this, POLY_OPA_DISP);
         POLY_XLU_DISP = Play_SetFog(this, POLY_XLU_DISP);
 
         View_SetPerspective(&this->view, this->view.fovy, this->view.zNear, this->lightCtx.zFar);
+            PSP_STAGE(20);
         View_Apply(&this->view, VIEW_ALL);
 
 #if TARGET_PSP
@@ -1738,9 +1758,11 @@ void Play_Draw(PlayState* this) {
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_SKYBOX) {
             if (this->skyboxId && (this->skyboxId != SKYBOX_UNSET_1D) && !this->envCtx.skyboxDisabled) {
                 if ((this->skyboxId == SKYBOX_NORMAL_SKY) || (this->skyboxId == SKYBOX_CUTSCENE_MAP)) {
+            PSP_STAGE(30);
                     Environment_UpdateSkybox(this->skyboxId, &this->envCtx, &this->skyboxCtx);
                     Skybox_Draw(&this->skyboxCtx, gfxCtx, this->skyboxId, this->envCtx.skyboxBlend, this->view.eye.x,
                                 this->view.eye.y, this->view.eye.z);
+            PSP_STAGE(35);
                 } else if (this->skyboxCtx.drawType == SKYBOX_DRAW_128) {
                     Skybox_Draw(&this->skyboxCtx, gfxCtx, this->skyboxId, 0, this->view.eye.x, this->view.eye.y,
                                 this->view.eye.z);
@@ -1751,17 +1773,20 @@ void Play_Draw(PlayState* this) {
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) ||
             (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_SUN_AND_MOON)) {
             if (!this->envCtx.sunMoonDisabled) {
+            PSP_STAGE(40);
                 Environment_DrawSunAndMoon(this);
             }
         }
 
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) ||
             (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_SKYBOX_FILTERS)) {
+            PSP_STAGE(45);
             Environment_DrawSkyboxFilters(this);
         }
 
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_LIGHTNING)) {
             Environment_UpdateLightningStrike(this);
+            PSP_STAGE(50);
             Environment_DrawLightning(this, 0);
         }
 
@@ -1780,7 +1805,19 @@ void Play_Draw(PlayState* this) {
                 } else {
                     roomDrawFlags = R_PLAY_DRAW_ROOM_FLAGS;
                 }
+                /* Skybox probe -- placed here rather than in Room_DrawImageSingle
+                 * because that only runs for IMAGE rooms, and the Market
+                 * (market_day) is a NORMAL room. Both it and Link's House get
+                 * their visible environment from the skybox. */
+                gPspSkyProbe[0] = (u32)this->skyboxId;
+                gPspSkyProbe[1] = (u32)this->skyboxCtx.drawType;
+                gPspSkyProbe[2] = (u32)(uintptr_t)this->skyboxCtx.staticSegments[0];
+                gPspSkyProbe[3] = (u32)(uintptr_t)this->skyboxCtx.palettes;
+                gPspSkyProbe[4] = (u32)this->envCtx.skyboxDisabled;
+                gPspSkyProbe[5] = (u32)GET_ACTIVE_CAM(this)->setting;
+                gPspSkyProbe[6] = (u32)(uintptr_t)this->skyboxCtx.dListBuf[0];
                 Scene_Draw(this);
+            PSP_STAGE(60);
                 Room_Draw(this, &this->roomCtx.curRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
 #if TARGET_PSP
                 /* roomCtx.prevRoom is only ever populated by a real room transition
@@ -1794,6 +1831,7 @@ void Play_Draw(PlayState* this) {
                  * upstream state to stay clean for the whole frame. */
                 this->roomCtx.prevRoom.segment = NULL;
 #endif
+            PSP_STAGE(65);
                 Room_Draw(this, &this->roomCtx.prevRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
             }
         }
@@ -1810,6 +1848,7 @@ void Play_Draw(PlayState* this) {
         }
 
         if (this->envCtx.precipitation[PRECIP_RAIN_CUR] != 0) {
+            PSP_STAGE(70);
             Environment_DrawRain(this, &this->view, gfxCtx);
         }
 
@@ -1851,7 +1890,9 @@ void Play_Draw(PlayState* this) {
             gSPSegment(POLY_XLU_DISP++, 0x08, NULL);
             gSPSegment(POLY_XLU_DISP++, 0x09, NULL);
 #endif
+            PSP_STAGE(80);
             Actor_DrawAll(this, &this->actorCtx);
+            PSP_STAGE(90);
         }
 
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_LENS_FLARES) {
@@ -1913,6 +1954,8 @@ void Play_Draw(PlayState* this) {
             goto Play_Draw_skip;
         }
 
+    PSP_STAGE(110);
+
     Play_Draw_DrawOverlayElements:
         if (!DEBUG_FEATURES || (R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_OVERLAY_ELEMENTS) {
             Play_DrawOverlayElements(this);
@@ -1940,6 +1983,7 @@ Play_Draw_skip:
 
     Camera_Finish(GET_ACTIVE_CAM(this));
 
+    PSP_STAGE(120);
     CLOSE_DISPS(gfxCtx, "../z_play.c", 4508);
 }
 

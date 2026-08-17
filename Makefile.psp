@@ -243,6 +243,11 @@ PSP_C_FILES += psp/src/psp_frame_pace.c
 # scenes without a rebuild. See the file header.
 PSP_C_FILES += psp/src/psp_test_scenes.c
 
+# Development aid: SELECT opens a warp menu listing every scene. See the file
+# header. Its scene list is generated from the decomp's own tables, so it never
+# needs updating by hand.
+PSP_C_FILES += psp/src/psp_scene_menu.c
+
 OBJS := $(PSP_C_FILES:.c=.o)
 
 # --- Native-endian asset blobs -----------------------------------------------
@@ -254,37 +259,11 @@ OBJS := $(PSP_C_FILES:.c=.o)
 #
 # Format: <asset-subdir>:<scene-name>:<room-count>
 BLOB_DIR = build/blobs
-BLOB_SCENES = \
-	misc/hakaana2:hakaana2:1 \
-	overworld/spot02:spot02:2 \
-	indoors/link_home:link_home:1 \
-	indoors/kokiri_home:kokiri_home:1 \
-	indoors/kokiri_home3:kokiri_home3:1 \
-	indoors/kokiri_home4:kokiri_home4:1 \
-	indoors/kokiri_home5:kokiri_home5:1 \
-	indoors/kakariko:kakariko:1 \
-	misc/kakariko3:kakariko3:1 \
-	indoors/labo:labo:1 \
-	indoors/impa:impa:1 \
-	indoors/hut:hut:1 \
-	indoors/malon_stable:malon_stable:1 \
-	indoors/tent:tent:1 \
-	shops/kokiri_shop:kokiri_shop:1 \
-	shops/shop1:shop1:1 \
-	shops/alley_shop:alley_shop:1 \
-	shops/drag:drag:1 \
-	shops/night_shop:night_shop:1 \
-	shops/face_shop:face_shop:1 \
-	shops/golon:golon:1 \
-	shops/zoora:zoora:1 \
-	misc/entra:entra:1 \
-	misc/entra_n:entra_n:1 \
-	misc/enrui:enrui:1 \
-	misc/market_alley:market_alley:1 \
-	misc/market_alley_n:market_alley_n:1 \
-	misc/shrine:shrine:1 \
-	misc/shrine_n:shrine_n:1 \
-	misc/shrine_r:shrine_r:1
+# Derived from the extracted assets by psp/tools/list_scenes.sh rather than
+# hand-listed: the scene set, each scene's room count and its asset subdirectory
+# are all already unambiguous on disk, and a hand-maintained list silently
+# produced an empty scene whenever something was forgotten. All 101 scenes.
+BLOB_SCENES := $(shell sh psp/tools/list_scenes.sh extracted/pal-1.0)
 
 BLOB_REGISTRY = $(BLOB_DIR)/blobs_registry.inc
 
@@ -316,6 +295,19 @@ blobs/.stamp: $(BLOB_REGISTRY)
 	@mkdir -p blobs && cp -f $(BLOB_DIR)/*.bin blobs/ && touch $@
 
 psp/src/psp_blob_assets.o: $(BLOB_REGISTRY)
+
+# Warp-menu scene list, generated from include/tables/{scene,entrance}_table.h.
+SCENE_MENU_INC = $(BLOB_DIR)/psp_scene_menu.inc
+$(SCENE_MENU_INC): include/tables/scene_table.h include/tables/entrance_table.h psp/tools/gen_scene_menu.py
+	@mkdir -p $(BLOB_DIR)
+	@python3 psp/tools/gen_scene_menu.py include $@
+
+MENU_FONT_INC = $(BLOB_DIR)/psp_menu_font.inc
+$(MENU_FONT_INC): psp/tools/gen_menu_font.py
+	@mkdir -p $(BLOB_DIR)
+	@python3 psp/tools/gen_menu_font.py $@
+
+psp/src/psp_scene_menu.o: $(SCENE_MENU_INC) $(MENU_FONT_INC)
 
 blobs: $(BLOB_REGISTRY)
 .PHONY: blobs

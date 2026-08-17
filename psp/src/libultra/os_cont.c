@@ -22,6 +22,11 @@
 #include "ultra64/controller.h"
 #include "ultra64/rcp.h"
 #include "controller.h"
+#include "psp_raw_input.h"
+#include "psp_scene_menu.h"
+
+u32 gPspRawButtons = 0;
+u32 gPspRawButtonsPrev = 0;
 
 s32 osContInit(OSMesgQueue* mq, u8* ctlBitfield, OSContStatus* status) {
     s32 i;
@@ -79,6 +84,15 @@ void osContGetReadData(OSContPad* pad) {
 
     sceCtrlReadBufferPositive(&sceData, 1);
 
+    /* Raw PSP buttons, published for port-private UI that must not consume an
+     * N64 button. SELECT has no N64 counterpart at all, so the debug warp menu
+     * (psp/src/psp_scene_menu.c) reads it from here rather than being wedged
+     * onto one of the N64 buttons the game already uses. Edge detection lives
+     * with the reader; this is just the current state, sampled once per frame
+     * alongside everything else. */
+    gPspRawButtonsPrev = gPspRawButtons;
+    gPspRawButtons = sceData.Buttons;
+
     button = 0;
     if (sceData.Buttons & PSP_CTRL_CROSS) button |= BTN_A;
     if (sceData.Buttons & PSP_CTRL_CIRCLE) button |= BTN_B;
@@ -89,6 +103,19 @@ void osContGetReadData(OSContPad* pad) {
     if (sceData.Buttons & PSP_CTRL_DOWN) button |= BTN_CDOWN;
     if (sceData.Buttons & PSP_CTRL_LEFT) button |= BTN_CLEFT;
     if (sceData.Buttons & PSP_CTRL_RIGHT) button |= BTN_CRIGHT;
+
+    /* Freeze the game's view of the controller while the warp menu is up. The
+     * menu navigates with the D-Pad, which this shim maps to the N64
+     * C-buttons -- without this, every cursor move also toggles the viewpoint
+     * or swings the camera underneath the menu. The menu itself reads
+     * gPspRawButtons, so it is unaffected. */
+    if (gPspSceneMenuOpen) {
+        pad[0].button = 0;
+        pad[0].stick_x = 0;
+        pad[0].stick_y = 0;
+        pad[0].errno = 0;
+        return;
+    }
 
     pad[0].button = button;
     /* Both axes map PSP's unsigned 0..255 onto N64's signed s8, but only one of

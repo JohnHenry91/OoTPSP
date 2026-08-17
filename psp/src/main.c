@@ -86,18 +86,25 @@ int main(void) {
         PspDebugLogDmaTest(dmaTestRet, dmaTestChecksum, dmaTestPassed);
     }
 
-    /* Show the DMA pre-flight result for ~1 second (bright green = pass,
-     * red = fail) before handing off to the real boot chain below --
-     * same signal attempt 1 used, still useful as a fast sanity check
-     * independent of whether Main()/Graph_ThreadEntry crashes or hangs. */
-    for (int i = 0; i < 60; i++) {
-        sceGuStart(GU_DIRECT, sDmaTestList);
-        sceGuClearColor(dmaTestPassed ? 0xff00ff00 : 0xff0000ff);
-        sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT);
-        sceGuFinish();
-        sceGuSync(0, 0);
-        sceDisplayWaitVblankStart();
-        sceGuSwapBuffers();
+    /* Show the DMA pre-flight result ONLY when it fails (blue for ~1 second).
+     *
+     * This used to flash green for a second on every successful boot as well.
+     * That was worth having back when reaching Main() at all was in question,
+     * but it now costs a second of every launch to report the expected case,
+     * and a coloured screen before the game appears is indistinguishable from
+     * the port having hung -- which is exactly the signal it was meant to
+     * provide. A failure still stops and says so, because if the ROM cannot be
+     * read then everything after this point misbehaves in confusing ways. */
+    if (!dmaTestPassed) {
+        for (int i = 0; i < 60; i++) {
+            sceGuStart(GU_DIRECT, sDmaTestList);
+            sceGuClearColor(0xff0000ff);
+            sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT);
+            sceGuFinish();
+            sceGuSync(0, 0);
+            sceDisplayWaitVblankStart();
+            sceGuSwapBuffers();
+        }
     }
 
     /* Hand off to the real single-loop engine (see file header). Never
