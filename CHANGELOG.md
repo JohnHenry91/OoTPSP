@@ -36,11 +36,31 @@ rather than a stage set.
   untested outside Link, and both work correctly. That narrows what stands
   between the port and `En_Hy` (the Market's 13 townspeople, the actor that would
   actually populate the streets) to the message system alone, not animation.
+- **Texture cache keyed on tile dimensions**, not just address/format/size.
+  Every importer derives width and height from `line_size_bytes` /
+  `size_bytes`, so the same address at a different `G_SETTILE` line is a
+  different image -- but the first decode used to win forever while UVs were
+  normalised against the current tile width. Measured 218 such mis-served hits
+  per load in Bottom of the Well, 182 in Graveyard, 12 in Market Day.
+- **Warp menu filtered against the built blobs**, so unused leftover scenes
+  with no asset data (`besitu` and eight others) can no longer be selected.
 - Promoted `src/code/z_bg_item.c` (`DynaPolyActor_Init` and friends) from stub to
   real source, pulled in by the dyna-poly actors above.
 
 ### Known issues found this phase
 
+- **Bottom of the Well: walls go garish and speckled when Link walks forward
+  toward the hole**, and revert when he backs off -- position-dependent, not
+  view-dependent. Still open. Ruled out by measurement: segment-8/9 collision
+  (counters 0), `G_TX_MIRROR` falling through to `GU_REPEAT` (forcing CLAMP
+  changed nothing), the texture data itself (probe shows a correct 32x32 I4
+  decode with plausible mid-grey intensities), I4 alpha punching holes (walls
+  were never see-through), and the texture-cache size-key bug (fixed, artifact
+  unchanged). Leading theory is the whole-cache wipe in
+  `gfx_texture_cache_lookup` thrashing once more geometry is in view;
+  `gPspTexCacheResetVram` / `ResetPool` / `HighWater` were added to see it and
+  read 0/0/0 at the entrance -- the next measurement is the same read after
+  walking forward.
 - **Back Alley House (kakariko3) showed full-screen rainbow static once**, covering
   the walls entirely, on first warping in. Not reproducible on a second warp to the
   same scene (rendered correctly, including after toggling the fixed/pivot viewpoint
