@@ -671,8 +671,23 @@ static uint32_t gfx_scegu_new_texture(void) {
     return texman_create();
 }
 
+/* The PSP GE's sceGuTexWrap only has REPEAT and CLAMP -- no per-axis mirror --
+ * so G_TX_MIRROR silently falls through to plain REPEAT below. That IS a real
+ * gap: HAKAdan's walls use G_TX_MIRROR heavily, and per the RDP docs mirroring
+ * flips every 2^mask texels (the mask'th bit of the coordinate selects the
+ * mirrored copy), which plain REPEAT cannot reproduce. The real fix is a
+ * doubled, pre-mirrored texture upload, plus honouring masks/maskt (currently
+ * discarded in gfx_dp_set_tile).
+ *
+ * TESTED AND REFUTED as the cause of the Bottom of the Well wall glitch:
+ * forcing mirror axes to CLAMP left that artifact pixel-identical, across a
+ * fresh scene load so the sampler state was genuinely re-bound. Kept as an A/B
+ * switch for whoever implements the real mirror support. */
+int gDebugMirrorAsClamp = 0;
 static uint32_t gfx_cm_to_opengl(uint32_t val) {
     if (val & G_TX_CLAMP)
+        return GU_CLAMP;
+    if ((val & G_TX_MIRROR) && gDebugMirrorAsClamp)
         return GU_CLAMP;
     return GU_REPEAT;
 }

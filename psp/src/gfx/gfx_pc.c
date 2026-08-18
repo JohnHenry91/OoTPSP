@@ -115,6 +115,11 @@ struct TextureHashmapNode {
     uint32_t texture_id;
     uint8_t cms, cmt;
     bool linear_filter;
+    /* PART OF THE CACHE KEY. Every importer derives the uploaded image's
+     * width and height from these two, so the same address at a different
+     * tile size is a different texture -- see gfx_texture_cache_lookup. */
+    uint32_t line_size_bytes;
+    uint32_t size_bytes;
 } __attribute__((packed, aligned(4)));
 static struct {
     struct TextureHashmapNode *hashmap[1024];
@@ -997,12 +1002,58 @@ static struct ColorCombiner *gfx_lookup_or_create_color_combiner(uint32_t cc_id)
 extern int gfx_vram_space_available(void);
 extern void texman_clear(void);
 
+/* How often the whole texture cache had to be thrown away, split by which
+ * limit hit first, plus how full the pool was when it happened. Must be read
+ * per-scene: these are cumulative. Non-zero while standing still means the
+ * working set does not fit and every frame is re-uploading everything. */
+uint32_t gPspTexCacheResetVram;
+uint32_t gPspTexCacheResetPool;
+uint32_t gPspTexCacheHighWater;
+
+
+/* How often the size-aware cache key created a SECOND entry for an address
+ * that was already cached at different dimensions. Non-zero means the fix is
+ * doing real work; it also quantifies the extra pressure on the 512-entry
+ * pool, which is the one cost of keying on size.
+ *
+ * Before the fix this same code path was a mismatch COUNTER (hits returning a
+ * wrongly-sized image) and measured: Bottom of the Well 218, Graveyard 182,
+ * Market Day 12, Kakariko Village 0, with gPspTexSizeVariantLast = 0x00100020
+ * -- cached at line_size_bytes 16, requested 32, exactly 2x. That was the
+ * direction-dependent rainbow masonry in Bottom of the Well. */
+uint32_t gPspTexSizeVariants;
+uint32_t gPspTexSizeVariantLast;
+
 static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, const uint8_t *orig_addr, uint32_t fmt, uint32_t siz) {
     size_t hash = (uintptr_t)orig_addr;
     hash = (hash >> 5) & 0x3ff;
     struct TextureHashmapNode **node = &gfx_texture_cache.hashmap[hash];
     while (*node != NULL && *node - gfx_texture_cache.pool < (int)gfx_texture_cache.pool_pos) {
+        /* Dimensions are part of the key, not just the payload.
+         *
+         * Every importer derives width/height from line_size_bytes and
+         * size_bytes (see import_texture_i4 and friends), so the SAME texture
+         * address loaded under a different G_SETTILE line / G_LOADBLOCK length
+         * decodes to a genuinely different image. Keying only on
+         * addr/fmt/siz let the first load win forever: later draws got the
+         * old image while gfx_sp_tri1 normalised their UVs against the NEW
+         * tile_width, and a 2x disagreement samples the texture as garbage.
+         *
+         * Measured in Bottom of the Well, whose walls load the same I4 stone
+         * textures repeatedly at two sizes: 218 such hits per scene load,
+         * cached 16 bytes/line vs requested 32. That is the direction-dependent
+         * rainbow-mottled masonry -- the texture is 4-bit GRAYSCALE, so the
+         * colour could only ever have come from sampling it wrong, never from
+         * SHADE (which interpolates smoothly and cannot produce texel-rate
+         * speckle) and never from a second texture layer (the combine uses
+         * TEXEL0 only).
+         *
+         * Same reasoning as the palette field above, and the same fix
+         * libultraship applies there: distinct decode inputs get distinct
+         * entries. */
         if ((*node)->texture_addr == orig_addr && (*node)->fmt == fmt && (*node)->siz == siz &&
+            (*node)->line_size_bytes == rdp.texture_tile[tile].line_size_bytes &&
+            (*node)->size_bytes == rdp.loaded_texture[tile].size_bytes &&
             (fmt != G_IM_FMT_CI || (*node)->palette == rdp.palette)) {
             gfx_rapi->select_texture(tile, (*node)->texture_id);
             gfx_rapi->set_sampler_parameters(0, (*node)->linear_filter, (*node)->cms, (*node)->cmt);
@@ -1031,6 +1082,23 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
      * calling texman_clear() here too, keeping both caches synchronized. */
     if(!gfx_vram_space_available() ||
        gfx_texture_cache.pool_pos == sizeof(gfx_texture_cache.pool) / sizeof(struct TextureHashmapNode)) {
+#if TARGET_PSP
+        /* Session 17: this whole-cache wipe was invisible. Bottom of the Well
+         * renders correctly until Link walks forward toward the hole -- i.e.
+         * until MORE geometry is in view at once -- and then the walls go
+         * garish and speckled, reverting when he backs off. That is the
+         * signature of the cache thrashing: every texture evicted and
+         * re-uploaded every frame, with the GE still bound to whatever the
+         * previous occupant of that VRAM was. Count both trigger reasons
+         * separately -- VRAM exhaustion and pool exhaustion have different
+         * fixes (a bigger/better-packed VRAM budget vs a bigger pool). */
+        if (!gfx_vram_space_available()) {
+            ++gPspTexCacheResetVram;
+        } else {
+            ++gPspTexCacheResetPool;
+        }
+        gPspTexCacheHighWater = gfx_texture_cache.pool_pos;
+#endif
         texman_clear();
 
         // Pool is full. We just invalidate everything and start over.
@@ -1039,6 +1107,26 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
         node = &gfx_texture_cache.hashmap[hash];
         //puts("Clearing texture cache");
     }
+#if TARGET_PSP
+    /* Walk the chain again to see whether this address is already present at
+     * some OTHER size -- i.e. whether keying on size is what made this a miss.
+     * Cheap: these chains are short, and this runs only on a cache miss. */
+    {
+        struct TextureHashmapNode *scan = gfx_texture_cache.hashmap[hash];
+
+        while (scan != NULL && scan - gfx_texture_cache.pool < (int)gfx_texture_cache.pool_pos) {
+            if (scan->texture_addr == orig_addr &&
+                (scan->line_size_bytes != rdp.texture_tile[tile].line_size_bytes ||
+                 scan->size_bytes != rdp.loaded_texture[tile].size_bytes)) {
+                ++gPspTexSizeVariants;
+                gPspTexSizeVariantLast = (scan->line_size_bytes << 16) |
+                                         (rdp.texture_tile[tile].line_size_bytes & 0xffff);
+                break;
+            }
+            scan = scan->next;
+        }
+    }
+#endif
     *node = &gfx_texture_cache.pool[gfx_texture_cache.pool_pos++];
     if ((*node)->texture_addr == NULL) {
         (*node)->texture_id = gfx_rapi->new_texture();
@@ -1054,6 +1142,8 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
     (*node)->fmt = fmt;
     (*node)->siz = siz;
     (*node)->palette = rdp.palette;
+    (*node)->line_size_bytes = rdp.texture_tile[tile].line_size_bytes;
+    (*node)->size_bytes = rdp.loaded_texture[tile].size_bytes;
     *n = *node;
     return false;
 }
@@ -1242,9 +1332,48 @@ static void import_texture_ia16(int tile) {
     gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
 }
 
+/* Session 17 probe for the Bottom of the Well walls. Those are the port's
+ * first heavy use of G_IM_FMT_I, and the rainbow mottling can only come from
+ * the intensity data being read wrong (I4 is GRAYSCALE -- neither SHADE, which
+ * interpolates smoothly, nor a second texture layer, which this combine does
+ * not have, can produce texel-rate colour). So record what the importer
+ * actually sees, for the LAST I4 texture of each frame:
+ *   [0] addr  [1] tex_unswap  [2] line_size_bytes  [3] size_bytes
+ *   [4] derived width  [5] derived height  [6] src_stride_bytes
+ *   [7..14] first 32 nibbles as read through TEXSRC, packed 8 per word
+ * Compare [7..] against the same bytes in the blob on disk: equal means the
+ * read path is fine and the fault is downstream, different means it is here. */
+int gDebugI4Opaque = 0;
+uint32_t gPspI4Probe[16];
+
 static void import_texture_i4(int tile) {
     const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
     uint8_t rgba32_buf[32768];
+
+#if TARGET_PSP
+    gPspI4Probe[0] = (uint32_t)(uintptr_t)rdp.loaded_texture[tile].addr;
+    gPspI4Probe[1] = tex_unswap ? 1u : 0u;
+    gPspI4Probe[2] = rdp.texture_tile[tile].line_size_bytes;
+    gPspI4Probe[3] = rdp.loaded_texture[tile].size_bytes;
+    gPspI4Probe[4] = rdp.texture_tile[tile].line_size_bytes * 2;
+    gPspI4Probe[5] = rdp.texture_tile[tile].line_size_bytes
+                         ? rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes
+                         : 0;
+    gPspI4Probe[6] = rdp.texture_tile[tile].src_stride_bytes;
+    {
+        int w;
+
+        for (w = 0; w < 8; w++) {
+            uint32_t packed = 0;
+            int b;
+
+            for (b = 0; b < 4; b++) {
+                packed |= (uint32_t)TEXSRC(w * 4 + b) << (b * 8);
+            }
+            gPspI4Probe[7 + w] = packed;
+        }
+    }
+#endif
 
     for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
         uint8_t byte = TEXSRC(i / 2);
@@ -1261,7 +1390,17 @@ static void import_texture_i4(int tile) {
          * TEXEL0's alpha directly, gDPSetCombineLERP's alpha cycle in
          * ConsoleLogo_Draw) to fade out the glyph texture's dark/background
          * pixels instead of showing them opaque black. */
-        rgba32_buf[4*i + 3] = SCALE_4_8(intensity);
+        /* I4's alpha = intensity is correct N64 behaviour and the console
+         * logo depends on it (its combine samples TEXEL0's alpha directly).
+         *
+         * TESTED AND REFUTED as the cause of the Bottom of the Well glitch:
+         * the theory was that HAKAdan's constant-1 alpha cycle means vanilla
+         * discards the texture alpha, so letting it reach the alpha test
+         * (G_RM_AA_ZB_TEX_EDGE2 / CVG_X_ALPHA) would punch holes in the walls.
+         * The user confirmed the walls were never see-through, which kills it.
+         * Left as an A/B switch; default 0 is the correct behaviour. */
+        extern int gDebugI4Opaque;
+        rgba32_buf[4*i + 3] = gDebugI4Opaque ? 255 : SCALE_4_8(intensity);
     }
 
     uint32_t width = rdp.texture_tile[tile].line_size_bytes * 2;

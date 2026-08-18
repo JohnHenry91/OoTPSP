@@ -339,9 +339,20 @@ INCDIR = psp/include psp/include/gfx include src . extracted/pal-1.0 build/pal-1
 # reference/oot's own Makefile) -- keeps ported src/ files on the same #if
 # branches a real N64 build takes, rather than drifting onto GC/iQue-only
 # paths. OOT_VERSION/DEBUG_FEATURES/NDEBUG mirror that build's own recipe.
+# Where a fresh launch lands. z_opening.c guards its default with #ifndef, so
+# this overrides it without touching the source -- which matters, because a
+# temporarily-edited default is exactly the kind of thing that gets committed
+# by accident while debugging one scene. SELECT still reaches every scene at
+# runtime; this only saves the warp on each rebuild.
+#   make -f Makefile.psp BOOT=ENTR_BOTTOM_OF_THE_WELL_0
+BOOT ?=
+ifneq ($(BOOT),)
+BOOT_FLAG = -DPSP_BOOT_ENTRANCE=$(BOOT)
+endif
+
 CFLAGS = -O2 -G0 -Wall -D_PSP_FW_VERSION=600 -DPLATFORM_N64=1 -DPLATFORM_GC=0 -DPLATFORM_IQUE=0 \
          -DOOT_VERSION=PAL_1_0 -DDEBUG_FEATURES=0 -DNDEBUG -DTARGET_PSP=1 -DNON_MATCHING=1 -DAVOID_UB=1 \
-         -DF3DEX_GBI_2 -include libc/assert.h
+         -DF3DEX_GBI_2 $(BOOT_FLAG) -include libc/assert.h
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
