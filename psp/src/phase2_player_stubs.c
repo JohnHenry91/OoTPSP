@@ -26,8 +26,8 @@ void Audio_SetSequenceMode(u8 seqMode) {}
 void Audio_StopBgmAndFanfare(u16 fadeOutDuration) {}
 void Audio_StopSfxById(u32 sfxId) {}
 
-void DynaPoly_SetPlayerAbove(void* colCtx, s32 floorBgId) {}
-void DynaPoly_SetPlayerOnTop(void* colCtx, s32 floorBgId) {}
+/* Promoted to the real src/code/z_bg_item.c (Phase 3, enabled by the first
+ * dyna-poly actors). Stub removed -- keeping it would be a duplicate symbol. */
 
 void EffectBlure_AddVertex(void* this, void* p1, void* p2) {}
 void EffectSsBlast_SpawnWhiteShockwave(void* play, void* pos, void* velocity, void* accel) {}

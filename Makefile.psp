@@ -165,6 +165,15 @@ PSP_C_FILES += psp/src/phase2_debug_log.c
 # its .c is listed here, at which point the strong symbol wins. Adding one is
 # therefore just this line plus whatever objects/assets it references.
 PSP_C_FILES += src/overlays/actors/ovl_En_Kusa/z_en_kusa.c
+PSP_C_FILES += src/overlays/actors/ovl_Obj_Kibako2/z_obj_kibako2.c
+PSP_C_FILES += src/overlays/actors/ovl_En_Wood02/z_en_wood02.c
+PSP_C_FILES += src/overlays/actors/ovl_En_Dog/z_en_dog.c
+# Engine sources these actors pull in (DynaPolyActor_Init / the path system).
+PSP_C_FILES += src/code/z_bg_item.c
+PSP_C_FILES += src/code/z_path.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_kibako2/object_kibako2.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_wood02/object_wood02.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_dog/object_dog.c
 PSP_C_FILES += assets/objects/gameplay_keep/cuttable_shrub.c
 PSP_C_FILES += extracted/pal-1.0/assets/objects/object_kusa/object_kusa.c
 

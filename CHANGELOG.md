@@ -66,6 +66,7 @@ correctly, and lets you move Link around it.
   ≥343 KB, genuine segment references at ≤26 KB, threshold 64 KB). The collision-proof
   answer is libultraship's marker convention (bit 0 tags a segmented address), which
   needs tagging at blob-build time and at every `gSPSegment` site.
+- **`besitu` crashes the game** when warped to. Not yet diagnosed.
 - **Two scenes fail to blob** (`bdan`, `bdan_boss`) — both need a private `gIdentityMtx`
   linked into the blob.
 - The build has **no header dependency tracking**. After editing a `.h`, delete the
