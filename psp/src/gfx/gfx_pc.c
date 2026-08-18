@@ -1585,6 +1585,10 @@ static void gfx_sp_pop_matrix(uint32_t count) {
     }
 }
 
+/* 1 = inherited behaviour (aspect-correct the clip-space x). 0 = clip in the
+ * same space the GE rasterises in. See the use site in gfx_sp_vertex. */
+int gDebugClipAspectAdjust = 1;
+
 static float gfx_adjust_x_for_aspect_ratio(float x) {
     return x * (4.0f / 3.0f) / ((float)gfx_current_dimensions.width / (float)gfx_current_dimensions.height);
 }
@@ -1656,7 +1660,28 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
          * Now the modelview is applied HERE, at load time, and GU_MODEL is kept
          * at identity so the GE only applies the projection. */
         //const float x = proj_vec[0];
-        const float x = gfx_adjust_x_for_aspect_ratio(proj_vec[0]);
+        /* CLIP SPACE vs RENDER SPACE, and they disagree.
+         *
+         * _x below feeds the trivial-reject test and clip_to_frustum; d->x/y/z
+         * feed the GE, which transforms them with P_matrix alone. Applying the
+         * aspect correction to only the first means the CPU clips against a
+         * frustum 1/0.7556 wider in x than the one actually rasterised
+         * (gfx_calc_and_set_viewport uses RATIO_X = width/320 = 1.5, i.e. the
+         * full 480, so nothing is pillarboxed).
+         *
+         * Runtime switch because the consequence is only visible on geometry
+         * that is HEAVILY clipped -- ordinary room and actor geometry sits
+         * inside the frustum and never notices. The skybox does: it is a box
+         * around the camera, so 196 of its 256 triangles get clipped.
+         *
+         * TESTED AND REFUTED as the cause of the skybox's tilt: with this off,
+         * i.e. clipping in exactly the space the GE rasterises in, the tilt is
+         * unchanged. Default is therefore left at the inherited behaviour. The
+         * inconsistency above is real and worth revisiting, but it is not that
+         * bug. */
+        extern int gDebugClipAspectAdjust;
+        const float x = gDebugClipAspectAdjust ? gfx_adjust_x_for_aspect_ratio(proj_vec[0])
+                                               : proj_vec[0];
         const float y = proj_vec[1];
         const float z = proj_vec[2];
         float w = proj_vec[3];
