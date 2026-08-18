@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <malloc.h>
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -468,8 +469,18 @@ static inline int texenv_set_texture_texture(struct ShaderProgram *prg) {
      * (here CC_PRIM) and hands it over as the vertex colour, and Skybox_Draw
      * sets that register to gDPSetPrimColor(..., 0, 0, 0, blend): RGB (0,0,0),
      * with only the ALPHA carrying the time-of-day blend. MODULATE therefore
-     * multiplies every skybox texel by black. REPLACE takes the texel alone,
-     * which is exactly the N64 result while the blend factor is 0. */
+     * multiplied every skybox texel by black. REPLACE took the texel alone,
+     * which is exactly the N64 result while the blend factor is 0.
+     *
+     * This stays the DEFAULT, but it is no longer the whole story: it is only
+     * right when the cycle-1 register is the sole non-texel contribution.
+     * The Chamber of the Sages waterfalls are the counter-example -- two I8
+     * (intensity-only, i.e. grey) textures mixed in cycle 1, with
+     * cycle 2 = COMBINED * SHADE supplying the blue. REPLACE threw that shade
+     * away and the pillars rendered white. Those draws get MODULATE instead,
+     * switched per draw by gfx_scegu_set_two_texture_tint() below, because
+     * whether a cycle-2 tint exists is RDP state that cc_id (and therefore
+     * this per-shader decision) does not capture. */
     return GU_TFX_REPLACE;
 }
 
@@ -487,6 +498,9 @@ static inline int texenv_set_texture_texture(struct ShaderProgram *prg) {
  * +-1 rounding in the 5->8 bit scale), so this is the right next split.
  * Set back to 0 once the answer is known. */
 #define PSP_DIAG_DISABLE_TEXTURING 0
+
+/* Last texenv mode forced by gfx_scegu_set_two_texture_tint(); -1 == none. */
+static int mode_override = -1;
 
 static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
 #if PSP_DIAG_DISABLE_TEXTURING
@@ -557,6 +571,36 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
             mode = GU_TFX_REPLACE;
         }
         sceGuTexFunc(mode, tcc_for_alpha(prg));
+        mode_override = -1;
+    }
+}
+
+/* Per-draw texenv override for two-texture combines.
+ *
+ * texenv_set_texture_texture() runs once per shader program and caches its
+ * answer in prg->enabled, but the thing that decides between REPLACE and
+ * MODULATE -- whether the combine's SECOND cycle multiplies the result by a
+ * colour register -- is not part of cc_id (see gfx_pc.c's combine_cyc2_tint,
+ * deliberately kept out of shader ids). The same shader program can therefore
+ * be used both with and without a tint, so gfx_pc.c calls this on the draws
+ * that care.
+ *
+ * `mode_override` is reset whenever a shader is (re)applied, since that path
+ * issues its own sceGuTexFunc and would otherwise leave this cache stale. */
+void gfx_scegu_set_two_texture_tint(int has_tint) {
+    if (cur_shader == NULL || cur_shader->mix != SH_MT_TEXTURE_TEXTURE) {
+        return;
+    }
+    /* The boot logo has its own approximation, don't disturb it. */
+    if (is_n64_logo_text_combine(cur_shader) || is_n64_logo_cube_combine(cur_shader)) {
+        return;
+    }
+
+    const int mode = has_tint ? GU_TFX_MODULATE : GU_TFX_REPLACE;
+
+    if (mode != mode_override) {
+        mode_override = mode;
+        sceGuTexFunc(mode, tcc_for_alpha(cur_shader));
     }
 }
 
@@ -754,7 +798,24 @@ static void gfx_scegu_select_texture(int tile, uint32_t texture_id) {
      * Revisit with proper staleness tracking (e.g. invalidate tmu_state on
      * texman_clear(), or only trust a same-draw-sequence id) before
      * attempting real dual-texture support again. */
-    if (tile == 1 && cur_shader != NULL && is_n64_logo_text_combine(cur_shader)) {
+    /* GENERALISED (see below): keep TEXEL0 bound for EVERY two-texture
+     * combine, which is the rule texenv_set_texture_texture already assumes
+     * and quotes from Daedalus ("NB if install_texture0 and install_texture1
+     * are both set, 0 wins out"). The code contradicted its own comment: tile
+     * 1 is processed second, so its bind physically won.
+     *
+     * The Chamber of the Sages water columns show why TEXEL0 is the right
+     * half to keep. Their combine is (TEXEL1 - TEXEL0) * ENV_ALPHA + TEXEL0,
+     * where TEXEL0 (kenjyanoma 0x00012508) is the fine 32x64 ripple pattern
+     * and TEXEL1 (0x000114E8) is a coarse blocky mask. The N64 scrolls the two
+     * against each other into the wobbling mass; with one TMU, binding TEXEL1
+     * rendered the bare blocks -- the drifting rectangles. TEXEL0 alone still
+     * reads as water.
+     *
+     * Same argument as the boot logo's "NINTENDO 64" text, which this used to
+     * special-case: TEXEL0 is the per-character glyph bitmap, TEXEL1 a static
+     * shine overlay. The general rule covers it. */
+    if (tile == 1 && cur_shader != NULL && cur_shader->texture_used[0]) {
         return;
     }
     if (tmu_state[tile].tex != texture_id) {
@@ -1301,7 +1362,8 @@ static void gfx_scegu_init(void) {
     sceDisplayWaitVblankStart();
     sceGuDisplay(GU_TRUE);
 
-    void *texman_buffer = getStaticVramBufferBytes(TEXMAN_BUFFER_SIZE);
+    /* Main RAM, not VRAM -- see TEXMAN_BUFFER_SIZE. */
+    void *texman_buffer = memalign(TEX_ALIGNMENT, TEXMAN_BUFFER_SIZE);
     void *texman_aligned = (void *) ((((unsigned int) texman_buffer + TEX_ALIGNMENT - 1) / TEX_ALIGNMENT) * TEX_ALIGNMENT);
     texman_reset(texman_aligned, TEXMAN_BUFFER_SIZE);
     if (!texman_buffer) {

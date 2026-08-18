@@ -11,8 +11,23 @@
 #pragma once
 #define TEX_ALIGNMENT (16)
 
-/* 1mb buffer */
-#define TEXMAN_BUFFER_SIZE (1 * 1024 * 1024)
+/* Texture pool size.
+ *
+ * This used to be 1 MB carved out of VRAM (getStaticVramBufferBytes), which is
+ * all that is left of the PSP's 2 MB after two 512x272 framebuffers and the
+ * Z-buffer. Every texture is decoded to 32-bit RGBA before upload, so 1 MB is
+ * roughly 64 textures of 64x64 -- less than a single OoT room needs. Running
+ * out makes gfx_texture_cache_lookup wipe BOTH caches mid-frame
+ * (texman_clear), while the GE stays bound to VRAM that now belongs to a
+ * different texture: the speckled/garish corruption that shows up in the
+ * Market, Back Alley House and Bottom of the Well, and that comes and goes
+ * depending on how full the pool happened to be when the room loaded.
+ *
+ * The pool now lives in main RAM instead (the GE can sample textures straight
+ * out of RAM, just with less bandwidth than VRAM -- this is what DaedalusX64
+ * does on the same hardware), so it can be sized for the content rather than
+ * for what VRAM has left over. */
+#define TEXMAN_BUFFER_SIZE (4 * 1024 * 1024)
 
 struct PSP_Texture {
     unsigned char *location;

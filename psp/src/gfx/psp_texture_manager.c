@@ -145,11 +145,30 @@ unsigned char texman_get_tex_type(unsigned int num) {
     return textures[num].type;
 }
 
+unsigned int psp_tex_overflows = 0;
+
 struct PSP_Texture *texman_reserve_memory(int width, int height, unsigned int type) {
     int tex_size = getMemorySize(width, height, type);
-    psp_tex_buffer =
+    void *next =
         (void *) ((((unsigned int) psp_tex_buffer + tex_size + TEX_ALIGNMENT - 1) / TEX_ALIGNMENT)
                   * TEX_ALIGNMENT);
+
+    /* Nothing here ever checked the end of the buffer. gfx_pc.c calls
+     * gfx_vram_space_available() before allocating, but that only guarantees
+     * 32 KB of headroom -- a single 256x256 RGBA texture is 256 KB, so a large
+     * enough texture could walk straight past psp_tex_buffer_max and scribble
+     * over whatever follows the pool. Wrap to the start instead: that corrupts
+     * the OLDEST texture rather than unrelated memory, and the caches are
+     * about to be wiped anyway the next time the headroom check trips. */
+    if (next > psp_tex_buffer_max) {
+        ++psp_tex_overflows;
+        psp_tex_buffer = psp_tex_buffer_start;
+        next = (void *) ((((unsigned int) psp_tex_buffer + tex_size + TEX_ALIGNMENT - 1) /
+                          TEX_ALIGNMENT) * TEX_ALIGNMENT);
+        textures[psp_tex_number].location = psp_tex_buffer;
+    }
+
+    psp_tex_buffer = next;
 #ifdef DEBUG
     printf("TEX_MAN tex [%d] reserved %d bytes @ %x left: %d kb\n", psp_tex_number, tex_size,
            (unsigned int) textures[psp_tex_number].location,
@@ -159,6 +178,15 @@ struct PSP_Texture *texman_reserve_memory(int width, int height, unsigned int ty
 }
 
 unsigned int texman_create(void) {
+    /* textures[] is a fixed 512 entries. gfx_pc.c keeps its own pool in
+     * lockstep and wipes both when either fills, so this should not be
+     * reachable -- but an unchecked ++ here writes out of bounds if it ever
+     * is, which is exactly the corruption class this file already caused once
+     * (see the comment on the pool wipe in gfx_texture_cache_lookup). */
+    if (psp_tex_number + 1 >= (unsigned int) (sizeof(textures) / sizeof(textures[0]))) {
+        texman_clear();
+    }
+
     psp_tex_number++;
     textures[psp_tex_number] = (struct PSP_Texture){
         location : psp_tex_buffer,

@@ -169,6 +169,8 @@ static struct RSP {
     struct LoadedVertex loaded_vertices[MAX_VERTICES];
 } rsp  __attribute__((aligned(16)));
 
+#define LOADED_TEX(tile) (rdp.loaded_texture[rdp.texture_tile[(tile)].tmem_slot])
+
 static struct RDP {
     const uint8_t *palette;
     struct {
@@ -203,6 +205,20 @@ static struct RDP {
          * line_size_bytes only when a G_LOADTILE pulls a sub-rectangle out of a
          * wider image; 0 means "same as line_size_bytes", i.e. contiguous. */
         uint32_t src_stride_bytes;
+        /* Which loaded_texture[] slot this tile's texels actually live in,
+         * i.e. G_SETTILE's tmem address / 256. NOT the same thing as the tile
+         * number: OoT's scrolling-lava/water materials (DMC, Fire Temple, ...)
+         * point BOTH tile 0 and tile 1 at tmem 0x0000 -- one G_LOADBLOCK, two
+         * tiles reading it with independently scrolled uls/ult, blended by the
+         * combine. Indexing loaded_texture[] by the tile NUMBER instead made
+         * TEXEL1 read slot 1, which nothing had ever loaded, so the lava came
+         * out textured with whatever stale pointer/size was left there. */
+        uint8_t tmem_slot;
+        /* G_SETTILE's shift_s / shift_t: how many bits the incoming S/T
+         * coordinate is shifted BEFORE the tile origin is subtracted.
+         * 0 = none, 1..10 = right shift (texture stretched), 11..15 = left
+         * shift by 16 - value (texture repeated more often). */
+        uint8_t shifts, shiftt;
     } texture_tile[2];
     bool textures_changed[2];
     
@@ -229,7 +245,13 @@ static struct RenderingState {
     bool depth_mask;
     bool decal_mode;
     bool alpha_blend;
+    /* Texenv mode last forced for two-texture combines: 1 == MODULATE,
+     * 0 == REPLACE, -1 == unknown / not forced yet. */
+    int two_texture_tint;
 } rendering_state __attribute__((aligned(16)));
+
+/* gfx_scegu.c -- per-draw texenv override; see the call sites in gfx_sp_tri1. */
+void gfx_scegu_set_two_texture_tint(int has_tint);
 
 /* Exposed to gfx_scegu.c's N64-logo-cube 2-pass hack: it needs to toggle
  * GU_BLEND directly for one extra pass, and must restore it to whatever
@@ -1053,7 +1075,7 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
          * entries. */
         if ((*node)->texture_addr == orig_addr && (*node)->fmt == fmt && (*node)->siz == siz &&
             (*node)->line_size_bytes == rdp.texture_tile[tile].line_size_bytes &&
-            (*node)->size_bytes == rdp.loaded_texture[tile].size_bytes &&
+            (*node)->size_bytes == LOADED_TEX(tile).size_bytes &&
             (fmt != G_IM_FMT_CI || (*node)->palette == rdp.palette)) {
             gfx_rapi->select_texture(tile, (*node)->texture_id);
             gfx_rapi->set_sampler_parameters(0, (*node)->linear_filter, (*node)->cms, (*node)->cmt);
@@ -1117,7 +1139,7 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
         while (scan != NULL && scan - gfx_texture_cache.pool < (int)gfx_texture_cache.pool_pos) {
             if (scan->texture_addr == orig_addr &&
                 (scan->line_size_bytes != rdp.texture_tile[tile].line_size_bytes ||
-                 scan->size_bytes != rdp.loaded_texture[tile].size_bytes)) {
+                 scan->size_bytes != LOADED_TEX(tile).size_bytes)) {
                 ++gPspTexSizeVariants;
                 gPspTexSizeVariantLast = (scan->line_size_bytes << 16) |
                                          (rdp.texture_tile[tile].line_size_bytes & 0xffff);
@@ -1143,7 +1165,7 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
     (*node)->siz = siz;
     (*node)->palette = rdp.palette;
     (*node)->line_size_bytes = rdp.texture_tile[tile].line_size_bytes;
-    (*node)->size_bytes = rdp.loaded_texture[tile].size_bytes;
+    (*node)->size_bytes = LOADED_TEX(tile).size_bytes;
     *n = *node;
     return false;
 }
@@ -1216,14 +1238,14 @@ static inline uint32_t tex_row_index(int tile, uint32_t i) {
     return (i / line) * stride + (i % line);
 }
 
-#define TEXSRC(i) (rdp.loaded_texture[tile].addr[tex_src_index(tex_row_index(tile, (i)), tex_unswap)])
+#define TEXSRC(i) (LOADED_TEX(tile).addr[tex_src_index(tex_row_index(tile, (i)), tex_unswap)])
 #define PALSRC(i) (rdp.palette[tex_src_index((i), pal_unswap)])
 /* ------------------------------------------------------------------------ */
 
 static void import_texture_rgba16(int tile) {
-    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint16_t rgba16_buf[4096] __attribute__ ((aligned(4)));    
-    for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes / 2; i++) {
+    for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes / 2; i++) {
         uint16_t col16 = (TEXSRC(2 * i) << 8) | TEXSRC(2 * i + 1);
         const uint8_t a = col16 & 1;
         const uint8_t r = (col16 >> 11) & 0x1f;
@@ -1233,27 +1255,27 @@ static void import_texture_rgba16(int tile) {
     }
     
     uint32_t width = rdp.texture_tile[tile].line_size_bytes / 2;
-    uint32_t height = rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
 
     gfx_rapi->upload_texture((const uint8_t*)rgba16_buf, width, height, GU_PSM_5551);
 }
 
 static void import_texture_rgba32(int tile) {
-    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint32_t width = rdp.texture_tile[tile].line_size_bytes / 2;
-    uint32_t height = (rdp.loaded_texture[tile].size_bytes / 2) / rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height = (LOADED_TEX(tile).size_bytes / 2) / rdp.texture_tile[tile].line_size_bytes;
 
     /* The DMA'd case (by far the common one) still uploads straight from the
      * source with no copy; only compiled-in u64-literal data needs the
      * unswap pass, and then we have to stage it. */
     if (!tex_unswap) {
-        gfx_rapi->upload_texture(rdp.loaded_texture[tile].addr, width, height, GU_PSM_8888);
+        gfx_rapi->upload_texture(LOADED_TEX(tile).addr, width, height, GU_PSM_8888);
         return;
     }
 
     {
         static uint8_t rgba32_buf[16384];
-        uint32_t n = rdp.loaded_texture[tile].size_bytes;
+        uint32_t n = LOADED_TEX(tile).size_bytes;
         if (n > sizeof(rgba32_buf)) {
             n = sizeof(rgba32_buf);
         }
@@ -1265,10 +1287,10 @@ static void import_texture_rgba32(int tile) {
 }
 
 static void import_texture_ia4(int tile) {
-    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint8_t rgba32_buf[32768] __attribute__ ((aligned(4)));
     
-    for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
+    for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes * 2; i++) {
         uint8_t byte = TEXSRC(i / 2);
         uint8_t part = (byte >> (4 - (i % 2) * 4)) & 0xf;
         uint8_t intensity = part >> 1;
@@ -1283,16 +1305,16 @@ static void import_texture_ia4(int tile) {
     }
     
     uint32_t width = rdp.texture_tile[tile].line_size_bytes * 2;
-    uint32_t height = rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
     gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
 }
 
 static void import_texture_ia8(int tile) {
-    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint8_t rgba32_buf[16384]__attribute__ ((aligned(4)));
     
-    for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
+    for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes; i++) {
         uint8_t intensity = TEXSRC(i) >> 4;
         uint8_t alpha = TEXSRC(i) & 0xf;
         uint8_t r = intensity;
@@ -1305,16 +1327,16 @@ static void import_texture_ia8(int tile) {
     }
     
     uint32_t width = rdp.texture_tile[tile].line_size_bytes;
-    uint32_t height = rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
     gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
 }
 
 static void import_texture_ia16(int tile) {
-    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint8_t rgba32_buf[8192];
     
-    for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes / 2; i++) {
+    for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes / 2; i++) {
         uint8_t intensity = TEXSRC(2 * i);
         uint8_t alpha = TEXSRC(2 * i + 1);
         uint8_t r = intensity;
@@ -1327,7 +1349,7 @@ static void import_texture_ia16(int tile) {
     }
     
     uint32_t width = rdp.texture_tile[tile].line_size_bytes / 2;
-    uint32_t height = rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
     gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
 }
@@ -1347,17 +1369,17 @@ int gDebugI4Opaque = 0;
 uint32_t gPspI4Probe[16];
 
 static void import_texture_i4(int tile) {
-    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint8_t rgba32_buf[32768];
 
 #if TARGET_PSP
-    gPspI4Probe[0] = (uint32_t)(uintptr_t)rdp.loaded_texture[tile].addr;
+    gPspI4Probe[0] = (uint32_t)(uintptr_t)LOADED_TEX(tile).addr;
     gPspI4Probe[1] = tex_unswap ? 1u : 0u;
     gPspI4Probe[2] = rdp.texture_tile[tile].line_size_bytes;
-    gPspI4Probe[3] = rdp.loaded_texture[tile].size_bytes;
+    gPspI4Probe[3] = LOADED_TEX(tile).size_bytes;
     gPspI4Probe[4] = rdp.texture_tile[tile].line_size_bytes * 2;
     gPspI4Probe[5] = rdp.texture_tile[tile].line_size_bytes
-                         ? rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes
+                         ? LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes
                          : 0;
     gPspI4Probe[6] = rdp.texture_tile[tile].src_stride_bytes;
     {
@@ -1375,7 +1397,7 @@ static void import_texture_i4(int tile) {
     }
 #endif
 
-    for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
+    for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes * 2; i++) {
         uint8_t byte = TEXSRC(i / 2);
         uint8_t part = (byte >> (4 - (i % 2) * 4)) & 0xf;
         uint8_t intensity = part;
@@ -1404,16 +1426,16 @@ static void import_texture_i4(int tile) {
     }
 
     uint32_t width = rdp.texture_tile[tile].line_size_bytes * 2;
-    uint32_t height = rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
 
     gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
 }
 
 static void import_texture_i8(int tile) {
-    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint8_t rgba32_buf[16384];
 
-    for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
+    for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes; i++) {
         uint8_t intensity = TEXSRC(i);
         uint8_t r = intensity;
         uint8_t g = intensity;
@@ -1427,18 +1449,18 @@ static void import_texture_i8(int tile) {
     }
 
     uint32_t width = rdp.texture_tile[tile].line_size_bytes;
-    uint32_t height = rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
 
     gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
 }
 
 
 static void import_texture_ci4(int tile) {
-    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     const bool pal_unswap = tex_needs_u64_unswap(rdp.palette);
     uint8_t rgba32_buf[32768];
 
-    for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes * 2; i++) {
+    for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes * 2; i++) {
         uint8_t byte = TEXSRC(i / 2);
         uint8_t idx = (byte >> (4 - (i % 2) * 4)) & 0xf;
         uint16_t col16 = (PALSRC(idx * 2) << 8) | PALSRC(idx * 2 + 1); // Big endian load
@@ -1453,7 +1475,7 @@ static void import_texture_ci4(int tile) {
     }
     
     uint32_t width = rdp.texture_tile[tile].line_size_bytes * 2;
-    uint32_t height = rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
     gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
 }
@@ -1474,11 +1496,11 @@ static void import_texture_ci4(int tile) {
 int gDebugCi8Opaque = 0;
 
 static void import_texture_ci8(int tile) {
-    const bool tex_unswap = tex_needs_u64_unswap(rdp.loaded_texture[tile].addr);
+    const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     const bool pal_unswap = tex_needs_u64_unswap(rdp.palette);
     uint8_t rgba32_buf[16384];
 
-    for (uint32_t i = 0; i < rdp.loaded_texture[tile].size_bytes; i++) {
+    for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes; i++) {
         uint8_t idx = TEXSRC(i);
         uint16_t col16 = (PALSRC(idx * 2) << 8) | PALSRC(idx * 2 + 1); // Big endian load
         uint8_t a = col16 & 1;
@@ -1492,16 +1514,39 @@ static void import_texture_ci8(int tile) {
     }
     
     uint32_t width = rdp.texture_tile[tile].line_size_bytes;
-    uint32_t height = rdp.loaded_texture[tile].size_bytes / rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
     gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+}
+
+/* G_SETTILE's shift_s/shift_t, which this port ignored entirely (they sat
+ * behind _UNUSED in gfx_dp_set_tile). The RDP's texture-coordinate unit
+ * applies them to every incoming S/T before subtracting the tile origin:
+ * 0 means no shift, 1..10 shift RIGHT by that many bits, and 11..15 shift
+ * LEFT by 16 - value.
+ *
+ * Dropping them scales the texture wrongly on exactly the surfaces that use
+ * them. The Chamber of the Sages water columns are the clearest case
+ * (shift_s = 14, shift_t = 15, i.e. S*4 and T*2): at 1x the 32x64 ripple
+ * texture stretches to four times its intended width across each face, so the
+ * "wobbling mass" of the original degenerates into big drifting rectangles.
+ * Death Mountain Crater's lava carries shift_s = 15 for the same reason. Most
+ * tiles pass G_TX_NOLOD (0) here and are unaffected. */
+static inline int32_t tex_shift_coord(int32_t coord, uint8_t shift) {
+    if (shift == 0) {
+        return coord;
+    }
+    if (shift <= 10) {
+        return coord >> shift;
+    }
+    return coord << (16 - shift);
 }
 
 static void import_texture(int tile) {
     uint8_t fmt = rdp.texture_tile[tile].fmt;
     uint8_t siz = rdp.texture_tile[tile].siz;
 
-    if (gfx_texture_cache_lookup(tile, &rendering_state.textures[tile], rdp.loaded_texture[tile].addr, fmt, siz)) {
+    if (gfx_texture_cache_lookup(tile, &rendering_state.textures[tile], LOADED_TEX(tile).addr, fmt, siz)) {
         GFXSTAT_INC(tex_hits);
         return;
     }
@@ -2277,6 +2322,9 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         gfx_rapi->unload_shader(rendering_state.shader_program);
         gfx_rapi->load_shader(prg);
         rendering_state.shader_program = prg;
+        /* Applying a shader re-issues sceGuTexFunc, so the override below has
+         * to be re-decided rather than assumed still in force. */
+        rendering_state.two_texture_tint = -1;
     }
     if (use_alpha != rendering_state.alpha_blend) {
         gfx_flush();
@@ -2286,6 +2334,28 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     uint8_t num_inputs;
     bool used_textures[2];
     gfx_rapi->shader_get_info(prg, &num_inputs, used_textures);
+
+    /* A two-texture combine renders as REPLACE (texel only) or MODULATE
+     * (texel * vertex colour) depending on whether its SECOND cycle multiplies
+     * the result by a colour register -- RDP state that is not part of cc_id,
+     * so the renderer's per-shader texenv cache cannot decide it alone. See
+     * gfx_scegu_set_two_texture_tint and texenv_set_texture_texture.
+     *
+     * OoT's skybox (SETUPDL_40, cycle 2 = passthrough) needs REPLACE: its only
+     * colour register is cycle 1's interpolation factor, PRIM = RGB(0,0,0),
+     * which under MODULATE blacks out the entire market. The Chamber of the
+     * Sages waterfalls (cycle 2 = COMBINED * SHADE) need MODULATE or they lose
+     * the blue and render as white pillars. */
+    if (used_textures[0] && used_textures[1]) {
+        const int tint = (rdp.combine_cyc2_tint != CC_0 &&
+                          (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ? 1 : 0;
+
+        if (tint != rendering_state.two_texture_tint) {
+            gfx_flush();
+            gfx_scegu_set_two_texture_tint(tint);
+            rendering_state.two_texture_tint = tint;
+        }
+    }
 
     for (int i = 0; i < 2; i++) {
         if (used_textures[i]) {
@@ -2325,8 +2395,10 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         buf_vbo[buf_num_vert].z = clipped_vertices[i]->z;
         
         if (use_texture) {
-            float u = (clipped_vertices[i]->u - rdp.texture_tile[0].uls * 8) / 32.0f;
-            float v = (clipped_vertices[i]->v - rdp.texture_tile[0].ult * 8) / 32.0f;
+            float u = (tex_shift_coord(clipped_vertices[i]->u, rdp.texture_tile[0].shifts) -
+                       rdp.texture_tile[0].uls * 8) / 32.0f;
+            float v = (tex_shift_coord(clipped_vertices[i]->v, rdp.texture_tile[0].shiftt) -
+                       rdp.texture_tile[0].ult * 8) / 32.0f;
             if ((rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT) {
                 // Linear filter adds 0.5f to the coordinates
                 u += 0.5f;
@@ -2456,6 +2528,35 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
                     prod.a = color->a;
                     color = &prod;
                 }
+            }
+        }
+
+        /* Two-texture combines: the cycle-1 colour register is an
+         * INTERPOLATION FACTOR, not a tint, and must not reach the vertex
+         * colour.
+         *
+         * The shape is (A - B) * C + B with A/B the two texels -- OoT's
+         * skybox (SETUPDL_40), the Chamber of the Sages waterfalls and every
+         * scrolling lava/water surface are all built this way. C selects
+         * BETWEEN the two texels; on a single TMU only one texel survives, so
+         * multiplying it by C is simply wrong. gfx_generate_cc has no concept
+         * of a factor and hands C over as the vertex colour, which is why this
+         * used to be papered over by forcing GU_TFX_REPLACE for every
+         * two-texture material (see texenv_set_texture_texture) -- correct for
+         * the skybox, but it also threw away the SHADE that the SAGES
+         * waterfalls get their blue from, leaving grey/white pillars.
+         *
+         * Neutralising the factor to white makes MODULATE behave exactly like
+         * the old REPLACE wherever nothing else contributes, while letting a
+         * genuine cycle-2 tint (applied just below) through. Restricted to
+         * two-texture combines: for a single texture the register is a real
+         * multiplier and the existing handling is right. */
+        if (used_textures[0] && used_textures[1]) {
+            const uint8_t cc_b = (comb->cc_id >> 3) & 7;
+            const uint8_t cc_d = (comb->cc_id >> 9) & 7;
+
+            if (cc_b != CC_0 && cc_b == cc_d) {
+                color = &white;
             }
         }
 
@@ -2597,6 +2698,9 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
         gfx_rapi->unload_shader(rendering_state.shader_program);
         gfx_rapi->load_shader(prg);
         rendering_state.shader_program = prg;
+        /* Applying a shader re-issues sceGuTexFunc, so the override below has
+         * to be re-decided rather than assumed still in force. */
+        rendering_state.two_texture_tint = -1;
     }
     if (use_alpha != rendering_state.alpha_blend) {
         gfx_flush();
@@ -2606,6 +2710,28 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
     uint8_t num_inputs;
     bool used_textures[2];
     gfx_rapi->shader_get_info(prg, &num_inputs, used_textures);
+
+    /* A two-texture combine renders as REPLACE (texel only) or MODULATE
+     * (texel * vertex colour) depending on whether its SECOND cycle multiplies
+     * the result by a colour register -- RDP state that is not part of cc_id,
+     * so the renderer's per-shader texenv cache cannot decide it alone. See
+     * gfx_scegu_set_two_texture_tint and texenv_set_texture_texture.
+     *
+     * OoT's skybox (SETUPDL_40, cycle 2 = passthrough) needs REPLACE: its only
+     * colour register is cycle 1's interpolation factor, PRIM = RGB(0,0,0),
+     * which under MODULATE blacks out the entire market. The Chamber of the
+     * Sages waterfalls (cycle 2 = COMBINED * SHADE) need MODULATE or they lose
+     * the blue and render as white pillars. */
+    if (used_textures[0] && used_textures[1]) {
+        const int tint = (rdp.combine_cyc2_tint != CC_0 &&
+                          (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ? 1 : 0;
+
+        if (tint != rendering_state.two_texture_tint) {
+            gfx_flush();
+            gfx_scegu_set_two_texture_tint(tint);
+            rendering_state.two_texture_tint = tint;
+        }
+    }
     
     for (int i = 0; i < 2; i++) {
         if (used_textures[i]) {
@@ -2659,8 +2785,10 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
         tri_buf[tri_num_vert].z = 0;
         
         if (use_texture) {
-            int32_t u = (v_arr[i]->u - rdp.texture_tile[0].uls * 8) / 32;
-            int32_t v = (v_arr[i]->v - rdp.texture_tile[0].ult * 8) / 32;
+            int32_t u = (tex_shift_coord(v_arr[i]->u, rdp.texture_tile[0].shifts) -
+                         rdp.texture_tile[0].uls * 8) / 32;
+            int32_t v = (tex_shift_coord(v_arr[i]->v, rdp.texture_tile[0].shiftt) -
+                         rdp.texture_tile[0].ult * 8) / 32;
 
             /* See the tex_pad_* note above. Done in 32-bit: 192 -> 256 already
              * exceeds what the intermediate would hold comfortably in a short
@@ -2882,9 +3010,7 @@ static void gfx_dp_set_texture_image(uint32_t format, uint32_t size, uint32_t wi
 
 static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t tmem, uint8_t tile, UNUSED uint32_t palette, uint32_t cmt, uint32_t maskt, uint32_t shiftt, uint32_t cms, uint32_t masks, uint32_t shifts) {
     _UNUSED(maskt);
-    _UNUSED(shiftt);
     _UNUSED(masks);
-    _UNUSED(shifts);
 
     GFXSTAT_INC(settile);
     if (tile < 2) {
@@ -2894,6 +3020,9 @@ static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t t
         rdp.texture_tile[tile].cms = cms;
         rdp.texture_tile[tile].cmt = cmt;
         rdp.texture_tile[tile].line_size_bytes = line * 8;
+        rdp.texture_tile[tile].tmem_slot = (tmem / 256) & 1;
+        rdp.texture_tile[tile].shifts = shifts & 0xf;
+        rdp.texture_tile[tile].shiftt = shiftt & 0xf;
         rdp.textures_changed[tile] = true;
     }
 
