@@ -14,6 +14,43 @@ the bring-up plan, not any notion of API stability.
 
 ---
 
+## Unreleased — Phase 3: populating the world
+
+Started once v0.2.0 proved the game renders and Link walks correctly. The goal is
+actors: NPCs, props, wildlife -- the things that make the Market look inhabited
+rather than a stage set.
+
+### Working
+
+- **The actor-enablement path is proven end to end.** `z_actor_dlftbls_psp.c`
+  declares every `<Name>_Profile` as a weak alias to a no-op dummy actor; an actor
+  whose real `.c` is added to `Makefile.psp` gets a strong symbol that the linker
+  prefers automatically. Enabling an actor is therefore just that one line plus
+  whatever objects/engine sources it references -- no table edits, no overlay DMA.
+  The linker's undefined-reference list names exactly what is missing.
+- **Four world actors enabled and confirmed rendering in the Market:**
+  `En_Kusa` (cuttable grass, 8 in the Market -- can be cut, drops nothing yet),
+  `Obj_Kibako2` (crates), `En_Wood02` (trees/bushes), `En_Dog` (a stray dog that
+  walks its patrol path). `En_Dog` is the significant one: it exercises
+  `z_skelanime` and the path system (`src/code/z_path.c`), both previously
+  untested outside Link, and both work correctly. That narrows what stands
+  between the port and `En_Hy` (the Market's 13 townspeople, the actor that would
+  actually populate the streets) to the message system alone, not animation.
+- Promoted `src/code/z_bg_item.c` (`DynaPolyActor_Init` and friends) from stub to
+  real source, pulled in by the dyna-poly actors above.
+
+### Known issues found this phase
+
+- **Zora's Fountain: the sky renders as a flat pale-yellow field**, not the
+  expected sky/mountain skybox -- visible immediately on warping in, screenshot
+  confirmed by the user. Not yet diagnosed. Given the session-16 skybox history,
+  check the obvious suspects first: which `SKYBOX_*` id the scene declares, and
+  whether this is the same texture-stride family of bug or something specific to
+  this skybox's face count/layout (Zora's Fountain is an outdoor overworld scene,
+  a different skybox shape than the Market's building skybox).
+
+---
+
 ## v0.2.0 — Phase 2: the game renders and is playable to walk around in
 
 First tagged state in which the port boots straight into a real scene, renders it
@@ -67,6 +104,7 @@ correctly, and lets you move Link around it.
   answer is libultraship's marker convention (bit 0 tags a segmented address), which
   needs tagging at blob-build time and at every `gSPSegment` site.
 - **`besitu` crashes the game** when warped to. Not yet diagnosed.
+- **Zora's Fountain's sky renders wrong** -- see the Phase 3 section above.
 - **Two scenes fail to blob** (`bdan`, `bdan_boss`) — both need a private `gIdentityMtx`
   linked into the blob.
 - The build has **no header dependency tracking**. After editing a `.h`, delete the
