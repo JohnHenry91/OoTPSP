@@ -10,6 +10,7 @@ Mtx* sSkyboxDrawMatrix;
 #if TARGET_PSP
 u32 gPspSkyCall[8] = { 0 };
 u32 gPspSkyVtx[8] = { 0 };
+u32 gPspSkyVtxDump[96] = { 0 };
 #endif
 
 Mtx* Skybox_UpdateMatrix(SkyboxContext* skyboxCtx, f32 x, f32 y, f32 z) {
@@ -46,6 +47,20 @@ void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId
     gPspSkyCall[6] = (u32)(s32)y;
     gPspSkyCall[7] = (u32)(s32)z;
     if (skyboxCtx->roomVtx != NULL) {
+        /* All 32 vertices of face 0, not just the first two. z_vr_box.c is
+         * byte-identical to the decomp (tables included), so the grid SHOULD be
+         * right -- this is what turns "should" into "is", and separates a
+         * runtime data problem from a renderer one. Expected: a 5x9 grid at
+         * z = -126, x stepping by 63 from -126, y stepping by -31 from 124. */
+        {
+            s32 vi;
+
+            for (vi = 0; vi < 32; vi++) {
+                gPspSkyVtxDump[vi * 3 + 0] = (u32)(s32)skyboxCtx->roomVtx[vi].v.ob[0];
+                gPspSkyVtxDump[vi * 3 + 1] = (u32)(s32)skyboxCtx->roomVtx[vi].v.ob[1];
+                gPspSkyVtxDump[vi * 3 + 2] = (u32)(s32)skyboxCtx->roomVtx[vi].v.ob[2];
+            }
+        }
         gPspSkyVtx[0] = (u32)(s32)skyboxCtx->roomVtx[0].v.ob[0];
         gPspSkyVtx[1] = (u32)(s32)skyboxCtx->roomVtx[0].v.ob[1];
         gPspSkyVtx[2] = (u32)(s32)skyboxCtx->roomVtx[0].v.ob[2];

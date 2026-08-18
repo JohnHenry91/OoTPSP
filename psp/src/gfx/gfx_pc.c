@@ -677,17 +677,38 @@ uint32_t clip_to_frustum( struct LoadedVertex * v0, struct LoadedVertex * v1, ui
 
 	vOut = vIn;
 
-	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[2] );		// right
-	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[1] );		// left
-	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[4] );		// top
-	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[3] );		// bottom
-	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[0] );		// near
+	/* NEAR FIRST, and bail as soon as nothing is left. Both come from
+	 * DaedalusX64's clip_tri_to_frustum (reference/daedalus/Source/HLEGraphics/
+	 * BaseRenderer.cpp:684), which solves this on the same hardware.
+	 *
+	 * Order matters, and not for style. A vertex behind the eye has w < 0, and
+	 * the side-plane tests are of the form x < -w / x > w -- multiplying
+	 * through by a negative w REVERSES them, so those tests are meaningless
+	 * until the near plane has removed such vertices. Clipping near first
+	 * guarantees every vertex the side planes see has w > 0.
+	 *
+	 * Ordinary geometry never noticed because it sits in front of the camera.
+	 * The skybox is the one thing that SURROUNDS it -- roughly half its
+	 * vertices are behind the eye -- which is why it was the only surface
+	 * coming out skewed.
+	 *
+	 * The early-outs matter for their own reason: clipToHyperPlane indexes
+	 * source[i % inCount], so once a polygon has been cut below 3 vertices the
+	 * remaining planes keep processing it and can grow it back with
+	 * invented ones. The caller discards anything under 3, so returning early
+	 * is safe regardless of which buffer the result landed in. */
 	{
-		/* The one plane F3DZEX2.NoN does not have. Slid towards the eye by
+		/* The plane F3DZEX2.NoN does not have. Slid towards the eye by
 		 * gPspNearClipT instead of removed, because the GE needs w > 0. */
 		const float near_plane[4] = { 0.f, 0.f, -gPspNearClipT, -1.f };
-		vOut = clipToHyperPlane( v0, v1, vOut, near_plane );		// far
+
+		vOut = clipToHyperPlane( v1, v0, vOut, near_plane );		if (vOut < 3) return vOut; // near
 	}
+	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[0] );		if (vOut < 3) return vOut; // far
+	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[2] );		if (vOut < 3) return vOut; // right
+	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[1] );		if (vOut < 3) return vOut; // left
+	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[4] );		if (vOut < 3) return vOut; // top
+	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[3] );		// bottom
 
 	return vOut;
 }
@@ -865,6 +886,7 @@ int gDebugFogCombinerBit = 1;
  * The skybox is the Market's buildings and Link's House's interior walls, and
  * neither shows up -- these say whether its geometry even survives to a draw. */
 uint32_t gPspSkyTri[4];
+float gPspSkyMtx[4][4];
 uint32_t gPspSkyTriMark;
 
 uint32_t gPspCcPoolSize;      /* live occupancy, for the debugger */
@@ -1531,6 +1553,18 @@ static void gfx_sp_matrix(uint8_t parameters, const int32_t *addr) {
         }
         if (parameters & G_MTX_LOAD) {
             memcpy(rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1], matrix, sizeof(matrix));
+#if TARGET_PSP
+            /* Capture the modelview the SKYBOX loads, decoded to floats exactly
+             * as the renderer will use it. rot is 0 for both skyboxes and the
+             * eye reads (0,64,0), so this must come out as a pure translation;
+             * anything else means the Mtx decode or Matrix_MtxFToMtx is the
+             * source of the tilt. This is the last link in that chain that was
+             * inferred rather than measured. */
+            if (gPspSkyTriMark) {
+                memcpy(gPspSkyMtx, rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1],
+                       sizeof(gPspSkyMtx));
+            }
+#endif
         } else {
             gfx_matrix_mul(rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1], matrix, rsp.modelview_matrix_stack[rsp.modelview_matrix_stack_size - 1]);
         }
