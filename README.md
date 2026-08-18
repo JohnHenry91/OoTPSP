@@ -73,3 +73,7 @@ This produces `EBOOT.PBP` plus a `blobs/` directory that must sit next to it on 
   [DaedalusX64](https://github.com/DaedalusX64/daedalus) — referenced for specific
   porting mechanisms (see `psp/docs/PORTING_PITFALLS.md` for details on what was
   learned from each).
+
+The bulk of the PSP-side porting work (`psp/`, the `#if TARGET_PSP` hooks, and the
+bug-hunting behind them) was done with heavy use of [Claude Code](https://claude.com/claude-code).
+
