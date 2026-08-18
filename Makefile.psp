@@ -160,6 +160,14 @@ PSP_C_FILES += psp/src/phase2_stubs.c
 PSP_C_FILES += psp/src/phase2_stubs_gen.c
 PSP_C_FILES += psp/src/segment_roms_psp.c
 PSP_C_FILES += psp/src/phase2_debug_log.c
+# --- Phase 3: world actors -------------------------------------------------
+# Every actor is a weak alias to a no-op dummy in z_actor_dlftbls_psp.c until
+# its .c is listed here, at which point the strong symbol wins. Adding one is
+# therefore just this line plus whatever objects/assets it references.
+PSP_C_FILES += src/overlays/actors/ovl_En_Kusa/z_en_kusa.c
+PSP_C_FILES += assets/objects/gameplay_keep/cuttable_shrub.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_kusa/object_kusa.c
+
 # --- Phase 2: real Player (flattened, no overlay indirection -- see file header) ---
 PSP_C_FILES += src/overlays/actors/ovl_player_actor/z_player.c
 PSP_C_FILES += psp/src/z_player_profile_psp.c
