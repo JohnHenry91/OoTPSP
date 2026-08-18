@@ -8,6 +8,21 @@
 
 Mtx* sSkyboxDrawMatrix;
 #if TARGET_PSP
+/* Session 16: draw only the selected face display lists, bit k == dListBuf[k].
+ * The four side faces are drawn -z, +x, +z, -x with no depth write, so a face
+ * that projects badly simply paints over the one that projected correctly.
+ * 0xFF is vanilla; poke 0x30 for the +z face alone, etc. */
+int gDebugSkyFaceMask = 0xFF;
+#define SKY_DL(k)                                             \
+    do {                                                      \
+        if (gDebugSkyFaceMask & (1 << (k))) {                 \
+            gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[k]); \
+        }                                                     \
+    } while (0)
+#else
+#define SKY_DL(k) gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[k])
+#endif
+#if TARGET_PSP
 u32 gPspSkyCall[8] = { 0 };
 u32 gPspSkyVtx[8] = { 0 };
 u32 gPspSkyVtxDump[96] = { 0 };
@@ -118,13 +133,13 @@ void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId
         // 256x256 textures, per-face palettes
         // 2, 3 or 4 faces
 
-        gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[0]); // -z face upper
-        gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[1]); // -z face lower
+        SKY_DL(0); // -z face upper
+        SKY_DL(1); // -z face lower
 
         gDPPipeSync(POLY_OPA_DISP++);
         gDPLoadTLUT_pal256(POLY_OPA_DISP++, skyboxCtx->palettes[1]);
-        gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[2]); // +x face upper
-        gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[3]); // +x face lower
+        SKY_DL(2); // +x face upper
+        SKY_DL(3); // +x face lower
 
         if (skyboxId != SKYBOX_BAZAAR) {
             if (skyboxId < SKYBOX_KOKIRI_SHOP || skyboxId > SKYBOX_BOMBCHU_SHOP) {
@@ -132,16 +147,16 @@ void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId
 
                 gDPPipeSync(POLY_OPA_DISP++);
                 gDPLoadTLUT_pal256(POLY_OPA_DISP++, skyboxCtx->palettes[2]);
-                gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[4]); // +z face upper
-                gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[5]); // +z face lower
+                SKY_DL(4); // +z face upper
+                SKY_DL(5); // +z face lower
 
                 // Note this pipesync is slightly misplaced and would be better off inside the condition
                 gDPPipeSync(POLY_OPA_DISP++);
 
                 if (skyboxCtx->drawType != SKYBOX_DRAW_256_3FACE) {
                     gDPLoadTLUT_pal256(POLY_OPA_DISP++, skyboxCtx->palettes[3]);
-                    gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[6]); // -x face upper
-                    gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[7]); // -x face lower
+                    SKY_DL(6); // -x face upper
+                    SKY_DL(7); // -x face lower
                 }
             }
         }
@@ -150,14 +165,14 @@ void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId
         // 5 or 6 faces
 
         // Draw each face
-        gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[0]); // -z face
-        gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[2]); // +z face
-        gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[4]); // -x face
-        gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[6]); // +x face
-        gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[8]); // +y face
+        SKY_DL(0); // -z face
+        SKY_DL(2); // +z face
+        SKY_DL(4); // -x face
+        SKY_DL(6); // +x face
+        SKY_DL(8); // +y face
         if (skyboxId == SKYBOX_CUTSCENE_MAP) {
             // Skip the bottom face in the cutscene map
-            gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[10]); // -y face
+            SKY_DL(10); // -y face
         }
     }
 

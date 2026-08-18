@@ -671,7 +671,26 @@ static uint32_t clipToHyperPlane( struct LoadedVertex *dest, const struct Loaded
 	return outCount;
 }
 
-uint32_t clip_to_frustum( struct LoadedVertex * v0, struct LoadedVertex * v1, uint32_t vIn )
+/* Session 16 bisection knob for the skybox tilt. Applies ONLY to triangles
+ * between PSP_MARK_SKYBOX_BEGIN/END, so the rest of the frame keeps its normal
+ * clipping and stays a reference to compare against.
+ *
+ *   0 = normal, all six planes (ship this)
+ *   1 = near plane only; the GE's own clipper handles the sides. Every vertex
+ *       still has w > 0, so the picture stays readable and the SHAPE is the
+ *       measurement: upright here => the fault is in the five side planes,
+ *       still tilted => it is upstream of clip_to_frustum (gfx_sp_vertex's
+ *       VFPU transform or the GE submission).
+ *   2 = no clipping at all. Vertices behind the eye reach the GE, so expect
+ *       garbage at the edges; only the gross orientation means anything.
+ *
+ * See memory session 15: everything BEFORE the clipper is already eliminated
+ * by measurement (skybox rot, eye, the vertex table, the modelview the
+ * renderer receives, the late Skybox_UpdateMatrix overwrite, the clip-space
+ * aspect mismatch). This splits what is left. */
+int gDebugSkyClipMode = 0;
+
+uint32_t clip_to_frustum( struct LoadedVertex * v0, struct LoadedVertex * v1, uint32_t vIn, int near_only )
 {
 	uint32_t vOut;
 
@@ -704,6 +723,17 @@ uint32_t clip_to_frustum( struct LoadedVertex * v0, struct LoadedVertex * v1, ui
 
 		vOut = clipToHyperPlane( v1, v0, vOut, near_plane );		if (vOut < 3) return vOut; // near
 	}
+	/* The ping-pong is what makes near_only cheap: after an ODD number of
+	 * passes the result sits in v1, after an EVEN one in v0, and the caller
+	 * reads v0. One extra copy keeps that contract without duplicating the
+	 * retesselation. */
+	if (near_only) {
+		uint32_t i;
+		for (i = 0; i < vOut; i++) {
+			v0[i] = v1[i];
+		}
+		return vOut;
+	}
 	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[0] );		if (vOut < 3) return vOut; // far
 	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[2] );		if (vOut < 3) return vOut; // right
 	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[1] );		if (vOut < 3) return vOut; // left
@@ -716,7 +746,7 @@ uint32_t clip_to_frustum( struct LoadedVertex * v0, struct LoadedVertex * v1, ui
 static struct LoadedVertex temp_a[12];
 static struct LoadedVertex temp_b[12];
 
-void gfx_clip_single_vert( struct LoadedVertex *p_p_vertices, size_t *p_num_vertices, struct LoadedVertex *v_arr[3])
+void gfx_clip_single_vert( struct LoadedVertex *p_p_vertices, size_t *p_num_vertices, struct LoadedVertex *v_arr[3], int near_only )
 {
 	//
 	//	At this point all vertices are lit/projected and have both transformed and projected
@@ -734,7 +764,7 @@ void gfx_clip_single_vert( struct LoadedVertex *p_p_vertices, size_t *p_num_vert
     temp_a[ 1 ] = *v_arr[ 1 ];
     temp_a[ 2 ] = *v_arr[ 2 ];
 
-    uint32_t out = clip_to_frustum( temp_a, temp_b, 3 );
+    uint32_t out = clip_to_frustum( temp_a, temp_b, 3, near_only );
     if( out < 3 ){
         *p_num_vertices = 0;
         return;
@@ -888,6 +918,18 @@ int gDebugFogCombinerBit = 1;
 uint32_t gPspSkyTri[4];
 float gPspSkyMtx[4][4];
 uint32_t gPspSkyTriMark;
+
+/* Session 16: what the renderer ACTUALLY computes for the skybox's vertices.
+ * Everything upstream measures clean -- modelview is a pure translation, the
+ * projection (which is where OoT keeps the camera's guLookAt, z_view.c:405)
+ * has no roll, and bypassing the clipper changes nothing -- yet the panorama
+ * comes out rotated ~30 degrees. So stop reasoning about the transform and
+ * read its output: 8 floats per vertex for the first 32 skybox vertices,
+ *   [0..2] object space  [3..4] u,v  [5..6] NDC x,y  [7] w.
+ * An upright grid in NDC means the geometry is fine and the fault is the
+ * texture mapping; a rotated one means it is the transform after all. */
+float gPspSkyVtxOut[256][8];
+uint32_t gPspSkyVtxOutCount;
 
 uint32_t gPspCcPoolSize;      /* live occupancy, for the debugger */
 uint32_t gPspCcPoolRecycles;  /* how often we ran out; 0 == pool is big enough */
@@ -1830,6 +1872,19 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
         d->_z = z;
         d->_w = w;
 
+#if TARGET_PSP
+        if (gPspSkyTriMark && gPspSkyVtxOutCount < 256) {
+            float *o = gPspSkyVtxOut[gPspSkyVtxOutCount++];
+
+            o[0] = v->ob[0]; o[1] = v->ob[1]; o[2] = v->ob[2];
+            o[3] = (float)d->clip_rej;
+            o[4] = (float)dest_index;
+            o[5] = (w != 0.0f) ? x / w : 0.0f;
+            o[6] = (w != 0.0f) ? y / w : 0.0f;
+            o[7] = w;
+        }
+#endif
+
         /*@Note: this is a trainwreck*/
         /*if (rsp.geometry_mode & G_FOG) {
             if (fabsf(w) < 0.001f) {
@@ -1991,11 +2046,24 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     /* Setup to clip but if we dont, we preload correct values and fix up pointers; */
     struct LoadedVertex **clipped_vertices = v_arr;
     size_t clipped_vertices_num = 3;
-    struct LoadedVertex _clipped_vertices[18];
-    struct LoadedVertex *ptr_clipped_vertices[18];
+    /* 24, not 18. Six planes can each add one vertex, so a clipped triangle
+     * carries up to 9, and the fan below emits (9 - 2) * 3 = 21 vertices.
+     * The inherited 18 was a stack overwrite waiting for a polygon that hit
+     * every plane -- which is exactly what the skybox, surrounding the eye,
+     * finally supplies. */
+    struct LoadedVertex _clipped_vertices[24];
+    struct LoadedVertex *ptr_clipped_vertices[24];
 
-    if((v1->clip_rej || v2->clip_rej || v3->clip_rej) & CLIP_TEST_FLAGS) {
-        gfx_clip_single_vert(_clipped_vertices, &clipped_vertices_num, v_arr);
+#if TARGET_PSP
+    extern int gDebugSkyClipMode;
+    const int sky_clip = gPspSkyTriMark ? gDebugSkyClipMode : 0;
+#else
+    const int sky_clip = 0;
+#endif
+
+    if (sky_clip != 2 &&
+        ((v1->clip_rej || v2->clip_rej || v3->clip_rej) & CLIP_TEST_FLAGS)) {
+        gfx_clip_single_vert(_clipped_vertices, &clipped_vertices_num, v_arr, sky_clip == 1);
 
         if(!clipped_vertices_num){
             /* No idea if this is possible */
@@ -2661,7 +2729,16 @@ static void gfx_dp_set_texture_image(uint32_t format, uint32_t size, uint32_t wi
     GFXSTAT_INC(settimg);
     rdp.texture_to_load.addr = addr;
     rdp.texture_to_load.siz = size;
-    rdp.texture_to_load.width = width;
+    /* The COMMAND carries width - 1 (gbi.h:3496, `_SHIFTL((width) - 1, 0, 12)`),
+     * so the field has to be un-biased here. Storing the raw 255 for a
+     * 256-texel-wide image made gfx_dp_load_tile read every source row one
+     * byte early -- a 1-texel-per-row shear, i.e. ~45 degrees across a 32-row
+     * tile, applied identically to all 32 tiles of a skybox face. That is what
+     * the "tilted skybox" was: the Market panorama sheared, not rotated.
+     *
+     * Nothing else noticed because only G_LOADTILE reads this field, and until
+     * the skybox nothing in the port used G_LOADTILE. */
+    rdp.texture_to_load.width = width + 1;
 }
 
 static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t tmem, uint8_t tile, UNUSED uint32_t palette, uint32_t cmt, uint32_t maskt, uint32_t shiftt, uint32_t cms, uint32_t masks, uint32_t shifts) {
@@ -2779,7 +2856,9 @@ static void gfx_dp_load_tile(uint8_t tile, uint32_t uls, uint32_t ult, uint32_t 
     uint32_t tile_h = (lrt >> G_TEXTURE_IMAGE_FRAC) - (ult >> G_TEXTURE_IMAGE_FRAC) + 1;
     uint32_t row_bytes = tile_w << word_size_shift;
     uint32_t size_bytes = row_bytes * tile_h;
-    uint32_t src_stride = (rdp.texture_to_load.width != 0 ? rdp.texture_to_load.width : tile_w)
+    /* texture_to_load.width is the true source width (see
+     * gfx_dp_set_texture_image); it is only 0 before the first G_SETTIMG. */
+    uint32_t src_stride = (rdp.texture_to_load.width > 1 ? rdp.texture_to_load.width : tile_w)
                           << word_size_shift;
 
     rdp.loaded_texture[rdp.texture_to_load.tile_number].size_bytes = size_bytes;
@@ -3617,7 +3696,7 @@ static void gfx_run_dl(Gfx* cmd) {
             
             // RDP Commands:
             case G_SETTIMG:
-                gfx_dp_set_texture_image(C0(21, 3), C0(19, 2), C0(0, 10), seg_addr(cmd->words.w1));
+                gfx_dp_set_texture_image(C0(21, 3), C0(19, 2), C0(0, 12), seg_addr(cmd->words.w1));
                 break;
             case G_LOADBLOCK:
                 gfx_dp_load_block(C1(24, 3), C0(12, 12), C0(0, 12), C1(12, 12), C1(0, 12));
@@ -3724,6 +3803,7 @@ static void gfx_run_dl(Gfx* cmd) {
                 if (cmd->words.w1 == PSP_MARK_SKYBOX_BEGIN) {
                     gPspSkyTriMark = 1;
                     gPspSkyTri[0] = 0;
+                    gPspSkyVtxOutCount = 0; /* one frame's worth, not cumulative */
                     gPspSkyTri[1]++; /* BEGIN markers actually interpreted */
                 } else {
                     gPspSkyTriMark = 0;

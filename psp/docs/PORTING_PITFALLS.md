@@ -393,6 +393,57 @@ binary" approach working, likely to recur:**
   file:line immediately, faster than any live debugging. Confirm you have this logging wired up to
   something you can actually read on the host before spending time on live PC-sampling techniques.
 
+## 9b. GBI command fields that store a BIASED value (`width - 1`, `len - 1`, ...)
+
+Several RDP commands encode a *count minus one*, because the field has to hold the
+maximum value in one fewer bit. `G_SETTIMG` is the one that bit this port:
+
+```c
+/* include/ultra64/gbi.h */
+#define gSetImage(pkt, cmd, fmt, siz, width, i)     \
+    _g->words.w0 = (_SHIFTL(cmd, 24, 8) | _SHIFTL(fmt, 21, 3) |
+                    _SHIFTL(siz, 19, 2) | _SHIFTL((width) - 1, 0, 12));
+```
+
+Storing the raw field as "the width" makes a 256-texel-wide image 255 texels wide.
+Nothing notices until something reads a **sub-rectangle** out of that image, because
+only then does the width become a *row stride*:
+
+- `G_LOADBLOCK` copies a contiguous run, so stride and row length are the same
+  number and the bias cancels out. Everything the port drew for months used
+  `G_LOADBLOCK`.
+- `G_LOADTILE` pulls a `w x h` tile out of a wider image, so it must skip
+  `stride - w` bytes per row. A stride one byte short shifts **every row one texel
+  left** -- a shear of one texel per row, i.e. ~45 degrees across a 32-row tile.
+
+That is the whole story of the "tilted skybox": OoT's `Skybox_CalculateFace256`
+loads each 256x256 face as 32 `gDPLoadTextureTile` sub-rectangles, every one of
+them sheared by the same 45 degrees, so the Market panorama looked *rotated*
+rather than *sheared* and sent three sessions chasing the transform.
+
+**Cross-check against DaedalusX64**, which solves this on the same hardware:
+`DLParser_SetTImg` (`Source/HLEGraphics/DLParser.cpp:822`) is literally
+`g_TI.Width = command.img.width + 1;`, and its `SetTImg` bitfield declares
+`u32 width:12` -- note **12** bits, not 10. This port had both wrong.
+
+### The general lesson, which is the reusable part
+
+**A geometric symptom does not imply a geometric cause.** The skybox looked rolled
+about the view axis, so five sessions' worth of work went into the transform chain:
+the skybox matrix, the eye position, the vertex table, the clip-space/render-space
+aspect mismatch, the near plane, the clipper itself. All of it measured *clean*, and
+all of it was correct -- a sheared texture inside correctly-placed quads is
+indistinguishable from rotated geometry when the quads cover the whole screen.
+
+The measurement that finally split it apart was cheap and should have come first:
+**dump the post-transform NDC coordinates of the offending vertices and see whether
+the grid is axis-aligned.** It was, exactly, which excludes every transform in one
+step and leaves only texturing. `gPspSkyVtxOut` in `gfx_pc.c` is that probe; the
+companion `gDebugSkyFaceMask` (`z_vr_box_draw.c`) draws one face's display list at
+a time, which is what proved the tilted face was the one *fully in front of the
+camera* -- killing the "geometry straddling the eye is mis-clipped" theory that the
+negative-`w` readings had made so attractive.
+
 ## 10. Development/debugging technique that paid off repeatedly
 
 - **A three-generation ring of plain-global diagnostic counters (`prev2`/`prev`/`live`), read
