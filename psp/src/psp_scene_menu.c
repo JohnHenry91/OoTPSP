@@ -101,6 +101,29 @@ void PspSceneMenu_Update(PlayState* play) {
         sRepeatTimer = 0;
     }
 
+    /* Consumed BEFORE the "menu closed" early-out, and on every frame until it
+     * takes. It used to sit at the end of this function, i.e. after that
+     * return, which made it reachable only on the single frame the Cross press
+     * cleared gPspSceneMenuOpen and fell through. If that one frame happened to
+     * land on a transition already in flight, the guard below refused it and
+     * the warp was lost for good -- while sPendingEntrance stayed set, so it
+     * fired unbidden the next time the menu was opened.
+     *
+     * The guard itself is right and stays: a transition already in flight owns
+     * nextEntranceIndex, and starting a second one on top of it loads two
+     * scenes over each other. Retrying next frame is what it wanted all along.
+     *
+     * Being frame-driven rather than press-driven also makes the menu warp
+     * usable from the debugger -- poke sPendingEntrance and the game goes,
+     * which is what drives the automated scene sweep. */
+    if (sPendingEntrance >= 0 && play != NULL && play->transitionTrigger == TRANS_TRIGGER_OFF) {
+        play->nextEntranceIndex = sPendingEntrance;
+        play->transitionTrigger = TRANS_TRIGGER_START;
+        play->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
+        gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK_FAST;
+        sPendingEntrance = -1;
+    }
+
     if (!gPspSceneMenuOpen) {
         return;
     }
@@ -134,15 +157,6 @@ void PspSceneMenu_Update(PlayState* play) {
         gPspSceneMenuOpen = 0;
     }
 
-    /* A transition already in flight owns nextEntranceIndex; starting a second
-     * one on top of it loads two scenes over each other. */
-    if (sPendingEntrance >= 0 && play != NULL && play->transitionTrigger == TRANS_TRIGGER_OFF) {
-        play->nextEntranceIndex = sPendingEntrance;
-        play->transitionTrigger = TRANS_TRIGGER_START;
-        play->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
-        gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK_FAST;
-        sPendingEntrance = -1;
-    }
 }
 
 #define MENU_SCR_W 480
