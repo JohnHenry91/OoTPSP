@@ -41,6 +41,17 @@ rather than a stage set.
 
 ### Known issues found this phase
 
+- **Back Alley House (kakariko3) showed full-screen rainbow static once**, covering
+  the walls entirely, on first warping in. Not reproducible on a second warp to the
+  same scene (rendered correctly, including after toggling the fixed/pivot viewpoint
+  back and forth). Investigated and ruled out by measurement rather than assumed
+  fixed: `gPspSegAmbiguous8`/`gPspSegAmbiguous9` (the segment-8/9 pointer-collision
+  counters from session 15) both read 0 while the corruption would have needed them
+  non-zero, so that mechanism is not it. `SKYBOX_HOUSE_ALLEY` uses
+  `SKYBOX_DRAW_256_3FACE`, the first 3-face skybox this port has exercised (Market and
+  Link's House are both 4-face) -- worth another look if this recurs, but a one-shot,
+  non-reproducible glitch on first load points more at a texture-cache/DMA timing
+  issue than a structural bug in that code path. Left open rather than closed.
 - **Zora's Fountain: the sky renders as a flat pale-yellow field**, not the
   expected sky/mountain skybox -- visible immediately on warping in, screenshot
   confirmed by the user. Not yet diagnosed. Given the session-16 skybox history,

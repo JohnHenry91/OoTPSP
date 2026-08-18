@@ -20,7 +20,22 @@ group of layers is expected to be referenced in code" -- the entrance system
 applies the layer offset itself. First-match is therefore exactly right, and
 picking any other member of the group would be wrong.
 
-Usage: gen_scene_menu.py <include-dir> <output.inc>
+FILTERING AGAINST BUILT BLOBS
+------------------------------
+scene_table.h lists every scene the retail ROM ever defined, including unused
+leftovers that ship with no real geometry -- e.g. SCENE_BESITU ("Besitu/Strongbox
+Warp" per the CloudModding wiki), which has no baserom entry and no asset
+directory at all. list_scenes.sh already computes the set of scenes that
+actually got a blob built; passing that same list here (as BLOB_SCENES tokens,
+"<subdir>:<name>:<rooms>") lets this script drop any menu entry whose blob
+doesn't exist, instead of offering a warp into garbage data. Warping into
+SCENE_BESITU crashed with a wild jump (PC inside osContInit, $ra = 0x55) --
+not a real bug in osContInit, just what happens when a scene loads whatever
+happened to be in the blob-less segment.
+
+Usage: gen_scene_menu.py <include-dir> <output.inc> [blob-scene-token ...]
+       (with no tokens, every table entry is offered -- e.g. for cases where
+       the blob list isn't available yet)
 """
 import os
 import re
@@ -66,9 +81,13 @@ def pretty(scene_id):
     return " ".join(out)
 
 
-def main(incdir, outpath):
+def main(incdir, outpath, blob_tokens):
     scene_h = open(os.path.join(incdir, "tables", "scene_table.h")).read()
     entr_h = open(os.path.join(incdir, "tables", "entrance_table.h")).read()
+
+    # "<subdir>:<name>:<rooms>" -> {name}. Empty when no tokens were passed,
+    # which disables the filter rather than dropping every entry.
+    blobbed = {tok.split(":")[1] for tok in blob_tokens if tok}
 
     # DEFINE_SCENE(ydan_scene, g_pn_06, SCENE_DEKU_TREE, SDC_DEKU_TREE, 1, 2)
     scenes = []  # [(file_stem, SCENE_id)] in table order
@@ -80,11 +99,14 @@ def main(incdir, outpath):
     for m in re.finditer(r"DEFINE_ENTRANCE\(\s*(ENTR_\w+)\s*,\s*(SCENE_\w+)", entr_h):
         first_entr.setdefault(m.group(2), m.group(1))
 
-    rows, skipped = [], []
+    rows, skipped, no_blob = [], [], []
     for stem, sid in scenes:
         entr = first_entr.get(sid)
         if entr is None:
             skipped.append(sid)
+            continue
+        if blobbed and stem not in blobbed:
+            no_blob.append(sid)
             continue
         rows.append((pretty(sid), entr, stem, sid))
 
@@ -95,12 +117,16 @@ def main(incdir, outpath):
                 " * Source: include/tables/scene_table.h + include/tables/entrance_table.h\n")
         if skipped:
             f.write(" * No entrance found for: %s\n" % ", ".join(skipped))
+        if no_blob:
+            f.write(" * No blob built (unused/leftover scene, no real asset data): %s\n"
+                    % ", ".join(no_blob))
         f.write(" */\n")
         for name, entr, stem, sid in rows:
             f.write('    { "%s", %s }, /* %s */\n' % (name, entr, stem))
 
-    print("gen_scene_menu: %d scenes, %d skipped -> %s" % (len(rows), len(skipped), outpath))
+    print("gen_scene_menu: %d scenes, %d skipped, %d without a blob -> %s"
+          % (len(rows), len(skipped), len(no_blob), outpath))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3:])

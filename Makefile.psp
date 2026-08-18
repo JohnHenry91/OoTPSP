@@ -313,11 +313,16 @@ blobs/.stamp: $(BLOB_REGISTRY)
 
 psp/src/psp_blob_assets.o: $(BLOB_REGISTRY)
 
-# Warp-menu scene list, generated from include/tables/{scene,entrance}_table.h.
+# Warp-menu scene list, generated from include/tables/{scene,entrance}_table.h,
+# filtered against BLOB_SCENES (see gen_scene_menu.py's header) so a scene with
+# no real asset data -- e.g. SCENE_BESITU, an unused leftover with no baserom
+# entry at all -- can't be selected and load garbage. BLOB_SCENES is a
+# dependency here via the same list_scenes.sh $(shell) call as BLOB_REGISTRY,
+# so this regenerates whenever the scene set does.
 SCENE_MENU_INC = $(BLOB_DIR)/psp_scene_menu.inc
 $(SCENE_MENU_INC): include/tables/scene_table.h include/tables/entrance_table.h psp/tools/gen_scene_menu.py
 	@mkdir -p $(BLOB_DIR)
-	@python3 psp/tools/gen_scene_menu.py include $@
+	@python3 psp/tools/gen_scene_menu.py include $@ $(BLOB_SCENES)
 
 MENU_FONT_INC = $(BLOB_DIR)/psp_menu_font.inc
 $(MENU_FONT_INC): psp/tools/gen_menu_font.py
