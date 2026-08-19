@@ -1362,10 +1362,35 @@ static void gfx_scegu_init(void) {
     sceDisplayWaitVblankStart();
     sceGuDisplay(GU_TRUE);
 
-    /* Main RAM, not VRAM -- see TEXMAN_BUFFER_SIZE. */
-    void *texman_buffer = memalign(TEX_ALIGNMENT, TEXMAN_BUFFER_SIZE);
+    /* Back in VRAM, and now sized to whatever is ACTUALLY left rather than a
+     * hardcoded 1 MB: the GE samples VRAM at full bandwidth, RAM at a fraction
+     * of it, so textures belong here as long as they fit. What made the old
+     * VRAM pool unusable was never its location -- it was that nothing ever
+     * reset it between scenes (see gfx_texture_cache_reset), so it filled up
+     * over a whole play session and then got wiped mid-frame.
+     *
+     * The bump allocator has handed out the two framebuffers and the Z-buffer
+     * by now, so staticOffset is exactly what they cost; everything past it to
+     * the end of EDRAM is ours. Leave one texture's worth of slack so the
+     * overflow guard in texman_reserve_memory has somewhere to land. */
+    unsigned int vram_total = sceGeEdramGetSize();
+    unsigned int vram_left = (vram_total > staticOffset) ? (vram_total - staticOffset) : 0;
+    unsigned int texman_size = (vram_left > TEXMAN_VRAM_SLACK) ? (vram_left - TEXMAN_VRAM_SLACK) : 0;
+
+    texman_size &= ~(TEX_ALIGNMENT - 1);
+
+    void *texman_buffer = texman_size ? getStaticVramBufferBytes(texman_size) : NULL;
     void *texman_aligned = (void *) ((((unsigned int) texman_buffer + TEX_ALIGNMENT - 1) / TEX_ALIGNMENT) * TEX_ALIGNMENT);
-    texman_reset(texman_aligned, TEXMAN_BUFFER_SIZE);
+    texman_reset(texman_aligned, texman_size);
+
+    /* Spill region in main RAM. VRAM alone is not enough for a busy scene --
+     * the Market overflows ~1.2 MB on its own -- and overflowing used to mean
+     * wiping both texture caches mid-frame (the speckled corruption). With a
+     * fallback the hot textures still land in VRAM and only the tail is slower. */
+    void *texman_overflow = memalign(TEX_ALIGNMENT, TEXMAN_OVERFLOW_SIZE);
+    if (texman_overflow != NULL) {
+        texman_set_overflow_buffer(texman_overflow, TEXMAN_OVERFLOW_SIZE);
+    }
     if (!texman_buffer) {
         char msg[32];
         sprintf(msg, "OUT OF MEMORY!\n");

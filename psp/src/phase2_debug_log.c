@@ -33,6 +33,31 @@
  * `fd < 0` path every function already has makes them clean no-ops when off. */
 #define PSP_DEBUG_LOG_ENABLED 0
 
+/* Collision probe -- NOT file I/O (see the master switch above, which is off
+ * for good reason). Plain globals, read live over PPSSPP's WebSocket debugger
+ * the same way gPspI4Probe / gPspBgProbe* are; see /home/henry/oot_col.py.
+ *
+ * Written by Scene_CommandCollisionHeader. "Link falls through the world while
+ * the geometry still draws" (Death Mountain Trail) means the collision mesh is
+ * empty or was never installed, and these are the numbers that tell which:
+ *
+ *   [0] colHeader pointer as the scene command gave it (pre-relocation)
+ *   [1] numVertices          [2] numPolygons
+ *   [3] relocated polyList   [4] relocated vtxList
+ *   [5] minBounds.y          [6] maxBounds.y
+ *   [7] call count -- more than one per scene load means the command list is
+ *       being walked past its end, which is its own bug
+ */
+unsigned int gPspColProbe[8];
+
+/* Transition-actor (door) probe, same channel as gPspColProbe.
+ *   [0] list pointer   [1] count
+ *   [2..5] entry 0: id, pos.x, pos.y, pos.z   (sign-extended)
+ *   [6] entry 0 rotY   [7] entry 0 params
+ * market_day's first entry is the ground truth to compare against:
+ * id=ACTOR_EN_DOOR, pos=(-482, 0, 615), rotY=-0x8000, params=0x028D. */
+unsigned int gPspTransProbe[8];
+
 static SceUID PspDebugLogOpen(const char* path) {
 #if PSP_DEBUG_LOG_ENABLED
     return sceIoOpen(path, PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);

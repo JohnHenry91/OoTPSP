@@ -78,6 +78,13 @@ void PspRom_Read(uint32_t romOffset, void* dst, size_t size) {
         return;
     }
 
+    /* Raw big-endian ROM data is about to land here, so any blob range still
+     * covering it must stop claiming this memory is native-endian. Without
+     * this the arena hands a recycled address to a raw load and the endian
+     * decisions keyed on that address go the wrong way -- see the range
+     * bookkeeping in psp_blob_assets.c. */
+    PspBlob_InvalidateRange(dst, size);
+
     sceIoLseek(sRomFd, romOffset, PSP_SEEK_SET);
     sceIoRead(sRomFd, dst, size);
 }

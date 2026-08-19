@@ -426,6 +426,20 @@ void Play_Init(GameState* thisx) {
 #if TARGET_PSP
     extern int gPspBootLogoActive;
     gPspBootLogoActive = 0;
+
+    /* Drop the previous scene's textures. Without this the texture pool only
+     * ever grows, across every room visited, and is eventually wiped in the
+     * middle of a frame -- the speckled corruption. See gfx_texture_cache_reset. */
+    {
+        extern void gfx_texture_cache_reset(void);
+        gfx_texture_cache_reset();
+    }
+
+    /* Every blob address range belongs to the scene that registered it. */
+    {
+        extern void PspBlob_ResetRanges(void);
+        PspBlob_ResetRanges();
+    }
 #endif
 
     if (gSaveContext.save.entranceIndex == ENTR_LOAD_OPENING) {

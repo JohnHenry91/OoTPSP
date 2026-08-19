@@ -452,6 +452,20 @@ BAD_RETURN(s32) Scene_CommandCollisionHeader(PlayState* play, SceneCmd* cmd) {
     { extern void PspDebugLogColHeader(void*, int, void*, void*, void*, void*, void*, void*); PspDebugLogColHeader(cmd, 1, colHeader, colHeader->vtxList, colHeader->polyList, colHeader->surfaceTypeList, colHeader->bgCamList, colHeader->waterBoxes); }
 #endif
 
+#if TARGET_PSP
+    {
+        extern unsigned int gPspColProbe[8];
+        gPspColProbe[0] = (unsigned int)(uintptr_t)cmd->colHeader.data;
+        gPspColProbe[1] = colHeader->numVertices;
+        gPspColProbe[2] = colHeader->numPolygons;
+        gPspColProbe[3] = (unsigned int)(uintptr_t)colHeader->polyList;
+        gPspColProbe[4] = (unsigned int)(uintptr_t)colHeader->vtxList;
+        gPspColProbe[5] = (unsigned int)(int)colHeader->minBounds.y;
+        gPspColProbe[6] = (unsigned int)(int)colHeader->maxBounds.y;
+        gPspColProbe[7]++;
+    }
+#endif
+
     BgCheck_Allocate(&play->colCtx, play, colHeader);
 
 #if TARGET_PSP
@@ -582,6 +596,21 @@ BAD_RETURN(s32) Scene_CommandTransitionActorEntryList(PlayState* play, SceneCmd*
     {
         extern void PspFixupTransitionActorEntryListEndian(void* transitionActorList, unsigned int count);
         PspFixupTransitionActorEntryListEndian(play->transitionActors.list, play->transitionActors.count);
+    }
+    {
+        extern unsigned int gPspTransProbe[8];
+        gPspTransProbe[0] = (unsigned int)(uintptr_t)play->transitionActors.list;
+        gPspTransProbe[1] = play->transitionActors.count;
+        if (play->transitionActors.list != NULL && play->transitionActors.count > 0) {
+            TransitionActorEntry* e = &play->transitionActors.list[0];
+
+            gPspTransProbe[2] = (unsigned int)(int)e->id;
+            gPspTransProbe[3] = (unsigned int)(int)e->pos.x;
+            gPspTransProbe[4] = (unsigned int)(int)e->pos.y;
+            gPspTransProbe[5] = (unsigned int)(int)e->pos.z;
+            gPspTransProbe[6] = (unsigned int)(int)e->rotY;
+            gPspTransProbe[7] = (unsigned int)(unsigned short)e->params;
+        }
     }
 #endif
 }

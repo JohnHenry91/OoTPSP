@@ -18,11 +18,33 @@
 #include <stdlib.h>
 
 static struct PSP_Texture textures[512];
-static void *psp_tex_buffer = NULL;
-static void *psp_tex_buffer_start = NULL;
-static void *psp_tex_buffer_max = NULL;
+
+/* Two-region bump allocator: VRAM first, then main RAM.
+ *
+ * VRAM is where textures want to be -- the GE samples it at full bandwidth --
+ * but after two framebuffers and the Z-buffer only ~1.2 MB of the PSP's 2 MB
+ * is left, and a busy scene like the Market needs more than that on its own.
+ * A single-region pool therefore had to choose between "fast but overflows"
+ * and "big but slow", and overflowing is not a graceful failure: it wipes both
+ * texture caches in the middle of a frame while the GE is still reading them,
+ * which is the speckled corruption.
+ *
+ * So: fill VRAM, then spill into a much larger RAM region instead of wiping.
+ * A scene's first (and most reused) textures stay in fast memory and only the
+ * tail pays the slower fetch. */
+#define TEX_REGIONS 2
+
+static struct TexRegion {
+    void *start;
+    void *cur;
+    void *end;
+} regions[TEX_REGIONS];
+
+static int region_cur = 0;
 static unsigned int psp_tex_number = 0;
 unsigned int psp_tex_bound = 0;
+unsigned int psp_tex_overflows = 0;   /* both regions full -> wrapped */
+unsigned int psp_tex_spills = 0;      /* fell back from VRAM to RAM */
 
 static inline unsigned int getMemorySize(int width, int height, unsigned int psm) {
     switch (psm) {
@@ -102,14 +124,16 @@ static void swizzle_fast(unsigned char *out, const unsigned char *in, unsigned i
 }
 
 int texman_inited(void) {
-    return psp_tex_buffer != 0;
+    return regions[0].start != NULL;
 }
 
 void texman_reset(void *buf, unsigned int size) {
     memset(textures, 0, sizeof(textures));
+    memset(regions, 0, sizeof(regions));
     psp_tex_number = 0;
-    psp_tex_buffer = psp_tex_buffer_start = buf;
-    psp_tex_buffer_max = buf + size;
+    region_cur = 0;
+    regions[0].start = regions[0].cur = buf;
+    regions[0].end = (char *)buf + size;
 #ifdef DEBUG
     char msg[64];
     sprintf(msg, "TEXMAN reset @ %p size %d bytes\n", buf, size);
@@ -117,24 +141,47 @@ void texman_reset(void *buf, unsigned int size) {
 #endif
 }
 
+/* Register the spill region. Call after texman_reset. */
+void texman_set_overflow_buffer(void *buf, unsigned int size) {
+    regions[1].start = regions[1].cur = buf;
+    regions[1].end = (char *)buf + size;
+}
+
 void texman_clear(void) {
+    int i;
+
     memset(textures, 0, sizeof(textures));
     psp_tex_number = 0;
-    psp_tex_buffer = psp_tex_buffer_start;
+    region_cur = 0;
+    for (i = 0; i < TEX_REGIONS; i++) {
+        regions[i].cur = regions[i].start;
+    }
 #ifdef DEBUG
     char msg[64];
-    sprintf(msg, "TEXMAN clear %p size %d bytes!\n", psp_tex_buffer, TEXMAN_BUFFER_SIZE);
+    sprintf(msg, "TEXMAN clear %p!\n", regions[0].start);
     sceIoWrite(1, msg, strlen(msg));
 #endif
 }
 
 void texman_set_buffer(void *buf, unsigned int size) {
-    psp_tex_buffer = buf;
-    psp_tex_buffer_max = buf + size;
+    regions[region_cur].start = regions[region_cur].cur = buf;
+    regions[region_cur].end = (char *)buf + size;
 }
 
+/* "Can another texture be allocated at all", i.e. does ANY region still have
+ * room -- not just the one currently being filled. Answering only for the
+ * current region is what used to trigger the whole-cache wipe the moment VRAM
+ * ran out, with a completely empty spill region sitting right there. */
 int gfx_vram_space_available(void) {
-    return (psp_tex_buffer_max - psp_tex_buffer) > (32 * 1024);
+    int i;
+
+    for (i = 0; i < TEX_REGIONS; i++) {
+        if (regions[i].start != NULL &&
+            ((char *)regions[i].end - (char *)regions[i].cur) > (32 * 1024)) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 unsigned char *texman_get_tex_data(unsigned int num) {
@@ -145,35 +192,47 @@ unsigned char texman_get_tex_type(unsigned int num) {
     return textures[num].type;
 }
 
-unsigned int psp_tex_overflows = 0;
-
 struct PSP_Texture *texman_reserve_memory(int width, int height, unsigned int type) {
-    int tex_size = getMemorySize(width, height, type);
-    void *next =
-        (void *) ((((unsigned int) psp_tex_buffer + tex_size + TEX_ALIGNMENT - 1) / TEX_ALIGNMENT)
-                  * TEX_ALIGNMENT);
+    unsigned int tex_size = getMemorySize(width, height, type);
+    int i;
 
-    /* Nothing here ever checked the end of the buffer. gfx_pc.c calls
-     * gfx_vram_space_available() before allocating, but that only guarantees
-     * 32 KB of headroom -- a single 256x256 RGBA texture is 256 KB, so a large
-     * enough texture could walk straight past psp_tex_buffer_max and scribble
-     * over whatever follows the pool. Wrap to the start instead: that corrupts
-     * the OLDEST texture rather than unrelated memory, and the caches are
-     * about to be wiped anyway the next time the headroom check trips. */
-    if (next > psp_tex_buffer_max) {
-        ++psp_tex_overflows;
-        psp_tex_buffer = psp_tex_buffer_start;
-        next = (void *) ((((unsigned int) psp_tex_buffer + tex_size + TEX_ALIGNMENT - 1) /
-                          TEX_ALIGNMENT) * TEX_ALIGNMENT);
-        textures[psp_tex_number].location = psp_tex_buffer;
+    /* Take the first region with room, starting at the one in use. Nothing
+     * here used to check the end of the buffer at all: the caller only
+     * guarantees 32 KB of headroom, but a 256x256 RGBA texture is 256 KB, so a
+     * big enough texture walked straight past the end into unrelated memory. */
+    for (i = 0; i < TEX_REGIONS; i++) {
+        const int idx = (region_cur + i) % TEX_REGIONS;
+        struct TexRegion *r = &regions[idx];
+        void *next;
+
+        if (r->start == NULL) {
+            continue;
+        }
+
+        next = (void *) ((((unsigned int) r->cur + tex_size + TEX_ALIGNMENT - 1) / TEX_ALIGNMENT)
+                         * TEX_ALIGNMENT);
+        if (next > r->end) {
+            continue;
+        }
+
+        if (idx != region_cur) {
+            ++psp_tex_spills;
+            region_cur = idx;
+        }
+        textures[psp_tex_number].location = r->cur;
+        r->cur = next;
+        return &textures[psp_tex_number];
     }
 
-    psp_tex_buffer = next;
-#ifdef DEBUG
-    printf("TEX_MAN tex [%d] reserved %d bytes @ %x left: %d kb\n", psp_tex_number, tex_size,
-           (unsigned int) textures[psp_tex_number].location,
-           (psp_tex_buffer_max - psp_tex_buffer) / 1024);
-#endif
+    /* Every region full. Wrap the first one rather than scribbling past its
+     * end: that corrupts the OLDEST texture instead of unrelated memory, and
+     * the caches are about to be wiped anyway. */
+    ++psp_tex_overflows;
+    region_cur = 0;
+    regions[0].cur = regions[0].start;
+    textures[psp_tex_number].location = regions[0].cur;
+    regions[0].cur = (void *) ((((unsigned int) regions[0].cur + tex_size + TEX_ALIGNMENT - 1) /
+                                TEX_ALIGNMENT) * TEX_ALIGNMENT);
     return &textures[psp_tex_number];
 }
 
@@ -189,7 +248,7 @@ unsigned int texman_create(void) {
 
     psp_tex_number++;
     textures[psp_tex_number] = (struct PSP_Texture){
-        location : psp_tex_buffer,
+        location : regions[region_cur].cur,
         width : 0,
         height : 0,
         type : 0,
@@ -198,7 +257,7 @@ unsigned int texman_create(void) {
     psp_tex_bound = psp_tex_number;
 
 #ifdef DEBUG
-    printf("TEX_MAN new tex [%d] @ %x\n", psp_tex_number, psp_tex_buffer);
+    printf("TEX_MAN new tex [%d] @ %x\n", psp_tex_number, (unsigned int)regions[region_cur].cur);
 #endif
     return psp_tex_number;
 }

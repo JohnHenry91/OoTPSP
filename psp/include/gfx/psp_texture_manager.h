@@ -11,22 +11,37 @@
 #pragma once
 #define TEX_ALIGNMENT (16)
 
-/* Texture pool size.
+/* Texture pool.
  *
- * This used to be 1 MB carved out of VRAM (getStaticVramBufferBytes), which is
- * all that is left of the PSP's 2 MB after two 512x272 framebuffers and the
- * Z-buffer. Every texture is decoded to 32-bit RGBA before upload, so 1 MB is
- * roughly 64 textures of 64x64 -- less than a single OoT room needs. Running
- * out makes gfx_texture_cache_lookup wipe BOTH caches mid-frame
- * (texman_clear), while the GE stays bound to VRAM that now belongs to a
- * different texture: the speckled/garish corruption that shows up in the
- * Market, Back Alley House and Bottom of the Well, and that comes and goes
- * depending on how full the pool happened to be when the room loaded.
+ * The pool lives in VRAM and is sized at init to whatever EDRAM is left after
+ * the two framebuffers and the Z-buffer -- roughly 1.2 MB of the PSP's 2 MB.
+ * TEXMAN_BUFFER_SIZE is only the fallback/documentation value now; the real
+ * size is computed in gfx_scegu_init and passed to texman_reset.
  *
- * The pool now lives in main RAM instead (the GE can sample textures straight
- * out of RAM, just with less bandwidth than VRAM -- this is what DaedalusX64
- * does on the same hardware), so it can be sized for the content rather than
- * for what VRAM has left over. */
+ * History worth keeping: this was blamed for the speckled corruption that hit
+ * the Market, the Dog Lady's house and Bottom of the Well, and was briefly
+ * moved to a 4 MB main-RAM allocation. That was treating the symptom. The
+ * actual defect was that NOTHING ever reset the pool between scenes, so it
+ * accumulated over a whole session and was then wiped in the middle of a frame
+ * with the GE still reading it. With gfx_texture_cache_reset() called per
+ * scene load, one room's textures fit in VRAM comfortably -- and VRAM is where
+ * they want to be, since the GE samples it at full bandwidth.
+ */
+/* Only an alignment margin. The pool does not need a reserve: the overflow
+ * guard in texman_reserve_memory wraps to the start rather than running past
+ * the end, and gfx_pc.c already demands 32 KB of headroom before allocating. */
+#define TEXMAN_VRAM_SLACK (4 * 1024)
+
+/* Main-RAM spill region, used once VRAM is full.
+ *
+ * Kept small on purpose. The measured answer is that it is never touched:
+ * psp_tex_spills and gPspTexCacheResetVram both stay 0 through normal play, so
+ * ~1.2 MB of VRAM is genuinely enough for a scene once the caches are reset per
+ * scene load. This exists as a safety net, not as capacity -- without it, an
+ * overflow falls back to wrapping the pool, which corrupts the oldest texture.
+ * If psp_tex_spills is still 0 after a long session, this can go to 0 and the
+ * whole second region with it. */
+#define TEXMAN_OVERFLOW_SIZE (1 * 1024 * 1024)
 #define TEXMAN_BUFFER_SIZE (4 * 1024 * 1024)
 
 struct PSP_Texture {
@@ -39,6 +54,7 @@ struct PSP_Texture {
 /* used for initialization */
 int texman_inited(void);
 void texman_reset(void *buf, unsigned int size);
+void texman_set_overflow_buffer(void *buf, unsigned int size);
 void texman_set_buffer(void *buf, unsigned int size);
 
 /* management funcs for clients

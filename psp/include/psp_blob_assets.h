@@ -51,6 +51,13 @@ int PspBlob_Read(uint32_t romOffset, void* dst, size_t size);
  * PspFixup*Endian pass -- doing so would byte-reverse correct data. */
 int PspBlob_IsNative(const void* p);
 
+/* Retire any registered range the given memory overlaps -- call from the raw
+ * .z64 read path, which is about to overwrite it with big-endian data. */
+void PspBlob_InvalidateRange(const void* dst, size_t size);
+
+/* Retire every range. Call at scene load. */
+void PspBlob_ResetRanges(void);
+
 /* Diagnostics, read with the WebSocket debugger like every other counter here
  * (never file I/O -- that was itself a crash cause once). gPspBlobMagic is a
  * magic word so a stale symbol address after a rebuild is caught instead of

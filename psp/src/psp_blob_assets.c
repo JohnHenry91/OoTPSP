@@ -33,9 +33,25 @@ static const PspBlobEntry sBlobs[] = {
  * A ring rather than a single range because a scene and its room are both live
  * at once, and the fixup call sites run at different times (Play_SpawnScene vs
  * Room_RequestNewRoom). Eight is far more than the two or three that are ever
- * simultaneously in play; entries are overwritten oldest-first, and a stale one
- * is harmless because the memory it names is reused only by another blob load,
- * which re-registers it anyway.
+ * simultaneously in play.
+ *
+ * A STALE ENTRY IS NOT HARMLESS -- this comment used to claim it was, on the
+ * grounds that "the memory it names is reused only by another blob load, which
+ * re-registers it anyway". That is false, and it cost a long hunt. The arena is
+ * shared with the RAW .z64 loads, and the skybox is the last asset in the game
+ * still served that way (see the block comment in z_vr_box.c). Walk from the
+ * Market into a shop and back and the market's skybox buffer can land inside a
+ * range some earlier blob registered and then abandoned. PspBlob_IsNative()
+ * then answers "native" for raw big-endian ROM data, gfx_pc.c's
+ * tex_needs_u64_unswap() believes it, and the CI8 decoder reverses every group
+ * of eight bytes of a texture that needed no reversing -- the speckled
+ * skybox, with the room's own textures (all blob-served, so correctly
+ * classified) still perfectly sharp beside it.
+ *
+ * So ranges are now retired explicitly, from both ends of their lifetime:
+ * PspBlob_InvalidateRange() when a raw ROM read overwrites the memory, and
+ * PspBlob_ResetRanges() at scene load, when every range from the previous
+ * scene is stale by definition.
  *
  * NB this is an address-range test for the same reason PspStaticAssetIsStatic
  * is: the fixups run on the things a loaded file *points at*, each of which is
@@ -54,6 +70,38 @@ static void PspBlobNoteRange(const void* dst, size_t size) {
     sRanges[sNextRange].start = (uintptr_t)dst;
     sRanges[sNextRange].end = (uintptr_t)dst + size;
     sNextRange = (sNextRange + 1) % PSP_BLOB_RANGES;
+}
+
+/* A raw .z64 read just landed here, so whatever a blob put here before is gone
+ * and must stop claiming to be native-endian.
+ *
+ * Any overlap retires the whole entry. Both sides allocate and fill WHOLE
+ * files, so a partial overlap does not arise in practice; and erring towards
+ * "not native" is the safe direction -- it can only cost a redundant fixup
+ * decision on data that is about to be overwritten anyway, whereas erring the
+ * other way corrupts good data, which is the bug this exists to prevent. */
+void PspBlob_InvalidateRange(const void* dst, size_t size) {
+    uintptr_t a = (uintptr_t)dst;
+    uintptr_t b = a + size;
+    int i;
+
+    for (i = 0; i < PSP_BLOB_RANGES; i++) {
+        if (sRanges[i].end != 0 && a < sRanges[i].end && b > sRanges[i].start) {
+            sRanges[i].start = 0;
+            sRanges[i].end = 0;
+        }
+    }
+}
+
+/* Every range belongs to the scene that loaded it. */
+void PspBlob_ResetRanges(void) {
+    int i;
+
+    for (i = 0; i < PSP_BLOB_RANGES; i++) {
+        sRanges[i].start = 0;
+        sRanges[i].end = 0;
+    }
+    sNextRange = 0;
 }
 
 int PspBlob_IsNative(const void* p) {

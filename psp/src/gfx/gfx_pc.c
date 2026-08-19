@@ -252,6 +252,8 @@ static struct RenderingState {
 
 /* gfx_scegu.c -- per-draw texenv override; see the call sites in gfx_sp_tri1. */
 void gfx_scegu_set_two_texture_tint(int has_tint);
+/* gfx_scegu.c -- forget which texture each tile has bound. */
+void gfx_scegu_invalidate_texture_binding(void);
 
 /* Exposed to gfx_scegu.c's N64-logo-cube 2-pass hack: it needs to toggle
  * GU_BLEND directly for one extra pass, and must restore it to whatever
@@ -1023,6 +1025,43 @@ static struct ColorCombiner *gfx_lookup_or_create_color_combiner(uint32_t cc_id)
 
 extern int gfx_vram_space_available(void);
 extern void texman_clear(void);
+
+/* Drop every cached texture. Safe ONLY between frames -- see the call site in
+ * Play_Init.
+ *
+ * Nothing used to reset these caches at all: texman_clear() was reachable from
+ * exactly one place, the mid-frame exhaustion path below. Textures therefore
+ * accumulated across every room visited for the whole run, until the pool
+ * filled and got wiped in the middle of a frame -- with the GE still holding
+ * pointers into memory that a different texture had just been decoded into.
+ * That is the speckle corruption, and it explains why it struck rooms far too
+ * small to need the pool themselves (the Dog Lady's house): what filled the
+ * pool was every room BEFORE it.
+ *
+ * Enlarging the pool only moves that point later. Resetting per scene load is
+ * the actual fix: one room's textures fit comfortably, so the mid-frame wipe
+ * stops being reachable in normal play. */
+void gfx_texture_cache_reset(void) {
+    texman_clear();
+    gfx_texture_cache.pool_pos = 0;
+    memset(gfx_texture_cache.pool, 0, sizeof(gfx_texture_cache.pool));
+    memset(gfx_texture_cache.hashmap, 0, sizeof(gfx_texture_cache.hashmap));
+
+    /* The renderer caches which texture is bound per tile; a wiped pool makes
+     * those ids meaningless, so force the next draw to re-bind. */
+    gfx_scegu_invalidate_texture_binding();
+
+    /* And force the next draw to re-IMPORT, which is the subtle half.
+     * rendering_state.textures[] points into the pool that was just wiped, but
+     * gfx_sp_tri1 only refreshes it when rdp.textures_changed[] says the tile
+     * changed -- a flag that survives this reset. Without this the first draw
+     * after a scene load reads a dangling entry and, worse, skips the upload
+     * entirely, so the GE samples whatever the new scene has since decoded
+     * into that memory. (Clearing the pointers to NULL instead is not enough:
+     * that same path would then dereference NULL.) */
+    rdp.textures_changed[0] = true;
+    rdp.textures_changed[1] = true;
+}
 
 /* How often the whole texture cache had to be thrown away, split by which
  * limit hit first, plus how full the pool was when it happened. Must be read
