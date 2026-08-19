@@ -181,18 +181,17 @@ void Main(void* arg) {
 
     IrqMgr_AddClient(&gIrqMgr, &irqClient, &irqMgrMsgQueue);
 
-#if !TARGET_PSP
-    /* Audio is out of scope for Phase 1 (see plan roadmap). */
+    /* Audio (Phase 1 bring-up, see project plan): AudioMgr_Init spawns a
+     * real PSP thread (same osCreateThread/osStartThread path DmaMgr
+     * already uses) that registers itself with IrqMgr and is driven by
+     * Graph_Update's new IrqMgr_HandleRetrace call (src/code/graph.c). */
     StackCheck_Init(&sAudioStackInfo, sAudioStack, STACK_TOP(sAudioStack), 0, 0x100, "audio");
     AudioMgr_Init(&sAudioMgr, STACK_TOP(sAudioStack), THREAD_PRI_AUDIOMGR, THREAD_ID_AUDIOMGR, &gScheduler, &gIrqMgr);
-#endif
 
     StackCheck_Init(&sPadMgrStackInfo, sPadMgrStack, STACK_TOP(sPadMgrStack), 0, 0x100, "padmgr");
     PadMgr_Init(&gPadMgr, &sSerialEventQueue, &gIrqMgr, THREAD_ID_PADMGR, THREAD_PRI_PADMGR, STACK_TOP(sPadMgrStack));
 
-#if !TARGET_PSP
     AudioMgr_WaitForInit(&sAudioMgr);
-#endif
 
     StackCheck_Init(&sGraphStackInfo, sGraphStack, STACK_TOP(sGraphStack), 0, 0x100, "graph");
 #if TARGET_PSP

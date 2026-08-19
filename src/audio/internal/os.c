@@ -30,6 +30,19 @@ void Audio_WritebackDCache(void* buf, s32 size) {
  * @param size Length of next audio buffer in bytes, maximum size 0x40000 bytes / 256 KiB. Should be a multiple of 8.
  * @return 0 if the DMA was enqueued successfully, -1 if the DMA could not yet be queued.
  */
+#if TARGET_PSP
+/* psp/src/audio/audio_psp.c -- outputs real synthesized PCM via sceAudio.
+ * See that file's header comment for why this is the only real hardware
+ * touchpoint AudioThread_UpdateImpl (src/audio/internal/thread.c) needs
+ * replaced: AudioSynth_Update already produced finished PCM in `buf` by the
+ * time this is called, there's no RSP task to run. */
+void PspAudio_Output(const s16* buf, u32 numSamples);
+
+s32 osAiSetNextBuffer(void* buf, u32 size) {
+    PspAudio_Output((const s16*)buf, size / 4);
+    return 0;
+}
+#else
 s32 osAiSetNextBuffer(void* buf, u32 size) {
     static u8 hdwrBugFlag = false;
     u32 bufAdjusted = (u32)buf;
@@ -61,3 +74,4 @@ s32 osAiSetNextBuffer(void* buf, u32 size) {
     IO_WRITE(AI_LEN_REG, size);
     return 0;
 }
+#endif

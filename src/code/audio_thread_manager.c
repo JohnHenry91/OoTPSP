@@ -34,6 +34,7 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
         audioMgr->rspTask = NULL;
     }
 
+#if !TARGET_PSP
     if (audioMgr->rspTask != NULL) {
         // Got an rsp task to process, build the OSScTask and forward it to the scheduler to run
 
@@ -48,6 +49,7 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
         osSendMesg(&audioMgr->sched->cmdQueue, (OSMesg)&audioMgr->audioTask, OS_MESG_BLOCK);
         Sched_Notify(audioMgr->sched);
     }
+#endif
 
     // Update the audio driver
 
@@ -63,6 +65,7 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
     gAudioThreadUpdateTimeAcc += osGetTime() - gAudioThreadUpdateTimeStart;
     gAudioThreadUpdateTimeStart = 0;
 
+#if !TARGET_PSP
     if (audioMgr->rspTask != NULL) {
         // Wait for the audio rsp task scheduled on the previous retrace to complete. This looks like it should wait
         // for the task scheduled on the current retrace, earlier in this function, but since the queue is initially
@@ -76,6 +79,16 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
         //! In practice, task done notifications are not used by the audio driver so this is inconsequential.
         AudioMgr_NotifyTaskDone(audioMgr);
     }
+#endif
+    /* TARGET_PSP: there is no real RSP to schedule this "task" onto --
+     * AudioThread_Update() (just above) already fully synthesized real PCM
+     * in portable C (AudioSynth_Update). Skipping both Sched handoffs above
+     * avoids a real hang: gScheduler has no consumer thread on PSP (Sched
+     * is a near-total no-op here, see sched.c), so osSendMesg to its
+     * cmdQueue would sit unconsumed and the matching osRecvMesg on
+     * taskDoneQueue on the following retrace would block forever. The
+     * finished PCM buffer itself is handed off in src/audio/internal/os.c's
+     * TARGET_PSP osAiSetNextBuffer, not here. */
     // Update rsp task to be scheduled on next retrace
     audioMgr->rspTask = rspTask;
 }

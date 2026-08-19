@@ -15,18 +15,13 @@ struct EffectBlure;
 struct CollisionContext;
 struct EnItem00;
 
-void AudioOcarina_SetInstrument(u8 ocarinaInstrumentId) {}
-void Audio_PlayFanfare(u16 seqId) {}
-void Audio_SetBaseFilter(u8 filter) {}
-void Audio_SetBgmEnemyVolume(f32 dist) {}
-void Audio_SetBgmVolumeOffDuringFanfare(void) {}
-void Audio_SetBgmVolumeOnDuringFanfare(void) {}
-void Audio_SetCodeReverb(s8 reverb) {}
-void Audio_SetSequenceMode(u8 seqMode) {}
-void Audio_StopBgmAndFanfare(u16 fadeOutDuration) {}
-void Audio_StopSfxById(u32 sfxId) {}
-
-/* Promoted to the real src/code/z_bg_item.c (Phase 3, enabled by the first
+/* AudioOcarina_SetInstrument/Audio_PlayFanfare/Audio_SetBaseFilter/
+ * Audio_SetBgmEnemyVolume/Audio_SetBgmVolumeOffDuringFanfare/
+ * Audio_SetBgmVolumeOnDuringFanfare/Audio_SetCodeReverb/Audio_SetSequenceMode/
+ * Audio_StopBgmAndFanfare/Audio_StopSfxById PROMOTED to the real
+ * src/audio/game/general.c (Phase 4 audio bring-up, see Makefile.psp).
+ *
+ * Promoted to the real src/code/z_bg_item.c (Phase 3, enabled by the first
  * dyna-poly actors). Stub removed -- keeping it would be a duplicate symbol. */
 
 void EffectBlure_AddVertex(void* this, void* p1, void* p2) {}
@@ -45,8 +40,8 @@ void EffectSsStick_Spawn(void* play, void* pos, s16 yaw) {}
 void func_8002836C(void* play, void* pos, void* velocity, void* accel, void* primColor, void* envColor, f32 scale,
                     s32 arg7, s32 arg8, s32 arg9) {}
 void func_800849EC(void* play) {}
-void func_800F4138(void* pos, u16 sfxId, f32 arg2) {}
-void func_800F4190(void* pos, u16 sfxId) {}
+/* func_800F4138/func_800F4190 PROMOTED to the real src/audio/game/general.c
+ * (Phase 4 audio bring-up, see Makefile.psp). */
 
 void GetItem_Draw(void* play, s16 giDrawId) {}
 

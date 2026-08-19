@@ -69,6 +69,19 @@ int main(void) {
      * test flash below. */
     gfx_init(&gfx_wm_psp, &gfx_opengl_api, "OoT PSP", false);
 
+    /* PspAudio_Init reserves the sceAudio output channel -- must happen
+     * before Main() spawns AudioMgr's real thread (src/code/main.c), whose
+     * first retrace tick can call osAiSetNextBuffer -> PspAudio_Output
+     * almost immediately. See psp/src/audio/audio_psp.c. */
+    extern void PspAudio_Init(void);
+    PspAudio_Init();
+
+    /* Fills gSequenceTable/gSoundFontTable/gSampleBankTable -- must happen
+     * before Main() spawns AudioMgr's real thread, which reads them almost
+     * immediately (Audio_Init -> AudioLoad_Init). See psp_audio_tables.c. */
+    extern void PspAudioTables_Init(void);
+    PspAudioTables_Init();
+
     OSMesgQueue contMesgQ;
     OSMesg contMesgBuf[1];
     OSContStatus contStatus[MAXCONTROLLERS];

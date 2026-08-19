@@ -17,10 +17,10 @@
  * it crashes the game. */
 
 /* --- functions: 166 --- */
-void Audio_QueueSeqCmd(void) {}
-void Audio_SetEnvReverb(void) {}
-void Audio_SetExtraFilter(void) {}
-void Audio_StopSfxByPos(void) {}
+/* Audio_QueueSeqCmd/Audio_SetEnvReverb/Audio_SetExtraFilter/Audio_StopSfxByPos
+ * PROMOTED to the real src/audio/game/{general,sequence,sfx}.c (Phase 4 audio
+ * bring-up, see Makefile.psp). Stubs removed -- keeping them would be
+ * duplicate symbols. */
 void Cutscene_HandleConditionalTriggers(void) {}
 void Cutscene_HandleEntranceTriggers(void) {}
 void Cutscene_InitContext(void) {}
@@ -198,9 +198,8 @@ void func_8002865C(void) {}
 void func_800286CC(void) {}
 void func_80043334(void) {}
 void func_800BB2B4(void) {}
-void func_800F4010(void) {}
-void func_800F4C58(void) {}
-void func_800F6964(void) {}
+/* func_800F4010/func_800F4C58/func_800F6964 PROMOTED to the real
+ * src/audio/game/general.c (Phase 4 audio bring-up, see Makefile.psp). */
 void func_801C7C1C(void) {}
 void gspS2DEX2d_fifoTextStart(void) {}
 void guS2DInitBg(void) {}

@@ -158,6 +158,16 @@ void PspSceneMenu_Update(PlayState* play) {
          * accident. */
         if (gPspRawButtons & PSP_CTRL_LTRIGGER) {
             gPspRoomCullDisable = !gPspRoomCullDisable;
+        } else if (gPspRawButtons & PSP_CTRL_RTRIGGER) {
+            /* Audio Phase 1 bring-up smoke test: NA_BGM_OCA_TIME (0x48, Song
+             * of Time) is the one sequence wired up so far (see
+             * psp/src/psp_audio_tables.c) -- short and easy to verify by ear.
+             * Same "modifier + TRIANGLE" convention as L above (R doubles as
+             * a real N64 button too; a real R press landing on TRIANGLE is
+             * just as much an intentional combo as L's). Remove once real
+             * gameplay triggers sequences on their own. */
+            extern void Audio_PlayFanfare(u16 seqId);
+            Audio_PlayFanfare(0x48);
         } else {
             sHudOpen = !sHudOpen;
         }

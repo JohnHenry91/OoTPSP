@@ -42,6 +42,13 @@ u32 gPspGfxArenaProbe[8] = { 0 };
  * PadMgr_ThreadEntry there) -- forward-declare for the direct per-frame
  * call this port needs instead. */
 void PadMgr_HandleRetrace(PadMgr* padMgr);
+/* Not part of irqmgr.h's public API either (only used internally by
+ * IrqMgr_ThreadEntry) -- forward-declare so Graph_Update can fan out
+ * OS_SC_RETRACE_MSG to IrqMgr's registered clients once per frame. Needed
+ * now that AudioMgr_Init (src/code/main.c) registers a real client and
+ * genuinely depends on this message to drive AudioThread_Update -- see the
+ * drain comment at the call site below. */
+void IrqMgr_HandleRetrace(IrqMgr* irqMgr);
 #endif
 
 #define GFXPOOL_HEAD_MAGIC 0x1234
@@ -452,11 +459,28 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     Graph_InitTHGA(gfxCtx);
 
 #if TARGET_PSP
-    /* IrqMgr's vsync-tick fan-out is bypassed for Phase 1 (Sched is a
-     * no-op here, AudioMgr is stubbed out) -- PadMgr is the one subsystem
-     * that still genuinely needs a once-per-frame tick, so call it
-     * directly. See plan decision #4. */
+    /* PadMgr still gets its once-per-frame tick as a direct call (no real
+     * PadMgr thread on PSP to consume a queued message -- plan decision
+     * #4), unchanged from Phase 1. AudioMgr (now enabled, see main.c) is
+     * different: it runs as a REAL PSP thread (audio needs genuine
+     * decoupling from frame hitches to not glitch) and is only driven by
+     * the real IrqMgr client-queue mechanism (AudioMgr_ThreadEntry blocks
+     * on osRecvMesg, unlike PadMgr_HandleRetrace which has no such loop to
+     * call directly) -- so the fan-out itself now has to run for real. */
     PadMgr_HandleRetrace(&gPadMgr);
+    IrqMgr_HandleRetrace(&gIrqMgr);
+    /* IrqMgr_HandleRetrace just posted OS_SC_RETRACE_MSG to every
+     * registered client, including PadMgr's and Sched's queues -- neither
+     * has a real consumer thread on PSP (PadMgr was just handled directly
+     * above; Sched's whole gfx-task dispatch is bypassed, see its own
+     * TARGET_PSP comment in sched.c), so their copies would just
+     * accumulate and eventually overflow (harmless but noisy: a PRINTF
+     * warning every frame, forever, once each ring buffer fills). Discard
+     * them here rather than touching padmgr.c/sched.c's real, unmodified,
+     * already-verified logic. AudioMgr's own queue is deliberately left
+     * alone -- its real background thread is the intended reader. */
+    osRecvMesg(&gPadMgr.interruptQueue, NULL, OS_MESG_NOBLOCK);
+    osRecvMesg(&gScheduler.interruptQueue, NULL, OS_MESG_NOBLOCK);
 #endif
 
 #if DEBUG_FEATURES
@@ -742,11 +766,13 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
         gfxCtx->fbIdx++;
     }
 
-#if !TARGET_PSP
-    /* Audio is out of scope for Phase 1 (see plan roadmap) -- avoid pulling
-     * in the whole audio subsystem just to link the engine skeleton. */
+    /* Game-side audio update (queues sequence/sfx commands based on current
+     * game state) -- separate from AudioMgr's own per-retrace synthesis tick
+     * (AudioMgr_HandleRetrace, src/code/audio_thread_manager.c), same as on
+     * real N64: this runs on the main thread once per frame, that runs on
+     * AudioMgr's own real thread once per retrace. Audio used to be entirely
+     * out of scope for Phase 1 -- now enabled, see Makefile.psp. */
     Audio_Update();
-#endif
 
     {
         OSTime timeNow = osGetTime();

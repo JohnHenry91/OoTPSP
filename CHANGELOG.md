@@ -123,6 +123,13 @@ rather than a stage set.
   whether this is the same texture-stride family of bug or something specific to
   this skybox's face count/layout (Zora's Fountain is an outdoor overworld scene,
   a different skybox shape than the Market's building skybox).
+- **Dodongo's Cavern: the lava renders as water** (teal/blue, rippling) instead of
+  the expected orange/red lava surface -- screenshot confirmed by the user. Not yet
+  diagnosed. Lava and water are typically the same animated-texture/scroll
+  mechanism with a different texture and combiner/env-color driving the tint, so
+  worth checking whether this scene's lava material is falling through to
+  whatever path water uses, or whether the right texture is bound but the
+  prim/env color that should tint it orange is wrong or missing.
 
 ---
 

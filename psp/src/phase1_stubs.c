@@ -17,6 +17,27 @@
 #include "ocarina.h"
 #include "player.h"
 
+/* Real RSP audio microcode blob (sys_ucode.c-adjacent -- same category as the
+ * graphics RSP microcode already never linked, see Graph_TaskSet00's own
+ * TARGET_PSP branch/that file's note). AudioThread_UpdateImpl (src/audio/
+ * internal/thread.c) builds an OSTask referencing these, but never actually
+ * submits it to anything on PSP -- AudioMgr_HandleRetrace's TARGET_PSP branch
+ * (src/code/audio_thread_manager.c) skips the real-RSP Sched handoff entirely,
+ * since AudioSynth_Update already did the real synthesis in portable C.
+ * Dummy 1-entry arrays only so the (dead, but still computed) pointer/size
+ * arithmetic links. */
+u64 aspMainTextStart[1];
+u64 aspMainTextEnd[1];
+u64 aspMainDataStart[1];
+u64 aspMainDataEnd[1];
+
+/* Real N64 cartridge PI handle init -- no such hardware on PSP. Only
+ * consumer is AudioLoad_Init's gAudioCtx.cartHandle assignment; our own
+ * osEPiStartDma (psp/src/libultra/os_pi.c) doesn't use the handle at all. */
+OSPiHandle* osCartRomInit(void) {
+    return NULL;
+}
+
 /* Environment_FillScreen now comes from the real src/code/z_kankyo.c, which
  * is compiled in as of the environment-lighting promotion (see Makefile.psp).
  * The Phase 1 no-op here existed only so z_title.c's console-logo fade would
@@ -24,24 +45,18 @@
 
 /* Real impl: src/code/z_sram.c -- now built for real (Phase 2, needed for
  * Sram_InitDebugSave in TitleSetup_SetupTitleScreen), see Makefile.psp. It
- * still pulls in two things we don't need yet:
+ * still pulls in one thing we don't need yet:
  * - src/boot/ss_sram.c (real N64 cartridge SRAM DMA hardware access) --
  *   no-op for now, we boot straight into Sram_InitDebugSave's default save
  *   every time rather than persisting/loading real save data.
- * - Audio_SetSoundOutputMode (src/audio/...) -- whole audio subsystem is
- *   out of scope (see Audio_Update/AudioMgr_StopAllSfx below). */
+ * Audio_SetSoundOutputMode used to be stubbed here too (whole audio
+ * subsystem out of scope for Phase 1) -- now comes from the real
+ * src/audio/game/general.c, see Makefile.psp's audio-assets block. */
 void SsSram_ReadWrite(s32 addr, void* dramAddr, size_t size, s32 direction) {
 }
 
-void Audio_SetSoundOutputMode(s8 soundSetting) {
-}
-
-/* Real impl: src/audio/game/general.c -- ocarina scarecrow-song data, audio
- * subsystem out of scope. Only referenced by src/code/z_sram.c's
- * Sram_OpenSave (real save-file loading, not exercised by our
- * Sram_InitDebugSave-only boot path) -- dummy values are never read. */
-u8* gScarecrowSpawnSongPtr = NULL;
-OcarinaNote* gScarecrowLongSongPtr = NULL;
+/* gScarecrowSpawnSongPtr/gScarecrowLongSongPtr PROMOTED to the real
+ * src/audio/game/general.c (Phase 4 audio bring-up, see Makefile.psp). */
 
 /* Real impl: src/code/z_parameter.c (4415 lines, HUD/inventory-UI drawing +
  * item-select logic) -- these two tiny tables are only referenced by
@@ -109,16 +124,6 @@ NORETURN void Fault_AddHungupAndCrashImpl(const char* exp1, const char* exp2) {
  * psp/src/libultra/fault.c (attempt 1's version, which also prints
  * file:line via pspDebugScreenPrintf -- kept as the one definition). */
 
-/* Real impl: src/audio/game/sfx.c -- the whole audio subsystem is out of
- * scope for Phase 1 (see plan roadmap; Audio_Update is already stubbed in
- * graph.c). Silence is fine for now. */
-Vec3f gSfxDefaultPos;
-f32 gSfxDefaultFreqAndVolScale = 1.0f;
-s8 gSfxDefaultReverb = 0;
-
-void Audio_PlaySfxGeneral(u16 sfxId, Vec3f* pos, u8 token, f32* freqScale, f32* vol, s8* reverbAdd) {
-}
-
 /* Real impl: src/libu64/loadfragment2_n64.c (212 lines, MIPS ELF-style
  * relocation of runtime-DMA'd overlay blobs) -- dead code on PSP, since
  * every gGameStateOverlayTable entry has vramStart == NULL (see
@@ -144,44 +149,12 @@ u8 gViConfigModeType = OS_VI_NTSC_LAN1;
 
 /* gTransitionTileState now comes from the real src/code/z_play.c (Phase 2). */
 
-/* Real impl: src/audio/game/general.c / src/code/audio_stop_all_sfx.c --
- * whole audio subsystem out of scope for Phase 1 (see graph.c's
- * Audio_Update guard). z_title.c calls these directly too. */
-void Audio_Update(void) {
-}
-void AudioMgr_StopAllSfx(void) {
-}
-
-/* Sequence/ambience control, referenced by the real src/code/z_kankyo.c
- * (Environment_PlaySceneSequence, Environment_PlayTimeBasedSequence,
- * Environment_Play/StopStormNatureAmbience). Same subsystem, same reason.
- *
- * These four are the safe kind of no-op stub: they return void and take only
- * scalars by value, so there is no out-parameter left unwritten and no $v0
- * left holding the previous call's garbage. Written with their REAL
- * signatures anyway -- see the note in phase2_stubs_gen.c about why a
- * mismatched signature that "links fine" is the trap, not the shortcut. */
-void Audio_PlaySceneSequence(u16 seqId) {
-}
-void Audio_PlayMorningSceneSequence(u16 seqId) {
-}
-void Audio_PlayNatureAmbienceSequence(u8 natureAmbienceId) {
-}
-void Audio_SetNatureAmbienceChannelIO(u8 channelIdxRange, u8 ioPort, u8 ioData) {
-}
-
-/* This one returns a value, so it must NOT be a no-op: z_kankyo.c's
- * Environment_StopStormNatureAmbience does
- *
- *     if (Audio_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN) == NA_BGM_NATURE_AMBIENCE)
- *
- * and a garbage $v0 would take that branch at random. With no audio driver
- * nothing is ever playing, and NA_BGM_DISABLED is exactly the value the real
- * function returns for an idle sequence player -- so this is the honest
- * answer rather than a placeholder. */
-u16 Audio_GetActiveSeqId(u8 seqPlayerIndex) {
-    return NA_BGM_DISABLED;
-}
+/* Audio_Update/AudioMgr_StopAllSfx/Audio_PlaySceneSequence/
+ * Audio_PlayMorningSceneSequence/Audio_PlayNatureAmbienceSequence/
+ * Audio_SetNatureAmbienceChannelIO/Audio_GetActiveSeqId used to be stubbed
+ * here (whole audio subsystem out of scope for Phase 1) -- now come from the
+ * real src/audio/game/{general,sequence}.c and src/code/audio_stop_all_sfx.c,
+ * see Makefile.psp's audio-assets block. */
 
 /* _nintendo_rogo_staticSegmentRomStart/End dummies removed: z_title.c now
  * uses real ROM offsets (NINTENDO_ROGO_STATIC_ROM_START/SIZE, read from

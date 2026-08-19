@@ -7,10 +7,21 @@
 
 #include "util.h"
 
-#define elf32_read16(x)  be16toh(x)
-#define elf32_write16(x) htobe16(x)
-#define elf32_read32(x)  be32toh(x)
-#define elf32_write32(x) htobe32(x)
+/* These tools originally only ever saw N64 (big-endian) ELF input, so the
+ * byte-order conversion here was hardcoded to be<->host. A PSP-targeting
+ * build (see Makefile.psp) also runs these same host tools on little-endian
+ * PSP ELF objects (real objects, not raw ROM data -- see the native-blob
+ * asset pipeline this port uses, psp/tools/make_scene_blob.sh's header
+ * comment). One process only ever reads/patches one ELF's worth of data at a
+ * time (see elf32_read's callers), so a flag set once from the file's own
+ * e_ident[EI_DATA] is enough to make every read/write in this header use the
+ * ACTUAL input endianness instead of assuming big. */
+static int g_elf32_is_be = 1;
+
+#define elf32_read16(x)  (g_elf32_is_be ? be16toh(x) : le16toh(x))
+#define elf32_write16(x) (g_elf32_is_be ? htobe16(x) : htole16(x))
+#define elf32_read32(x)  (g_elf32_is_be ? be32toh(x) : le32toh(x))
+#define elf32_write32(x) (g_elf32_is_be ? htobe32(x) : htole32(x))
 
 #ifndef ELF32_QUALIFIERS
 #define ELF32_QUALIFIERS static UNUSED ALWAYS_INLINE
@@ -54,6 +65,7 @@ typedef struct {
 #define ELF32_IS_32(ehdr) ((ehdr)->e_ident[EI_CLASS] == 1 /*EI_CLASS_32*/)
 
 #define ELF32_IS_BE(ehdr) ((ehdr)->e_ident[EI_DATA] == 2 /*EI_DATA_BE*/)
+#define ELF32_IS_LE(ehdr) ((ehdr)->e_ident[EI_DATA] == 1 /*EI_DATA_LE*/)
 
 typedef struct {
     uint32_t sh_name;
@@ -150,8 +162,9 @@ elf32_read(const char *path, size_t *data_size_out)
         error(ELF32_ERR_PREFIX "Not an ELF file?");
     if (!ELF32_IS_32(ehdr))
         error(ELF32_ERR_PREFIX "Not ELF32?");
-    if (!ELF32_IS_BE(ehdr))
-        error(ELF32_ERR_PREFIX "Not big-endian?");
+    if (!ELF32_IS_BE(ehdr) && !ELF32_IS_LE(ehdr))
+        error(ELF32_ERR_PREFIX "Unknown byte order?");
+    g_elf32_is_be = ELF32_IS_BE(ehdr);
 
     *data_size_out = data_size;
     return data;

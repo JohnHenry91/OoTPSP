@@ -4,7 +4,7 @@
 #   Extract audio files
 #
 
-import os, shutil, time
+import os, shlex, shutil, time
 from dataclasses import dataclass
 from multiprocessing.pool import ThreadPool
 from typing import Dict, List, Tuple, Union
@@ -122,7 +122,7 @@ def aifc_extract_one_sample(base_path : str, sample : AudioTableSample):
     # export to AIFC
     sample.to_file(aifc_path)
     # decode to AIFF/WAV
-    program_get(f"{SAMPLECONV_PATH} --matching pcm16 {aifc_path} {wav_path}")
+    program_get(f"{shlex.quote(SAMPLECONV_PATH)} --matching pcm16 {shlex.quote(aifc_path)} {shlex.quote(wav_path)}")
 
 def aifc_extract_one_bin(base_path : str, sample : AudioTableData):
     # export to BIN
