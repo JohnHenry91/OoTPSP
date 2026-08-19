@@ -369,7 +369,7 @@ CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
 LIBDIR = psp/lib
-LIBS = -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lm
+LIBS = -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lpsppower -lm
 
 # D_01000000 is not data -- it is a segmented ADDRESS that the N64 build's own
 # spec resolves to the literal 0x01000000, and segment 1 is the billboard matrix

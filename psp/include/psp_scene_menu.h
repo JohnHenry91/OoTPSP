@@ -13,4 +13,8 @@ extern s32 gPspSceneMenuOpen;
 void PspSceneMenu_Update(struct PlayState* play);
 void PspSceneMenu_DrawBackdrop(void);
 
+/* Frame-pacing HUD, toggled with TRIANGLE. Drawn from the same place as the
+ * backdrop and independently of whether the warp menu is open. */
+void PspSceneMenu_DrawHud(void);
+
 #endif

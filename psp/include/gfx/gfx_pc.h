@@ -23,6 +23,15 @@ void gfx_start_frame(void);
 void gfx_run(Gfx *commands);
 void gfx_end_frame(void);
 
+/* Last completed frame's interpreter counters, for the debug HUD
+ * (psp/src/psp_scene_menu.c). Accessors rather than exporting
+ * gPspGfxStatsPrev itself: PspGfxFrameStats is debugger-facing and the WebSocket
+ * read scripts address it by field offset, so it deliberately stays a private
+ * type that nothing else compiles against. */
+unsigned int gfx_pc_stat_tris_drawn(void);
+unsigned int gfx_pc_stat_tex_imports(void);
+unsigned int gfx_pc_stat_tex_hits(void);
+
 #ifdef __cplusplus
 }
 #endif

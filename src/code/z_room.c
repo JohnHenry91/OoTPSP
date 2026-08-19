@@ -111,6 +111,28 @@ typedef struct RoomShapeCullableEntryLinked {
     /* 0x0C */ struct RoomShapeCullableEntryLinked* next;
 } RoomShapeCullableEntryLinked; // size = 0x10
 
+#if TARGET_PSP
+/* Probe: Room_DrawCullable is the engine's OWN per-entry culling, and it is the
+ * one place where "the room renders incompletely" can be entirely correct
+ * behaviour fed by a wrong input. It has exactly two inputs -- the projection
+ * through play->viewProjectionMtxF (near test) and play->lightCtx.zFar (far
+ * test) -- so the two rejections are counted separately. Which counter moves
+ * names the culprit without touching the renderer at all:
+ *
+ *   rejFar > 0   -> zFar is too small; look at z_kankyo.c / the scene's light
+ *                   settings, not at gfx_pc.c.
+ *   rejNear > 0  -> the projection is wrong; look at viewProjectionMtxF.
+ *   both 0       -> culling passed everything and the geometry is being lost
+ *                   further down, i.e. it IS a renderer bug after all.
+ */
+u32 gPspRoomCullEntries = 0;
+u32 gPspRoomCullDrawn = 0;
+u32 gPspRoomCullRejNear = 0;
+u32 gPspRoomCullRejFar = 0;
+s32 gPspRoomCullZFar = 0;
+s32 gPspRoomCullType = -1;
+#endif
+
 /**
  * Handle room drawing for the "cullable" type of room shape.
  *
@@ -166,6 +188,13 @@ void Room_DrawCullable(PlayState* play, Room* room, u32 flags) {
 
     roomShapeCullableEntries = roomShapeCullableEntry;
 
+#if TARGET_PSP
+    gPspRoomCullEntries = roomShape->numEntries;
+    gPspRoomCullRejNear = 0;
+    gPspRoomCullRejFar = 0;
+    gPspRoomCullZFar = (s32)play->lightCtx.zFar;
+#endif
+
     // Pick and sort entries by depth
     for (i = 0; i < roomShape->numEntries; i++, roomShapeCullableEntry++) {
 
@@ -220,8 +249,22 @@ void Room_DrawCullable(PlayState* play, Room* room, u32 flags) {
 
                 insert++;
             }
+#if TARGET_PSP
+            else {
+                ++gPspRoomCullRejFar;
+            }
+#endif
         }
+#if TARGET_PSP
+        else {
+            ++gPspRoomCullRejNear;
+        }
+#endif
     }
+
+#if TARGET_PSP
+    gPspRoomCullDrawn = (u32)(insert - linkedEntriesBuffer);
+#endif
 
     // if this is real then I might not be
     R_ROOM_CULL_NUM_ENTRIES = roomShape->numEntries & 0xFFFF & 0xFFFF & 0xFFFF;
@@ -979,6 +1022,26 @@ void Room_Draw(PlayState* play, Room* room, u32 flags) {
             return;
         }
 #endif
+#if TARGET_PSP
+        /* Record the shape type of every room that actually draws, and clear
+         * the cull counters only for the shapes that have none.
+         *
+         * The obvious place for this -- the top of Room_Draw -- is wrong:
+         * Play_Draw calls Room_Draw a second time for roomCtx.prevRoom
+         * (z_play.c:1849), which normally has segment == NULL and returns
+         * immediately. A reset up there therefore ran AFTER the real room had
+         * filled the counters in and zeroed them every frame, which read as
+         * "the cullable path never runs" and is a measurement artefact, not a
+         * fact about the game. Both conditions here matter. */
+        gPspRoomCullType = room->roomShape->base.type;
+        if (room->roomShape->base.type != ROOM_SHAPE_TYPE_CULLABLE) {
+            gPspRoomCullEntries = 0;
+            gPspRoomCullDrawn = 0;
+            gPspRoomCullRejNear = 0;
+            gPspRoomCullRejFar = 0;
+        }
+#endif
+
         sRoomDrawHandlers[room->roomShape->base.type](play, room, flags);
     }
 }

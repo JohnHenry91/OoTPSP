@@ -24,6 +24,7 @@
 
 #include "psp_texture_manager.h"
 #include "psp_scene_menu.h"
+#include "psp_frame_pace.h"
 
 #define BUF_WIDTH (512)
 #define SCR_WIDTH (480)
@@ -1533,11 +1534,20 @@ static void gfx_scegu_end_frame(void) {
      * overlay self-diagnosing: a visible panel with no text isolates the
      * failure to the pspDebugScreen half, no panel at all to the input half. */
     PspSceneMenu_DrawBackdrop();
+    PspSceneMenu_DrawHud();
 
     sceGuFinish();
     sceGuSync(0, 0);
 
-    sceDisplayWaitVblankStart();
+    {
+        /* Timed so the pacer can charge this to idle rather than to the
+         * frame's work -- see gPspVblankWaitUsec in psp_frame_pace.h. */
+        u64 waitStart = (u64)sceKernelGetSystemTimeWide();
+
+        sceDisplayWaitVblankStart();
+        gPspVblankWaitUsec = (u32)((u64)sceKernelGetSystemTimeWide() - waitStart);
+    }
+
     sceGuSwapBuffers();
     sDrawBufferIsFbp0 = !sDrawBufferIsFbp0;
 }

@@ -67,7 +67,13 @@ static void gfx_wm_psp_swap_buffers_begin(void) {
 }
 
 static void gfx_wm_psp_swap_buffers_end(void) {
-    sceDisplayWaitVblankStart();
+    /* Deliberately empty. gfx_scegu_end_frame already does the full swap --
+     * sceGuSync, sceDisplayWaitVblankStart, sceGuSwapBuffers -- so the
+     * WaitVblankStart that used to sit here was a SECOND wait on the same
+     * frame. It cost up to one refresh (16.7 ms) of pure idle per frame and,
+     * worse, made two vblanks the floor for any frame at all, capping the
+     * renderer at 30 Hz however cheap the scene was. Pacing is
+     * psp_frame_pace.c's job and it counts vblanks itself. */
 }
 
 static double gfx_wm_psp_get_time(void) {

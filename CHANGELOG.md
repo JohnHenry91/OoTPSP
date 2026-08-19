@@ -22,6 +22,50 @@ rather than a stage set.
 
 ### Working
 
+- **Frame pacing is locked to the PSP's own refresh.** The pacer used to hold each
+  frame for `R_UPDATE_RATE * 1s / 50 Hz` = 60 ms, PAL's field rate. That is 3.596 of
+  the panel's 16.68 ms vblanks, and since the swap waits for a vblank before
+  presenting, the hold time alternated 3, 4, 4, 3, 4, 4 refreshes -- a 25% swing in
+  frame interval on every frame at perfectly constant load, which reads as judder
+  regardless of how stable the framerate is. It now counts real vblanks via
+  `sceDisplayGetVcount`, so the interval is uniform by construction and cannot drift.
+  Consequence worth naming: 59.94 Hz is NTSC's field rate, so the game runs at NTSC
+  timing (19.98 Hz at `R_UPDATE_RATE` 3) rather than the PAL ROM's 16.67 Hz -- the
+  speed the game was designed at, and the 20% the PAL release gave up. There is no
+  way to have both authentic PAL timing and an even picture on a 59.94 Hz panel.
+- **The renderer no longer waits for two vblanks per frame.** `gfx_scegu_end_frame`
+  already does the complete swap (`sceGuSync`, `sceDisplayWaitVblankStart`,
+  `sceGuSwapBuffers`), and `gfx_wm_psp_swap_buffers_end` then waited a *second* time
+  on the same frame. It cost up to one refresh of pure idle per frame and made two
+  vblanks the floor for any frame at all, capping the renderer at 30 Hz however
+  cheap the scene was.
+- **The CPU runs at 333 MHz.** A PSP boots user applications at 222/111 MHz and
+  nothing had ever raised it. The port is CPU-bound -- `gfx_pc.c` interprets every
+  F3DEX2 command and transforms, clips and decodes textures on the main CPU -- so
+  this is close to 50% more frame budget for one `scePowerSetClockFrequency` call.
+- **Frame-budget HUD** (`psp/src/psp_scene_menu.c`, TRIANGLE toggles, on by
+  default). Shows measured framerate, per-frame work with the swap's vblank wait
+  subtracted, the headroom between them, triangles drawn and texture
+  imports/hits. The headroom is the number that decides whether a lower
+  `R_UPDATE_RATE` is affordable; measuring work *without* excluding the vblank wait
+  quantises it to whole refreshes and saturates at 16.7 ms, which says nothing.
+- **Live framerate override** (SQUARE, `gPspPaceOverride`, applied in `Graph_Update`).
+  `R_UPDATE_RATE` is a genuine engine knob, not a pacer hack: `z_skelanime`,
+  `Actor_UpdatePos`, `Math_ScaledStepToS` and the camera all scale their per-update
+  deltas by it, so the game runs at the same speed whichever value is in force --
+  it just samples that motion more or less often. The engine uses this itself (the
+  pause menu runs at 2, transitions at 1). What does *not* scale is per-update
+  counting -- actor timers, unscaled `Math_StepToF`, cutscene frame counters -- so
+  those run 1.5x/3x fast at 2/1, the same trade-off the N64 60fps codes make.
+- **Cullable-room probe** (`gPspRoomCull*` in `src/code/z_room.c`, third HUD line).
+  `Room_DrawCullable` is the engine's own per-entry culling and the one place where
+  "the room renders incompletely" can be entirely correct behaviour fed by a wrong
+  input. Its two inputs -- the projection through `viewProjectionMtxF` and
+  `lightCtx.zFar` -- now have separate rejection counters, so which one fires names
+  the culprit without touching the renderer. First measurement in the Deku Tree
+  already killed the leading theory: `zFar` reads 4000, exactly what `ydan`'s light
+  settings specify.
+
 - **The actor-enablement path is proven end to end.** `z_actor_dlftbls_psp.c`
   declares every `<Name>_Profile` as a weak alias to a no-op dummy actor; an actor
   whose real `.c` is added to `Makefile.psp` gets a strong symbol that the linker

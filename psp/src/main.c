@@ -17,6 +17,7 @@
 #include <pspgu.h>
 #include <pspdisplay.h>
 #include <pspiofilemgr.h>
+#include <psppower.h>
 
 #include "ultra64.h"
 #include "libu64/pad.h"
@@ -45,6 +46,15 @@ int main(void) {
     extern void PspOsMesgSetMainThread(void);
 
     pspDebugScreenInit();
+
+    /* Run the CPU at its full 333 MHz (bus 166) instead of the 222/111 MHz a
+     * PSP boots user applications at. The port is CPU-bound -- gfx_pc.c
+     * interprets every F3DEX2 command, transforms and clips on the main CPU,
+     * and decodes N64 textures -- so this is close to a straight 50% more
+     * frame budget for one call, and it is what every PSP port that cares
+     * about framerate does. Battery life is the cost; there is no downside
+     * for correctness. */
+    scePowerSetClockFrequency(333, 333, 166);
 
     /* Register this thread as the one that must never park forever in a
      * libultra message queue. Worker threads (padmgr, DmaMgr) still block

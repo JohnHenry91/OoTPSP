@@ -4414,6 +4414,18 @@ void gfx_run(Gfx *commands) {
     }
 }
 
+unsigned int gfx_pc_stat_tris_drawn(void) {
+    return gPspGfxStatsPrev.tris_drawn;
+}
+
+unsigned int gfx_pc_stat_tex_imports(void) {
+    return gPspGfxStatsPrev.tex_imports;
+}
+
+unsigned int gfx_pc_stat_tex_hits(void) {
+    return gPspGfxStatsPrev.tex_hits;
+}
+
 void gfx_end_frame(void) {
     
     //sceIoWrite(1, "----END FRAME!\n", 16);

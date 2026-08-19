@@ -471,6 +471,21 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 #endif
 
     GameState_ReqPadData(gameState);
+
+#if TARGET_PSP
+    /* Development framerate override (TRIANGLE + SQUARE, see psp_scene_menu.c).
+     * Applied HERE, after the engine's own writes to R_UPDATE_RATE have
+     * settled and before the update that reads it, so every scaling site
+     * (z_skelanime, Actor_UpdatePos, Math_ScaledStepToS, the camera) sees the
+     * same value the pacer will hold the frame for. Transitions and the pause
+     * menu deliberately drive R_UPDATE_RATE themselves; the override is
+     * unconditional and briefly overrules them, which is acceptable for a
+     * debug knob and is why it defaults to off. */
+    if (gPspPaceOverride != 0) {
+        R_UPDATE_RATE = gPspPaceOverride;
+    }
+#endif
+
     GameState_Update(gameState);
 
 #if DEBUG_FEATURES
