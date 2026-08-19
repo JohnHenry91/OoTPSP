@@ -58,6 +58,26 @@ unsigned int gPspColProbe[8];
  * id=ACTOR_EN_DOOR, pos=(-482, 0, 615), rotY=-0x8000, params=0x028D. */
 unsigned int gPspTransProbe[8];
 
+/* Door DRAW probe. Entry data and spawn are already proven correct, so this
+ * asks the next question: does the matrix the door actually draws with agree
+ * with where the actor thinks it is?
+ *   [0..2] actor.world.pos x/y/z   [3] actor.shape.rot.y
+ *   [4..6] translation of the model matrix BEFORE the skeleton draw
+ *   [7] draw count
+ *
+ * gPspDoorProbe2[0..2] is the SAME translation AFTER SkelAnime_DrawOpa, i.e.
+ * what the trailing gDoorLeftDL/gDoorRightDL inherits -- EnDoor_Draw appends
+ * those with no gSPMatrix of their own.
+ *
+ * NB the translation lives in xw/yw/zw, NOT wx/wy/wz: see Matrix_Translate in
+ * sys_matrix.c (`cmf->xw += ...`). Reading wx/wy/wz gives the bottom row,
+ * which is (0,0,0) for any affine matrix -- a reading that looks like a
+ * dramatic finding and means nothing. Cost one round trip already.
+ * All values are floats scaled by 1 (stored as int) -- positions are whole
+ * units in this game, so the truncation costs nothing here. */
+int gPspDoorProbe[8];
+int gPspDoorProbe2[8];
+
 static SceUID PspDebugLogOpen(const char* path) {
 #if PSP_DEBUG_LOG_ENABLED
     return sceIoOpen(path, PSP_O_WRONLY | PSP_O_APPEND | PSP_O_CREAT, 0777);

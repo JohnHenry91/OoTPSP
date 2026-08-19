@@ -382,8 +382,42 @@ void EnDoor_Draw(Actor* thisx, PlayState* play) {
         OPEN_DISPS(play->state.gfxCtx, "../z_en_door.c", 910);
 
         Gfx_SetupDL_25Opa(play->state.gfxCtx);
+#if TARGET_PSP
+        {
+            extern int gPspDoorProbe[8];
+            extern void Matrix_Get(MtxF* dest);
+            MtxF m;
+
+            Matrix_Get(&m);
+            gPspDoorProbe[0] = (int)this->actor.world.pos.x;
+            gPspDoorProbe[1] = (int)this->actor.world.pos.y;
+            gPspDoorProbe[2] = (int)this->actor.world.pos.z;
+            gPspDoorProbe[3] = this->actor.shape.rot.y;
+            gPspDoorProbe[4] = (int)m.xw;
+            gPspDoorProbe[5] = (int)m.yw;
+            gPspDoorProbe[6] = (int)m.zw;
+            gPspDoorProbe[7]++;
+        }
+#endif
         SkelAnime_DrawOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable, EnDoor_OverrideLimbDraw, NULL,
                           &this->actor);
+#if TARGET_PSP
+        {
+            extern int gPspDoorProbe2[8];
+            extern void Matrix_Get(MtxF* dest);
+            MtxF m2;
+
+            Matrix_Get(&m2);
+            gPspDoorProbe2[0] = (int)m2.xw;
+            gPspDoorProbe2[1] = (int)m2.yw;
+            gPspDoorProbe2[2] = (int)m2.zw;
+            gPspDoorProbe2[3] = this->actor.world.rot.y;
+            gPspDoorProbe2[4] = this->dListIndex;
+            gPspDoorProbe2[5] = (int)this->skelAnime.jointTable[0].x;
+            gPspDoorProbe2[6] = (int)this->skelAnime.jointTable[0].y;
+            gPspDoorProbe2[7] = (int)this->skelAnime.jointTable[0].z;
+        }
+#endif
         if (this->actor.world.rot.y != 0) {
             if (1) {}
             if (this->actor.world.rot.y > 0) {

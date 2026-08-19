@@ -120,6 +120,14 @@ struct TextureHashmapNode {
      * tile size is a different texture -- see gfx_texture_cache_lookup. */
     uint32_t line_size_bytes;
     uint32_t size_bytes;
+    /* PART OF THE CACHE KEY, and needed at draw time.
+     *
+     * The PSP GE has only GU_REPEAT and GU_CLAMP -- no mirror mode -- so
+     * G_TX_MIRROR is emulated by uploading the image next to a mirrored copy
+     * of itself and letting REPEAT walk over the pair. That changes both the
+     * uploaded pixels (hence part of the key) and the UV scale (hence read
+     * back in gfx_sp_tri1). */
+    uint8_t mirror_s, mirror_t;
 } __attribute__((packed, aligned(4)));
 static struct {
     struct TextureHashmapNode *hashmap[1024];
@@ -248,6 +256,9 @@ static struct RenderingState {
     /* Texenv mode last forced for two-texture combines: 1 == MODULATE,
      * 0 == REPLACE, -1 == unknown / not forced yet. */
     int two_texture_tint;
+    /* Set by upload_texture_mirrored for the import in progress, then copied
+     * onto the cache node so a later cache HIT still knows the UV scale. */
+    uint8_t mirror_s, mirror_t;
 } rendering_state __attribute__((aligned(16)));
 
 /* gfx_scegu.c -- per-draw texenv override; see the call sites in gfx_sp_tri1. */
@@ -1085,6 +1096,12 @@ uint32_t gPspTexCacheHighWater;
 uint32_t gPspTexSizeVariants;
 uint32_t gPspTexSizeVariantLast;
 
+/* Does this tile ask for mirroring that upload_texture_mirrored will act on?
+ * G_TX_CLAMP wins, as on hardware. */
+static inline uint8_t tile_wants_mirror(uint32_t cm) {
+    return ((cm & G_TX_MIRROR) && !(cm & G_TX_CLAMP)) ? 1 : 0;
+}
+
 static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, const uint8_t *orig_addr, uint32_t fmt, uint32_t siz) {
     size_t hash = (uintptr_t)orig_addr;
     hash = (hash >> 5) & 0x3ff;
@@ -1115,6 +1132,8 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
         if ((*node)->texture_addr == orig_addr && (*node)->fmt == fmt && (*node)->siz == siz &&
             (*node)->line_size_bytes == rdp.texture_tile[tile].line_size_bytes &&
             (*node)->size_bytes == LOADED_TEX(tile).size_bytes &&
+            (*node)->mirror_s == tile_wants_mirror(rdp.texture_tile[tile].cms) &&
+            (*node)->mirror_t == tile_wants_mirror(rdp.texture_tile[tile].cmt) &&
             (fmt != G_IM_FMT_CI || (*node)->palette == rdp.palette)) {
             gfx_rapi->select_texture(tile, (*node)->texture_id);
             gfx_rapi->set_sampler_parameters(0, (*node)->linear_filter, (*node)->cms, (*node)->cmt);
@@ -1281,6 +1300,77 @@ static inline uint32_t tex_row_index(int tile, uint32_t i) {
 #define PALSRC(i) (rdp.palette[tex_src_index((i), pal_unswap)])
 /* ------------------------------------------------------------------------ */
 
+/* Scratch for the mirrored copy. Worst case is a 4 KB TMEM tile decoded to
+ * 8-bit-per-channel RGBA (32 KB, the size of rgba32_buf below) mirrored on
+ * BOTH axes, i.e. four times that. */
+static uint8_t mirror_buf[128 * 1024] __attribute__((aligned(16)));
+
+/* Upload, emulating G_TX_MIRROR where the hardware cannot.
+ *
+ * The RDP mirrors a tile by reflecting the texture coordinate every `mask`
+ * texels; the GE cannot, and gfx_cm_to_opengl() has always quietly downgraded
+ * mirror to plain REPEAT. The visible result is that the mirrored half repeats
+ * instead of reflecting -- e.g. the Market's shop doors, whose leaf is one
+ * half-width texture mirrored in S (gFieldDoorLeftDL) with the knob plate
+ * mirrored in T, came out with the knob strip reversed.
+ *
+ * Baking the reflection into the uploaded image reproduces it exactly: the
+ * upload becomes [image | mirrored image], REPEAT walks over the pair, and the
+ * UV scale halves (gfx_sp_tri1 doubles tex_width/tex_height to match).
+ *
+ * G_TX_CLAMP wins over mirroring, as it does on hardware, so a clamped axis is
+ * left alone. If the doubled image would not fit the scratch buffer the
+ * texture is uploaded unmirrored and the flags are cleared, so the UV scale
+ * stays consistent with what was actually uploaded. */
+static void upload_texture_mirrored(int tile, const uint8_t *buf, uint32_t width, uint32_t height, int psm) {
+    const uint32_t cms = rdp.texture_tile[tile].cms;
+    const uint32_t cmt = rdp.texture_tile[tile].cmt;
+    bool mir_s = (cms & G_TX_MIRROR) && !(cms & G_TX_CLAMP);
+    bool mir_t = (cmt & G_TX_MIRROR) && !(cmt & G_TX_CLAMP);
+    const uint32_t bpp = (psm == GU_PSM_8888) ? 4 : 2;
+    uint32_t out_w = width << (mir_s ? 1 : 0);
+    uint32_t out_h = height << (mir_t ? 1 : 0);
+
+    if ((mir_s || mir_t) && (out_w * out_h * bpp) > sizeof(mirror_buf)) {
+        mir_s = mir_t = false;
+    }
+
+    if (!mir_s && !mir_t) {
+        rendering_state.mirror_s = 0;
+        rendering_state.mirror_t = 0;
+        gfx_rapi->upload_texture(buf, width, height, psm);
+        return;
+    }
+
+    out_w = width << (mir_s ? 1 : 0);
+    out_h = height << (mir_t ? 1 : 0);
+
+    /* Horizontal pass: each source row becomes [row | reversed row]. */
+    for (uint32_t y = 0; y < height; y++) {
+        const uint8_t *src = buf + (size_t)y * width * bpp;
+        uint8_t *dst = mirror_buf + (size_t)y * out_w * bpp;
+
+        memcpy(dst, src, width * bpp);
+        if (mir_s) {
+            for (uint32_t x = 0; x < width; x++) {
+                memcpy(dst + (size_t)(width + x) * bpp, src + (size_t)(width - 1 - x) * bpp, bpp);
+            }
+        }
+    }
+
+    /* Vertical pass: append the rows already written, bottom-up. */
+    if (mir_t) {
+        for (uint32_t y = 0; y < height; y++) {
+            memcpy(mirror_buf + (size_t)(height + y) * out_w * bpp,
+                   mirror_buf + (size_t)(height - 1 - y) * out_w * bpp, out_w * bpp);
+        }
+    }
+
+    rendering_state.mirror_s = mir_s;
+    rendering_state.mirror_t = mir_t;
+    gfx_rapi->upload_texture(mirror_buf, out_w, out_h, psm);
+}
+
 static void import_texture_rgba16(int tile) {
     const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint16_t rgba16_buf[4096] __attribute__ ((aligned(4)));    
@@ -1296,7 +1386,7 @@ static void import_texture_rgba16(int tile) {
     uint32_t width = rdp.texture_tile[tile].line_size_bytes / 2;
     uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
 
-    gfx_rapi->upload_texture((const uint8_t*)rgba16_buf, width, height, GU_PSM_5551);
+    upload_texture_mirrored(tile, (const uint8_t*)rgba16_buf, width, height, GU_PSM_5551);
 }
 
 static void import_texture_rgba32(int tile) {
@@ -1308,7 +1398,7 @@ static void import_texture_rgba32(int tile) {
      * source with no copy; only compiled-in u64-literal data needs the
      * unswap pass, and then we have to stage it. */
     if (!tex_unswap) {
-        gfx_rapi->upload_texture(LOADED_TEX(tile).addr, width, height, GU_PSM_8888);
+        upload_texture_mirrored(tile, LOADED_TEX(tile).addr, width, height, GU_PSM_8888);
         return;
     }
 
@@ -1321,7 +1411,7 @@ static void import_texture_rgba32(int tile) {
         for (uint32_t i = 0; i < n; i++) {
             rgba32_buf[i] = TEXSRC(i);
         }
-        gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+        upload_texture_mirrored(tile, rgba32_buf, width, height, GU_PSM_8888);
     }
 }
 
@@ -1346,7 +1436,7 @@ static void import_texture_ia4(int tile) {
     uint32_t width = rdp.texture_tile[tile].line_size_bytes * 2;
     uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
-    gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+    upload_texture_mirrored(tile, rgba32_buf, width, height, GU_PSM_8888);
 }
 
 static void import_texture_ia8(int tile) {
@@ -1368,7 +1458,7 @@ static void import_texture_ia8(int tile) {
     uint32_t width = rdp.texture_tile[tile].line_size_bytes;
     uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
-    gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+    upload_texture_mirrored(tile, rgba32_buf, width, height, GU_PSM_8888);
 }
 
 static void import_texture_ia16(int tile) {
@@ -1390,7 +1480,7 @@ static void import_texture_ia16(int tile) {
     uint32_t width = rdp.texture_tile[tile].line_size_bytes / 2;
     uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
-    gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+    upload_texture_mirrored(tile, rgba32_buf, width, height, GU_PSM_8888);
 }
 
 /* Session 17 probe for the Bottom of the Well walls. Those are the port's
@@ -1467,7 +1557,7 @@ static void import_texture_i4(int tile) {
     uint32_t width = rdp.texture_tile[tile].line_size_bytes * 2;
     uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
 
-    gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+    upload_texture_mirrored(tile, rgba32_buf, width, height, GU_PSM_8888);
 }
 
 static void import_texture_i8(int tile) {
@@ -1490,7 +1580,7 @@ static void import_texture_i8(int tile) {
     uint32_t width = rdp.texture_tile[tile].line_size_bytes;
     uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
 
-    gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+    upload_texture_mirrored(tile, rgba32_buf, width, height, GU_PSM_8888);
 }
 
 
@@ -1516,7 +1606,7 @@ static void import_texture_ci4(int tile) {
     uint32_t width = rdp.texture_tile[tile].line_size_bytes * 2;
     uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
-    gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+    upload_texture_mirrored(tile, rgba32_buf, width, height, GU_PSM_8888);
 }
 
 /* A/B switch for the CI8 alpha bit, pokeable at runtime with the debugger so a
@@ -1555,7 +1645,7 @@ static void import_texture_ci8(int tile) {
     uint32_t width = rdp.texture_tile[tile].line_size_bytes;
     uint32_t height = LOADED_TEX(tile).size_bytes / rdp.texture_tile[tile].line_size_bytes;
     
-    gfx_rapi->upload_texture(rgba32_buf, width, height, GU_PSM_8888);
+    upload_texture_mirrored(tile, rgba32_buf, width, height, GU_PSM_8888);
 }
 
 /* G_SETTILE's shift_s/shift_t, which this port ignored entirely (they sat
@@ -1631,6 +1721,14 @@ static void import_texture(int tile) {
     }
     //int t1 = get_time();
     //printf("Time diff: %d\n", t1 - t0);
+
+    /* upload_texture_mirrored just told us whether it actually baked a
+     * reflection in. Park it on the cache entry so a later HIT (which skips
+     * the decode entirely) still scales its UVs the same way. */
+    if (rendering_state.textures[tile] != NULL) {
+        rendering_state.textures[tile]->mirror_s = rendering_state.mirror_s;
+        rendering_state.textures[tile]->mirror_t = rendering_state.mirror_t;
+    }
 }
 
 static inline float dot(const float a[3], const float b[3])
@@ -2419,6 +2517,17 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     uint32_t tex_width = (rdp.texture_tile[0].lrs - rdp.texture_tile[0].uls + 4) / 4;
     uint32_t tex_height = (rdp.texture_tile[0].lrt - rdp.texture_tile[0].ult + 4) / 4;
 
+    /* A mirrored axis was uploaded as [image | reflection], so one tile now
+     * spans half the texture. See upload_texture_mirrored. */
+    if (use_texture && rendering_state.textures[0] != NULL) {
+        if (rendering_state.textures[0]->mirror_s) {
+            tex_width *= 2;
+        }
+        if (rendering_state.textures[0]->mirror_t) {
+            tex_height *= 2;
+        }
+    }
+
     /* Make room for the *whole* primitive before writing any of it. Clipping
      * expands one triangle into up to 6 (_clipped_vertices[18]), so checking
      * only after the fact (see the flush at the end of this function) still
@@ -2793,6 +2902,17 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
     bool use_texture = used_textures[0] || used_textures[1];
     uint32_t tex_width = (rdp.texture_tile[0].lrs - rdp.texture_tile[0].uls + 4) / 4;
     uint32_t tex_height = (rdp.texture_tile[0].lrt - rdp.texture_tile[0].ult + 4) / 4;
+
+    /* A mirrored axis was uploaded as [image | reflection], so one tile now
+     * spans half the texture. See upload_texture_mirrored. */
+    if (use_texture && rendering_state.textures[0] != NULL) {
+        if (rendering_state.textures[0]->mirror_s) {
+            tex_width *= 2;
+        }
+        if (rendering_state.textures[0]->mirror_t) {
+            tex_height *= 2;
+        }
+    }
 
     /* NON-POWER-OF-TWO CORRECTION -- the reason the boot logo read "NINTENDC"
      * with no "64".
