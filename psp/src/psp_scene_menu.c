@@ -55,6 +55,7 @@ extern u32 gPspRoomCullRejNear;
 extern u32 gPspRoomCullRejFar;
 extern s32 gPspRoomCullZFar;
 extern s32 gPspRoomCullType;
+extern s32 gPspRoomCullDisable;
 
 #include <stdio.h>
 
@@ -150,7 +151,16 @@ void PspSceneMenu_Update(PlayState* play) {
      * while playing, not while a full-screen list covers the game. Neither
      * button is mapped to anything in os_cont.c, so nothing is being stolen. */
     if (PSP_RAW_PRESSED(PSP_CTRL_TRIANGLE)) {
-        sHudOpen = !sHudOpen;
+        /* L is the modifier rather than a button of its own: TRIANGLE and
+         * SQUARE are the only two the N64 pad mapping leaves free, and both
+         * are already spoken for. L doubles as BTN_Z in game, but a Z press
+         * that also lands on TRIANGLE is not something that happens by
+         * accident. */
+        if (gPspRawButtons & PSP_CTRL_LTRIGGER) {
+            gPspRoomCullDisable = !gPspRoomCullDisable;
+        } else {
+            sHudOpen = !sHudOpen;
+        }
     }
     if (sHudOpen && PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
         /* off -> 3 -> 2 -> 1 -> off. "off" is not the same as 3: it hands
@@ -467,10 +477,11 @@ void PspSceneMenu_DrawHud(void) {
      * 2 cullable). It disambiguates a 0/0 cull line: shape 2 with 0 entries is
      * a data problem, any other shape means there is nothing to cull and the
      * zeroes are expected. */
-    sprintf(line2, "SHAPE %d  CULL %d/%d rejN %d rejF %d zF %d", (int)gPspRoomCullType, (int)gPspRoomCullDrawn,
-            (int)gPspRoomCullEntries, (int)gPspRoomCullRejNear, (int)gPspRoomCullRejFar, (int)gPspRoomCullZFar);
+    sprintf(line2, "SHAPE %d  CULL %d/%d rejN %d rejF %d zF %d%s", (int)gPspRoomCullType, (int)gPspRoomCullDrawn,
+            (int)gPspRoomCullEntries, (int)gPspRoomCullRejNear, (int)gPspRoomCullRejFar, (int)gPspRoomCullZFar,
+            gPspRoomCullDisable ? " CULLOFF" : "");
 
-    PspSceneMenu_FillPanel(HUD_X - 4, HUD_Y - 3, HUD_X + 4 + 46 * GLYPH_W, HUD_Y + 3 + 3 * (GLYPH_H + 2),
+    PspSceneMenu_FillPanel(HUD_X - 4, HUD_Y - 3, HUD_X + 4 + 54 * GLYPH_W, HUD_Y + 3 + 3 * (GLYPH_H + 2),
                            0xB0000000);
 
     verts = sceGuGetMemory(sizeof(MenuVertex) * 2 * 3 * (MENU_SCR_W / GLYPH_W));

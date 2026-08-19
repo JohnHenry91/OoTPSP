@@ -131,6 +131,22 @@ u32 gPspRoomCullRejNear = 0;
 u32 gPspRoomCullRejFar = 0;
 s32 gPspRoomCullZFar = 0;
 s32 gPspRoomCullType = -1;
+
+/* Bisection switch (L + TRIANGLE in game): draw every entry, rejecting none.
+ *
+ * CULL 6/7 with one near-test rejection is ambiguous by itself -- a chunk of
+ * geometry genuinely behind the camera looks exactly like a chunk wrongly
+ * projected. Forcing everything through settles it in one look: if the room
+ * completes, the projection feeding the test is wrong; if it does not, the
+ * culling was right all along and the geometry is lost further down. */
+s32 gPspRoomCullDisable = 0;
+
+/* Wraps each cull test so the override is one condition, not two edits. */
+#define TARGET_PSP_CULL_KEEP(cond) ((cond) || gPspRoomCullDisable)
+#endif
+
+#if !TARGET_PSP
+#define TARGET_PSP_CULL_KEEP(cond) (cond)
 #endif
 
 /**
@@ -205,13 +221,13 @@ void Room_DrawCullable(PlayState* play, Room* room, u32 flags) {
         SkinMatrix_Vec3fMtxFMultXYZW(&play->viewProjectionMtxF, &pos, &projectedPos, &projectedW);
 
         // If the entry bounding sphere isn't fully before the rendered depth range
-        if (-(f32)roomShapeCullableEntry->boundsSphereRadius < projectedPos.z) {
+        if (TARGET_PSP_CULL_KEEP(-(f32)roomShapeCullableEntry->boundsSphereRadius < projectedPos.z)) {
 
             // Compute the depth of the nearest point in the entry's bounding sphere
             entryBoundsNearZ = projectedPos.z - roomShapeCullableEntry->boundsSphereRadius;
 
             // If the entry bounding sphere isn't fully beyond the rendered depth range
-            if (entryBoundsNearZ < play->lightCtx.zFar) {
+            if (TARGET_PSP_CULL_KEEP(entryBoundsNearZ < play->lightCtx.zFar)) {
 
                 // This entry will be rendered
                 insert->entry = roomShapeCullableEntry;
