@@ -46,6 +46,7 @@
 #include "psp_scene_menu.h"
 #include "psp_frame_pace.h"
 #include "gfx_pc.h"
+#include "psp_audio.h"
 
 /* Cullable-room probe, defined in src/code/z_room.c -- see the comment on
  * gPspRoomCullEntries there for what the counters distinguish. */
@@ -117,6 +118,32 @@ static void PspSceneMenu_Move(s32 delta) {
  */
 void PspSceneMenu_Update(PlayState* play) {
     s32 held;
+
+    /* Self-heals the func_800FAD34()/D_80133418 audio reset-gate deadlock --
+     * see psp_audio_debug.c's PspAudioDebug_HealResetGate for why this is
+     * safe and necessary. Runs every frame regardless of menu/HUD state. */
+    {
+        extern void PspAudioDebug_HealResetGate(void);
+        PspAudioDebug_HealResetGate();
+    }
+
+    /* Audio smoke test, input-independent: fires once automatically ~5s
+     * after the first Play_Update tick, no button combo needed. Remove once
+     * the R+TRIANGLE hotkey (below) is confirmed reachable by the user's own
+     * controls -- this is only here to separate "audio pipeline is silent"
+     * from "the input combo never reaches this code". */
+    {
+        static s32 sAutoFanfareTimer = -1;
+        if (sAutoFanfareTimer < 0) {
+            sAutoFanfareTimer = 300;
+        } else if (sAutoFanfareTimer > 0) {
+            sAutoFanfareTimer--;
+            if (sAutoFanfareTimer == 0) {
+                extern void Audio_PlayFanfare(u16 seqId);
+                Audio_PlayFanfare(0x48);
+            }
+        }
+    }
 
     if (PSP_RAW_PRESSED(PSP_CTRL_SELECT)) {
         gPspSceneMenuOpen = !gPspSceneMenuOpen;
@@ -441,6 +468,10 @@ void PspSceneMenu_DrawHud(void) {
     char line0[64];
     char line1[64];
     char line2[64];
+    char line3[64];
+    char line4[64];
+    char line5[64];
+    int gateVal;
     u32 workUsec;
     u32 frameUsec;
     u32 fps10;
@@ -476,9 +507,20 @@ void PspSceneMenu_DrawHud(void) {
                 (int)(head % 10));
     }
 
-    sprintf(line1, "RATE %d%s  TRI %d  TEX %d/%d", (int)gPspFramePace.update_rate,
-            gPspPaceOverride != 0 ? " FORCED" : " auto", (int)gfx_pc_stat_tris_drawn(),
-            (int)gfx_pc_stat_tex_imports(), (int)gfx_pc_stat_tex_hits());
+    /* Temporarily repurposed from RATE/TRI/TEX: heal = how many times the
+     * gate watchdog has had to force-clear D_80133418 (>1 confirms resets
+     * keep re-arming the gate, not just the one we already knew about);
+     * resets = how many distinct heap-reset cycles (resetStatus hitting 5)
+     * have run at all -- tells us whether Audio_Update's body is truly
+     * stuck vs. resets are continuously restarting and never leaving it
+     * more than a frame or two of open gate to work with. */
+    {
+        extern void PspAudioDebug_HealStats(unsigned int* healCount, unsigned int* resetStartCount);
+        unsigned int healCount, resetStartCount;
+
+        PspAudioDebug_HealStats(&healCount, &resetStartCount);
+        sprintf(line1, "HEAL %u  RESETS %u", healCount, resetStartCount);
+    }
 
     /* Cullable rooms only. A ROOM_SHAPE_TYPE_NORMAL room draws every entry
      * unconditionally, so the counters would be stale leftovers from the last
@@ -487,14 +529,72 @@ void PspSceneMenu_DrawHud(void) {
      * 2 cullable). It disambiguates a 0/0 cull line: shape 2 with 0 entries is
      * a data problem, any other shape means there is nothing to cull and the
      * zeroes are expected. */
-    sprintf(line2, "SHAPE %d  CULL %d/%d rejN %d rejF %d zF %d%s", (int)gPspRoomCullType, (int)gPspRoomCullDrawn,
-            (int)gPspRoomCullEntries, (int)gPspRoomCullRejNear, (int)gPspRoomCullRejFar, (int)gPspRoomCullZFar,
-            gPspRoomCullDisable ? " CULLOFF" : "");
+    /* Temporarily repurposed from the room-cull line (SHAPE/CULL) to trace
+     * the fanfare command's path: fanfareTimer is sFanfareStartTimer
+     * (nonzero and stuck means Audio_UpdateFanfare itself isn't being
+     * reached -- Audio_Update gate or Play_Update cadence -- 0 with no
+     * effect means it already ran and fired SEQCMD_PLAY_SEQUENCE); seqId is
+     * the pending sFanfareSeqId; pend is how many queued SEQCMDs
+     * Audio_ProcessSeqCmds hasn't drained yet (gSeqCmdWritePos-ReadPos). */
+    {
+        extern void PspAudioDebug_FanfareQueueInfo(int* fanfareTimer, int* fanfareSeqId, int* seqCmdPending);
+        int fanTimer, fanSeqId, pend;
 
-    PspSceneMenu_FillPanel(HUD_X - 4, HUD_Y - 3, HUD_X + 4 + 54 * GLYPH_W, HUD_Y + 3 + 3 * (GLYPH_H + 2),
+        PspAudioDebug_FanfareQueueInfo(&fanTimer, &fanSeqId, &pend);
+        {
+            extern void PspAudioDebug_SeqCmdRaw(int* writePos, int* readPos);
+            int wpos, rpos;
+
+            PspAudioDebug_SeqCmdRaw(&wpos, &rpos);
+            sprintf(line2, "FANQ t %d id %d pend %d  W %d R %d", fanTimer, fanSeqId, pend, wpos, rpos);
+        }
+    }
+
+    /* AUD: calls = how many times PspAudio_Output has run at all (0 forever
+     * means synthesis/retrace never reaches the output backend -- a thread/
+     * IrqMgr wiring bug, not a mixing bug). PEAK is the last buffer's max
+     * abs(sample); calls>0 but PEAK always 0 means real silent PCM reached
+     * the hardware (a volume/mixing bug upstream, not this backend). RSVF
+     * counts sceAudioSRCChReserve failures. */
+    {
+        sprintf(line3, "AUD calls %u n %u peak %d rsvf %u", (unsigned)PspAudio_StatOutputCalls(),
+                (unsigned)PspAudio_StatLastNumSamples(), (int)PspAudio_StatLastPeakSample(),
+                (unsigned)PspAudio_StatReserveFailures());
+    }
+
+    /* SEQ_PLAYER_FANFARE (1) is what R+TRIANGLE's Audio_PlayFanfare targets.
+     * en/st/id show whether the command ever reached AudioThread at all;
+     * fadeVol (x1000) whether an enabled player's volume envelope is
+     * actually nonzero; notes is the engine-wide active-note count -- 0
+     * notes with the player enabled means the sequence data itself (or its
+     * font) isn't producing playable notes. */
+    {
+        extern int PspAudioDebug_ActiveNoteCount(void);
+        extern void PspAudioDebug_PlayerInfo(int playerIdx, int* enabled, int* seqId, int* state,
+                                              int* fadeVolumeX1000);
+        int en, seqId, state, fadeX1000;
+
+        PspAudioDebug_PlayerInfo(1, &en, &seqId, &state, &fadeX1000);
+        sprintf(line4, "FANFARE en %d id %d st %d fadeVol %d notes %d", en, seqId, state, fadeX1000,
+                PspAudioDebug_ActiveNoteCount());
+    }
+
+    /* func_800FAD34()'s gate: while D_80133418 != 0, Audio_Update's entire
+     * body (including AudioThread_ScheduleProcessCmds, which is what hands
+     * queued SEQCMD_*s to the audio thread at all) is skipped every frame.
+     * gate!=0 forever is the smoking gun for "nothing ever plays". */
+    {
+        extern void PspAudioDebug_ResetGateInfo(int* d80133418, int* resetStatus, int* specId);
+        int resetStatus, specId;
+
+        PspAudioDebug_ResetGateInfo(&gateVal, &resetStatus, &specId);
+        sprintf(line5, "GATE d418 %d resetSt %d specId %d", gateVal, resetStatus, specId);
+    }
+
+    PspSceneMenu_FillPanel(HUD_X - 4, HUD_Y - 3, HUD_X + 4 + 54 * GLYPH_W, HUD_Y + 3 + 6 * (GLYPH_H + 2),
                            0xB0000000);
 
-    verts = sceGuGetMemory(sizeof(MenuVertex) * 2 * 3 * (MENU_SCR_W / GLYPH_W));
+    verts = sceGuGetMemory(sizeof(MenuVertex) * 2 * 6 * (MENU_SCR_W / GLYPH_W));
     v = verts;
 
     /* Red once work no longer fits the interval: the pacer is no longer the
@@ -506,6 +606,13 @@ void PspSceneMenu_DrawHud(void) {
      * noticing, and it is invisible in the picture by definition. */
     PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 2 * (GLYPH_H + 2),
                            (gPspRoomCullRejNear + gPspRoomCullRejFar) != 0 ? 0xFF00FFFF : 0xFFFFFFFF, line2);
+
+    /* Red until at least one real, non-silent buffer has actually gone out --
+     * that is the one line this HUD exists for right now. */
+    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 3 * (GLYPH_H + 2),
+                           PspAudio_StatLastPeakSample() != 0 ? 0xFF80FF80 : 0xFF4040FF, line3);
+    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 4 * (GLYPH_H + 2), 0xFFFFFFFF, line4);
+    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 5 * (GLYPH_H + 2), gateVal != 0 ? 0xFF4040FF : 0xFF80FF80, line5);
 
     PspSceneMenu_SubmitText(verts, v);
 }

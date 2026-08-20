@@ -40,6 +40,27 @@
 static int sChannel = -1;
 static int sReservedSamples = 0;
 
+/* Debug counters -- see psp_audio.h. Plain globals rather than a struct so
+ * the existing "read individual fields over the WebSocket debugger" workflow
+ * (see gfx_pc.h's gfx_pc_stat_* accessors) works the same way here. */
+static uint32_t sStatOutputCalls = 0;
+static uint32_t sStatLastNumSamples = 0;
+static int32_t sStatLastPeakSample = 0;
+static uint32_t sStatReserveFailures = 0;
+
+uint32_t PspAudio_StatOutputCalls(void) {
+    return sStatOutputCalls;
+}
+uint32_t PspAudio_StatLastNumSamples(void) {
+    return sStatLastNumSamples;
+}
+int32_t PspAudio_StatLastPeakSample(void) {
+    return sStatLastPeakSample;
+}
+uint32_t PspAudio_StatReserveFailures(void) {
+    return sStatReserveFailures;
+}
+
 /* PSP audio output wants aligned, uncached-safe memory; keep this static
  * rather than pointing directly at gAudioCtx.aiBuffers (real engine memory,
  * not necessarily suitably aligned/sized for direct hardware DMA). */
@@ -71,10 +92,30 @@ void PspAudio_Output(const s16* buf, u32 numSamples) {
     if (sChannel < 0) {
         sChannel = sceAudioSRCChReserve(numSamples, PSP_AUDIO_FREQUENCY, PSP_AUDIO_CHANNELS);
         sReservedSamples = numSamples;
+        if (sChannel < 0) {
+            sStatReserveFailures++;
+        }
     }
     if ((s32)numSamples != sReservedSamples) {
         sceAudioOutput2ChangeLength(numSamples);
         sReservedSamples = numSamples;
+    }
+
+    {
+        int32_t peak = 0;
+        u32 total = numSamples * PSP_AUDIO_CHANNELS;
+        for (u32 i = 0; i < total; i++) {
+            int32_t v = sOutputBuffer[i];
+            if (v < 0) {
+                v = -v;
+            }
+            if (v > peak) {
+                peak = v;
+            }
+        }
+        sStatOutputCalls++;
+        sStatLastNumSamples = numSamples;
+        sStatLastPeakSample = peak;
     }
 
     sceAudioOutput2OutputBlocking(PSP_AUDIO_VOLUME_MAX, sOutputBuffer);

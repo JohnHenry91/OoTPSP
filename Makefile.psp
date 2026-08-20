@@ -306,6 +306,7 @@ PSP_C_FILES += src/audio/internal/thread.c
 PSP_C_FILES += src/code/audio_thread_manager.c
 PSP_C_FILES += src/code/audio_stop_all_sfx.c
 PSP_C_FILES += psp/src/audio/audio_psp.c
+PSP_C_FILES += psp/src/audio/psp_audio_debug.c
 
 # src/audio/tables/{sequence,soundfont,samplebank}_table.c are deliberately NOT
 # built here -- those are real decomp files, but they're driven by a macro

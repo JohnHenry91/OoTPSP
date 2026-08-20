@@ -91,6 +91,41 @@ rather than a stage set.
 - Promoted `src/code/z_bg_item.c` (`DynaPolyActor_Init` and friends) from stub to
   real source, pulled in by the dyna-poly actors above.
 
+- **Audio: found and fixed the reason nothing ever played.** Two independent bugs
+  stacked on top of each other since audio was first wired up:
+  1. `psp_audio_tables.c`'s hand-built sequence/soundfont/sample-bank tables each
+     declared their header and their entries array as two separate globals,
+     relying on them landing adjacent in memory. They didn't -- an initialized
+     struct goes in `.data`, a zero-initialized array goes in `.bss`, ~730 KB
+     apart in the actual build (confirmed via `psp-nm`). Every real engine access
+     goes through `table->entries[i]` pointer arithmetic off a single
+     `AudioTable*`, so every sequence/font/sample-bank load was silently reading
+     unrelated linked data instead of our table -- confirmed live via the PPSSPP
+     WebSocket debugger: `entries[72]` read back as a garbage pattern, and
+     `gAudioCtx.permanentPool.numEntries` stayed 0 for the entire session because
+     the allocator was never even reached. Fixed by declaring one real struct per
+     table (header immediately followed by its entries, matching `AudioTable`'s
+     own layout) instead of two independent globals.
+  2. Separately, real (unmodified) engine behavior: `sequence.c`'s
+     `func_800FAD34`/`D_80133418` gate skips the entire body of `Audio_Update`
+     (including every future `SEQCMD`) until a heap-reset completion message
+     arrives on `gAudioCtx.audioResetQueueP` -- a queue with exactly one slot,
+     sent with `OS_MESG_NOBLOCK`. Two heap-reset requests close enough together
+     (scene/room sound-settings commands are a real source) can drop the second
+     completion message, after which the gate never reopens. Confirmed live:
+     `resetStatus` reading 0 (the reset genuinely finished) while `D_80133418`
+     stayed stuck at 1 indefinitely. Self-healed PSP-side (`psp_audio_debug.c`'s
+     `PspAudioDebug_HealResetGate`, polled every frame) rather than touching the
+     shared engine file: once `resetStatus` has read 0 for a few consecutive
+     frames, the gate is safe to force-clear.
+  Root-caused by adding debug counters to the existing frame-pacing HUD
+  (`psp_scene_menu.c`) and, once that narrowed it to "commands reach the audio
+  thread but never take effect," reading `gAudioCtx` live over the PPSSPP
+  WebSocket remote debugger rather than guessing further. **Not yet confirmed
+  audible by the user** -- the fix was verified statically (`psp-nm` now shows
+  the table as one contiguous 0x4A0-byte block) but the only live test since ran
+  against a stale PPSSPP process still holding the previous build in memory.
+
 ### Known issues found this phase
 
 - **Bottom of the Well: walls go garish and speckled when Link walks forward
@@ -130,6 +165,70 @@ rather than a stage set.
   worth checking whether this scene's lava material is falling through to
   whatever path water uses, or whether the right texture is bound but the
   prim/env color that should tint it orange is wrong or missing.
+- **Kakariko Village: scattered coloured pixel speckles on house walls**, a
+  handful of stray red/blue/green dots visible mid-texture on an otherwise
+  correct stone-wall surface -- screenshot confirmed by the user. Not yet
+  diagnosed. Same general symptom class as the Bottom of the Well
+  garish-speckle bug above (isolated wrong pixels on an otherwise-correct
+  texture), but not yet confirmed to be the same root cause -- worth checking
+  whether it's texture-cache mis-serving (the Bottom of the Well lead) before
+  assuming a new bug.
+- **Kakariko Village: the well (the overworld pit leading down to the Bottom of
+  the Well entrance) is missing its water surface** -- Link falls/jumps through
+  open space where a water plane should be, screenshot confirmed by the user.
+  Not yet diagnosed. Distinct from the Bottom of the Well *dungeon's* known
+  speckle bug above -- this is the overworld well prop itself, not the
+  dungeon interior.
+- **Kakariko Village: the Shooting Gallery building is missing entirely** --
+  only its door renders, floating with no house geometry around it, confirmed
+  by the user. Not yet diagnosed. Worth checking whether the building's scene
+  object/room data is even present in the blob for this scene, or whether it's
+  present but failing to draw (e.g. wrongly culled, or a bad object/DL
+  reference).
+- **Ground textures render noticeably blurrier than surrounding walls/props,
+  seemingly everywhere** -- confirmed by the user in Kakariko Village, Castle
+  Courtyard, Zora's River and the Forest Temple grounds so far (village,
+  overworld and dungeon). Not yet diagnosed, but four unrelated scenes with
+  the identical symptom rules out per-scene bad data -- this looks like a
+  systemic issue with how ground-type surfaces specifically are
+  textured/filtered/LOD'd, not a per-scene one. Worth checking what these
+  surfaces have in common structurally (room-shape type, a shared
+  grass/dirt texture reused across scenes, or a mipmap/LOD path that only
+  ground geometry takes) before treating any single instance as its own bug.
+- **Death Mountain Trail: most of the scene is missing** -- the ground and
+  the right-hand side of the trail walls don't render at all, leaving Link
+  floating in the skybox's flat blue with only a small piece of rock/wood
+  geometry visible top-left, screenshot confirmed by the user. Not yet
+  diagnosed. Given the scale (most of the scene, not an isolated prop), worth
+  checking whether this is a cullable-room-entry issue (see the Bottom of the
+  Well/Deku Tree cull investigation notes elsewhere in this project) before
+  assuming missing/corrupt blob data.
+- **Zora's Domain: lighting/colour is wrong** -- the whole scene reads as flat
+  grey instead of the expected blue-tinted cave lighting, screenshot confirmed
+  by the user. Not yet diagnosed. Worth checking this scene's
+  `EnvLightSettings`/ambient-and-directional light colours specifically
+  (Environment_Update was a known past source of "no colour, texture's own
+  intensity only" bugs -- see the Phase 2 known-issues/working notes for the
+  white-grey-walls history) rather than assuming a new mechanism.
+- **A solid black/olive-yellow rectangular box renders where specific pieces
+  of scene geometry should be** -- seen in the Windmill and Dampé's Grave (in
+  the corner of the screen) and in Dodongo's Cavern, where it's clearly
+  world-anchored: it sits exactly where the entrance skull door's lower jaw
+  should be, screenshots confirmed by the user in all three. Not yet
+  diagnosed. The Dodongo's Cavern instance rules out the earlier
+  "HUD/overlay" theory -- this reads as a specific missing/mis-rendered
+  piece of geometry (likely one particular display list or object failing to
+  draw and leaving a flat-shaded placeholder quad/box behind), not a
+  fixed-position overlay. Worth checking whether the three affected objects
+  share anything (same object file, same jointed/animated-door mechanism as
+  the skull's jaw) before assuming three unrelated bugs.
+- **Z-targeting: the bottom part of the screen is incompletely cropped** --
+  reported by the user while lock-on aiming. Not yet diagnosed. Real OoT
+  changes the viewport/scissor rectangle while Z-targeting (a letterboxed,
+  slightly cropped view); worth checking the scissor/viewport rect PSP-side
+  during that camera mode against what the real N64 VI/scissor setup does,
+  and whether it's a scaling mismatch (PSP's 480x272 vs. N64's video mode)
+  rather than a logic bug.
 
 ---
 
