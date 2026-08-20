@@ -427,6 +427,14 @@ void Play_Init(GameState* thisx) {
     extern int gPspBootLogoActive;
     gPspBootLogoActive = 0;
 
+    /* Temporary diagnostic: is Play_Init genuinely being re-entered after
+     * boot (a scene-reload loop), or does the audio reset-heap gate keep
+     * re-tripping some other way? See "kein sound" investigation. */
+    {
+        extern int gPspPlayInitCount;
+        gPspPlayInitCount++;
+    }
+
     /* Drop the previous scene's textures. Without this the texture pool only
      * ever grows, across every room visited, and is eventually wiped in the
      * middle of a frame -- the speckled corruption. See gfx_texture_cache_reset. */

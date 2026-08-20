@@ -17,6 +17,7 @@ extern struct PadMgr gPadMgr;
 extern struct IrqMgr gIrqMgr;
 
 #include "libc64/malloc.h"
+#include "libc64/sleep.h"
 #include "libu64/rcp_utils.h"
 #include "libu64/runtime.h"
 #include "array_count.h"
@@ -192,6 +193,39 @@ void Main(void* arg) {
     PadMgr_Init(&gPadMgr, &sSerialEventQueue, &gIrqMgr, THREAD_ID_PADMGR, THREAD_PRI_PADMGR, STACK_TOP(sPadMgrStack));
 
     AudioMgr_WaitForInit(&sAudioMgr);
+
+#if TARGET_PSP
+    /* Close a boot-time double audio-heap-reset race ("kein Ton"
+     * investigation): AudioMgr_WaitForInit only proves Audio_Init()/
+     * Audio_InitSound() were CALLED -- the heap reset they kick off
+     * (AudioHeap_ResetStep, one state per AudioThread_Update tick) only
+     * actually SETTLES once retrace messages start flowing, which only
+     * happens once Graph_Update begins ticking, just below. On real N64 the
+     * title screen guarantees many real frames pass before any scene's own
+     * SEQCMD_RESET_AUDIO_HEAP (z_scene.c's Scene_CommandSoundSettings,
+     * unmodified/real) can fire; this port's dev boot skips straight to a
+     * scene, so that second reset used to land while the first was still in
+     * flight and permanently stomp the very first permanent-pool load
+     * (Sequence_0/Soundfont_0/1 queued by Audio_InitSound never actually
+     * finished allocating -- confirmed live over the PPSSPP debugger,
+     * gAudioCtx.permanentPool stayed at numEntries 0 forever, silencing all
+     * audio). Pump retrace manually here, before any game state (and
+     * therefore any scene) can run, until the boot-time reset has genuinely
+     * finished -- same self-heal spirit as PspAudioDebug_HealResetGate,
+     * PSP-side only, real engine files untouched. Bounded so a genuinely
+     * stuck reset can't hang boot forever; falls through and proceeds
+     * exactly as before if that cap is ever hit. */
+    {
+        extern void IrqMgr_HandleRetrace(IrqMgr * irqMgr);
+        extern AudioContext gAudioCtx;
+        s32 i;
+
+        for (i = 0; i < 64 && gAudioCtx.resetStatus != 0; i++) {
+            IrqMgr_HandleRetrace(&gIrqMgr);
+            Sleep_Msec(2);
+        }
+    }
+#endif
 
     StackCheck_Init(&sGraphStackInfo, sGraphStack, STACK_TOP(sGraphStack), 0, 0x100, "graph");
 #if TARGET_PSP

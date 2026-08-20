@@ -9,7 +9,12 @@
 
 #include "ultra64.h"
 #include "audio.h"
+#include "audiothread_cmd.h"
 #include "sequence.h"
+#include "sfx.h"
+
+/* Temporary diagnostic counter, see the use site in z_play.c's Play_Init. */
+int gPspPlayInitCount = 0;
 
 int PspAudioDebug_ActiveNoteCount(void) {
     int count = 0;
@@ -123,11 +128,26 @@ void PspAudioDebug_HealResetGate(void) {
     sZeroStreak++;
     if (sZeroStreak >= 3) {
         OSMesg msg;
+
         while (osRecvMesg(gAudioCtx.audioResetQueueP, &msg, OS_MESG_NOBLOCK) != -1) {
         }
         D_80133418 = 0;
         sZeroStreak = 0;
         sHealCount++;
+
+        /* Real (func_800FAD34) side effects of a successful gate clear --
+         * NOT just clearing D_80133418. Missing these was a second, separate
+         * bug from the gate itself: even with the gate open, every
+         * SequencePlayer stayed muted forever (AUDIOCMD_OP_GLOBAL_UNMUTE,
+         * thread.c, is what flips SequencePlayer.muted back to false), so
+         * PspAudio_Output kept running (calls/n advancing) but every mixed
+         * sample was forced to 0 -- confirmed live: AUD peak stayed 0 while
+         * calls climbed steadily, and FANFARE's own SEQCMD never drained
+         * (gSeqCmdWritePos/ReadPos stayed 1 apart) because
+         * AudioThread_ScheduleProcessCmds is only invoked from this same
+         * path, not from the heal's plain D_80133418 write. */
+        AUDIOCMD_SEQPLAYER_SET_IO(SEQ_PLAYER_SFX, 0, gSfxChannelLayout);
+        func_800F7170();
     }
 }
 
