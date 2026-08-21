@@ -129,6 +129,15 @@ void PspAudio_Init(void) {
 void PspAudio_Output(const s16* buf, u32 numSamples) {
     u32 i;
 
+    /* Drain the engine's own dropped-note account. This is the audio thread,
+     * which is where the errors are produced, and it costs one load of a
+     * global per block. See psp_audio_debug.c. */
+    {
+        extern void PspAudioDebug_PollErrorFlags(void);
+
+        PspAudioDebug_PollErrorFlags();
+    }
+
     if (numSamples == 0) {
         /* Nothing to queue (happens around audio-heap resets). This thread now
          * outranks the render loop, and its ONLY blocking point is the output

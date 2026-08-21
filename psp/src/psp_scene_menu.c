@@ -465,6 +465,9 @@ void PspSceneMenu_DrawBackdrop(void) {
  * formatter, and everything here is naturally fixed-point in tenths.
  * ------------------------------------------------------------------------- */
 
+/* Set by the DROP line below, read by its colour decision further down. */
+static u32 sDropTotal;
+
 #define HUD_X 6
 #define HUD_Y 6
 
@@ -526,7 +529,23 @@ void PspSceneMenu_DrawHud(void) {
         unsigned int healCount, resetStartCount;
 
         PspAudioDebug_HealStats(&healCount, &resetStartCount);
-        sprintf(line1, "HEAL %u  RESETS %u", healCount, resetStartCount);
+        {
+            /* Decode-path census -- which branches of the software microcode
+             * are actually exercised. 2p (two-part notes), bk (non-zero book
+             * offset) and hs (Haas delay) are the rare ones and the ones a
+             * hand-ported microcode is most likely to have wrong; a count
+             * that grows at the rate the artefact is heard names the
+             * suspect, one that stays 0 eliminates it. See
+             * psp/src/audio/psp_audio_probe.c. */
+            extern u32 gPspPathAdpcm, gPspPathSmallAdpcm, gPspPathS8, gPspPathS16;
+            extern u32 gPspPathTwoParts, gPspPathBookOffset, gPspPathHaas;
+
+            sprintf(line1, "PATH ad %u sm %u s8 %u 16 %u 2p %u bk %u hs %u", (unsigned)gPspPathAdpcm,
+                    (unsigned)gPspPathSmallAdpcm, (unsigned)gPspPathS8, (unsigned)gPspPathS16,
+                    (unsigned)gPspPathTwoParts, (unsigned)gPspPathBookOffset, (unsigned)gPspPathHaas);
+        }
+        (void)healCount;
+        (void)resetStartCount;
     }
 
     /* Cullable rooms only. A ROOM_SHAPE_TYPE_NORMAL room draws every entry
@@ -536,25 +555,33 @@ void PspSceneMenu_DrawHud(void) {
      * 2 cullable). It disambiguates a 0/0 cull line: shape 2 with 0 entries is
      * a data problem, any other shape means there is nothing to cull and the
      * zeroes are expected. */
-    /* Temporarily repurposed from the room-cull line (SHAPE/CULL) to trace
-     * the fanfare command's path: fanfareTimer is sFanfareStartTimer
-     * (nonzero and stuck means Audio_UpdateFanfare itself isn't being
-     * reached -- Audio_Update gate or Play_Update cadence -- 0 with no
-     * effect means it already ran and fired SEQCMD_PLAY_SEQUENCE); seqId is
-     * the pending sFanfareSeqId; pend is how many queued SEQCMDs
-     * Audio_ProcessSeqCmds hasn't drained yet (gSeqCmdWritePos-ReadPos). */
+    /* DROP: why notes go missing, straight from the engine's own account
+     * (gAudioCtx.audioErrorFlags, drained on the audio thread -- see
+     * psp_audio_debug.c). Each counter points at a different fix:
+     *   ins  an instrument was missing or out of range -> soundfont data
+     *   drm  a drum or sound effect was missing        -> soundfont data
+     *   fnt  the font had not finished loading yet     -> load/DMA timing
+     *   alc  no free voice could be allocated or stolen -> voice starvation,
+     *        nothing to do with the data at all
+     * last is the raw code of the most recent error: high byte = class,
+     * low half = (fontId << 8) | id, so it names the exact culprit.
+     * All zero while music plays means missing notes are NOT being dropped
+     * at the sequencer level, and the fault is further down in synthesis. */
     {
-        extern void PspAudioDebug_FanfareQueueInfo(int* fanfareTimer, int* fanfareSeqId, int* seqCmdPending);
-        int fanTimer, fanSeqId, pend;
+        extern void PspAudioDebug_ErrorSummary(u32* total, u32* last, u32* instrument, u32* drumSfx,
+                                               u32* fontLoad, u32* allocFails);
+        u32 eTot, eLast, eIns, eDrm, eFnt, eAlc;
 
-        PspAudioDebug_FanfareQueueInfo(&fanTimer, &fanSeqId, &pend);
-        {
-            extern void PspAudioDebug_SeqCmdRaw(int* writePos, int* readPos);
-            int wpos, rpos;
-
-            PspAudioDebug_SeqCmdRaw(&wpos, &rpos);
-            sprintf(line2, "FANQ t %d id %d pend %d  W %d R %d", fanTimer, fanSeqId, pend, wpos, rpos);
-        }
+        PspAudioDebug_ErrorSummary(&eTot, &eLast, &eIns, &eDrm, &eFnt, &eAlc);
+        /* ovr is the session-4 overrun probe's live hit count (it was only
+         * ever dumped to a file after the fact). On screen it separates the
+         * two competing explanations for a burst of noise WHILE it is being
+         * heard: ovr climbing means samplePosInt is still running past the
+         * end of a sample; ovr frozen at 0 while the artefact is audible
+         * rules that mechanism out on the spot and points somewhere else. */
+        sprintf(line2, "DROP ins %u drm %u fnt %u alc %u ovr %u last %08x", (unsigned)eIns, (unsigned)eDrm,
+                (unsigned)eFnt, (unsigned)eAlc, (unsigned)PspAudioProbe_StatHits(), (unsigned)eLast);
+        sDropTotal = eTot + PspAudioProbe_StatHits();
     }
 
     /* AUD: calls = how many times PspAudio_Output has run at all (0 forever
@@ -569,21 +596,28 @@ void PspSceneMenu_DrawHud(void) {
                 (unsigned)PspAudio_StatReserveFailures());
     }
 
-    /* SEQ_PLAYER_FANFARE (1) is what R+TRIANGLE's Audio_PlayFanfare targets.
-     * en/st/id show whether the command ever reached AudioThread at all;
-     * fadeVol (x1000) whether an enabled player's volume envelope is
-     * actually nonzero; notes is the engine-wide active-note count -- 0
-     * notes with the player enabled means the sequence data itself (or its
-     * font) isn't producing playable notes. */
+    /* SEQ_PLAYER_BGM_MAIN (0) -- the player that actually carries the game's
+     * music. This line used to watch SEQ_PLAYER_FANFARE (1) because the only
+     * sound this port could make was a hand-fired test fanfare; that hotkey
+     * is long gone and the fanfare player is idle in normal play, so the
+     * line was reporting on nothing.
+     *
+     * en/st/id say whether a sequence is running at all; fadeVol (x1000)
+     * whether an enabled player's volume envelope is actually nonzero; notes
+     * is the engine-wide active-note count. Notes dropping to 0 (or dipping)
+     * while music should be playing is the direct read-out for "a tone went
+     * missing", and pairs with the DROP line above: DROP says whether the
+     * note was refused on the way in, this says whether it is sounding. */
     {
         extern int PspAudioDebug_ActiveNoteCount(void);
+        extern int PspAudioDebug_SyntheticNoteCount(void);
         extern void PspAudioDebug_PlayerInfo(int playerIdx, int* enabled, int* seqId, int* state,
                                               int* fadeVolumeX1000);
         int en, seqId, state, fadeX1000;
 
-        PspAudioDebug_PlayerInfo(1, &en, &seqId, &state, &fadeX1000);
-        sprintf(line4, "FANFARE en %d id %d st %d fadeVol %d notes %d", en, seqId, state, fadeX1000,
-                PspAudioDebug_ActiveNoteCount());
+        PspAudioDebug_PlayerInfo(0, &en, &seqId, &state, &fadeX1000);
+        sprintf(line4, "BGM en %d id %d st %d vol %d notes %d syn %d", en, seqId, state, fadeX1000,
+                PspAudioDebug_ActiveNoteCount(), PspAudioDebug_SyntheticNoteCount());
     }
 
     /* func_800FAD34()'s gate: while D_80133418 != 0, Audio_Update's entire
@@ -611,12 +645,15 @@ void PspSceneMenu_DrawHud(void) {
         extern void PspAudioDebug_LoadInfo(int* permEntries, int* seqStatus0, int* fontStatus0, int* seqDataByte);
         extern unsigned int gPspBlobHits;
         extern unsigned int gPspBlobMisses;
+        extern unsigned int gPspBlobLastMissVrom;
         extern unsigned int PspAudioMixer_StatCommands(void);
         int perm, sq, fn, b0;
 
         PspAudioDebug_LoadInfo(&perm, &sq, &fn, &b0);
-        sprintf(line6, "LOAD perm %d sq %d fn %d b0 %d blob %u/%u acmd %u", perm, sq, fn, b0,
-                gPspBlobHits, gPspBlobMisses, PspAudioMixer_StatCommands());
+        sprintf(line6, "LOAD perm %d fn %d blob %u/%u miss@%08x acmd %u", perm, fn, gPspBlobHits,
+                gPspBlobMisses, gPspBlobLastMissVrom, PspAudioMixer_StatCommands());
+        (void)sq;
+        (void)b0;
     }
 
     PspSceneMenu_FillPanel(HUD_X - 4, HUD_Y - 3, HUD_X + 4 + 54 * GLYPH_W, HUD_Y + 3 + 7 * (GLYPH_H + 2),
@@ -632,8 +669,8 @@ void PspSceneMenu_DrawHud(void) {
 
     /* Yellow whenever anything was culled away -- that is the state worth
      * noticing, and it is invisible in the picture by definition. */
-    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 2 * (GLYPH_H + 2),
-                           (gPspRoomCullRejNear + gPspRoomCullRejFar) != 0 ? 0xFF00FFFF : 0xFFFFFFFF, line2);
+    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 2 * (GLYPH_H + 2), sDropTotal != 0 ? 0xFF4040FF : 0xFF80FF80,
+                           line2);
 
     /* Red until at least one real, non-silent buffer has actually gone out --
      * that is the one line this HUD exists for right now. */

@@ -20,6 +20,32 @@ static uint32_t sPrevSampleAddr[PSP_PROBE_MAX_NOTES];
 static uint32_t sPrevPos[PSP_PROBE_MAX_NOTES];
 static uint32_t sPrevUpdateIndex[PSP_PROBE_MAX_NOTES];
 
+/* A census of which decode paths the synthesiser actually takes.
+ *
+ * Everything cheap has now been ruled out from the outside: notes are not
+ * refused at the sequencer, no sample position runs past its loop end, no
+ * voice is on the synthetic-wave path, and the blob misses are a fixed
+ * load-time count that does not grow while music plays. So the artefact is
+ * produced by the decoder from correct inputs -- which makes the question
+ * "which of these paths is rare?", because the artefact is rare too.
+ *
+ * A path whose count grows at roughly the rate the artefact is heard is the
+ * suspect; one that never fires is eliminated outright. The two-part path
+ * and the non-zero book offset are the two that a hand-written software
+ * microcode is most likely to have got wrong, and both are rare in normal
+ * music -- which is exactly why they would have survived this long.
+ *
+ * Cost is one increment per voice per chunk, no memory traffic beyond the
+ * counters. The probe that walked every sample of every voice was audible in
+ * its own measurement (session 4); this one cannot be. */
+uint32_t gPspPathAdpcm;
+uint32_t gPspPathSmallAdpcm;
+uint32_t gPspPathS8;
+uint32_t gPspPathS16;
+uint32_t gPspPathTwoParts;
+uint32_t gPspPathBookOffset;
+uint32_t gPspPathHaas;
+
 uint32_t PspAudioProbe_StatHits(void) {
     return sHits;
 }
@@ -61,11 +87,25 @@ void PspAudioProbe_CheckOverrun(int32_t noteIndex, int32_t updateIndex, int32_t 
                              (uint32_t)note->playbackState.parentLayer > 0x7FFFFFFFu)
                                 ? 0xFFFFFFFFu
                                 : 0;
-            (void)sampleState;
         }
     }
 
     if (sample != NULL) {
+        switch (sample->codec) {
+            case CODEC_ADPCM: gPspPathAdpcm++; break;
+            case CODEC_SMALL_ADPCM: gPspPathSmallAdpcm++; break;
+            case CODEC_S8: gPspPathS8++; break;
+            default: gPspPathS16++; break;
+        }
+        if (sampleState->bitField1.hasTwoParts) {
+            gPspPathTwoParts++;
+        }
+        if (sampleState->bitField1.bookOffset != 0) {
+            gPspPathBookOffset++;
+        }
+        if (sampleState->bitField1.useHaasEffect) {
+            gPspPathHaas++;
+        }
         sPrevSampleAddr[ni] = (uint32_t)sample->sampleAddr;
     }
     sPrevPos[ni] = (uint32_t)samplePosInt;

@@ -28,6 +28,33 @@ int PspAudioDebug_ActiveNoteCount(void) {
     return count;
 }
 
+/* How many sounding voices are playing a SYNTHETIC WAVE (a sawtooth/square/
+ * sine from gWaveSamples) rather than a recorded instrument sample.
+ *
+ * This exists to test one specific description of the remaining artefact --
+ * that individual notes sound synthetic instead of like their instrument.
+ * OoT does use synthetic waves deliberately, so a small nonzero count is
+ * normal and proves nothing on its own. What would be diagnostic is the
+ * count tracking the artefact: rising exactly when the wrong-sounding note
+ * is heard means notes are being pushed onto the synthetic path (an
+ * instrument that failed to resolve, leaving instOrWave in the 0x80..0xBF
+ * synthetic range -- cross-check the DROP line's `ins` counter). Staying
+ * flat while the artefact sounds rules the synthetic path out entirely and
+ * moves the search into the sample decode. */
+int PspAudioDebug_SyntheticNoteCount(void) {
+    int count = 0;
+    int i;
+
+    for (i = 0; i < gAudioCtx.numNotes; i++) {
+        const NoteSampleState* st = &gAudioCtx.notes[i].sampleState;
+
+        if (st->bitField0.enabled && st->bitField1.isSyntheticWave) {
+            count++;
+        }
+    }
+    return count;
+}
+
 void PspAudioDebug_PlayerInfo(int playerIdx, int* enabled, int* seqId, int* state, int* fadeVolumeX1000) {
     SequencePlayer* seqPlayer = &gAudioCtx.seqPlayers[playerIdx];
 
@@ -76,27 +103,14 @@ void PspAudioDebug_ResetGateInfo(int* d80133418, int* resetStatus, int* specId) 
  * between case-1 finishing and a next reset's case-5 starting). Also drains
  * the queue defensively in case a stale mismatched message is still sitting
  * in it. */
-extern u8 sFanfareStartTimer;
-extern u16 sFanfareSeqId;
-extern u8 gSeqCmdWritePos;
-extern u8 gSeqCmdReadPos;
-
-void PspAudioDebug_FanfareQueueInfo(int* fanfareTimer, int* fanfareSeqId, int* seqCmdPending) {
-    *fanfareTimer = sFanfareStartTimer;
-    *fanfareSeqId = sFanfareSeqId;
-    *seqCmdPending = (u8)(gSeqCmdWritePos - gSeqCmdReadPos);
-}
-
-/* Raw absolute positions rather than the diff -- two readings a few seconds
- * apart tell "write advances, read frozen" (Audio_ProcessSeqCmds truly never
- * runs) apart from "both advance together, always 1 apart" (a real drain
- * loop with an off-by-one, a different bug) apart from "both frozen" (
- * nothing is even queuing anything new, e.g. this reading predates the
- * fanfare firing). */
-void PspAudioDebug_SeqCmdRaw(int* writePos, int* readPos) {
-    *writePos = gSeqCmdWritePos;
-    *readPos = gSeqCmdReadPos;
-}
+/* The fanfare-command trace that lived here (PspAudioDebug_FanfareQueueInfo /
+ * PspAudioDebug_SeqCmdRaw) is gone with its HUD line. It existed to answer
+ * "does a hand-fired test fanfare's SEQCMD ever reach the audio thread",
+ * back when that fanfare was the only sound this port could make. Real
+ * sequences play now, the hotkey is gone, and the line it fed has been
+ * repurposed for the dropped-note diagnosis -- so the accessors, and their
+ * externs into general.c's file-static fanfare state, were dead weight
+ * reaching across a module boundary for nothing. */
 
 static u32 sHealCount = 0;
 static u32 sResetStartCount = 0;
@@ -182,4 +196,74 @@ void PspAudioDebug_LoadInfo(int* permEntries, int* seqStatus0, int* fontStatus0,
     *seqStatus0 = gAudioCtx.seqLoadStatus[0];
     *fontStatus0 = gAudioCtx.fontLoadStatus[0];
     *seqDataByte = (sfxPlayer->seqData != NULL) ? sfxPlayer->seqData[0] : -1;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Why notes go missing.
+ *
+ * The engine already keeps its own account of every note it refused to
+ * start: gAudioCtx.audioErrorFlags, written at six places in playback.c
+ * (Audio_GetInstrumentInner / Audio_GetDrum / Audio_GetSoundEffect). On N64
+ * the debug menu reads it; this port never looked at it, so every dropped
+ * note was silent in both senses.
+ *
+ * It is a single u32 that each new error overwrites, so it has to be drained
+ * faster than errors are produced. Polling from PspAudio_Output (once per
+ * output block) undercounts when several errors land in one block -- that is
+ * accepted deliberately: the question here is WHICH failures happen at all
+ * and roughly how often, not an exact tally. Draining it is safe because
+ * nothing else in this port reads the field.
+ *
+ * Note allocation failure is the one cause of a missing note the engine does
+ * NOT record this way -- Audio_AllocNote just returns NULL and the layer
+ * quietly gives up -- so playback.c bumps gPspAudioNoteAllocFails at that
+ * one spot. A climbing count there means voice starvation (too few notes for
+ * what the sequence asks for, or notes not being freed), which is a
+ * completely different fix from a missing instrument. */
+u32 gPspAudioNoteAllocFails = 0;
+
+static u32 sErrInstrument;  /* instrument missing or out of range */
+static u32 sErrDrumSfx;     /* drum / sound effect missing or out of range */
+static u32 sErrFontLoad;    /* font not finished loading when a note wanted it */
+static u32 sErrOther;
+static u32 sErrTotal;
+static u32 sErrLast;
+
+void PspAudioDebug_PollErrorFlags(void) {
+    u32 code = gAudioCtx.audioErrorFlags;
+
+    if (code == 0) {
+        return;
+    }
+    gAudioCtx.audioErrorFlags = 0;
+    sErrLast = code;
+    sErrTotal++;
+
+    /* The high byte is the class; the low half is (fontId << 8) | id. */
+    switch (code >> 24) {
+        case 0x01: /* Audio_GetInstrumentInner: instrument pointer is NULL */
+        case 0x03: /* Audio_GetInstrumentInner: instId >= numInstruments */
+            sErrInstrument++;
+            break;
+        case 0x04: /* drum/sfx id out of range */
+        case 0x05: /* drum/sfx pointer is NULL */
+            sErrDrumSfx++;
+            break;
+        case 0x10: /* AudioLoad_IsFontLoadComplete said no */
+            sErrFontLoad++;
+            break;
+        default:
+            sErrOther++;
+            break;
+    }
+}
+
+void PspAudioDebug_ErrorSummary(u32* total, u32* last, u32* instrument, u32* drumSfx, u32* fontLoad,
+                                u32* allocFails) {
+    *total = sErrTotal;
+    *last = sErrLast;
+    *instrument = sErrInstrument;
+    *drumSfx = sErrDrumSfx;
+    *fontLoad = sErrFontLoad;
+    *allocFails = gPspAudioNoteAllocFails;
 }

@@ -187,7 +187,13 @@ void Audio_ProcessNotes(void) {
         sampleState2 = &gAudioCtx.sampleStates[gAudioCtx.sampleStateOffset + i];
         playbackState = &note->playbackState;
         if (playbackState->parentLayer != NO_LAYER) {
-            if ((u32)playbackState->parentLayer < 0x7FFFFFFF) {
+            // The literal here is K0BASE in all but name: on N64 every real
+            // SequenceLayer* is a KSEG0 address, so this only ever fires on a
+            // corrupt pointer. Spelled as the shared constant so it keeps that
+            // meaning on a target whose RAM sits below 0x80000000 -- see
+            // AUDIO_RELOCATED_ADDRESS_START in audio.h. No behaviour change on
+            // N64: no pointer is ever between 0x7FFFFFFF and 0x80000000.
+            if ((u32)playbackState->parentLayer < AUDIO_RELOCATED_ADDRESS_START) {
                 continue;
             }
 
@@ -1003,6 +1009,16 @@ Note* Audio_AllocNote(SequenceLayer* layer) {
     return note;
 
 null_return:
+#if TARGET_PSP
+    /* The one cause of a missing note the engine does not record in
+     * gAudioCtx.audioErrorFlags: every voice is busy and none could be
+     * stolen, so the layer silently gives up. See psp_audio_debug.c. */
+    {
+        extern u32 gPspAudioNoteAllocFails;
+
+        gPspAudioNoteAllocFails++;
+    }
+#endif
     layer->bit3 = true;
     return NULL;
 }

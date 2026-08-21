@@ -64,7 +64,44 @@ typedef void (*AudioCustomUpdateFunction)(void);
 // Must be the same amount of samples as copied by aDuplicate() (audio microcode)
 #define WAVE_SAMPLE_COUNT 64
 
+#if TARGET_PSP
+/* The dividing line between "this word is still a file-relative offset" and
+ * "this word has already been relocated into a real RAM pointer".
+ *
+ * On N64 that line is K0BASE (0x80000000), because every RAM address the game
+ * ever holds is a KSEG0 address and every unrelocated offset is small. The
+ * audio code leans on this in three places, and all three invert silently on
+ * a target whose RAM does not live above 0x80000000:
+ *
+ *   - Audio_GetDrum / Audio_GetSoundEffect (playback.c) reject a soundfont
+ *     whose drum/SFX table pointer looks unrelocated. PSP heap pointers are
+ *     0x08xxxxxx, so both functions returned NULL for EVERY font: no
+ *     percussion and no sound effects at all, in any scene.
+ *   - Audio_ProcessNotes (playback.c) uses the same idea on a SequenceLayer*
+ *     to spot a corrupt pointer. Inverted, it `continue`s past every note
+ *     that still belongs to a live layer -- so a note's volume, pitch,
+ *     vibrato and ADSR envelope were only ever updated once it had already
+ *     been released, and its per-tick slot in gAudioCtx.sampleStates kept
+ *     whatever the note before it had left there. That is the measured
+ *     "a voice is handed a different, shorter sample while keeping its
+ *     playback position, with needsInit clear" from the previous session.
+ *   - AudioLoad_RelocateSample (load.c) uses it to avoid relocating a
+ *     TunedSample twice; inverted, an already-relocated font that is
+ *     relocated again has its Sample pointers shifted by the font base a
+ *     second time.
+ *
+ * PSP user RAM starts at 0x08800000 (0x48800000 through the uncached mirror),
+ * while an unrelocated audio offset is relative to the start of its own
+ * soundfont and so is bounded by that font's size -- a few hundred KiB at
+ * most. 0x08000000 separates the two with a wide margin on either side.
+ *
+ * Ship of Harkinian, which has the same problem for the same reason, simply
+ * deletes the two playback.c checks; keeping them with a correct threshold
+ * preserves the sanity check they were written to be. */
+#define AUDIO_RELOCATED_ADDRESS_START 0x08000000
+#else
 #define AUDIO_RELOCATED_ADDRESS_START K0BASE
+#endif
 
 typedef enum SoundSetting {
     /* 0 */ SOUND_SETTING_STEREO,

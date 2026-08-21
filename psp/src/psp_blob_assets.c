@@ -67,6 +67,17 @@ unsigned int gPspBlobMagic = 0x50424C42; /* 'PBLB' */
 unsigned int gPspBlobHits;
 unsigned int gPspBlobMisses;
 unsigned int gPspBlobOpenFails;
+/* The address and size of the most recent read that matched NO registered
+ * blob range. A miss is not a benign statistic: the caller falls through to
+ * a raw ROM read at a synthetic address past the end of the ROM file, which
+ * transfers nothing and leaves the destination holding whatever the previous
+ * note left there -- the "digital squeal" the tail-read comment below
+ * describes. Misses are rare (tens, over minutes), so keeping only the last
+ * one is enough to identify it on screen: the value sits still long enough
+ * to read, and its magnitude alone says which asset family it belongs to
+ * (audio blobs live at 0x20000000/0x24000000/0x28000000, scenes elsewhere). */
+unsigned int gPspBlobLastMissVrom;
+unsigned int gPspBlobLastMissSize;
 unsigned int gPspBlobShortReads;
 /* Sample-bank reads whose window ran past the end of the bank and were served
  * short with a zeroed tail. Expected to be nonzero and harmless -- see the
@@ -325,6 +336,8 @@ int PspBlob_Read(uint32_t romOffset, void* dst, size_t size) {
         }
 
         ++gPspBlobMisses;
+        gPspBlobLastMissVrom = romOffset;
+        gPspBlobLastMissSize = (unsigned int)size;
         return 0;
     }
 
