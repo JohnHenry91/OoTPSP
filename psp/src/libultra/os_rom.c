@@ -24,6 +24,14 @@ unsigned int gPspRomBadReadOffset;
 unsigned int gPspRomBadReadSize;
 unsigned int gPspRomBadReadDst;
 unsigned int gPspRomBadReadRa;
+/* Reads that did NOT deliver the bytes the caller asked for. Every one of
+ * these leaves the destination holding whatever was there before -- for a
+ * sample DMA buffer that is the PREVIOUS note's sample data, which the ADPCM
+ * decoder then runs through this note's predictor book. That does not sound
+ * like the wrong instrument, it sounds like a burst of noise. Counted here
+ * because the failure is otherwise completely silent: neither PspRom_Read nor
+ * AudioLoad_Dma has an error channel back to the audio engine. */
+unsigned int gPspRomUnservedReads;
 
 void PspRom_Init(const char* path) {
     sRomFd = sceIoOpen(path, PSP_O_RDONLY, 0777);
@@ -65,11 +73,13 @@ void PspRom_Read(uint32_t romOffset, void* dst, size_t size) {
     }
 
     if (sRomFd < 0) {
+        ++gPspRomUnservedReads;
         return;
     }
 
     if (size > PSP_ROM_MAX_READ || dst == NULL || d < PSP_RAM_START || d >= PSP_RAM_END ||
         (d + size) > PSP_RAM_END) {
+        ++gPspRomUnservedReads;
         ++gPspRomBadReadCount;
         gPspRomBadReadOffset = romOffset;
         gPspRomBadReadSize = (unsigned int)size;
@@ -86,5 +96,7 @@ void PspRom_Read(uint32_t romOffset, void* dst, size_t size) {
     PspBlob_InvalidateRange(dst, size);
 
     sceIoLseek(sRomFd, romOffset, PSP_SEEK_SET);
-    sceIoRead(sRomFd, dst, size);
+    if ((size_t)sceIoRead(sRomFd, dst, size) != size) {
+        ++gPspRomUnservedReads;
+    }
 }

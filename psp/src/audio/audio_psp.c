@@ -103,7 +103,19 @@ static u32 sNoOutputStreak;
 /* PSP audio output wants aligned, uncached-safe memory; keep this static
  * rather than pointing directly at gAudioCtx.aiBuffers (real engine memory,
  * not necessarily suitably aligned/sized for direct hardware DMA). */
-static s16 sOutputBuffer[PSP_AUDIO_BLOCK_FRAMES * PSP_AUDIO_CHANNELS] __attribute__((aligned(64)));
+/* TWO buffers, alternated. sceAudioOutput2OutputBlocking does not copy: it
+ * waits for a free slot in the driver's queue, stores the POINTER, and
+ * returns while the hardware is still reading that memory. Refilling a single
+ * buffer on the next iteration therefore rewrites audio that is still being
+ * played. Every PSP homebrew feeding this API double-buffers for exactly this
+ * reason, including the port this file came from
+ * (reference/sm64-port-psp/src/pc/audio/audio_psp.c, `snd_buffer[2]`).
+ *
+ * PPSSPP hides the bug -- it reads the samples out of emulated memory
+ * synchronously before returning -- so this cannot be observed there. It is
+ * real on hardware. */
+static s16 sOutputBuffers[2][PSP_AUDIO_BLOCK_FRAMES * PSP_AUDIO_CHANNELS] __attribute__((aligned(64)));
+static u32 sOutputBufferIndex;
 
 void PspAudio_Init(void) {
     sChannel = sceAudioSRCChReserve(PSP_AUDIO_BLOCK_FRAMES, PSP_AUDIO_FREQUENCY, PSP_AUDIO_CHANNELS);
@@ -176,6 +188,7 @@ void PspAudio_Output(const s16* buf, u32 numSamples) {
 
     while (sRingFill >= PSP_AUDIO_BLOCK_FRAMES) {
         u32 readPos = (sRingWrite + PSP_AUDIO_RING_FRAMES - sRingFill) % PSP_AUDIO_RING_FRAMES;
+        s16* out = sOutputBuffers[sOutputBufferIndex];
         int32_t peak = 0;
 
         for (i = 0; i < PSP_AUDIO_BLOCK_FRAMES; i++) {
@@ -184,8 +197,8 @@ void PspAudio_Output(const s16* buf, u32 numSamples) {
             int32_t al = l < 0 ? -l : l;
             int32_t ar = r < 0 ? -r : r;
 
-            sOutputBuffer[i * PSP_AUDIO_CHANNELS + 0] = l;
-            sOutputBuffer[i * PSP_AUDIO_CHANNELS + 1] = r;
+            out[i * PSP_AUDIO_CHANNELS + 0] = l;
+            out[i * PSP_AUDIO_CHANNELS + 1] = r;
             if (al > peak) {
                 peak = al;
             }
@@ -209,7 +222,7 @@ void PspAudio_Output(const s16* buf, u32 numSamples) {
             }
         }
 
-        sceKernelDcacheWritebackInvalidateRange(sOutputBuffer, sizeof(sOutputBuffer));
+        sceKernelDcacheWritebackInvalidateRange(out, PSP_AUDIO_BLOCK_FRAMES * PSP_AUDIO_CHANNELS * sizeof(s16));
 
         sStatOutputCalls++;
         sStatLastNumSamples = PSP_AUDIO_BLOCK_FRAMES;
@@ -217,10 +230,13 @@ void PspAudio_Output(const s16* buf, u32 numSamples) {
 
         /* Blocks until the hardware has room -- this is the audio thread's
          * clock, standing in for the N64's VI retrace interrupt. */
-        sStatLastOutputRet = sceAudioOutput2OutputBlocking(PSP_AUDIO_VOLUME_MAX, sOutputBuffer);
+        sStatLastOutputRet = sceAudioOutput2OutputBlocking(PSP_AUDIO_VOLUME_MAX, out);
         if (sStatLastOutputRet < 0) {
             sStatOutputErrors++;
         }
+        /* The driver keeps reading `out` after this returns, so the next
+         * block must go into the other buffer. */
+        sOutputBufferIndex ^= 1;
     }
 
     /* One AI buffer == one synthesis pass, and this call is the last thing
@@ -248,10 +264,51 @@ s32 osAiSetFrequency(u32 frequency) {
  * Real osAiGetLength (src/libultra/io/aigetlen.c) reads how many bytes are
  * left in the real AI hardware's in-progress DMA, to size the next
  * synthesis pass (src/audio/internal/thread.c's AudioThread_UpdateImpl).
- * PspAudio_Output above is fully blocking -- by the time AudioMgr's thread
- * is back here asking, the previous buffer has already finished playing on
- * real PSP hardware, so 0 remaining is both simple and accurate.
+ * It is not a diagnostic: AudioThread_UpdateImpl uses it as the FEEDBACK
+ * TERM of the engine's own buffer-size regulator,
+ *
+ *     aiBufLengths[i] = ((samplesPerFrameTarget - remaining + 0x80) & ~0xF) + 0x10
+ *
+ * clamped to [minAiBufferLength, maxAiBufferLength] -- a band of only +-0x10
+ * around the target.
+ *
+ * Returning a constant 0 was honest only while PspAudio_Output blocked on
+ * every call, and stopped being true once the ring buffer went in (a tick
+ * queueing less than one block never reaches the blocking call). A constant 0
+ * does not merely lose accuracy: the subtraction always exceeds the maximum,
+ * so the engine produced maxAiBufferLength every single tick with its own
+ * regulator effectively switched off.
+ *
+ * Be precise about what reporting the truth does and does not buy, because
+ * the measured numbers are less flattering than they first looked. This build
+ * runs PAL: gAudioCtx.refreshRate is 50 and ticksPerUpdate is 4 (confirmed
+ * live -- the synthesis updateIndex reaches 3), so samplesPerFrameTarget is
+ * 640 and the band is [624, 656]. The hardware consumes a fixed 32000
+ * frames/s, so production pins the tick rate:
+ *
+ *     constant 0 -> 656 per tick -> 32000/656 = 48.8 Hz, 2.4% slow
+ *     true backlog -> 624 per tick -> 32000/624 = 51.3 Hz, 2.6% fast
+ *
+ * In steady state that is a wash. The regulator cannot do better here, and it
+ * is worth knowing why rather than assuming it now works: on N64 this is read
+ * with the AI FIFO nearly empty, so the engine steers a backlog of ~128
+ * samples, whereas this port's backlog is one to two sceAudio blocks plus the
+ * ring -- held there by the blocking output call, not by how much the engine
+ * produces. The feedback term therefore sits far above samplesPerFrameTarget
+ * and the expression clamps every tick either way.
+ *
+ * What it does buy is correct behaviour when the backlog is genuinely small:
+ * at startup and after an audio-heap reset the engine now sees a real, low
+ * value and produces more to catch up, instead of being told 0 and happening
+ * to do the right thing for the wrong reason.
+ *
+ * Returned in BYTES (the caller divides by 4), matching the AI register.
  */
 u32 osAiGetLength(void) {
-    return 0;
+    int rest = sceAudioOutput2GetRestSample();
+
+    if (rest < 0) {
+        rest = 0;
+    }
+    return (sRingFill + (u32)rest) * 4;
 }

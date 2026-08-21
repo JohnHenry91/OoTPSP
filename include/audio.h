@@ -396,6 +396,38 @@ typedef struct AdsrState {
     /* 0x1C */ EnvelopePoint* envelope;
 } AdsrState; // size = 0x20
 
+#if TARGET_PSP
+/* BYTE-ORDER DEPENDENT, and aliased with a raw u8 by the union below -- the
+ * same class of trap as AudioCmd above, one level smaller.
+ *
+ * These six fields are not written through their names. Authored data drops a
+ * whole byte on them: ASEQ_OP_LAYER_STEREO and ASEQ_OP_CHAN_EFFECTS in the
+ * sequence scripts (seqplayer.c), and AUDIOCMD_OP_CHANNEL_SET_STEREO from the
+ * game side -- Audio_SetSfxProperties issues `stereoBits | 0x10` for every
+ * panned sound effect (general.c). GCC assigns bitfields from the MOST
+ * significant bit on big-endian and from the LEAST significant on
+ * little-endian, so the N64 declaration order silently reverses the whole
+ * byte here.
+ *
+ * It is not a cosmetic mis-pan. strongLeft/strongRight reach the microcode as
+ * aEnvMixer's negLeft/negRight, where the mixer applies them as `sample ^ -1`
+ * -- a PHASE INVERSION of that channel. So `| 0x10`, meant to select
+ * stereoData.bit2 == 1, instead sets strongRight on little-endian and
+ * inverts the right channel of the sound effect; and usesHeadsetPanEffects /
+ * stereoHeadsetEffects land on the wrong bits too, switching the Haas delay
+ * on and off at random. Inverted or comb-filtered notes sound thin, hollow
+ * and metallic, and cancel outright when the two channels are summed.
+ *
+ * Reversed so the same authored byte means the same thing it does on N64. */
+typedef struct StereoData {
+    /* 0x00 */ u8 usesHeadsetPanEffects : 1;
+    /* 0x00 */ u8 stereoHeadsetEffects : 1;
+    /* 0x00 */ u8 strongLeft : 1;
+    /* 0x00 */ u8 strongRight : 1;
+    /* 0x00 */ u8 bit2 : 2;
+    /* 0x00 */ u8 unused : 2;
+} StereoData; // size = 0x1
+#else
 typedef struct StereoData {
     /* 0x00 */ u8 unused : 2;
     /* 0x00 */ u8 bit2 : 2;
@@ -404,6 +436,7 @@ typedef struct StereoData {
     /* 0x00 */ u8 stereoHeadsetEffects : 1;
     /* 0x00 */ u8 usesHeadsetPanEffects : 1;
 } StereoData; // size = 0x1
+#endif
 
 typedef union Stereo {
     /* 0x00 */ StereoData s;

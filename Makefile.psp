@@ -312,6 +312,8 @@ PSP_C_FILES += src/code/audio_stop_all_sfx.c
 PSP_C_FILES += psp/src/audio/audio_psp.c
 PSP_C_FILES += psp/src/audio/psp_audio_mixer.c
 PSP_C_FILES += psp/src/audio/psp_audio_debug.c
+# Overrun probe -- see psp/include/psp_audio_probe.h.
+PSP_C_FILES += psp/src/audio/psp_audio_probe.c
 
 # src/audio/tables/{sequence,soundfont,samplebank}_table.c are deliberately NOT
 # built here. They are the real decomp files and they enumerate the right

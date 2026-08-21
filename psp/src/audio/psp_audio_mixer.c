@@ -36,27 +36,56 @@
 #define ROUND_UP_8(v) (((v) + 7) & ~7)
 #define ROUND_DOWN_16(v) ((v) & ~0xF)
 
-/* The RSP's DMEM is 4 KiB (0x000-0xFFF); OoT's synthesis.c only ever
- * addresses 0x3C0 (DMEM_TEMP, its lowest) upward, with DMEM_WET_RIGHT_CH +
- * DMEM_1CH_SIZE = 0xE20 + 0x1A0 = 0xFC0 as the exact top. So the window
- * below starts at 0x3C0 and covers through 0xFC0.
+/* DMEM, and what happens when an access falls outside it.
  *
- * The guard bands are not N64 behaviour: on real hardware an out-of-range
- * DMEM access wraps harmlessly inside the RSP's own 4 KiB, whereas here it
- * would silently corrupt whatever global landed next to this array. They turn
- * any such bug into inaudible garbage in dead space instead of memory
- * corruption elsewhere. The leading band is not hypothetical: aResampleImpl
- * deliberately steps its input pointer up to 8 samples BACKWARDS (that is
- * where the microcode keeps the previous chunk's filter tail), so a resample
- * starting at DMEM_TEMP itself would read and write below the window. */
-#define DMEM_BASE 0x3C0
-#define DMEM_TOP 0xFC0
+ * Real DMEM is a flat 4 KiB and the hardware masks every address to 12 bits,
+ * so an out-of-range access wraps inside the RSP's own scratchpad and can
+ * never reach anything else. This port has to reproduce that CONTAINMENT,
+ * because the addresses do go out of range here.
+ *
+ * Measured, not assumed: when a voice's samplePosInt has run past its
+ * sample's loop end, synthesis.c's decode loop drives `nSamplesProcessed`
+ * NEGATIVE, and the noteFinished path then issues
+ *
+ *     AudioSynth_ClearBuffer(cmd++, DMEM_UNCOMPRESSED_NOTE + s5,
+ *                            (samplesLenAdjusted - nSamplesProcessed) * SAMPLE_SIZE)
+ *
+ * with a length of up to 55114 bytes -- 54 KiB of memset. Overruns of that
+ * shape were logged 87 times in 30 seconds of play. Against the old 3648-byte
+ * window that wiped ~50 KiB of neighbouring globals every time, including
+ * other voices' state, which is almost certainly why the fault looked
+ * self-sustaining and why a note could end up playing a sample its own
+ * NoteSampleState disagreed with.
+ *
+ * Two containment strategies were tried; only one is right:
+ *
+ *   - Masking to 12 bits, as the hardware does, stops the corruption but
+ *     makes the fallout AUDIBLE. During the same overrun `aligned` grows past
+ *     0x940, so `addr = DMEM_COMPRESSED_ADPCM_DATA - aligned` goes negative
+ *     and arrives as a large u16 such as 0xFF00; masking folds that onto
+ *     0x0F00, a live DMEM address. Measured: peak rose from 4130 to full
+ *     scale with single-sample swings of 65533, and the artefacts turned from
+ *     noise bursts into hard cracks. Masking is only correct when the
+ *     addresses are correct, which on N64 they always are.
+ *   - Giving every in-ABI address and length somewhere harmless to land.
+ *     The real 4 KiB sits at DMEM_LEAD; addresses are u16 and lengths are
+ *     u16, so a span of 0x10000 on either side means nothing can escape the
+ *     allocation, and everything outside the real 4 KiB is silent dead space.
+ *
+ * DMEM_LEAD also covers aResampleImpl, which deliberately steps its input
+ * pointer up to 8 samples backwards to reach the previous chunk's filter
+ * tail.
+ *
+ * This contains the damage; it does not fix the overrun itself, which is
+ * still open.
+ */
 #define DMEM_LEAD 0x40
-#define DMEM_SLACK 0x200
-#define DMEM_BUF_SIZE (DMEM_LEAD + (DMEM_TOP - DMEM_BASE) + DMEM_SLACK)
+#define DMEM_ADDR_SPAN 0x10000 /* any u16 address */
+#define DMEM_TAIL 0x10000      /* any u16 length from any of those addresses */
+#define DMEM_BUF_SIZE (DMEM_LEAD + DMEM_ADDR_SPAN + DMEM_TAIL)
 
-#define BUF_U8(a) (sRspa.buf.asU8 + DMEM_LEAD + ((a) - DMEM_BASE))
-#define BUF_S16(a) (sRspa.buf.asS16 + (DMEM_LEAD + ((a) - DMEM_BASE)) / (int)sizeof(int16_t))
+#define BUF_U8(a) (sRspa.buf.asU8 + DMEM_LEAD + (uint16_t)(a))
+#define BUF_S16(a) (sRspa.buf.asS16 + (DMEM_LEAD + (uint16_t)(a)) / (int)sizeof(int16_t))
 
 /* The microcode's register file: everything an a*() command sets up for a
  * later command to consume. */

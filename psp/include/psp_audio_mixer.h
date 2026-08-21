@@ -106,13 +106,19 @@ void PspAudioMixer_CountCmd(void);
 #define aSegment(pkt, s, b) \
     do {                    \
     } while (0)
-#define aClearBuffer(pkt, dmem, size) PSP_ACMD(pkt, aClearBufferImpl(dmem, size))
-#define aLoadBuffer(pkt, addrSrc, dmemDest, size) PSP_ACMD(pkt, aLoadBufferImpl(addrSrc, dmemDest, size))
-#define aSaveBuffer(pkt, dmemSrc, addrDest, size) PSP_ACMD(pkt, aSaveBufferImpl(dmemSrc, addrDest, size))
+/* Lengths go through this. On N64 the abi.h macros pack them into a 16-bit
+ * field, so a caller computing a nonsensical (negative or huge) length has it
+ * truncated before the microcode ever sees it. Passing the raw C value let a
+ * negative count reach memcpy/memmove as a ~4 GB size_t. */
+#define PSP_ACMD_LEN(c) ((int)(uint16_t)(c))
+
+#define aClearBuffer(pkt, dmem, size) PSP_ACMD(pkt, aClearBufferImpl(dmem, PSP_ACMD_LEN(size)))
+#define aLoadBuffer(pkt, addrSrc, dmemDest, size) PSP_ACMD(pkt, aLoadBufferImpl(addrSrc, dmemDest, PSP_ACMD_LEN(size)))
+#define aSaveBuffer(pkt, dmemSrc, addrDest, size) PSP_ACMD(pkt, aSaveBufferImpl(dmemSrc, addrDest, PSP_ACMD_LEN(size)))
 #define aLoadADPCM(pkt, c, d) PSP_ACMD(pkt, aLoadADPCMImpl(c, d))
 #define aSetBuffer(pkt, f, i, o, c) PSP_ACMD(pkt, aSetBufferImpl(f, i, o, c))
-#define aInterleave(pkt, o, l, r, c) PSP_ACMD(pkt, aInterleaveImpl(o, l, r, c))
-#define aDMEMMove(pkt, i, o, c) PSP_ACMD(pkt, aDMEMMoveImpl(i, o, c))
+#define aInterleave(pkt, o, l, r, c) PSP_ACMD(pkt, aInterleaveImpl(o, l, r, PSP_ACMD_LEN(c)))
+#define aDMEMMove(pkt, i, o, c) PSP_ACMD(pkt, aDMEMMoveImpl(i, o, PSP_ACMD_LEN(c)))
 #define aSetLoop(pkt, a) PSP_ACMD(pkt, aSetLoopImpl(a))
 #define aADPCMdec(pkt, f, s) PSP_ACMD(pkt, aADPCMdecImpl(f, s))
 #define aS8Dec(pkt, f, s) PSP_ACMD(pkt, aS8DecImpl(f, s))
@@ -130,7 +136,7 @@ void PspAudioMixer_CountCmd(void);
  * every call site); A_ADDMIXER is a plain saturating add, so it is unused. */
 #define aAddMixer(pkt, count, dmemi, dmemo, a4) PSP_ACMD(pkt, aAddMixerImpl(count, dmemi, dmemo))
 #define aDuplicate(pkt, numCopies, dmemSrc, dmemDest) PSP_ACMD(pkt, aDuplicateImpl(numCopies, dmemSrc, dmemDest))
-#define aInterl(pkt, dmemi, dmemo, count) PSP_ACMD(pkt, aInterlImpl(dmemi, dmemo, count))
+#define aInterl(pkt, dmemi, dmemo, count) PSP_ACMD(pkt, aInterlImpl(dmemi, dmemo, PSP_ACMD_LEN(count)))
 #define aFilter(pkt, f, countOrBuf, addr) PSP_ACMD(pkt, aFilterImpl(f, countOrBuf, addr))
 #define aHiLoGain(pkt, gain, count, dmem, a4) PSP_ACMD(pkt, aHiLoGainImpl(gain, count, dmem))
 #define aUnkCmd3(pkt, a1, a2, a3) \

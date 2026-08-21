@@ -68,6 +68,11 @@ unsigned int gPspBlobHits;
 unsigned int gPspBlobMisses;
 unsigned int gPspBlobOpenFails;
 unsigned int gPspBlobShortReads;
+/* Sample-bank reads whose window ran past the end of the bank and were served
+ * short with a zeroed tail. Expected to be nonzero and harmless -- see the
+ * long comment at the tail-read path in PspBlob_Read. Counted because "a lot
+ * of these" would mean a stale blob, not just samples near the bank end. */
+unsigned int gPspBlobTailReads;
 unsigned int gPspBlobLastVrom;
 
 typedef struct {
@@ -120,6 +125,27 @@ static const PspBlobRangedEntry sRangedBlobs[] = {
  * whole session. */
 static SceUID sRangedFds[sizeof(sRangedBlobs) / sizeof(sRangedBlobs[0])];
 static int sRangedFdsInited;
+
+/* Lazily open ranged blob `i`, returning whether it is usable. Shared by both
+ * ranged read paths so neither can forget the one-time table init. */
+static int PspBlobOpenRanged(unsigned int i) {
+    if (!sRangedFdsInited) {
+        unsigned int k;
+
+        for (k = 0; k < sizeof(sRangedFds) / sizeof(sRangedFds[0]); k++) {
+            sRangedFds[k] = -1;
+        }
+        sRangedFdsInited = 1;
+    }
+    if (sRangedFds[i] < 0) {
+        sRangedFds[i] = PspBlobOpen(sRangedBlobs[i].path);
+    }
+    if (sRangedFds[i] < 0) {
+        ++gPspBlobOpenFails;
+        return 0;
+    }
+    return 1;
+}
 
 /* Ranges most recently filled from a blob, so the endian-fixup passes can tell
  * "already native" data from raw .z64 data.
@@ -233,31 +259,49 @@ int PspBlob_Read(uint32_t romOffset, void* dst, size_t size) {
             if (romOffset >= start && (romOffset - start) < sRangedBlobs[i].size) {
                 uint32_t offset = romOffset - start;
 
+                /* A read that runs off the end of the blob is NORMAL here,
+                 * and must not fail the transfer.
+                 *
+                 * AudioLoad_DmaSampleData always transfers a whole SampleDma
+                 * window (`transfer = dma->size`, ~0x300 bytes) starting at
+                 * `devAddr & ~0xF`, regardless of how much of it the note
+                 * actually needs. For any sample near the end of a sample
+                 * bank that window extends past the last byte of the bank. On
+                 * N64 that is harmless: the PI bus just reads on into the next
+                 * bytes of the cartridge and the note never looks at them.
+                 *
+                 * Rejecting the read instead meant falling through to the raw
+                 * ROM path, which seeks to a synthetic blob address far past
+                 * the end of the 55 MB ROM file, reads nothing, and leaves the
+                 * DMA buffer holding WHATEVER THE PREVIOUS NOTE PUT THERE. The
+                 * ADPCM decoder then runs another instrument's bytes through
+                 * this note's predictor book, which does not sound like the
+                 * wrong instrument -- it sounds like a digital squeal.
+                 *
+                 * So serve what exists and zero the tail, matching what the
+                 * engine would have ignored anyway. */
                 if ((uint64_t)offset + size > sRangedBlobs[i].size) {
-                    /* Reading off the end of the blob means the table entry
-                     * and the built file disagree -- same class of stale-blob
-                     * bug as the short read below, and worth counting rather
-                     * than silently truncating. */
-                    ++gPspBlobShortReads;
-                    break;
-                }
+                    uint32_t avail = sRangedBlobs[i].size - offset;
 
-                if (!sRangedFdsInited) {
-                    unsigned int k;
-
-                    for (k = 0; k < sizeof(sRangedFds) / sizeof(sRangedFds[0]); k++) {
-                        sRangedFds[k] = -1;
+                    if (!PspBlobOpenRanged(i)) {
+                        return 0;
                     }
-                    sRangedFdsInited = 1;
+                    sceIoLseek(sRangedFds[i], (SceOff)offset, PSP_SEEK_SET);
+                    got = sceIoRead(sRangedFds[i], dst, (SceSize)avail);
+                    if (got < 0) {
+                        got = 0;
+                    }
+                    memset((char*)dst + got, 0, size - (size_t)got);
+                    ++gPspBlobTailReads;
+                    gPspBlobLastVrom = romOffset;
+                    ++gPspBlobHits;
+                    return 1;
                 }
-                if (sRangedFds[i] < 0) {
-                    sRangedFds[i] = PspBlobOpen(sRangedBlobs[i].path);
-                }
-                fd = sRangedFds[i];
-                if (fd < 0) {
-                    ++gPspBlobOpenFails;
+
+                if (!PspBlobOpenRanged(i)) {
                     return 0;
                 }
+                fd = sRangedFds[i];
                 sceIoLseek(fd, (SceOff)offset, PSP_SEEK_SET);
                 got = sceIoRead(fd, dst, (SceSize)size);
 

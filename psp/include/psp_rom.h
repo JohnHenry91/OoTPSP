@@ -12,4 +12,7 @@
 void PspRom_Init(const char* path);
 void PspRom_Read(uint32_t romOffset, void* dst, size_t size);
 
+/* Reads that left the destination holding stale bytes -- see os_rom.c. */
+extern unsigned int gPspRomUnservedReads;
+
 #endif

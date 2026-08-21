@@ -46,7 +46,10 @@
 #include "psp_scene_menu.h"
 #include "psp_frame_pace.h"
 #include "gfx_pc.h"
+#include <pspiofilemgr.h>
+
 #include "psp_audio.h"
+#include "psp_audio_probe.h"
 
 /* Cullable-room probe, defined in src/code/z_room.c -- see the comment on
  * gPspRoomCullEntries there for what the counters distinguish. */
@@ -94,6 +97,10 @@ static s32 sFontReady = 0;
 /* On by default: this build exists to measure the frame budget, and an
  * overlay nobody knows to press TRIANGLE for measures nothing. */
 static s32 sHudOpen = 1;
+
+/* 0 = unchecked, 1 = armed, 2 = done. */
+static s32 sAutoCaptureState;
+static s32 sAutoCaptureTimer;
 
 static void PspSceneMenu_Move(s32 delta) {
     sCursor += delta;
@@ -159,6 +166,28 @@ void PspSceneMenu_Update(PlayState* play) {
      * purpose: the whole point of the framerate knob is to feel the difference
      * while playing, not while a full-screen list covers the game. Neither
      * button is mapped to anything in os_cont.c, so nothing is being stolen. */
+    /* Unattended measurement, armed only by ms0:/oot_autocapture.txt so an
+     * ordinary session is untouched. The probe itself is always collecting
+     * (it costs one comparison per voice); this just decides when to write
+     * what it has. File IO stays on the main thread -- doing it on the audio
+     * thread was audible. */
+    if (sAutoCaptureState == 0) {
+        SceUID marker = sceIoOpen("ms0:/oot_autocapture.txt", PSP_O_RDONLY, 0777);
+
+        if (marker >= 0) {
+            sceIoClose(marker);
+            sAutoCaptureState = 1;
+            sAutoCaptureTimer = 0;
+        } else {
+            sAutoCaptureState = 2;
+        }
+    } else if (sAutoCaptureState == 1) {
+        if (++sAutoCaptureTimer > 900) { /* ~30 s of gameplay frames */
+            PspAudioProbe_Flush();
+            sAutoCaptureState = 2;
+        }
+    }
+
     if (PSP_RAW_PRESSED(PSP_CTRL_TRIANGLE)) {
         /* L is the modifier rather than a button of its own: TRIANGLE and
          * SQUARE are the only two the N64 pad mapping leaves free, and both

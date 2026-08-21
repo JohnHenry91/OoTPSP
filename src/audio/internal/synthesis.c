@@ -14,6 +14,7 @@
  * immediately -- the standard approach for every N64-decomp port. See
  * psp/include/psp_audio_mixer.h and psp/docs/AUDIO_N64_VS_PSP.md. */
 #include "psp_audio_mixer.h"
+#include "psp_audio_probe.h"
 #endif
 
 // DMEM Addresses for the RSP
@@ -892,6 +893,15 @@ Acmd* AudioSynth_ProcessNote(s32 noteIndex, NoteSampleState* sampleState, NoteSy
         sample = sampleState->tunedSample->sample;
         loopInfo = sample->loop;
         loopEndPos = loopInfo->header.end;
+
+#if TARGET_PSP
+        /* One comparison per voice per chunk. This is the line where "the
+         * position has run past the end of the sample" first becomes
+         * visible; everything after it in this function is the consequence.
+         * See psp/include/psp_audio_probe.h. */
+        PspAudioProbe_CheckOverrun(noteIndex, updateIndex, sampleState->bitField0.needsInit,
+                                   synthState->samplePosInt, sampleState, sample, loopInfo);
+#endif
         sampleAddr = (u32)sample->sampleAddr;
         resampledTempLen = 0;
 

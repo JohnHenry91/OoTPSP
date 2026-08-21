@@ -73,6 +73,7 @@ extern unsigned int gPspBlobHits;
 extern unsigned int gPspBlobMisses;
 extern unsigned int gPspBlobOpenFails;
 extern unsigned int gPspBlobShortReads;
+extern unsigned int gPspBlobTailReads;
 extern unsigned int gPspBlobLastVrom;
 
 #endif
