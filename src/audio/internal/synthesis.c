@@ -5,6 +5,17 @@
 #include "ultra64.h"
 #include "audio.h"
 
+#if TARGET_PSP
+/* The N64 runs everything below on the RSP: each a*() call here only packs
+ * an Acmd for the aspMain microcode, and gAudioCtx.aiBuffers[] is filled by
+ * the RSP task AudioThread_UpdateImpl schedules afterwards. PSP has no RSP,
+ * so that task never runs and the AI buffers stay silent. This header
+ * redefines the ABI macros to run the microcode's operations in software,
+ * immediately -- the standard approach for every N64-decomp port. See
+ * psp/include/psp_audio_mixer.h and psp/docs/AUDIO_N64_VS_PSP.md. */
+#include "psp_audio_mixer.h"
+#endif
+
 // DMEM Addresses for the RSP
 #define DMEM_TEMP 0x3C0
 #define DMEM_UNCOMPRESSED_NOTE 0x580

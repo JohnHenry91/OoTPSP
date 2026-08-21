@@ -444,6 +444,107 @@ a time, which is what proved the tilted face was the one *fully in front of the
 camera* -- killing the "geometry straddling the eye is mis-clipped" theory that the
 negative-`w` readings had made so attractive.
 
+## 9c. Audio: the RSP does the synthesis, and three separate silences hide behind that
+
+This one cost three sessions, because every layer above it looked healthy the whole time. The
+general trap and its three concrete instances:
+
+**The trap: an N64 game's audio "engine" is not a synthesizer.** In the decomp,
+`AudioSynth_Update` (`src/audio/internal/synthesis.c`) takes an `s16* aiStart`, walks every
+active voice, and reads exactly like a softsynth. It is not one. Every `a*()` call inside it is
+an `abi.h` macro that packs two words into an `Acmd`; the finished list goes to the **RSP** as an
+`M_AUDTASK`, and the RSP is what decodes ADPCM, resamples, envelope-mixes and writes the PCM.
+Port it as-is and the AI buffers stay all zeroes forever — no error, no crash, no warning.
+
+*Do this instead*, the way every N64-decomp port does: `#undef` the ABI macros and redefine them
+to call C functions that execute immediately, so the same unmodified decomp file becomes a real
+synthesizer. Take the implementations from an existing port rather than writing them — this is
+bit-exact fixed-point DSP emulation and "cleaning it up" changes how the game sounds.
+For OoT/MM specifically use libultraship's `mixer.c` (Ship of Harkinian), not SM64's: SM64's
+microcode is missing about ten opcodes OoT uses (`aEnvSetup1/2`, `aS8Dec`, `aAddMixer`,
+`aDuplicate`, `aResampleZoh`, `aFilter`, `aInterl`, ...). Here: `psp/src/audio/psp_audio_mixer.c`.
+
+**Instance 2: audio table `romAddr`s are segment-RELATIVE, and something adds the base later.**
+`AudioLoad_InitTable` walks every table entry once at init and does
+`entries[i].romAddr += <Audioseq/Audiobank/Audiotable segment rom start>`. If your port
+substitutes its own asset addresses (blob ids, virtual offsets, anything), they must be stored
+*minus* that segment base or every audio DMA lands somewhere else. The general lesson: **before
+substituting an address the engine will consume, grep for who else rewrites that field.**
+The failure is silent in the worst way — the bogus address fell past the end of the ROM file,
+`sceIoRead` returned zero bytes, and the destination kept the zeroes the audio heap had already
+put there. A soundfont of zeroes relocates every instrument to `NULL` and plays perfect silence.
+
+**Instance 3: the sample bank is deliberately never loaded, only DMA'd through.** `Audiotable`'s
+table entry uses `cachePolicy 4` (`CACHE_LOAD_EITHER_NOSYNC`), which makes
+`AudioLoad_TrySyncLoadSampleBank` hand back the raw cart address without loading anything; each
+note then DMAs its own few-hundred-byte window out of the middle of it (`AudioLoad_DmaSampleData`).
+That is how a 4 MB sample bank fits in a 229 KB audio heap. Any asset-serving layer built for
+whole-file loads (this port's blob registry matched on an exact start address, which is all a
+scene or room ever needs) therefore misses **every single sample read**. If your port intercepts
+asset loads, check which assets are read *partially* before assuming file granularity — and keep
+those files open, since the reads happen several times per audio frame on the audio thread.
+
+**Instance 4, and the one that actually gated everything: `AudioCmd` is an
+endian-dependent union.** It aliases `u32 opArgs` with
+`{u8 op; u8 arg0; u8 arg1; u8 arg2;}`, and `AUDIO_MK_CMD` packs the opcode
+into bits 31..24 — offset 0 on big-endian, offset **3** on little-endian. So
+`cmd->op` read the low byte, which is 0 for every command the game sends, and
+`AudioThread_ProcessCmds` dispatched all of them as `AUDIOCMD_OP_NOOP`. The
+whole subsystem looked healthy from outside — commands queued, the ring
+drained, the reset gate opened, the output backend ran every frame — while
+doing literally nothing. Same trap one level down in the data union, because
+`AudioThread_QueueCmdS8`/`QueueCmdU16` store their payload in the **high**
+bits of the word (`data << 0x18`), so `asSbyte`/`asUShort` need explicit
+padding on little-endian.
+
+*The general lesson, which is the reusable half:* **a union that aliases a
+wide integer with narrower fields is a byte-order decision, and the compiler
+will not warn you.** When porting a big-endian codebase, grep every `union`
+for mixed-width members and check each one, before debugging anything
+downstream of it. The failure mode is uniquely misleading — no crash, no
+warning, and every observable *around* the bug looks correct. Ship of
+Harkinian's `z64audio.h` has exactly one such `#ifdef IS_BIGENDIAN` block,
+and it is this struct; that is a useful cross-check for the next port.
+
+**Instance 5: a relative asset path only works on the main thread.** PSP threads
+created with `sceKernelCreateThread` do **not** inherit a current working
+directory, so `sceIoOpen("blobs/x.bin")` returns `SCE_KERNEL_ERROR_NOCWD`
+(0x8002032C) from any thread the game spawns itself. Scene and room loads ran on
+the main thread and worked for months; the audio thread's loads all failed. And
+because the engine's DMA path has no error channel, `sceIoRead` was simply never
+reached and the destination kept the audio heap's zeroes — the load was then
+marked `LOAD_STATUS_PERMANENTLY_LOADED`. Resolve asset paths against the game's
+own directory (from `argv[0]`, captured on the main thread) rather than relying
+on a cwd.
+
+**Instance 6: a partially-linked object is not a payload.** The soundfont build
+is compile → `ld -r` (partial link) → `sfpatch` → `objcopy -O binary`. A
+partial link leaves relocations *unapplied*: every instrument/drum/sfx offset
+and every `SampleBank_*_SAMPLE_*_Off` reference still reads as zero, and
+`objcopy` happily writes out a correctly-sized file full of holes. The engine
+loads it without complaint and relocates 92 instruments to `NULL`. The fix is a
+real link (`ld -R samplebank.o -T soundfont.ld`) so the sample-bank symbols
+resolve and the script places `.rodata` at 0 — which is exactly what the game's
+own `AUDIO_BUILD_DEBUG` rule does, and that rule exists because it
+byte-compares its output against the audiobank ripped from the ROM. *General
+lesson:* when a port reuses a decomp's intermediate build artifacts, check
+whether the real build does anything else to them before they reach the ROM;
+and `objdump -h` showing `RELOC` on the section you are about to `objcopy` is
+the tell.
+
+Two more audio-specific traps already paid for in this port:
+
+- **A hand-built stand-in for a generated table must reproduce its memory LAYOUT, not just its
+  values.** `AudioTable` is a header immediately followed by its entries, because every access is
+  `table->entries[i]` off one pointer. Declaring header and entries as two globals puts them in
+  `.data` and `.bss`, hundreds of KB apart, and every lookup silently reads unrelated data.
+- **A `size == 0` table entry is a pointer, not a blank.** `AudioLoad_GetRealTableIndex` redirects
+  through `entries[romAddr]` as an *index* — but `medium`/`cachePolicy` are still read from the
+  **original** id, so filler entries need real values there or you get `MEDIUM_RAM`(0) and a hang.
+
+Full pipeline background, including the PSP `sceAudio` side and a diagnostic ladder:
+`psp/docs/AUDIO_N64_VS_PSP.md`.
+
 ## 10. Development/debugging technique that paid off repeatedly
 
 - **A three-generation ring of plain-global diagnostic counters (`prev2`/`prev`/`live`), read

@@ -280,12 +280,16 @@ PSP_C_FILES += psp/src/psp_scene_menu.c
 
 # --- Audio (Phase 1 bring-up) -------------------------------------------------
 #
-# The real N64 audio engine (src/audio/**) is platform-agnostic C: it already
-# does its own wavetable/ADPCM softsynth in portable code (AudioSynth_Update,
-# src/audio/internal/synthesis.c) -- unlike graphics there is no RSP ucode to
-# reimplement, only two real N64 AI (Audio Interface) hardware touchpoints
-# (osAiSetNextBuffer/osAiGetLength) need PSP replacements -- see
+# The real N64 audio engine (src/audio/**) is platform-agnostic C for the
+# sequence/note/envelope layers, but NOT for synthesis: AudioSynth_Update
+# (src/audio/internal/synthesis.c) only builds a command list for the RSP's
+# aspMain microcode, which is what actually decodes ADPCM, resamples and
+# mixes into gAudioCtx.aiBuffers[]. So, exactly like graphics, there IS an
+# RSP ucode to reimplement -- psp/src/audio/psp_audio_mixer.c does it in
+# software. On top of that, two real N64 AI (Audio Interface) hardware
+# touchpoints (osAiSetNextBuffer/osAiGetLength) need PSP replacements -- see
 # psp/src/audio/audio_psp.c and src/audio/internal/os.c's TARGET_PSP branch.
+# Full background: psp/docs/AUDIO_N64_VS_PSP.md.
 # debug.inc.c is #included by general.c, not a standalone translation unit.
 PSP_C_FILES += src/audio/game/data.c
 PSP_C_FILES += src/audio/game/general.c
@@ -306,20 +310,25 @@ PSP_C_FILES += src/audio/internal/thread.c
 PSP_C_FILES += src/code/audio_thread_manager.c
 PSP_C_FILES += src/code/audio_stop_all_sfx.c
 PSP_C_FILES += psp/src/audio/audio_psp.c
+PSP_C_FILES += psp/src/audio/psp_audio_mixer.c
 PSP_C_FILES += psp/src/audio/psp_audio_debug.c
 
 # src/audio/tables/{sequence,soundfont,samplebank}_table.c are deliberately NOT
-# built here -- those are real decomp files, but they're driven by a macro
-# table (include/tables/sequence_table.h) enumerating the FULL game's ~105
-# sequences/38 soundfonts/6 sample banks, generated via tools/audio/atblgen
-# fed every single asset's build-xml. Phase 1 bring-up scope is deliberately
-# narrower (see psp_audio_tables.c below) -- same kind of hand-built-real-
-# subset-instead-of-the-full-macro-table shortcut this port already took for
-# gGameStateOverlayTable (psp/src/gamestate_table_psp.c) instead of the real
-# z_game_dlftbls.c. Full asset coverage is real follow-up work, not this file.
-PSP_C_FILES += psp/src/psp_audio_tables.c
+# built here. They are the real decomp files and they enumerate the right
+# assets, but every romAddr in them is a `(u32)Name_Start` linker symbol whose
+# value only exists because the N64 build LINKS each asset into the ROM's
+# Audiobank/Audioseq/Audiotable segments. This port serves them as separate
+# blob files, so it needs the same tables with its own addresses -- generated
+# from the very same headers by psp/tools/gen_audio_tables.py, so no entry is
+# ever transcribed by hand. Literal path, not $(PSP_AUDIO_TABLES_C): PSP_C_FILES
+# is a := variable, so += expands immediately and a variable defined further
+# down the file would append nothing at all.
+PSP_C_FILES += psp/build/psp_audio_tables_gen.c
 
 OBJS := $(PSP_C_FILES:.c=.o)
+# Assembled, not compiled, so it cannot ride along in PSP_C_FILES. This is the
+# real generated sequence->soundfont mapping table (see its rule below).
+OBJS += psp/build/assets/audio/sequence_font_table.o
 
 # --- Native-endian asset blobs -----------------------------------------------
 #
@@ -337,28 +346,38 @@ BLOB_DIR = build/blobs
 BLOB_SCENES := $(shell sh psp/tools/list_scenes.sh extracted/pal-1.0)
 
 BLOB_REGISTRY = $(BLOB_DIR)/blobs_registry.inc
+# Audio blobs go in a SECOND registry because they are looked up differently:
+# scene/room blobs are always read whole (exact vromStart match), while the
+# sample bank is DMA'd a few hundred bytes at a time from arbitrary offsets
+# inside it -- see the sRangedBlobs comment in psp/src/psp_blob_assets.c.
+# Ranged lookup needs each blob's size, which is why this one carries it.
+BLOB_RANGED_REGISTRY = $(BLOB_DIR)/blobs_ranged_registry.inc
 
-# Audio blob file list + vromStart values, needed here (not just down in the
-# audio-assets block below) because GNU Make expands a rule's PREREQUISITE
-# LIST immediately when it parses that rule -- unlike a recipe body, which is
-# expanded lazily at execution time -- so $(BLOB_REGISTRY)'s own rule just
-# below needs AUDIO_BLOB_BINS to already be defined by this point, not later
-# in the file. (Cost a real debugging round trip: the rule silently expanded
-# to nothing extra, `make -p`'s database dump is what showed it.)
-AUDIO_BLOB_BINS = $(BLOB_DIR)/Soundfont_0.bin $(BLOB_DIR)/Soundfont_1.bin \
-                  $(BLOB_DIR)/SampleBank_0.bin \
-                  $(BLOB_DIR)/seq_0.prg.bin $(BLOB_DIR)/seq_72.bin
+# Audio asset lists, needed here (not just in the audio-assets block below)
+# because GNU Make expands a rule's PREREQUISITE LIST immediately when it
+# parses that rule -- unlike a recipe body, which is expanded lazily -- so
+# $(BLOB_REGISTRY)'s rule just below needs AUDIO_BLOB_BINS already defined at
+# this point. (Cost a real debugging round trip once: the rule silently
+# expanded to nothing extra, and only `make -p`'s database dump showed it.)
+#
+# The names come from the game's own table headers, via the same script that
+# generates the tables, so the set of assets built and the set the table
+# describes cannot disagree -- there is no hand-maintained list of either.
+AUDIO_SRC_DIR = build/pal-1.0/assets/audio
+PSP_AUDIO_DIR = psp/build/assets/audio
+AUDIO_TABLE_GEN = psp/tools/gen_audio_tables.py
+AUDIO_TABLE_ARGS = --seq-table include/tables/sequence_table.h \
+                   --font-table $(AUDIO_SRC_DIR)/soundfont_table.h \
+                   --bank-table $(AUDIO_SRC_DIR)/samplebank_table.h \
+                   --audio-build-dir $(AUDIO_SRC_DIR)
+AUDIO_BLOB_NAMES := $(shell python3 $(AUDIO_TABLE_GEN) $(AUDIO_TABLE_ARGS) --list-blobs 2>/dev/null)
+AUDIO_BLOB_BINS = $(patsubst %,$(BLOB_DIR)/%.bin,$(AUDIO_BLOB_NAMES))
+AUDIO_FONT_OBJS = $(patsubst %,$(PSP_AUDIO_DIR)/%.o,$(filter Soundfont_%,$(AUDIO_BLOB_NAMES)))
+AUDIO_SEQ_OBJS = $(patsubst %,$(PSP_AUDIO_DIR)/%.o,$(filter seq_%,$(AUDIO_BLOB_NAMES)))
+AUDIO_BANK_OBJS = $(patsubst %,$(PSP_AUDIO_DIR)/%.o,$(filter SampleBank_%,$(AUDIO_BLOB_NAMES)))
 
-# vromStart values these blobs are registered/looked-up under (psp_blob_assets.c
-# matches on exact equality) -- picked from a range no real pal-1.0 vrom
-# offset can ever land in (the ROM itself is ~55 MB, well under 0x20000000),
-# so collision with a scene/room blob's real vrom is structurally impossible.
-# psp/src/psp_audio_tables.c uses these exact same literals as romAddr.
-AUDIO_BLOB_VROM_SOUNDFONT_0 = 0x20000000
-AUDIO_BLOB_VROM_SOUNDFONT_1 = 0x20100000
-AUDIO_BLOB_VROM_SAMPLEBANK_0 = 0x20200000
-AUDIO_BLOB_VROM_SEQ_0 = 0x20600000
-AUDIO_BLOB_VROM_SEQ_72 = 0x20700000
+# Generated by the same script; replaces the two-soundfont hand-built stand-in.
+PSP_AUDIO_TABLES_C = psp/build/psp_audio_tables_gen.c
 
 # PSPSDK's build.mak (included at the bottom of this file) is what defines `all`,
 # so the blob rule below would otherwise become the default goal simply by being
@@ -379,20 +398,28 @@ $(BLOB_REGISTRY): psp/tools/make_scene_blob.sh psp/tools/jfif_to_psp.py Makefile
 		sh psp/tools/make_scene_blob.sh \
 			extracted/pal-1.0/assets/scenes/$$d $$n $(BLOB_DIR) $$r > /dev/null || exit 1; \
 	done
-	@printf '    { %su, "blobs/Soundfont_0.bin" },\n' $(AUDIO_BLOB_VROM_SOUNDFONT_0) > $(BLOB_DIR)/audio.reg
-	@printf '    { %su, "blobs/Soundfont_1.bin" },\n' $(AUDIO_BLOB_VROM_SOUNDFONT_1) >> $(BLOB_DIR)/audio.reg
-	@printf '    { %su, "blobs/SampleBank_0.bin" },\n' $(AUDIO_BLOB_VROM_SAMPLEBANK_0) >> $(BLOB_DIR)/audio.reg
-	@printf '    { %su, "blobs/seq_0.prg.bin" },\n' $(AUDIO_BLOB_VROM_SEQ_0) >> $(BLOB_DIR)/audio.reg
-	@printf '    { %su, "blobs/seq_72.bin" },\n' $(AUDIO_BLOB_VROM_SEQ_72) >> $(BLOB_DIR)/audio.reg
 	@cat $(BLOB_DIR)/*.reg > $@
+
+# The ranged registry and the C table are emitted together, from one address
+# assignment: they must agree exactly, and two hand-kept lists of 150-odd
+# addresses would not stay in step. Sizes are read off the built .bin files, so
+# a stale or half-built blob can never be described as bigger than it is
+# (which would turn a ranged read into a silent short read of zeroes).
+$(BLOB_RANGED_REGISTRY): $(AUDIO_BLOB_BINS) $(AUDIO_TABLE_GEN) include/tables/sequence_table.h
+	@mkdir -p $(BLOB_DIR) psp/build
+	python3 $(AUDIO_TABLE_GEN) $(AUDIO_TABLE_ARGS) \
+		--blob-dir $(BLOB_DIR) --out-c $(PSP_AUDIO_TABLES_C) --out-reg $(BLOB_RANGED_REGISTRY)
+
+$(PSP_AUDIO_TABLES_C): $(BLOB_RANGED_REGISTRY)
+	@:
 
 # Ship the blobs next to EBOOT.PBP: PSP resolves the registry's relative paths
 # ("blobs/<name>.bin") against the EBOOT's own directory. Separate rule with its
 # own stamp so the copy still happens when the registry is already up to date.
-blobs/.stamp: $(BLOB_REGISTRY)
+blobs/.stamp: $(BLOB_REGISTRY) $(BLOB_RANGED_REGISTRY)
 	@mkdir -p blobs && cp -f $(BLOB_DIR)/*.bin blobs/ && touch $@
 
-psp/src/psp_blob_assets.o: $(BLOB_REGISTRY)
+psp/src/psp_blob_assets.o: $(BLOB_REGISTRY) $(BLOB_RANGED_REGISTRY)
 
 # Warp-menu scene list, generated from include/tables/{scene,entrance}_table.h,
 # filtered against BLOB_SCENES (see gen_scene_menu.py's header) so a scene with
@@ -451,15 +478,18 @@ blobs: $(BLOB_REGISTRY)
 # Full asset coverage would want its own self-contained script (mirroring
 # make_scene_blob.sh) instead of this reuse -- real follow-up work, out of
 # scope for bring-up.
-AUDIO_SRC_DIR = build/pal-1.0/assets/audio
+# AUDIO_SRC_DIR / PSP_AUDIO_DIR are defined up with the asset lists, which have
+# to come before the rules that use them in a prerequisite list.
 # Under psp/build/assets/audio (not just psp/build/audio) so that
 # "-I psp/build" (added to INCDIR below) makes session_init.c's
 # #include "assets/audio/soundfont_sizes.h" resolve here, same relative-path
 # convention the N64 build uses via its own "-I build/pal-1.0".
-PSP_AUDIO_DIR = psp/build/assets/audio
 
 SFPATCH = tools/audio/sfpatch
 PSP_AFILE_SIZES = tools/audio/afile_sizes
+# The real linker, not PSPSDK's LD (= psp-gcc): the soundfont link below is a
+# bare data link driven entirely by soundfont.ld, with no crt0 and no libc.
+AUDIO_LD = psp-ld
 
 # Soundfont: compile -> partial-link (soundfont.ld) -> patch symbols to ABS ->
 # objcopy in the real _Start/_Size names. Same 4-step pipeline as the N64
@@ -497,11 +527,16 @@ $(PSP_AUDIO_DIR)/SampleBank_%.o: $(AUDIO_SRC_DIR)/samplebanks/SampleBank_%.s
 # (src/audio/internal/seqplayer.c), not cast to a typed struct, so it needs
 # no relocation at all -- served as a blob purely for consistency/packaging,
 # not because the format demands it.
-$(PSP_AUDIO_DIR)/seq_0.prg.o: $(AUDIO_SRC_DIR)/sequences/seq_0.prg.s
+$(PSP_AUDIO_DIR)/seq_%.o: $(AUDIO_SRC_DIR)/sequences/seq_%.s
 	@mkdir -p $(PSP_AUDIO_DIR)
 	$(AS) -c $< -o $@
 
-$(PSP_AUDIO_DIR)/seq_72.o: $(AUDIO_SRC_DIR)/sequences/seq_72.s
+# The real sequence->soundfont mapping, assembled from the game's own generated
+# source (atblgen --sequences) instead of the hand-built stand-in this port
+# started with. Unlike every other audio asset this one IS linked in directly:
+# AudioLoad_Init assigns it as a plain pointer (gAudioCtx.sequenceFontTable =
+# gSequenceFontTable) and never DMAs it.
+$(PSP_AUDIO_DIR)/sequence_font_table.o: $(AUDIO_SRC_DIR)/sequence_font_table.s
 	@mkdir -p $(PSP_AUDIO_DIR)
 	$(AS) -c $< -o $@
 
@@ -509,37 +544,50 @@ $(PSP_AUDIO_DIR)/seq_72.o: $(AUDIO_SRC_DIR)/sequences/seq_72.s
 # references Soundfont_0_SIZE/Soundfont_1_SIZE/Sequence_0_SIZE by name for its
 # permanent-pool size calculation -- real values read back out of the real
 # compiled objects above, not guessed.
-$(PSP_AUDIO_DIR)/soundfont_sizes.h: $(PSP_AUDIO_DIR)/Soundfont_0.o $(PSP_AUDIO_DIR)/Soundfont_1.o
+$(PSP_AUDIO_DIR)/soundfont_sizes.h: $(AUDIO_FONT_OBJS)
 	$(PSP_AFILE_SIZES) $@ NUM_SOUNDFONTS SOUNDFONT_SIZES .rodata $^
 
-$(PSP_AUDIO_DIR)/sequence_sizes.h: $(PSP_AUDIO_DIR)/seq_0.prg.o $(PSP_AUDIO_DIR)/seq_72.o
+$(PSP_AUDIO_DIR)/sequence_sizes.h: $(AUDIO_SEQ_OBJS)
 	$(PSP_AFILE_SIZES) $@ NUM_SEQUENCES SEQUENCE_SIZES .data $^
 
 src/audio/game/session_init.o: $(PSP_AUDIO_DIR)/soundfont_sizes.h $(PSP_AUDIO_DIR)/sequence_sizes.h
 
-# Flat binary payloads, objcopy'd straight out of the real section (matching
-# AUDIO_BUILD_DEBUG's own -O binary comparison rule in the main Makefile) --
-# these bytes are exactly what a real N64 DMA would have copied out of
-# Audiobank/Audioseq/Audiotable, just recompiled for PSP's ABI. Landed in
-# $(BLOB_DIR) so blobs/.stamp's existing "cp -f $(BLOB_DIR)/*.bin blobs/"
-# ships them for free.
-$(BLOB_DIR)/Soundfont_0.bin: $(PSP_AUDIO_DIR)/Soundfont_0.o
+# A soundfont's .o is NOT a usable payload: it is a PARTIAL link, so its
+# .rodata still carries unapplied relocations and every instrument/drum/sfx
+# offset and every SampleBank_0_SAMPLE_*_Off reference reads back as zero.
+# objcopy'ing it straight to a binary produced a 15008-byte file that was all
+# zeroes where the pointer table should be -- which the engine loads without
+# complaint, relocates into 92 NULL instruments, and plays as silence.
+#
+# Resolving them needs a real link: the sample bank object supplies the
+# SAMPLE_*_Off symbols (-R = take symbols only, contribute no sections) and
+# soundfont.ld places .rodata at 0 so the internal offsets stay file-relative.
+# This mirrors the main Makefile's own AUDIO_BUILD_DEBUG rule, which exists
+# for exactly this purpose and cross-checks its output against the real
+# audiobank bytes ripped from the ROM.
+#
+# Verified: the linked payload's offset words match oot-pal-1.0.z64's own
+# Audiobank at 0xD8C0 exactly (allowing for the intended endian flip -- the
+# ROM stores them big-endian, psp-gcc emits them little-endian, and the engine
+# reads them natively on each target).
+# Every sample bank, not just bank 0: a soundfont references whichever bank its
+# own table entry names, and an unresolved SAMPLE_*_Off is exactly the
+# silent-zero failure this link exists to prevent.
+$(PSP_AUDIO_DIR)/Soundfont_%.elf: $(PSP_AUDIO_DIR)/Soundfont_%.o $(AUDIO_BANK_OBJS)
+	$(AUDIO_LD) $(foreach f,$(AUDIO_BANK_OBJS),-R $f) -T linker_scripts/soundfont.ld $< -o $@
+
+# Landed in $(BLOB_DIR) so blobs/.stamp's existing "cp -f $(BLOB_DIR)/*.bin
+# blobs/" ships them for free. Sequences carry their payload in .data (a plain
+# assembled byte stream), soundfonts and sample banks in .rodata.
+$(BLOB_DIR)/Soundfont_%.bin: $(PSP_AUDIO_DIR)/Soundfont_%.elf
 	@mkdir -p $(BLOB_DIR)
 	$(OBJCOPY) -O binary -j .rodata $< $@
 
-$(BLOB_DIR)/Soundfont_1.bin: $(PSP_AUDIO_DIR)/Soundfont_1.o
+$(BLOB_DIR)/SampleBank_%.bin: $(PSP_AUDIO_DIR)/SampleBank_%.o
 	@mkdir -p $(BLOB_DIR)
 	$(OBJCOPY) -O binary -j .rodata $< $@
 
-$(BLOB_DIR)/SampleBank_0.bin: $(PSP_AUDIO_DIR)/SampleBank_0.o
-	@mkdir -p $(BLOB_DIR)
-	$(OBJCOPY) -O binary -j .rodata $< $@
-
-$(BLOB_DIR)/seq_0.prg.bin: $(PSP_AUDIO_DIR)/seq_0.prg.o
-	@mkdir -p $(BLOB_DIR)
-	$(OBJCOPY) -O binary -j .data $< $@
-
-$(BLOB_DIR)/seq_72.bin: $(PSP_AUDIO_DIR)/seq_72.o
+$(BLOB_DIR)/seq_%.bin: $(PSP_AUDIO_DIR)/seq_%.o
 	@mkdir -p $(BLOB_DIR)
 	$(OBJCOPY) -O binary -j .data $< $@
 

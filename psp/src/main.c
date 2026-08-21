@@ -23,6 +23,7 @@
 #include "libu64/pad.h"
 #include "libu64/padsetup.h"
 #include "psp_rom.h"
+#include "psp_blob_assets.h"
 #include "dma.h"
 #include "gfx_pc.h"
 #include "gfx_window_manager_api.h"
@@ -42,7 +43,7 @@ PSP_HEAP_SIZE_KB(-1024);
  * passed to sceGuStart is valid/aligned, not who owns it. */
 static unsigned int __attribute__((aligned(16))) sDmaTestList[16384];
 
-int main(void) {
+int main(int argc, char* argv[]) {
     extern void PspOsMesgSetMainThread(void);
 
     pspDebugScreenInit();
@@ -92,6 +93,11 @@ int main(void) {
     /* DmaMgr smoke test (see file header): verify the ported thread/queue
      * machinery against real ROM data, same "dmadata" segment and expected
      * checksum attempt 1 already validated byte-correct. */
+    /* Blob paths are relative, and only the main thread has a cwd to resolve
+     * them against -- pin them to the game's own directory before any thread
+     * that might load one exists. See psp/include/psp_blob_assets.h. */
+    PspBlob_SetBaseDir(argc > 0 ? argv[0] : NULL);
+
     PspRom_Init("oot-pal-1.0.z64");
     DmaMgr_InitForTest();
 

@@ -13,5 +13,14 @@ uint32_t PspAudio_StatOutputCalls(void);
 uint32_t PspAudio_StatLastNumSamples(void);
 int32_t PspAudio_StatLastPeakSample(void);
 uint32_t PspAudio_StatReserveFailures(void);
+/* Whether the hardware/emulator actually accepted the blocks we handed it --
+ * the one link in the chain that memory reads upstream cannot prove. */
+uint32_t PspAudio_StatOutputErrors(void);
+int32_t PspAudio_StatLastOutputRet(void);
+/* Dropout counters: underruns is how often the DAC had already gone dry when
+ * the next block arrived (what choppy audio actually is); minRest is the
+ * closest it ever came to that. */
+uint32_t PspAudio_StatUnderruns(void);
+uint32_t PspAudio_StatMinRest(void);
 
 #endif

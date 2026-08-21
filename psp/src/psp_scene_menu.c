@@ -127,24 +127,6 @@ void PspSceneMenu_Update(PlayState* play) {
         PspAudioDebug_HealResetGate();
     }
 
-    /* Audio smoke test, input-independent: fires once automatically ~5s
-     * after the first Play_Update tick, no button combo needed. Remove once
-     * the R+TRIANGLE hotkey (below) is confirmed reachable by the user's own
-     * controls -- this is only here to separate "audio pipeline is silent"
-     * from "the input combo never reaches this code". */
-    {
-        static s32 sAutoFanfareTimer = -1;
-        if (sAutoFanfareTimer < 0) {
-            sAutoFanfareTimer = 300;
-        } else if (sAutoFanfareTimer > 0) {
-            sAutoFanfareTimer--;
-            if (sAutoFanfareTimer == 0) {
-                extern void Audio_PlayFanfare(u16 seqId);
-                Audio_PlayFanfare(0x48);
-            }
-        }
-    }
-
     if (PSP_RAW_PRESSED(PSP_CTRL_SELECT)) {
         gPspSceneMenuOpen = !gPspSceneMenuOpen;
         sRepeatTimer = 0;
@@ -185,16 +167,11 @@ void PspSceneMenu_Update(PlayState* play) {
          * accident. */
         if (gPspRawButtons & PSP_CTRL_LTRIGGER) {
             gPspRoomCullDisable = !gPspRoomCullDisable;
-        } else if (gPspRawButtons & PSP_CTRL_RTRIGGER) {
-            /* Audio Phase 1 bring-up smoke test: NA_BGM_OCA_TIME (0x48, Song
-             * of Time) is the one sequence wired up so far (see
-             * psp/src/psp_audio_tables.c) -- short and easy to verify by ear.
-             * Same "modifier + TRIANGLE" convention as L above (R doubles as
-             * a real N64 button too; a real R press landing on TRIANGLE is
-             * just as much an intentional combo as L's). Remove once real
-             * gameplay triggers sequences on their own. */
-            extern void Audio_PlayFanfare(u16 seqId);
-            Audio_PlayFanfare(0x48);
+        /* The R+TRIANGLE fanfare hotkey that lived here is gone. It was only
+         * ever a bring-up probe for "does any sequence play at all", and once
+         * real sequences play it is actively harmful: unlike L (which doubles
+         * as BTN_Z, a deliberate press), R is used constantly in normal play,
+         * so the combo fired the Song of Time at random during gameplay. */
         } else {
             sHudOpen = !sHudOpen;
         }
@@ -471,6 +448,7 @@ void PspSceneMenu_DrawHud(void) {
     char line3[64];
     char line4[64];
     char line5[64];
+    char line6[72];
     int gateVal;
     u32 workUsec;
     u32 frameUsec;
@@ -591,10 +569,31 @@ void PspSceneMenu_DrawHud(void) {
         sprintf(line5, "GATE d418 %d resetSt %d specId %d", gateVal, resetStatus, specId);
     }
 
-    PspSceneMenu_FillPanel(HUD_X - 4, HUD_Y - 3, HUD_X + 4 + 54 * GLYPH_W, HUD_Y + 3 + 6 * (GLYPH_H + 2),
+    /* LOAD is the one thing every earlier line takes for granted: that real
+     * sequence and soundfont bytes actually arrived. perm counts permanent-
+     * pool allocations (3 expected here: Sequence_0 + Soundfont_0/1); sq/fn
+     * are their LOAD_STATUS_* values; b0 is the first byte of the loaded SFX
+     * sequence, which is 0 when the blob lookup silently returned nothing.
+     * blob H/M are PspBlob_Read's hit/miss counters -- a climbing miss count
+     * while audio plays means a romAddr the registry does not cover. acmd is
+     * how many DSP commands the software microcode executed last frame;
+     * 0 there with notes active means synthesis is not running at all. */
+    {
+        extern void PspAudioDebug_LoadInfo(int* permEntries, int* seqStatus0, int* fontStatus0, int* seqDataByte);
+        extern unsigned int gPspBlobHits;
+        extern unsigned int gPspBlobMisses;
+        extern unsigned int PspAudioMixer_StatCommands(void);
+        int perm, sq, fn, b0;
+
+        PspAudioDebug_LoadInfo(&perm, &sq, &fn, &b0);
+        sprintf(line6, "LOAD perm %d sq %d fn %d b0 %d blob %u/%u acmd %u", perm, sq, fn, b0,
+                gPspBlobHits, gPspBlobMisses, PspAudioMixer_StatCommands());
+    }
+
+    PspSceneMenu_FillPanel(HUD_X - 4, HUD_Y - 3, HUD_X + 4 + 54 * GLYPH_W, HUD_Y + 3 + 7 * (GLYPH_H + 2),
                            0xB0000000);
 
-    verts = sceGuGetMemory(sizeof(MenuVertex) * 2 * 6 * (MENU_SCR_W / GLYPH_W));
+    verts = sceGuGetMemory(sizeof(MenuVertex) * 2 * 7 * (MENU_SCR_W / GLYPH_W));
     v = verts;
 
     /* Red once work no longer fits the interval: the pacer is no longer the
@@ -613,6 +612,7 @@ void PspSceneMenu_DrawHud(void) {
                            PspAudio_StatLastPeakSample() != 0 ? 0xFF80FF80 : 0xFF4040FF, line3);
     PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 4 * (GLYPH_H + 2), 0xFFFFFFFF, line4);
     PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 5 * (GLYPH_H + 2), gateVal != 0 ? 0xFF4040FF : 0xFF80FF80, line5);
+    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 6 * (GLYPH_H + 2), 0xFFFFFFFF, line6);
 
     PspSceneMenu_SubmitText(verts, v);
 }

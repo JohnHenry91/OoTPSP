@@ -6,6 +6,63 @@
 
 #include "psp_blob_assets.h"
 
+/* Blob paths in the generated registries are relative ("blobs/x.bin"), which
+ * is only meaningful against a current working directory -- and on PSP a
+ * thread created with sceKernelCreateThread starts with NO cwd of its own.
+ * The main thread has one (the loader sets it), so every load that happens to
+ * run there works, and the failure only shows up for loads issued from one of
+ * the game's own OS threads. AudioMgr is exactly that case: every soundfont,
+ * sequence and sample read came back SCE_KERNEL_ERROR_NOCWD (0x8002032C),
+ * sceIoRead was never reached, and the destination kept the audio heap's
+ * zeroes -- a "successful" load of silence, with LOAD_STATUS_PERMANENTLY_LOADED
+ * set and no error anywhere. So resolve every blob path against the game's own
+ * directory instead, captured once from argv[0] on the main thread. */
+/* Non-static so the base directory can be read straight out of memory with
+ * the PPSSPP debugger when a path question comes up again. */
+char gPspBlobBaseDir[192];
+#define sBaseDir gPspBlobBaseDir
+static char sPathBuf[256];
+
+void PspBlob_SetBaseDir(const char* argv0) {
+    size_t i, cut = 0;
+
+    if (argv0 == NULL) {
+        return;
+    }
+    for (i = 0; argv0[i] != '\0' && i < sizeof(sBaseDir) - 1; i++) {
+        if (argv0[i] == '/' || argv0[i] == '\\') {
+            cut = i + 1; /* keep the separator */
+        }
+    }
+    if (cut == 0) {
+        return; /* no directory component -- leave paths relative */
+    }
+    memcpy(sBaseDir, argv0, cut);
+    sBaseDir[cut] = '\0';
+}
+
+/* Absolute first, then the original relative path as a fallback. The fallback
+ * is not redundant: argv[0] is whatever the loader chose to hand us, and on an
+ * emulator it need not be a path the IO layer can reopen. Trying both means
+ * this change can only ever fix opens, never break ones that already worked. */
+static SceUID PspBlobOpen(const char* rel) {
+    SceUID fd;
+    size_t n;
+
+    if (sBaseDir[0] != '\0') {
+        n = strlen(sBaseDir);
+        if (n + strlen(rel) + 1 <= sizeof(sPathBuf)) {
+            memcpy(sPathBuf, sBaseDir, n);
+            strcpy(sPathBuf + n, rel);
+            fd = sceIoOpen(sPathBuf, PSP_O_RDONLY, 0777);
+            if (fd >= 0) {
+                return fd;
+            }
+        }
+    }
+    return sceIoOpen(rel, PSP_O_RDONLY, 0777);
+}
+
 unsigned int gPspBlobMagic = 0x50424C42; /* 'PBLB' */
 unsigned int gPspBlobHits;
 unsigned int gPspBlobMisses;
@@ -26,6 +83,43 @@ typedef struct {
 static const PspBlobEntry sBlobs[] = {
 #include "blobs_registry.inc"
 };
+
+/* Blobs that may be read at any offset inside them, not only whole.
+ *
+ * Every blob above is a scene or room: the engine allocates the file's exact
+ * vromEnd - vromStart and loads all of it, so an exact vromStart match is the
+ * whole lookup. Audio is different, and this is the difference that kept the
+ * game silent: OoT deliberately never loads Audiotable (the sample bank) as a
+ * unit -- its table entry's cachePolicy is CACHE_LOAD_EITHER_NOSYNC, which
+ * makes AudioLoad_TrySyncLoadSampleBank hand back the raw cart address, and
+ * every note then DMAs its own few hundred bytes out of the middle of it via
+ * AudioLoad_DmaSampleData. That is how a 4 MB sample bank fits in a 229 KB
+ * audio heap. Against an exact-match-only registry, every one of those reads
+ * missed and fell through to a raw seek past the end of the ROM file, which
+ * returns zero bytes: notes played, envelopes ran, and every sample was
+ * silence. See psp/docs/AUDIO_N64_VS_PSP.md section 3.
+ *
+ * Sizes come from the built files (Makefile.psp), so they cannot drift from
+ * what is actually shipped. */
+typedef struct {
+    uint32_t vromStart;
+    uint32_t size;
+    const char* path;
+} PspBlobRangedEntry;
+
+static const PspBlobRangedEntry sRangedBlobs[] = {
+#include "blobs_ranged_registry.inc"
+};
+
+/* Ranged blobs stay open. Unlike a scene load -- one open, one read, done --
+ * the sample bank is read several times per audio frame, once per note whose
+ * sample window has run out. Opening and closing the file each time would put
+ * a Memory Stick directory lookup in the audio thread's per-frame path, which
+ * on real hardware is far more expensive than the read itself. Opened lazily
+ * on first use and never closed; there are five of them and they live for the
+ * whole session. */
+static SceUID sRangedFds[sizeof(sRangedBlobs) / sizeof(sRangedBlobs[0])];
+static int sRangedFdsInited;
 
 /* Ranges most recently filled from a blob, so the endian-fixup passes can tell
  * "already native" data from raw .z64 data.
@@ -130,13 +224,69 @@ int PspBlob_Read(uint32_t romOffset, void* dst, size_t size) {
     }
 
     if (path == NULL) {
+        /* Not a whole-file blob -- try the ranged ones (audio; see
+         * sRangedBlobs above). Deliberately second: the exact-match loop is
+         * the common case and this one only ever runs on a miss. */
+        for (i = 0; i < sizeof(sRangedBlobs) / sizeof(sRangedBlobs[0]); i++) {
+            uint32_t start = sRangedBlobs[i].vromStart;
+
+            if (romOffset >= start && (romOffset - start) < sRangedBlobs[i].size) {
+                uint32_t offset = romOffset - start;
+
+                if ((uint64_t)offset + size > sRangedBlobs[i].size) {
+                    /* Reading off the end of the blob means the table entry
+                     * and the built file disagree -- same class of stale-blob
+                     * bug as the short read below, and worth counting rather
+                     * than silently truncating. */
+                    ++gPspBlobShortReads;
+                    break;
+                }
+
+                if (!sRangedFdsInited) {
+                    unsigned int k;
+
+                    for (k = 0; k < sizeof(sRangedFds) / sizeof(sRangedFds[0]); k++) {
+                        sRangedFds[k] = -1;
+                    }
+                    sRangedFdsInited = 1;
+                }
+                if (sRangedFds[i] < 0) {
+                    sRangedFds[i] = PspBlobOpen(sRangedBlobs[i].path);
+                }
+                fd = sRangedFds[i];
+                if (fd < 0) {
+                    ++gPspBlobOpenFails;
+                    return 0;
+                }
+                sceIoLseek(fd, (SceOff)offset, PSP_SEEK_SET);
+                got = sceIoRead(fd, dst, (SceSize)size);
+
+                if (got < 0 || (size_t)got != size) {
+                    ++gPspBlobShortReads;
+                    if (got > 0 && (size_t)got < size) {
+                        memset((char*)dst + got, 0, size - (size_t)got);
+                    }
+                }
+
+                /* No PspBlobNoteRange here, unlike the whole-file path. That
+                 * ring exists so the graphics endian fixups can recognise
+                 * native-endian scene data; audio data has no fixup pass and
+                 * these reads happen several times a frame, so registering
+                 * them would flush every real scene range out of an 8-entry
+                 * ring within a frame or two. */
+                gPspBlobLastVrom = romOffset;
+                ++gPspBlobHits;
+                return 1;
+            }
+        }
+
         ++gPspBlobMisses;
         return 0;
     }
 
     gPspBlobLastVrom = romOffset;
 
-    fd = sceIoOpen(path, PSP_O_RDONLY, 0777);
+    fd = PspBlobOpen(path);
     if (fd < 0) {
         /* Fall back to the ROM rather than leaving dst uninitialised: a missing
          * blob file should degrade to the old (buggy but known) path, not to

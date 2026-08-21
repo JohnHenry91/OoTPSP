@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "ultra64.h"
+#include "thread.h"
 
 /* One entry per libultra thread OoT actually creates (Idle, Main, Graph,
  * Sched, Audio, PadMgr, IrqMgr, DmaMgr, Fault ~= 8-9) plus headroom. */
@@ -80,13 +81,39 @@ static ThreadMapEntry* AllocEntry(OSThread* thread) {
  * more urgent. Invert onto a safe user-mode range; OoT only ever uses
  * 10-17 plus OS_PRIORITY_APPMAX(127)-ish for Fault, so this doesn't need to
  * be more than monotonic and clamped. */
+/* N64 and PSP order priorities in opposite directions: on N64 a HIGHER OSPri
+ * wins, on PSP a LOWER number wins. So the mapping has to invert -- but it
+ * also has to land the whole band ABOVE the PSP main thread, and that part was
+ * missed for a long time.
+ *
+ * PSPSDK gives `main` priority 32 (0x20). The old mapping (64 - pri) put every
+ * one of the game's threads in the 48-54 range, i.e. strictly BELOW main, and
+ * PSP scheduling is strict priority: a thread at 52 runs only when nothing at
+ * 32 or above is runnable. AudioMgr therefore only got whatever CPU the render
+ * loop happened to leave -- fine while it merely had to service one retrace
+ * message per frame, but once it became the thread that actually synthesizes
+ * audio (see AudioMgr_ThreadEntry's TARGET_PSP branch) that starvation is
+ * audible directly as choppy, dropout-ridden sound.
+ *
+ * The game's own priorities span THREAD_PRI_IDLE_INIT(10)..THREAD_PRI_DMAMGR(16)
+ * (include/thread.h), so map that band onto 31..25 -- all above main, and with
+ * N64's relative ordering preserved: DmaMgr over Main over PadMgr over
+ * AudioMgr over Graph, exactly as on hardware. Audio above the render loop is
+ * both what N64 does (AUDIOMGR 12 > GRAPH 11) and what PSP audio needs, since
+ * an audio thread spends nearly all its time asleep inside a blocking output
+ * call and only needs to be serviced promptly when it wakes. */
+#define PSP_MAIN_THREAD_PRIORITY 32
+
 static int PspPriorityFromOSPri(OSPri pri) {
-    int p = 64 - (int)pri;
-    if (p < 10) {
-        p = 10;
+    int p = (PSP_MAIN_THREAD_PRIORITY - 1) - ((int)pri - THREAD_PRI_IDLE_INIT);
+
+    /* Never reach the system's own high-priority range, and never fall back to
+     * or below main -- the whole point is that these outrank the render loop. */
+    if (p < 16) {
+        p = 16;
     }
-    if (p > 100) {
-        p = 100;
+    if (p > PSP_MAIN_THREAD_PRIORITY - 1) {
+        p = PSP_MAIN_THREAD_PRIORITY - 1;
     }
     return p;
 }

@@ -44,6 +44,12 @@
 /* Serve this transfer from a blob if one is registered for `romOffset`.
  * Returns 1 if handled (dst is filled), 0 if the caller should fall back to
  * reading the .z64. */
+/* Blob paths are relative to the game's own directory. Must be called on the
+ * main thread before anything can load, because PSP threads created later have
+ * no current working directory of their own to resolve a relative path
+ * against -- see the long comment in psp_blob_assets.c. */
+void PspBlob_SetBaseDir(const char* argv0);
+
 int PspBlob_Read(uint32_t romOffset, void* dst, size_t size);
 
 /* True if `p` points into memory most recently filled from a blob, i.e. data

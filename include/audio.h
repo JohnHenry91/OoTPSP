@@ -788,6 +788,60 @@ typedef struct AudioPreloadReq {
  * Audio commands used to transfer audio requests from the graph thread to the audio thread
  */
 typedef struct AudioCmd {
+#if TARGET_PSP
+    /* Both unions below are BYTE-ORDER DEPENDENT, and on a little-endian
+     * target the N64 field order is silently wrong -- no compile error, no
+     * crash, just an audio thread that quietly ignores every command.
+     *
+     * Half 1: AUDIO_MK_CMD (audiothread_cmd.h) packs the opcode into bits
+     * 31..24 of `opArgs`. On big-endian that byte IS offset 0, so `op` reads
+     * it. On little-endian bits 31..24 live at offset 3, so `op` reads the
+     * LOW byte instead -- always 0 for every command this game sends.
+     * AudioThread_ProcessCmds then dispatches every single command as
+     * AUDIOCMD_OP_NOOP: sequences never start, fonts never load,
+     * gAudioCtx.permanentPool stays empty forever. (Observed live exactly
+     * that way: the command ring full of well-formed commands with the
+     * opcode sitting in arg2, every load status 0, every seqPlayer
+     * disabled.) Reversing the four bytes restores the intended aliasing.
+     *
+     * Half 2: the data union is the same trap one level down.
+     * AudioThread_QueueCmdS8/U16 (thread.c) deliberately store their payload
+     * in the HIGH bits of a u32 (`data << 0x18` / `data << 0x10`), so
+     * `asSbyte`/`asUbyte`/`asUShort` must alias the high end of the word --
+     * offset 0 on big-endian, offsets 3 and 2 here. Without the padding a
+     * SET_IO command's ioData reads back as 0.
+     *
+     * Layout mirrors Ship of Harkinian's own little-endian port of this same
+     * struct (reference/shipwright-vita/soh/include/z64audio.h), which
+     * arrived at exactly this shape. */
+    /* 0x0 */ union {
+        u32 opArgs;
+        struct {
+            u8 arg2;
+            u8 arg1;
+            u8 arg0;
+            u8 op;
+        };
+    };
+    /* 0x4 */ union {
+        void* data;
+        f32 asFloat;
+        s32 asInt;
+        struct {
+            u8 pad2[2];
+            u16 asUShort;
+        };
+        struct {
+            u8 pad1[3];
+            s8 asSbyte;
+        };
+        struct {
+            u8 pad0[3];
+            u8 asUbyte;
+        };
+        u32 asUInt;
+    };
+#else
     /* 0x0 */ union{
         u32 opArgs;
         struct {
@@ -806,6 +860,7 @@ typedef struct AudioCmd {
         u8 asUbyte;
         u32 asUInt;
     };
+#endif
 } AudioCmd; // size = 0x8
 
 typedef struct AudioAsyncLoad {

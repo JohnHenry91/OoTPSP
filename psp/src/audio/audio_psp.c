@@ -28,17 +28,26 @@
 #include <pspkernel.h>
 
 #include "ultra64.h"
+#include "psp_audio_mixer.h"
 
 #define PSP_AUDIO_CHANNELS 2
 #define PSP_AUDIO_FREQUENCY 32000
 
-/* AIBUF_LEN (include/audio.h) is the real engine's own defined ceiling on
- * how many samples one AI buffer can ever hold (88 * ADPCMFSIZE = 1408) --
- * size our buffers with margin above that rather than re-deriving it here. */
-#define PSP_AUDIO_MAX_SAMPLES 2048
+/* sceAudio takes a FIXED block length, and it must be a multiple of 64.
+ * The engine's own per-tick buffer length is neither: AudioThread_UpdateImpl
+ * sizes it from the audio spec (656 frames here) and it can change from tick
+ * to tick. Feeding that straight through meant asking sceAudioOutput2ChangeLength
+ * for 656 every frame -- an unaligned length, its result never checked, and a
+ * reservation that no longer matched what was actually handed to the hardware.
+ *
+ * So buffer instead: the engine's variable-size ticks go into a ring, and the
+ * hardware is always fed whole aligned blocks. 1024 frames is 32 ms of
+ * latency at 32 kHz, small enough not to be felt and large enough that one
+ * engine tick never has to be split more than twice. */
+#define PSP_AUDIO_BLOCK_FRAMES 1024
+#define PSP_AUDIO_RING_FRAMES 8192
 
 static int sChannel = -1;
-static int sReservedSamples = 0;
 
 /* Debug counters -- see psp_audio.h. Plain globals rather than a struct so
  * the existing "read individual fields over the WebSocket debugger" workflow
@@ -47,6 +56,19 @@ static uint32_t sStatOutputCalls = 0;
 static uint32_t sStatLastNumSamples = 0;
 static int32_t sStatLastPeakSample = 0;
 static uint32_t sStatReserveFailures = 0;
+/* sceAudioOutput2OutputBlocking's result was never inspected. It is the last
+ * unverified step in the whole chain: everything upstream can be measured from
+ * memory (and has been), but whether the emulator/hardware actually ACCEPTED
+ * the block is only visible here. A negative return every call would look
+ * exactly like a working audio path from every other vantage point. */
+static uint32_t sStatOutputErrors = 0;
+static int32_t sStatLastOutputRet = 0;
+/* Times the hardware had already drained everything by the moment we came back
+ * with the next block -- i.e. it played silence in the gap. This is what
+ * "choppy" sounds like, and it is invisible from every other counter: calls,
+ * peak and realtime factor all stay healthy while it happens. */
+static uint32_t sStatUnderruns = 0;
+static uint32_t sStatMinRest = 0xFFFFFFFF;
 
 uint32_t PspAudio_StatOutputCalls(void) {
     return sStatOutputCalls;
@@ -60,15 +82,31 @@ int32_t PspAudio_StatLastPeakSample(void) {
 uint32_t PspAudio_StatReserveFailures(void) {
     return sStatReserveFailures;
 }
+uint32_t PspAudio_StatOutputErrors(void) {
+    return sStatOutputErrors;
+}
+int32_t PspAudio_StatLastOutputRet(void) {
+    return sStatLastOutputRet;
+}
+uint32_t PspAudio_StatUnderruns(void) {
+    return sStatUnderruns;
+}
+uint32_t PspAudio_StatMinRest(void) {
+    return sStatMinRest;
+}
+
+static s16 sRing[PSP_AUDIO_RING_FRAMES * PSP_AUDIO_CHANNELS];
+static u32 sRingWrite; /* frame index, wraps at PSP_AUDIO_RING_FRAMES */
+static u32 sRingFill;  /* frames currently buffered */
+static u32 sNoOutputStreak;
 
 /* PSP audio output wants aligned, uncached-safe memory; keep this static
  * rather than pointing directly at gAudioCtx.aiBuffers (real engine memory,
  * not necessarily suitably aligned/sized for direct hardware DMA). */
-static s16 sOutputBuffer[PSP_AUDIO_MAX_SAMPLES * PSP_AUDIO_CHANNELS] __attribute__((aligned(64)));
+static s16 sOutputBuffer[PSP_AUDIO_BLOCK_FRAMES * PSP_AUDIO_CHANNELS] __attribute__((aligned(64)));
 
 void PspAudio_Init(void) {
-    sChannel = sceAudioSRCChReserve(PSP_AUDIO_MAX_SAMPLES / 2, PSP_AUDIO_FREQUENCY, PSP_AUDIO_CHANNELS);
-    sReservedSamples = PSP_AUDIO_MAX_SAMPLES / 2;
+    sChannel = sceAudioSRCChReserve(PSP_AUDIO_BLOCK_FRAMES, PSP_AUDIO_FREQUENCY, PSP_AUDIO_CHANNELS);
 }
 
 /**
@@ -77,48 +115,118 @@ void PspAudio_Init(void) {
  * frame count (stereo sample pairs), matching aiBufLengths[index].
  */
 void PspAudio_Output(const s16* buf, u32 numSamples) {
+    u32 i;
+
     if (numSamples == 0) {
+        /* Nothing to queue (happens around audio-heap resets). This thread now
+         * outranks the render loop, and its ONLY blocking point is the output
+         * call below -- returning straight away here would spin at high
+         * priority and freeze the game. Yield instead. */
+        sceKernelDelayThread(1000);
         return;
     }
-    if (numSamples > PSP_AUDIO_MAX_SAMPLES) {
-        /* Should never happen (see AIBUF_LEN above) -- clamp defensively
-         * rather than overrun sOutputBuffer. */
-        numSamples = PSP_AUDIO_MAX_SAMPLES;
+    if (numSamples > PSP_AUDIO_RING_FRAMES) {
+        numSamples = PSP_AUDIO_RING_FRAMES; /* cannot happen; never overrun the ring */
     }
 
-    memcpy(sOutputBuffer, buf, numSamples * PSP_AUDIO_CHANNELS * sizeof(s16));
-    sceKernelDcacheWritebackInvalidateRange(sOutputBuffer, numSamples * PSP_AUDIO_CHANNELS * sizeof(s16));
+    /* Overwriting unplayed audio would be worse than dropping the newest tick,
+     * but neither should ever happen: the drain loop below runs until the ring
+     * is under one block, so it can only fill up if the hardware stops
+     * consuming entirely. */
+    if (sRingFill + numSamples > PSP_AUDIO_RING_FRAMES) {
+        sStatReserveFailures++;
+        return;
+    }
+
+    for (i = 0; i < numSamples; i++) {
+        sRing[sRingWrite * PSP_AUDIO_CHANNELS + 0] = buf[i * PSP_AUDIO_CHANNELS + 0];
+        sRing[sRingWrite * PSP_AUDIO_CHANNELS + 1] = buf[i * PSP_AUDIO_CHANNELS + 1];
+        sRingWrite = (sRingWrite + 1) % PSP_AUDIO_RING_FRAMES;
+    }
+    sRingFill += numSamples;
 
     if (sChannel < 0) {
-        sChannel = sceAudioSRCChReserve(numSamples, PSP_AUDIO_FREQUENCY, PSP_AUDIO_CHANNELS);
-        sReservedSamples = numSamples;
+        sChannel = sceAudioSRCChReserve(PSP_AUDIO_BLOCK_FRAMES, PSP_AUDIO_FREQUENCY, PSP_AUDIO_CHANNELS);
         if (sChannel < 0) {
             sStatReserveFailures++;
+            /* Without a channel sceAudioOutput2OutputBlocking returns instantly,
+             * and since it is this thread's only pacer (see AudioMgr_ThreadEntry's
+             * TARGET_PSP branch) returning here would spin the CPU. Yield for
+             * roughly one block instead. */
+            sceKernelDelayThread(1000 * PSP_AUDIO_BLOCK_FRAMES / (PSP_AUDIO_FREQUENCY / 1000));
+            sRingFill = 0;
+            sRingWrite = 0;
+            return;
         }
     }
-    if ((s32)numSamples != sReservedSamples) {
-        sceAudioOutput2ChangeLength(numSamples);
-        sReservedSamples = numSamples;
+
+    if (sRingFill < PSP_AUDIO_BLOCK_FRAMES) {
+        /* Same hazard as the numSamples == 0 case: a tick that queues less than
+         * one block does not reach the blocking call. Two such ticks in a row
+         * cannot happen at the engine's real buffer size, but a short buffer
+         * during a spec change could, so bound it rather than assume. */
+        sNoOutputStreak++;
+        if (sNoOutputStreak > 4) {
+            sceKernelDelayThread(1000);
+            sNoOutputStreak = 0;
+        }
+    } else {
+        sNoOutputStreak = 0;
     }
 
-    {
+    while (sRingFill >= PSP_AUDIO_BLOCK_FRAMES) {
+        u32 readPos = (sRingWrite + PSP_AUDIO_RING_FRAMES - sRingFill) % PSP_AUDIO_RING_FRAMES;
         int32_t peak = 0;
-        u32 total = numSamples * PSP_AUDIO_CHANNELS;
-        for (u32 i = 0; i < total; i++) {
-            int32_t v = sOutputBuffer[i];
-            if (v < 0) {
-                v = -v;
+
+        for (i = 0; i < PSP_AUDIO_BLOCK_FRAMES; i++) {
+            s16 l = sRing[readPos * PSP_AUDIO_CHANNELS + 0];
+            s16 r = sRing[readPos * PSP_AUDIO_CHANNELS + 1];
+            int32_t al = l < 0 ? -l : l;
+            int32_t ar = r < 0 ? -r : r;
+
+            sOutputBuffer[i * PSP_AUDIO_CHANNELS + 0] = l;
+            sOutputBuffer[i * PSP_AUDIO_CHANNELS + 1] = r;
+            if (al > peak) {
+                peak = al;
             }
-            if (v > peak) {
-                peak = v;
+            if (ar > peak) {
+                peak = ar;
+            }
+            readPos = (readPos + 1) % PSP_AUDIO_RING_FRAMES;
+        }
+        sRingFill -= PSP_AUDIO_BLOCK_FRAMES;
+
+        {
+            /* Read BEFORE handing over the next block: zero means the DAC ran
+             * dry while we were away, so there is an audible gap. */
+            int rest = sceAudioOutput2GetRestSample();
+
+            if (rest <= 0) {
+                sStatUnderruns++;
+            }
+            if (rest >= 0 && (uint32_t)rest < sStatMinRest) {
+                sStatMinRest = (uint32_t)rest;
             }
         }
+
+        sceKernelDcacheWritebackInvalidateRange(sOutputBuffer, sizeof(sOutputBuffer));
+
         sStatOutputCalls++;
-        sStatLastNumSamples = numSamples;
+        sStatLastNumSamples = PSP_AUDIO_BLOCK_FRAMES;
         sStatLastPeakSample = peak;
+
+        /* Blocks until the hardware has room -- this is the audio thread's
+         * clock, standing in for the N64's VI retrace interrupt. */
+        sStatLastOutputRet = sceAudioOutput2OutputBlocking(PSP_AUDIO_VOLUME_MAX, sOutputBuffer);
+        if (sStatLastOutputRet < 0) {
+            sStatOutputErrors++;
+        }
     }
 
-    sceAudioOutput2OutputBlocking(PSP_AUDIO_VOLUME_MAX, sOutputBuffer);
+    /* One AI buffer == one synthesis pass, and this call is the last thing
+     * that happens in it, so this is where a per-frame command count is
+     * complete. See psp_audio_mixer.h. */
+    PspAudioMixer_ResetStats();
 }
 
 /**

@@ -124,6 +124,30 @@ void AudioMgr_ThreadEntry(void* arg) {
 
     // Spin waiting for events
     for (;;) {
+#if TARGET_PSP
+        /* On N64 this queue is fed by the VI (vertical retrace) interrupt at a
+         * constant 50/60 Hz, no matter how fast or slow the game renders. This
+         * port fans retraces out from Graph_Update instead -- i.e. once per
+         * RENDERED frame -- which silently tied the audio clock to the
+         * framerate. Measured live at ~22 ticks/s while the engine sizes every
+         * buffer for ~49 (656 frames at 32 kHz): less than half the samples the
+         * DAC consumes were ever produced, so audio came out as sparse
+         * fragments no matter how correct the synthesis was.
+         *
+         * PspAudio_Output's sceAudioOutput2OutputBlocking already blocks until
+         * the hardware wants more data, which is exactly the constant-rate
+         * clock the VI interrupt provides on N64. So let it be the pacer:
+         * take any pending messages without blocking (Pre-NMI still has to be
+         * handled, and retraces are what the queue would otherwise fill up
+         * with), then always run a synthesis tick. */
+        while (osRecvMesg(&audioMgr->interruptQueue, (OSMesg*)&msg, OS_MESG_NOBLOCK) != -1) {
+            if (*msg == OS_SC_PRE_NMI_MSG) {
+                AudioMgr_HandlePreNMI(audioMgr);
+            }
+        }
+        AudioMgr_HandleRetrace(audioMgr);
+        continue;
+#endif
         osRecvMesg(&audioMgr->interruptQueue, (OSMesg*)&msg, OS_MESG_BLOCK);
 
         switch (*msg) {

@@ -155,3 +155,31 @@ void PspAudioDebug_HealStats(unsigned int* healCount, unsigned int* resetStartCo
     *healCount = sHealCount;
     *resetStartCount = sResetStartCount;
 }
+
+/* The load path, which is upstream of everything the lines above show: no
+ * matter how healthy the gate, the queue and the output backend look, a
+ * SequencePlayer with no sequence data and a font whose instruments all
+ * relocated to NULL produces exactly the same "calls climbing, peak 0"
+ * picture as a muting bug.
+ *
+ * permEntries is gAudioCtx.permanentPool.numEntries: AudioHeap_AllocPermanent
+ * bumps it once per permanently-cached sequence/soundfont, so the expected
+ * steady state for this bring-up's scope is 3 (Sequence_0 + Soundfont_0 +
+ * Soundfont_1). 0 means AudioLoad_SyncLoad was never reached at all -- look
+ * upstream at the command path, not at the tables.
+ *
+ * seqStatus0/fontStatus0 are LOAD_STATUS_* for Sequence_0/Soundfont_0 (5 =
+ * PERMANENTLY_LOADED is what cachePolicy 0 produces on success, 0 =
+ * NOT_LOADED means the load never completed).
+ *
+ * seqDataByte is the first byte of the loaded sequence 0 -- the single most
+ * direct "did real bytes actually arrive" test there is, because the failure
+ * mode this port hit twice reads as a successful load of all zeroes. */
+void PspAudioDebug_LoadInfo(int* permEntries, int* seqStatus0, int* fontStatus0, int* seqDataByte) {
+    SequencePlayer* sfxPlayer = &gAudioCtx.seqPlayers[SEQ_PLAYER_SFX];
+
+    *permEntries = gAudioCtx.permanentPool.numEntries;
+    *seqStatus0 = gAudioCtx.seqLoadStatus[0];
+    *fontStatus0 = gAudioCtx.fontLoadStatus[0];
+    *seqDataByte = (sfxPlayer->seqData != NULL) ? sfxPlayer->seqData[0] : -1;
+}
