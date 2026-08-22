@@ -46,6 +46,17 @@ DIR="$1"; NAME="$2"; OUT="$3"; NROOMS="$4"
 CC=${CC:-psp-gcc}
 LD=${LD:-psp-ld}
 OBJCOPY=${OBJCOPY:-psp-objcopy}
+# Both awk blocks below use strtonum()/and(), GNU extensions that plain POSIX
+# awk does not have -- and on Debian/Ubuntu, /usr/bin/awk is mawk by default,
+# NOT gawk, so calling it "awk" fails cryptically ("function strtonum never
+# defined") on exactly the distros this port is otherwise best supported on.
+AWK=${AWK:-gawk}
+command -v "$AWK" >/dev/null 2>&1 || {
+    echo "make_scene_blob.sh: '$AWK' not found -- this script needs GNU awk" \
+         "(strtonum/and are GNU extensions). Install it (e.g. 'sudo apt install" \
+         "gawk') or set AWK=/path/to/gawk." >&2
+    exit 1
+}
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 
 # Must match Makefile.psp's CFLAGS, plus one addition:
@@ -107,7 +118,7 @@ INCS="-I$JFIF_SHADOW $INCS"
 # cancel the PRX loader's unconditional rebase (see the comment at the top of
 # that file). Here we want the plain ROM offsets, so add the base back.
 defsyms() {
-    awk -v base=$((0x08804000)) -v name="$NAME" '
+    $AWK -v base=$((0x08804000)) -v name="$NAME" '
         match($0, /_[A-Za-z0-9_]+SegmentRom(Start|End)/) {
             sym = substr($0, RSTART, RLENGTH)
             if (index(sym, "_" name "_room_") != 1 && index(sym, "_" name "Segment") != 1) next
@@ -174,7 +185,7 @@ done
 # contains literal backslash-n escapes, so anything cleverer than the assignment
 # text is fragile.
 vrom_of() {
-    awk -v base=$((0x08804000)) -v sym="$1" '
+    $AWK -v base=$((0x08804000)) -v sym="$1" '
         {
             k = index($0, sym " = ")
             if (k > 0) {

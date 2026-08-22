@@ -39,6 +39,7 @@ This repo mixes three kinds of code — here's what's what:
 | Path | What it is |
 |---|---|
 | `psp/` | **This port's own code.** PSP main loop, libultra/libu64 shim, the F3DEX2-to-sceGu graphics backend, and the build tools under `psp/tools/` (scene blob packer, texture converters, ...). Everything new lives here. |
+| `install.sh` | One-shot installer: checks the system, installs the toolchains, extracts the assets from your ROM and builds a copy-to-your-memory-stick folder. See [Building](#building). |
 | `Makefile.psp` | This port's build entry point, kept deliberately separate from the decomp's own `Makefile` (see the comment at its top for why). |
 | `src/`, `include/`, `assets/`, `data/`, `spec/` | The **zeldaret/oot decompilation** — reverse-engineered N64 source, unmodified except for the narrow `#if TARGET_PSP` hooks the port needs. |
 | `baseroms/` | Only ROM **metadata** (checksums, segment layout) per supported game version — never the ROM itself. |
@@ -48,14 +49,55 @@ This repo mixes three kinds of code — here's what's what:
 
 ## Building
 
-Requires:
+### The easy way
 
-- The [PSPSDK](https://github.com/pspdev/pspdev) toolchain (`psp-config` must be on
-  `PATH`).
-- The standard build dependencies for the underlying decomp (see [the decomp's own
-  build guide](docs/decompiling_tutorial.md) if you need the N64 toolchain too — the
-  PSP build does not need it, only PSPSDK).
-- Your own PAL 1.0 OoT ROM.
+There is a single script that does everything: it checks your system, installs the
+toolchains, clones this repository, extracts the assets from your ROM and leaves you a
+folder to copy onto your memory stick.
+
+Download it, put your own ROM in the same folder, and run it:
+
+```sh
+curl -fLO https://raw.githubusercontent.com/JohnHenry91/OoTPSP/main/install.sh
+chmod +x install.sh
+./install.sh
+```
+
+It asks before it installs anything, and explains what each package is for. Expect it to
+take half an hour or so: the PSP toolchain alone is a ~300 MB download, and pulling the
+assets out of the ROM is genuinely slow.
+
+When it finishes you get a `psp-ready/` folder. Copy the `PSP` folder from inside it onto
+the root of your memory stick, let it merge with the one already there, and start
+*OoT PSP* from the PSP's Game menu. It runs in [PPSSPP](https://www.ppsspp.org/) too —
+just open the `EBOOT.PBP`.
+
+**Requirements**
+
+- A 64-bit Linux system. The package installer knows apt, dnf, pacman and zypper, so
+  Debian/Ubuntu/Mint, Fedora/RHEL, Arch/Manjaro and openSUSE are all handled. On other
+  distributions it tells you what to install and stops rather than guessing. Windows
+  works through WSL2 (which is just Ubuntu as far as the script is concerned). macOS is
+  not supported by the script — use the manual route below.
+- Your own legally obtained cartridge dump, **PAL version 1.0** specifically. Other
+  regions and revisions lay their data out differently and will not work. `.z64`, `.n64`
+  and `.v64` are all accepted; byte-swapped dumps get converted automatically, and the
+  result is checked against a known MD5 before anything else happens.
+
+Nothing is downloaded except open-source toolchains and this repository. Your ROM stays
+on your machine, and so does everything built from it.
+
+Useful flags: `--yes` for an unattended run, `--rom PATH` to point straight at a ROM,
+`-j N` to pick the number of build jobs, `--help` for the rest.
+
+### The manual way
+
+If you would rather drive it yourself, or you are on macOS:
+
+Requires the [PSPSDK](https://github.com/pspdev/pspdev) toolchain (`psp-config` on
+`PATH`), a MIPS binutils for the audio assets (`binutils-mips-linux-gnu` or similar —
+no N64 C compiler is needed, this port never builds the N64 ROM), the decomp's usual
+Python tooling, and your own PAL 1.0 ROM.
 
 ```sh
 # 1. Place your ROM at baseroms/pal-1.0/baserom.z64, then extract assets
@@ -67,7 +109,8 @@ make -f Makefile.psp -j8
 ```
 
 This produces `EBOOT.PBP` plus a `blobs/` directory that must sit next to it on the PSP
-(or in PPSSPP's game folder). Both are gitignored — do not commit build output.
+(or in PPSSPP's game folder), along with the decompressed ROM as `oot-pal-1.0.z64`. All
+of it is gitignored — do not commit build output.
 
 ## Credits
 
