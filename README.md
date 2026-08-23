@@ -92,19 +92,100 @@ Useful flags: `--yes` for an unattended run, `--rom PATH` to point straight at a
 
 ### The manual way
 
-If you would rather drive it yourself, or you are on macOS:
+If you would rather drive it yourself, or you are on macOS, here is everything
+`install.sh` does, spelled out.
 
-Requires the [PSPSDK](https://github.com/pspdev/pspdev) toolchain (`psp-config` on
-`PATH`), a MIPS binutils for the audio assets (`binutils-mips-linux-gnu` or similar —
-no N64 C compiler is needed, this port never builds the N64 ROM), the decomp's usual
-Python tooling, and your own PAL 1.0 ROM.
+**1. System packages**
+
+These build the host-side tools (asset extraction, blob packing, ROM
+verification). Package names vary a bit by distro; the ones below are for
+Debian/Ubuntu (`apt`), with Fedora (`dnf`), Arch (`pacman`) and openSUSE
+(`zypper`) equivalents in brackets.
+
+| Tool | apt package | dnf | pacman | zypper | What it's for |
+|---|---|---|---|---|---|
+| `git` | `git` | `git` | `git` | `git` | cloning the repo |
+| `make` | `make` | `make` | `make` | `make` | driving the build |
+| `gcc` | `build-essential` | `gcc` | `base-devel` | `gcc` | building host-side asset tools |
+| `python3` | `python3` | `python3` | `python` | `python3` | asset extraction |
+| `curl` | `curl` | `curl` | `curl` | `curl` | fetching the PSP toolchain |
+| `tar` | `tar` | `tar` | `tar` | `tar` | unpacking the PSP toolchain |
+| `md5sum` | `coreutils` | `coreutils` | `coreutils` | `coreutils` | verifying your ROM |
+| `xml2-config` | `libxml2-dev` | `libxml2-devel` | `libxml2` | `libxml2-devel` | audio asset tools |
+| `gawk` | `gawk` | `gawk` | `gawk` | `gawk` | packing scene blobs (needs **GNU** awk, not `mawk`/POSIX awk) |
+| `venv` module | `python3-venv` | *(bundled)* | *(bundled)* | *(bundled)* | isolated Python environment |
+| PIL/Pillow | `python3-pil` | `python3-pillow` | `python-pillow` | `python3-Pillow` | texture and font conversion |
+| DejaVu Sans Mono | `fonts-dejavu-core` | `dejavu-sans-mono-fonts` | `ttf-dejavu` | `dejavu-fonts` | on-screen debug font |
 
 ```sh
-# 1. Place your ROM at baseroms/pal-1.0/baserom.z64, then extract assets
-#    (standard zeldaret/oot step, only needs to run once):
+# Debian / Ubuntu / Mint:
+sudo apt install git make build-essential python3 python3-venv python3-pil \
+    curl tar coreutils libxml2-dev gawk fonts-dejavu-core
+
+# Fedora / RHEL:
+sudo dnf install git make gcc python3 python3-pillow curl tar coreutils \
+    libxml2-devel gawk dejavu-sans-mono-fonts
+
+# Arch / Manjaro:
+sudo pacman -S --needed git make base-devel python python-pillow curl tar \
+    coreutils libxml2 gawk ttf-dejavu
+```
+
+**2. MIPS binutils** — needed to link the audio assets (this port never
+compiles a full N64 ROM, so no N64 C compiler is required, just the linker/
+objcopy from a MIPS binutils):
+
+```sh
+sudo apt install binutils-mips-linux-gnu     # Debian / Ubuntu
+sudo dnf install binutils-mips64-linux-gnu   # Fedora / RHEL
+```
+Arch/openSUSE don't package this; build it yourself or grab it from the
+[decomp's own toolchain guide](docs/decompiling_tutorial.md).
+
+**3. PSPSDK (pspdev)** — the actual PSP cross-compiler toolchain. `psp-config`
+must end up on `PATH`. The easiest route is a prebuilt release, no building
+from source required:
+
+- Releases: https://github.com/pspdev/pspdev/releases (grab the
+  `pspdev-ubuntu-latest-x86_64.tar.gz` asset, or the `-debian-`/`-fedora-`/
+  `-arm64` variant that matches your system)
+- Unpack it anywhere, e.g. `~/pspdev`, then add it to your `PATH`:
+  ```sh
+  curl -fLO https://github.com/pspdev/pspdev/releases/latest/download/pspdev-ubuntu-latest-x86_64.tar.gz
+  tar -xzf pspdev-ubuntu-latest-x86_64.tar.gz -C ~
+  export PSPDEV="$HOME/pspdev"
+  export PATH="$PSPDEV/bin:$PATH"   # add this line to your shell rc file too
+  ```
+- On macOS, install it via Homebrew (`brew install pspdev/tap/pspdev` — see
+  [pspdev/pspdev](https://github.com/pspdev/pspdev) for the current tap name)
+  or build it from source per that repo's instructions.
+- Verify with `psp-config --pspsdk-path` — it should print a path, not an
+  error.
+
+**4. Python packages** — the decomp's asset/build tooling, installed into a
+venv so it doesn't touch your system Python:
+
+```sh
+python3 -m venv .venv
+./.venv/bin/pip install --upgrade pip
+./.venv/bin/pip install -r requirements.txt
+```
+[`requirements.txt`](requirements.txt) pulls in `crunch64`, `ipl3checksum`,
+`pyyaml`, `pygfxd`, `mapfile-parser`, `pyelftools`, `rabbitizer`,
+`spimdisasm` and a handful of asm-differ/decomp-permuter helpers.
+
+**5. Your own ROM** — a legally obtained cartridge dump, **PAL version 1.0**
+specifically (other regions/revisions lay out their data differently and will
+not work). `.z64`, `.n64` and `.v64` are all fine.
+
+**6. Build**
+
+```sh
+# Place your ROM at baseroms/pal-1.0/baserom.z64, then extract assets
+# (standard zeldaret/oot step, only needs to run once):
 make setup VERSION=pal-1.0
 
-# 2. Build the PSP target:
+# Build the PSP target:
 make -f Makefile.psp -j8
 ```
 
