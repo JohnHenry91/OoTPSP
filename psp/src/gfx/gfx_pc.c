@@ -67,6 +67,10 @@
 #define GU_PSM_T32		(7) /* Texture */
 extern void* getStaticVramTexBuffer(unsigned int width, unsigned int height, unsigned int psm);
 extern void gfx_scegu_draw_triangles_2d(float buf_vbo[], size_t buf_vbo_len, size_t buf_vbo_num_tris);
+/* gfx_scegu.c -- toggle the GU_BLEND fixed-factor overlay used to draw the
+ * terrain LERP's second pass (see gPspLerp2SecondPass in gfx_sp_tri1). */
+extern void gfx_scegu_lerp2_blend_begin(uint8_t mix);
+extern void gfx_scegu_lerp2_blend_end(void);
 extern float identity_matrix[4][4];
 
 struct RGBA {
@@ -237,6 +241,18 @@ static struct RDP {
      * folding it in there would change every shader_id in the port. See
      * gfx_dp_set_combine_cycle2_tint. */
     uint8_t combine_cyc2_tint;
+    /* Cycle 1's RGB 'c' operand, kept RAW rather than as a CC_* code.
+     *
+     * color_comb_component() folds G_CCMUX_ENV_ALPHA onto CC_ENV and
+     * G_CCMUX_PRIMITIVE_ALPHA onto CC_PRIM, because CC_* has no way to say
+     * "the alpha channel of this register as a scalar". That approximation is
+     * fine for picking a shader, but not for the two-texture terrain LERP,
+     * whose mix factor IS that scalar: reading the parent register's RGB
+     * instead silently substitutes OoT's environment TINT, which moves with
+     * the scene lighting, for a blend fraction that does not. */
+    uint8_t combine_c0_raw;
+    /* Low byte of G_SETPRIMCOLOR: the other legal mix source for that LERP. */
+    uint8_t prim_lod_frac;
     
     struct RGBA env_color, prim_color, fog_color, fill_color;
     struct XYWidthHeight viewport, scissor;
@@ -265,6 +281,8 @@ static struct RenderingState {
 void gfx_scegu_set_two_texture_tint(int has_tint);
 /* gfx_scegu.c -- forget which texture each tile has bound. */
 void gfx_scegu_invalidate_texture_binding(void);
+/* Last texture id gfx_scegu_select_texture actually handed to the GE. */
+extern uint32_t gPspCurBoundTex;
 
 /* Exposed to gfx_scegu.c's N64-logo-cube 2-pass hack: it needs to toggle
  * GU_BLEND directly for one extra pass, and must restore it to whatever
@@ -289,6 +307,22 @@ typedef struct psp_fast_t {
   float x,y,z;
 } psp_fast_t;
 static psp_fast_t buf_vbo[MAX_BUFFERED  * 3] __attribute__ ((aligned (32))); // 3 vertices in a triangle and 26 floats per vtx
+
+/* Two-texture terrain LERP, (TEXEL1 - TEXEL0) * ENV + TEXEL0. This single-TMU
+ * pipeline can only bind one texture at a time, and the rule elsewhere keeps
+ * TEXEL0, i.e. always the blurry half; that is the measured cause of "the
+ * ground is soft while the walls are crisp" (walls are single-texture
+ * materials).
+ *
+ * Rather than reconstruct a second vertex stream and draw call by hand (that
+ * attempt ran but painted the wrong thing -- see gPspLerp2SecondPass usages
+ * below for why), the qualifying triangle is sent a SECOND time through this
+ * same function, with the TEXEL0/TEXEL1 preference flipped so the normal draw
+ * path binds TEXEL1 and computes tile 1's UVs -- exactly what the proven
+ * "Prefer TEXEL1" diagnostic already does, just scoped to one triangle instead
+ * of the whole frame. GU_BLEND with fixed ENV/(1-ENV) factors turns that
+ * second, ordinary draw into the LERP against the first pass already in the
+ * framebuffer. */
 #else
 static float buf_vbo[MAX_BUFFERED * (26 * 3)] // 3 vertices in a triangle and 26 floats per vtx
 #endif
@@ -958,6 +992,121 @@ int gDebugFogCombinerBit = 1;
 uint32_t gPspSkyTri[4];
 float gPspSkyMtx[4][4];
 uint32_t gPspSkyTriMark;
+
+/* Biggest-textured-triangle probe -- see the note at the capture site in
+ * gfx_sp_tri1. Answers "how is the ground's texture actually being mapped",
+ * which no screenshot can: tile size, the tile rect it was cut from, the
+ * shift/clamp modes, and the raw S10.5 vertex texture coordinates.
+ *
+ * Reset once per frame by gfx_start_frame so the numbers describe the frame on
+ * screen rather than the largest triangle ever drawn. */
+float gPspBigTriArea2;
+/* Last frame's winning area, kept so the highlight can recognise the same
+ * triangle on the way past: the winner is only known once the frame is over,
+ * which is too late to colour it. Geometry is near-identical frame to frame, so
+ * matching against the previous frame's maximum picks out the same surface. */
+float gPspBigTriArea2Prev;
+
+/* Why the terrain second pass is or is not happening. Two counters, because
+ * "the ground still looks soft" has two quite different causes and guessing
+ * between them is what has been expensive:
+ *   detected == 0         -> the combine match never fires; the operand test
+ *                            in gfx_sp_tri1 is wrong about this material
+ *   detected > 0, draws == 0 (or draws << detected) -> it fires but the
+ *                            actual overlay draw is being skipped/culled
+ *   draws > 0              -> the pass runs and the fault is in what it draws
+ *                            (blend factors, texture, coordinates)
+ * Cumulative rather than per-frame so one debugger read answers the question. */
+uint32_t gPspLerp2Detected;
+uint32_t gPspLerp2Draws;
+/* The mix factor most recently used, and which RDP operand it came from --
+ * the pair that says whether the right source is being read. */
+uint32_t gPspLerp2LastMix;
+uint32_t gPspLerp2LastMixSrc;
+
+int gPspGfxHackHighlightBigTri;
+/* Defined in gfx_scegu.c; read here to pick which tile the single UV set
+ * describes, and to force it for the terrain LERP's second pass. */
+extern int gPspGfxHackPreferTexel1;
+extern int gPspGfxLerp2Enable;
+/* Set for the duration of the recursive gfx_sp_tri1 call that draws the
+ * terrain LERP's second pass. Read by gfx_scegu_select_texture (same effect
+ * as gPspGfxHackPreferTexel1, scoped to one triangle) and by the uv_tile
+ * choice below, and doubles as the reentrancy guard that stops the second
+ * pass from detecting itself as another LERP and recursing forever. */
+int gPspLerp2SecondPass;
+uint32_t gPspBigTriTexW, gPspBigTriTexH;
+uint32_t gPspBigTriTex01, gPspBigTriCcId;
+
+/* Enough to fetch the probed triangle's texture out of the running game and
+ * look at it off-device. A screenshot can say "this looks too soft"; only the
+ * bytes can say whether the texture CONTENT is what the ROM holds, which is
+ * the question left once the coordinate mapping has been shown correct. */
+const uint8_t *gPspBigTriTexAddr;
+uint32_t gPspBigTriTexFmt, gPspBigTriTexSiz;
+uint32_t gPspBigTriTexLine, gPspBigTriTexBytes;
+const uint8_t *gPspBigTriPalAddr;
+uint32_t gPspBigTriUls, gPspBigTriUlt, gPspBigTriLrs, gPspBigTriLrt;
+uint32_t gPspBigTriShiftS, gPspBigTriShiftT;
+uint32_t gPspBigTriCms, gPspBigTriCmt;
+
+/* A probe reserved for triangles the terrain second pass ACTUALLY draws.
+ *
+ * The general biggest-triangle probe ranks by area alone, so it keeps landing
+ * on whatever single-texture surface happens to be largest -- it reported
+ * tex01 = 1 while the question was entirely about two-texture materials, which
+ * made every number it produced beside the point. This one only ever considers
+ * triangles that matched the LERP, so its numbers describe the thing being
+ * debugged by construction.
+ *
+ * Records BOTH tiles, because the failure being chased is a disagreement
+ * between them: tile 0 measured a plausible 32x32 while tile 1 came out
+ * 16x256, i.e. 8192 bytes -- larger than a TMEM slot can hold, so
+ * LOADED_TEX(1) was carrying leftovers from an earlier material rather than
+ * this one's detail texture. */
+float gPspL2Area2;
+uint32_t gPspL2TexW0, gPspL2TexH0, gPspL2TexW1, gPspL2TexH1;
+uint32_t gPspL2Line0, gPspL2Bytes0, gPspL2Line1, gPspL2Bytes1;
+uint32_t gPspL2Cms0, gPspL2Cmt0, gPspL2Cms1, gPspL2Cmt1;
+uint32_t gPspL2Shifts0, gPspL2Shiftt0, gPspL2Shifts1, gPspL2Shiftt1;
+uint32_t gPspL2Slot0, gPspL2Slot1;
+uint32_t gPspL2CcId;
+const uint8_t *gPspL2Addr0;
+const uint8_t *gPspL2Addr1;
+/* Same address in both slots means the two tiles are reading one image and the
+ * detail must come purely from differing tile parameters; different addresses
+ * mean there really are two textures and the bind has to pick correctly. */
+uint32_t gPspL2SameAddr;
+/* Counts LERP triangles whose tile 1 record is impossible (over a TMEM slot,
+ * or zero). Non-zero is the smoking gun for stale LOADED_TEX(1). */
+uint32_t gPspL2BadTile1;
+
+/* What each of the two passes ACTUALLY put in the vertex buffer, and which
+ * texture was bound while it did. Indexed [0] = first pass, [1] = second.
+ *
+ * Everything upstream now measures clean -- both tiles hold sane 32x32 records
+ * at distinct addresses, tile 1 carries shift 14 (a LEFT shift by 2, i.e. four
+ * times the repeat rate) and tex_shift_coord handles that range correctly. So
+ * the remaining question is no longer what the RDP asked for but whether the
+ * second pass carries it through, and that can only be answered where the
+ * numbers are written rather than by reading the code that ought to write
+ * them. If pass 1 and pass 2 come out with the same UVs, uv_tile never took
+ * effect; if the UVs differ but the bound texture id does not, the bind is
+ * what is failing. */
+float gPspL2UvU[2], gPspL2UvV[2];
+uint32_t gPspL2UvW[2], gPspL2UvH[2];
+uint32_t gPspL2UvTile[2], gPspL2UvShift[2];
+uint32_t gPspL2DrawTex[2];
+
+/* The same four numbers for TILE 1, which is the half the terrain second pass
+ * actually draws. Tile 0's values alone cannot answer the question the second
+ * pass raises: whether the detail tile is set up to REPEAT across the surface
+ * (which is what makes it read as detail) or to CLAMP like the colour map
+ * (which would stretch a single band and look like no second pass at all). */
+uint32_t gPspBigTriCms1, gPspBigTriCmt1;
+uint32_t gPspBigTriShiftS1, gPspBigTriShiftT1;
+uint32_t gPspBigTriTexW1, gPspBigTriTexH1;
+int32_t gPspBigTriU0, gPspBigTriV0, gPspBigTriU1, gPspBigTriV1, gPspBigTriU2, gPspBigTriV2;
 
 /* Session 16: what the renderer ACTUALLY computes for the skybox's vertices.
  * Everything upstream measures clean -- modelview is a pure translation, the
@@ -2279,6 +2428,91 @@ static inline bool psp_depth_test_enabled(void) {
     return gDebugZCmpMode ? (zbuf && zcmp) : zbuf;
 }
 
+/* Dimensions of the texture a tile actually had UPLOADED, which is what its
+ * texture coordinates must be normalised by. Derived from the load's line size
+ * and byte count -- the same arithmetic every import_texture_* uses to decide
+ * what it hands the GE, so the two cannot disagree.
+ *
+ * Deliberately NOT the tile rectangle ((lrs - uls + 4) / 4): those are the same
+ * number only when the tile covers the whole loaded image, and dividing by the
+ * rectangle scaled every coordinate by their ratio. Ship of Harkinian's Fast3D
+ * keeps both and uses the tile rectangle solely to decide whether G_TX_CLAMP
+ * needs emulating; this port inherited sm64-port's conflation of the two. */
+static void gfx_tile_dimensions(int tile, uint32_t *out_w, uint32_t *out_h) {
+    uint32_t line_size = rdp.texture_tile[tile].line_size_bytes;
+    uint32_t height;
+
+    if (line_size == 0) {
+        line_size = 1;
+    }
+    height = LOADED_TEX(tile).size_bytes / line_size;
+
+    switch (rdp.texture_tile[tile].siz) {
+        case G_IM_SIZ_4b:
+            line_size <<= 1; /* two texels per byte */
+            break;
+        case G_IM_SIZ_8b:
+            break;
+        case G_IM_SIZ_16b:
+            line_size /= 2;
+            break;
+        case G_IM_SIZ_32b:
+            line_size /= 2;
+            height /= 2;
+            break;
+    }
+
+    /* Never hand a zero to the callers' divisions. */
+    *out_w = (line_size != 0) ? line_size : 1;
+    *out_h = (height != 0) ? height : 1;
+}
+
+#if TARGET_PSP
+/* Put the texture pipeline into the state the terrain LERP's next pass needs,
+ * by ASSERTING it outright rather than by nudging the change-detection that
+ * normally maintains it.
+ *
+ * Called on both edges of the second pass: entering, tile 1 must win the
+ * single-TMU bind; leaving, tile 0 must win it again. Neither transition is
+ * something the ordinary paths can notice, and all three of them are
+ * event-driven:
+ *
+ *   - the import loop only rebinds when rdp.textures_changed[i] is set, and a
+ *     repeat of the same triangle changes nothing;
+ *   - gfx_scegu_select_texture only rebinds when tmu_state[tile].tex differs,
+ *     so from the SECOND lerp triangle onward it short-circuits and the GE
+ *     keeps the previous pass's sampler modes;
+ *   - the loop only re-applies filter/clamp when they differ from what the
+ *     cached texture node claims, and here they never do.
+ *
+ * The middle one is what made the second pass invisible: with tile 0's
+ * CLAMP/CLAMP left in the GE, the detail tile -- which has to repeat several
+ * times across the surface -- came out as a single stretched band, i.e. no
+ * detail. This is the same trap the two earlier attempts fell into: never take
+ * the state a render pass depends on from a path that only runs on a change. */
+static void gfx_lerp2_assert_texture_state(void) {
+    const int tile = gPspLerp2SecondPass ? 1 : 0;
+    const bool linear_filter = (rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT;
+
+    rdp.textures_changed[0] = true;
+    rdp.textures_changed[1] = true;
+    /* Force the bind itself to happen: without this, select_texture's own
+     * "same id, nothing to do" test skips it and the wrong tile stays bound. */
+    gfx_scegu_invalidate_texture_binding();
+
+    gfx_rapi->set_sampler_parameters(tile, linear_filter,
+                                     rdp.texture_tile[tile].cms,
+                                     rdp.texture_tile[tile].cmt);
+    /* Keep gfx_pc's per-texture belief in step with what was just written to
+     * the GE, so it does not later skip a re-apply it actually owes. */
+    if (rendering_state.textures[tile] != NULL) {
+        rendering_state.textures[tile]->linear_filter = linear_filter;
+        rendering_state.textures[tile]->cms = rdp.texture_tile[tile].cms;
+        rendering_state.textures[tile]->cmt = rdp.texture_tile[tile].cmt;
+    }
+}
+#endif
+
 static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
 #if TARGET_PSP
     if (gPspSkyTriMark) {
@@ -2514,8 +2748,118 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     
     bool use_texture = used_textures[0] || used_textures[1];
     if (use_texture) { GFXSTAT_INC(tex_used); } else { GFXSTAT_INC(tex_unused); }
-    uint32_t tex_width = (rdp.texture_tile[0].lrs - rdp.texture_tile[0].uls + 4) / 4;
-    uint32_t tex_height = (rdp.texture_tile[0].lrt - rdp.texture_tile[0].ult + 4) / 4;
+
+    /* Texture coordinates are normalised by the size of the texture that was
+     * actually UPLOADED, which is derived from the load's line size and byte
+     * count -- exactly the same arithmetic every import_texture_* above uses to
+     * decide the dimensions it hands the GE.
+     *
+     * This used to divide by the TILE RECTANGLE instead
+     * ((lrs - uls + 4) / 4). Those two are the same number only when the tile
+     * covers the whole loaded image; when they differ, every texture
+     * coordinate is scaled by their ratio and the material comes out stretched
+     * or squashed. Ship of Harkinian's Fast3D (reference/shipwright-vita,
+     * gfx_pc.cpp ~1400) keeps both quantities and is explicit about the split:
+     * the loaded size normalises the coordinates, while the tile rectangle is
+     * used ONLY to decide whether G_TX_CLAMP has to be emulated. Our copy comes
+     * from sm64-port, where SM64's own materials happen to make the two agree
+     * often enough for the difference never to have shown up.
+     *
+     * NOTE the 2D path (gfx_sp_tri1_2d) still measures the tile rectangle. It
+     * is left alone deliberately: texture rectangles address texels within the
+     * tile directly, and that path is currently correct for the HUD and the
+     * pre-rendered backgrounds. */
+    /* Which tile's mapping the single set of vertex texture coordinates
+     * describes. Zero except under the prefer-TEXEL1 diagnostic or the terrain
+     * LERP's own second pass (gPspLerp2SecondPass, set just below this
+     * function's own vertex loop) -- both force tile 1, and for the same
+     * reason: binding tile 1's TEXELS while still measuring tile 0's TILE made
+     * an earlier experiment meaningless, since it drew TEXEL1's content at
+     * TEXEL0's scale and the very thing being tested could not show up.
+     *
+     * That single UV set is also why this port cannot draw both halves of a
+     * two-texture material in ONE draw call: the two tiles have independent
+     * origins, scales and clamp modes. Sending the triangle through twice,
+     * once per tile, sidesteps that instead of growing a second UV pair. */
+    const int uv_tile = ((gPspGfxHackPreferTexel1 || gPspLerp2SecondPass) &&
+                          used_textures[0] && used_textures[1]) ? 1 : 0;
+
+    /* Is this the terrain LERP, (TEXEL1 - TEXEL0) * factor + TEXEL0? Matched on
+     * the combine's own operands rather than on a shader id, so it covers every
+     * material built this way rather than one scene's.
+     *
+     * Only ENV and PRIM are accepted as the factor: both are constant across the
+     * draw, which is what lets the second pass express the mix with fixed GU
+     * blend factors. A per-vertex factor would need per-vertex alpha instead and
+     * is left for when a material that uses one actually turns up.
+     *
+     * Skipped entirely while gPspLerp2SecondPass is set: that is THIS triangle,
+     * on its way through a second time under the tile-1 override, and the
+     * combine id is unchanged, so without this guard it would qualify again and
+     * recurse forever. */
+    bool lerp2 = false;
+    uint8_t lerp2_mix = 0;
+    if (!gPspLerp2SecondPass && used_textures[0] && used_textures[1] && gPspGfxLerp2Enable) {
+        const uint8_t a = (cc_id >> 0) & 7;
+        const uint8_t b = (cc_id >> 3) & 7;
+        const uint8_t d = (cc_id >> 9) & 7;
+
+        if (a == CC_TEXEL1 && b == CC_TEXEL0 && d == CC_TEXEL0) {
+            /* The mix factor comes from the RAW operand, not from cc_id.
+             *
+             * This used to test cc_id's c field for CC_ENV/CC_PRIM and then
+             * use that register's RGB. But color_comb_component() maps BOTH
+             * G_CCMUX_ENVIRONMENT and G_CCMUX_ENV_ALPHA onto CC_ENV, and OoT's
+             * ground combine is the ENV_ALPHA one -- so the blend fraction was
+             * being taken from env_color.rgb, which is the scene's environment
+             * TINT. That tint tracks the lighting, so the detail layer faded in
+             * and out with where the player stood: bright spots happened to sit
+             * near 128 and looked right, shaded spots drove the mix toward zero
+             * and the ground went flat. The alpha channel, which is what the
+             * RDP actually multiplies by here, does not move with lighting.
+             *
+             * Ship of Harkinian's PSP-side counterpart (reference/oot-psp-z2442,
+             * gfx_fast3d.c:5062) accepts exactly G_CCMUX_ENV_ALPHA and
+             * G_CCMUX_PRIM_LOD_FRAC for this shape and feeds rdp.env_color.a or
+             * the LOD fraction. */
+            bool have_mix = true;
+
+            switch (rdp.combine_c0_raw) {
+                case G_CCMUX_ENV_ALPHA:
+                    lerp2_mix = rdp.env_color.a;
+                    break;
+                case G_CCMUX_PRIM_LOD_FRAC:
+                    lerp2_mix = rdp.prim_lod_frac;
+                    break;
+                case G_CCMUX_PRIMITIVE_ALPHA:
+                    lerp2_mix = rdp.prim_color.a;
+                    break;
+                /* Genuine RGB operands stay on the old reading: the factor is a
+                 * colour, and with one scalar to spend the luminance-free green
+                 * channel is the closest single number to it. */
+                case G_CCMUX_ENVIRONMENT:
+                    lerp2_mix = rdp.env_color.g;
+                    break;
+                case G_CCMUX_PRIMITIVE:
+                    lerp2_mix = rdp.prim_color.g;
+                    break;
+                default:
+                    have_mix = false;
+                    break;
+            }
+
+            if (have_mix) {
+                lerp2 = true;
+                gPspLerp2Detected++;
+                gPspLerp2LastMix = lerp2_mix;
+                gPspLerp2LastMixSrc = rdp.combine_c0_raw;
+            }
+        }
+    }
+
+    uint32_t tex_width;
+    uint32_t tex_height;
+    gfx_tile_dimensions(uv_tile, &tex_width, &tex_height);
 
     /* A mirrored axis was uploaded as [image | reflection], so one tile now
      * spans half the texture. See upload_texture_mirrored. */
@@ -2527,6 +2871,124 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             tex_height *= 2;
         }
     }
+
+#if TARGET_PSP
+    /* Biggest-triangle probe. The outdoor ground is reliably the largest
+     * textured surface in a scene by a wide margin, so "the triangle with the
+     * greatest area this frame" is a dependable handle on it without needing
+     * any way to point at a specific draw.
+     *
+     * Area is computed from the vertex positions as they are here, which on
+     * this port is object space (the GE transforms at draw time -- see
+     * mtx_slot_at_load). That is fine for ranking: room geometry shares one
+     * matrix, so relative sizes within a room are meaningful even though the
+     * absolute number is not in world units. Cross product magnitude squared,
+     * to keep a sqrt out of the per-triangle path. */
+    bool psp_is_probe_tri = false;
+    bool psp_l2_capture = false;
+    if (use_texture) {
+        const float ax = v2->x - v1->x, ay = v2->y - v1->y, az = v2->z - v1->z;
+        const float bx = v3->x - v1->x, by = v3->y - v1->y, bz = v3->z - v1->z;
+        const float cx = ay * bz - az * by;
+        const float cy = az * bx - ax * bz;
+        const float cz = ax * by - ay * bx;
+        const float area2 = cx * cx + cy * cy + cz * cz;
+
+        /* Only HORIZONTAL surfaces qualify. Ranking by area alone kept
+         * selecting the Kokiri Forest wall -- a dumped texture that turned out
+         * to be tree trunks, which is exactly what that wall should be, so two
+         * rounds of measurement described a surface nobody was asking about.
+         * The ground is the thing with a mostly-vertical normal; the cross
+         * product needed for the area already carries it, so this costs one
+         * comparison. */
+        const float upness = cy * cy;
+        const bool horizontal = upness > (cx * cx + cz * cz);
+
+        /* The measurement is only worth anything if it is known WHICH surface
+         * it describes -- "the biggest triangle is the ground" is an assumption,
+         * and reading tile numbers off the wrong surface sends the search into
+         * the wrong part of the renderer. This paints the measured triangle so
+         * the assumption can be checked instead of trusted. */
+        psp_is_probe_tri = gPspGfxHackHighlightBigTri && horizontal &&
+                           gPspBigTriArea2Prev > 0.0f && area2 >= gPspBigTriArea2Prev * 0.999f;
+
+        /* '>=' not '>': on the second pass gPspL2Area2 already holds this very
+         * triangle's area from the first, so a strict test would never match
+         * the half we are trying to observe. */
+        psp_l2_capture = (lerp2 || gPspLerp2SecondPass) && area2 >= gPspL2Area2;
+
+        if (lerp2) {
+            uint32_t w1, h1;
+            gfx_tile_dimensions(1, &w1, &h1);
+            if (LOADED_TEX(1).size_bytes == 0 || LOADED_TEX(1).size_bytes > 4096) {
+                gPspL2BadTile1++;
+            }
+            if (area2 > gPspL2Area2) {
+                uint32_t w0, h0;
+                gfx_tile_dimensions(0, &w0, &h0);
+                gPspL2Area2 = area2;
+                gPspL2TexW0 = w0; gPspL2TexH0 = h0;
+                gPspL2TexW1 = w1; gPspL2TexH1 = h1;
+                gPspL2Line0 = rdp.texture_tile[0].line_size_bytes;
+                gPspL2Line1 = rdp.texture_tile[1].line_size_bytes;
+                gPspL2Bytes0 = LOADED_TEX(0).size_bytes;
+                gPspL2Bytes1 = LOADED_TEX(1).size_bytes;
+                gPspL2Cms0 = rdp.texture_tile[0].cms; gPspL2Cmt0 = rdp.texture_tile[0].cmt;
+                gPspL2Cms1 = rdp.texture_tile[1].cms; gPspL2Cmt1 = rdp.texture_tile[1].cmt;
+                gPspL2Shifts0 = rdp.texture_tile[0].shifts; gPspL2Shiftt0 = rdp.texture_tile[0].shiftt;
+                gPspL2Shifts1 = rdp.texture_tile[1].shifts; gPspL2Shiftt1 = rdp.texture_tile[1].shiftt;
+                gPspL2Slot0 = rdp.texture_tile[0].tmem_slot;
+                gPspL2Slot1 = rdp.texture_tile[1].tmem_slot;
+                gPspL2Addr0 = LOADED_TEX(0).addr;
+                gPspL2Addr1 = LOADED_TEX(1).addr;
+                gPspL2SameAddr = (LOADED_TEX(0).addr == LOADED_TEX(1).addr);
+                gPspL2CcId = cc_id;
+            }
+        }
+
+        if (horizontal && area2 > gPspBigTriArea2) {
+            gPspBigTriArea2 = area2;
+            gPspBigTriTexW = tex_width;
+            gPspBigTriTexH = tex_height;
+            gPspBigTriUls = rdp.texture_tile[0].uls;
+            gPspBigTriUlt = rdp.texture_tile[0].ult;
+            gPspBigTriLrs = rdp.texture_tile[0].lrs;
+            gPspBigTriLrt = rdp.texture_tile[0].lrt;
+            gPspBigTriShiftS = rdp.texture_tile[0].shifts;
+            gPspBigTriShiftT = rdp.texture_tile[0].shiftt;
+            gPspBigTriCms = rdp.texture_tile[0].cms;
+            gPspBigTriCmt = rdp.texture_tile[0].cmt;
+            gPspBigTriCms1 = rdp.texture_tile[1].cms;
+            gPspBigTriCmt1 = rdp.texture_tile[1].cmt;
+            gPspBigTriShiftS1 = rdp.texture_tile[1].shifts;
+            gPspBigTriShiftT1 = rdp.texture_tile[1].shiftt;
+            gfx_tile_dimensions(1, &gPspBigTriTexW1, &gPspBigTriTexH1);
+            /* Does this material want a SECOND texture? OoT terrain often
+             * blends two, and this port has one usable TMU, so TEXEL1 is
+             * dropped -- which looks exactly like "the detail is missing".
+             * Recording the combine id as well makes the material
+             * identifiable against the gsDPSetCombineMode macros. */
+            gPspBigTriTex01 = (used_textures[0] ? 1 : 0) | (used_textures[1] ? 2 : 0);
+            gPspBigTriCcId = cc_id;
+            gPspBigTriTexAddr = LOADED_TEX(0).addr;
+            gPspBigTriTexFmt = rdp.texture_tile[0].fmt;
+            gPspBigTriTexSiz = rdp.texture_tile[0].siz;
+            gPspBigTriTexLine = rdp.texture_tile[0].line_size_bytes;
+            gPspBigTriTexBytes = LOADED_TEX(0).size_bytes;
+            gPspBigTriPalAddr = rdp.palette;
+            /* Raw vertex texture coordinates, S10.5 texels as the N64 stores
+             * them. The span across the triangle divided by tex_width is how
+             * many times the tile SHOULD repeat over it -- which is the number
+             * the stretched-ground symptom is really about. */
+            gPspBigTriU0 = (s32)v1->u;
+            gPspBigTriV0 = (s32)v1->v;
+            gPspBigTriU1 = (s32)v2->u;
+            gPspBigTriV1 = (s32)v2->v;
+            gPspBigTriU2 = (s32)v3->u;
+            gPspBigTriV2 = (s32)v3->v;
+        }
+    }
+#endif
 
     /* Make room for the *whole* primitive before writing any of it. Clipping
      * expands one triangle into up to 6 (_clipped_vertices[18]), so checking
@@ -2543,10 +3005,10 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         buf_vbo[buf_num_vert].z = clipped_vertices[i]->z;
         
         if (use_texture) {
-            float u = (tex_shift_coord(clipped_vertices[i]->u, rdp.texture_tile[0].shifts) -
-                       rdp.texture_tile[0].uls * 8) / 32.0f;
-            float v = (tex_shift_coord(clipped_vertices[i]->v, rdp.texture_tile[0].shiftt) -
-                       rdp.texture_tile[0].ult * 8) / 32.0f;
+            float u = (tex_shift_coord(clipped_vertices[i]->u, rdp.texture_tile[uv_tile].shifts) -
+                       rdp.texture_tile[uv_tile].uls * 8) / 32.0f;
+            float v = (tex_shift_coord(clipped_vertices[i]->v, rdp.texture_tile[uv_tile].shiftt) -
+                       rdp.texture_tile[uv_tile].ult * 8) / 32.0f;
             if ((rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT) {
                 // Linear filter adds 0.5f to the coordinates
                 u += 0.5f;
@@ -2554,6 +3016,18 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             }
             buf_vbo[buf_num_vert].u = u / tex_width;
             buf_vbo[buf_num_vert].v = v / tex_height;
+#if TARGET_PSP
+            if (psp_l2_capture && i == 0) {
+                const int pass = gPspLerp2SecondPass ? 1 : 0;
+                gPspL2UvU[pass] = u / tex_width;
+                gPspL2UvV[pass] = v / tex_height;
+                gPspL2UvW[pass] = tex_width;
+                gPspL2UvH[pass] = tex_height;
+                gPspL2UvTile[pass] = uv_tile;
+                gPspL2UvShift[pass] = rdp.texture_tile[uv_tile].shifts;
+                gPspL2DrawTex[pass] = gPspCurBoundTex;
+            }
+#endif
         } else {
             buf_vbo[buf_num_vert].u = 0;
             buf_vbo[buf_num_vert].v = 0;
@@ -2727,6 +3201,13 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             }
         }
 
+#if TARGET_PSP
+        if (psp_is_probe_tri) {
+            /* Magenta: nothing in OoT's palette is near it, so the highlighted
+             * triangle cannot be mistaken for real scenery. */
+            color = &(struct RGBA){0xFF, 0x00, 0xFF, 0xFF};
+        }
+#endif
         buf_vbo[buf_num_vert].color.r = color->r;
         buf_vbo[buf_num_vert].color.g = color->g;
         buf_vbo[buf_num_vert].color.b = color->b;
@@ -2776,6 +3257,41 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     if (buf_vbo_num_tris >= MAX_BUFFERED) {
         gfx_flush();
     }
+
+#if TARGET_PSP
+    /* Terrain LERP second pass: send this SAME triangle through this SAME
+     * function again, tile-1-preferred, blended over the first pass with fixed
+     * GU factors ENV and (1 - ENV) -- the identity src*ENV + dst*(1-ENV) ==
+     * (TEXEL1-TEXEL0)*ENV + TEXEL0 makes that an exact reproduction of the N64
+     * combine, provided ENV is constant across the draw (checked above).
+     *
+     * This replaces an earlier attempt that hand-built a second vertex buffer
+     * and a dedicated draw call: it ran (measured: draws > 0, no crashes) but
+     * painted the wrong thing anyway, because keeping two buffers and two code
+     * paths in lockstep is exactly the kind of duplication that silently drifts.
+     * Reusing this function instead means the second pass literally cannot
+     * disagree with the first about vertex positions, clipping, colour or
+     * texture-coordinate math -- it IS the first pass's code, run once more
+     * with one flag flipped. gPspLerp2SecondPass is that flag: it forces
+     * uv_tile to 1 (above) and, in gfx_scegu_select_texture, forces TEXEL1 to
+     * be the one that survives the single-TMU bind instead of TEXEL0.
+     *
+     * gfx_lerp2_assert_texture_state() handles both edges of that flip; see its
+     * own comment for why the bind and the sampler modes have to be asserted
+     * outright instead of left to the pipeline's change-detection. */
+    if (lerp2 && !gPspLerp2SecondPass) {
+        gfx_flush(); /* the first pass must be in the framebuffer as the LERP's destination */
+        gfx_scegu_lerp2_blend_begin(lerp2_mix);
+        gPspLerp2SecondPass = 1;
+        gfx_lerp2_assert_texture_state();
+        gfx_sp_tri1(vtx1_idx, vtx2_idx, vtx3_idx);
+        gfx_flush();
+        gPspLerp2SecondPass = 0;
+        gfx_lerp2_assert_texture_state();
+        gfx_scegu_lerp2_blend_end();
+        gPspLerp2Draws++;
+    }
+#endif
 }
 
 /* This will be going away possibly, it all depends on how we end up treating hw sprites */
@@ -3208,14 +3724,58 @@ static void gfx_dp_load_tlut(UNUSED uint8_t tile, uint32_t high_index) {
     rdp.palette = rdp.texture_to_load.addr;
 }
 
+/* Which of the two TMEM slots a load command writes into.
+ *
+ * The destination is a property of the LOAD TILE, not a constant.
+ * rdp.texture_to_load.tile_number answers it only for tile G_TX_LOADTILE (7),
+ * because that is the only tile gfx_dp_set_tile records it for. A display list
+ * that loads through tile 1 would therefore have written over whatever slot the
+ * last tile-7 load happened to name, and both load commands avoided that by
+ * DROPPING the load outright (`if (tile == 1) return;`) -- leaving the slot
+ * holding the previous texture's address and size, so every draw referencing it
+ * got stale pixels.
+ *
+ * Ship of Harkinian has no such special case; it indexes by
+ * rdp.texture_tile[tile].tmem_index (reference/shipwright-vita, gfx_pc.cpp,
+ * gfx_dp_load_block). tmem_slot is this port's equivalent field and
+ * gfx_dp_set_tile already maintains it for tiles 0 and 1, so tile 1 can simply
+ * be asked directly.
+ *
+ * Deliberately narrow: only tile 1 takes the new route. Tile 7 (and tile 0,
+ * which some lists do use as a load tile) keep the path that has been drawing
+ * correctly all along, so this cannot regress them.
+ *
+ * The & 1 is a real bounds fix, not cosmetics: loaded_texture[] and
+ * texture_tile[] have two entries, while tile_number is tmem/256 and is not
+ * bounded by anything. */
+static inline uint32_t gfx_load_dest_slot(uint8_t tile) {
+    if (tile == 1) {
+        return rdp.texture_tile[1].tmem_slot & 1;
+    }
+    return rdp.texture_to_load.tile_number & 1;
+}
+
+/* How many loads arrive through tile 1, i.e. the ones the old guard threw away.
+ * Zero would mean the guard was harmless all along and this change is inert;
+ * anything else is that many stale textures. Measure before believing either. */
+uint32_t gPspTile1Loads;
+
+/* A/B switch for the above, since it touches the texture path every scene
+ * depends on: 0 restores the old behaviour of dropping tile-1 loads. */
+int gPspGfxTile1LoadsEnable = 1;
+
 static void gfx_dp_load_block(uint8_t tile, UNUSED uint32_t uls, UNUSED uint32_t ult, uint32_t lrs, uint32_t dxt) {
     _UNUSED(dxt);
 
     GFXSTAT_INC(loadblock);
-    if (tile == 1) return;
-    SUPPORT_CHECK(tile == G_TX_LOADTILE);
+    if (tile == 1) {
+        gPspTile1Loads++;
+        if (!gPspGfxTile1LoadsEnable) return;
+    }
     SUPPORT_CHECK(uls == 0);
     SUPPORT_CHECK(ult == 0);
+
+    const uint32_t dest = gfx_load_dest_slot(tile);
 
     // The lrs field rather seems to be number of pixels to load
     uint32_t word_size_shift;
@@ -3234,23 +3794,25 @@ static void gfx_dp_load_block(uint8_t tile, UNUSED uint32_t uls, UNUSED uint32_t
             break;
     }
     uint32_t size_bytes = (lrs + 1) << word_size_shift;
-    rdp.loaded_texture[rdp.texture_to_load.tile_number].size_bytes = size_bytes;
+    rdp.loaded_texture[dest].size_bytes = size_bytes;
     assert(size_bytes <= 4096 && "bug: too big texture");
-    rdp.loaded_texture[rdp.texture_to_load.tile_number].addr = rdp.texture_to_load.addr;
+    rdp.loaded_texture[dest].addr = rdp.texture_to_load.addr;
     
     /* Contiguous by definition -- make sure a previous G_LOADTILE's stride does
      * not leak into this tile. */
-    rdp.texture_tile[rdp.texture_to_load.tile_number].src_stride_bytes = 0;
+    rdp.texture_tile[dest].src_stride_bytes = 0;
 
-    rdp.textures_changed[rdp.texture_to_load.tile_number] = true;
+    rdp.textures_changed[dest] = true;
 }
 
 static void gfx_dp_load_tile(uint8_t tile, uint32_t uls, uint32_t ult, uint32_t lrs, uint32_t lrt) {
     GFXSTAT_INC(loadtile);
-    if (tile == 1) return;
-    SUPPORT_CHECK(tile == G_TX_LOADTILE);
-    SUPPORT_CHECK(uls == 0);
-    SUPPORT_CHECK(ult == 0);
+    if (tile == 1) {
+        gPspTile1Loads++;
+        if (!gPspGfxTile1LoadsEnable) return;
+    }
+
+    const uint32_t dest = gfx_load_dest_slot(tile);
 
     uint32_t word_size_shift;
     switch (rdp.texture_to_load.siz) {
@@ -3288,23 +3850,23 @@ static void gfx_dp_load_tile(uint8_t tile, uint32_t uls, uint32_t ult, uint32_t 
     uint32_t src_stride = (rdp.texture_to_load.width > 1 ? rdp.texture_to_load.width : tile_w)
                           << word_size_shift;
 
-    rdp.loaded_texture[rdp.texture_to_load.tile_number].size_bytes = size_bytes;
+    rdp.loaded_texture[dest].size_bytes = size_bytes;
 
     assert(size_bytes <= 4096 && "bug: too big texture");
     /* Point at the sub-rectangle's own first texel. The UVs stay in SOURCE
      * space and gfx_sp_tri1 subtracts texture_tile[].uls/ult from them, so the
      * two together land on tile-local coordinates. */
-    rdp.loaded_texture[rdp.texture_to_load.tile_number].addr =
+    rdp.loaded_texture[dest].addr =
         rdp.texture_to_load.addr + (ult >> G_TEXTURE_IMAGE_FRAC) * src_stride +
         (((uls >> G_TEXTURE_IMAGE_FRAC) << word_size_shift));
-    rdp.texture_tile[rdp.texture_to_load.tile_number].uls = uls;
-    rdp.texture_tile[rdp.texture_to_load.tile_number].ult = ult;
-    rdp.texture_tile[rdp.texture_to_load.tile_number].lrs = lrs;
-    rdp.texture_tile[rdp.texture_to_load.tile_number].lrt = lrt;
-    rdp.texture_tile[rdp.texture_to_load.tile_number].line_size_bytes = row_bytes;
-    rdp.texture_tile[rdp.texture_to_load.tile_number].src_stride_bytes = src_stride;
+    rdp.texture_tile[dest].uls = uls;
+    rdp.texture_tile[dest].ult = ult;
+    rdp.texture_tile[dest].lrs = lrs;
+    rdp.texture_tile[dest].lrt = lrt;
+    rdp.texture_tile[dest].line_size_bytes = row_bytes;
+    rdp.texture_tile[dest].src_stride_bytes = src_stride;
 
-    rdp.textures_changed[rdp.texture_to_load.tile_number] = true;
+    rdp.textures_changed[dest] = true;
 }
 
 
@@ -4145,6 +4707,7 @@ static void gfx_run_dl(Gfx* cmd) {
                 break;
             case G_SETPRIMCOLOR:
                 gfx_dp_set_prim_color(C1(24, 8), C1(16, 8), C1(8, 8), C1(0, 8));
+                rdp.prim_lod_frac = C0(0, 8);
                 break;
             case G_SETFOGCOLOR:
                 gfx_dp_set_fog_color(C1(24, 8), C1(16, 8), C1(8, 8), C1(0, 8));
@@ -4162,6 +4725,7 @@ static void gfx_run_dl(Gfx* cmd) {
                  * recovered; see combine_cycle2_tint. Kept out of cc_id on
                  * purpose so shader ids are unaffected. */
                 rdp.combine_cyc2_tint = combine_cycle2_tint(C0(5, 4), C1(24, 4), C0(0, 5), C1(6, 3));
+                rdp.combine_c0_raw = C0(15, 5);
                 /* alpha cycle 2 would be color_comb(C1(21,3), C1(3,3), C1(18,3), C1(0,3)) */
                 break;
             // G_SETPRIMCOLOR, G_CCMUX_PRIMITIVE, G_ACMUX_PRIMITIVE, is used by Goddard
@@ -4316,6 +4880,14 @@ unsigned int total_t0, total_t1;
 void gfx_start_frame(void) {
     //sceIoWrite(1, "----START FRAME!\n", 18);
     total_t0 = sceKernelLibcClock();
+#if TARGET_PSP
+    /* Without this the probe would latch onto the largest triangle ever drawn
+     * in the session -- typically something from a long-gone scene -- instead
+     * of the largest one in the picture being looked at. */
+    gPspBigTriArea2Prev = gPspBigTriArea2;
+    gPspBigTriArea2 = 0.0f;
+    gPspL2Area2 = 0.0f;
+#endif
     gfx_wapi->handle_events();
 }
 
