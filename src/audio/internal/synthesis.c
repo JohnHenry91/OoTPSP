@@ -818,7 +818,10 @@ Acmd* AudioSynth_DoOneAudioUpdate(s16* aiBuf, s32 aiBufLen, Acmd* cmd, s32 updat
  * (OotPspAudioSynth_IsAlignedNativePtr / OotPspAudioSynth_DropBadNote in its
  * own synthesis.c). The window is the PSP user partition; the alignment test
  * catches a pointer built out of garbage that happens to land inside it. */
-#define PSP_AUDIO_RAM_START 0x08000000U
+/* 0x08800000, not 0x08000000: everything below the user partition is kernel
+ * memory, and a user-mode read there kills the console -- the very failure
+ * this guard was added to stop. Same correction as psp_audio_guard.h. */
+#define PSP_AUDIO_RAM_START 0x08800000U
 #define PSP_AUDIO_RAM_END 0x0C000000U
 
 /* Reasons, so the HUD can say WHICH pointer was bad rather than just that one

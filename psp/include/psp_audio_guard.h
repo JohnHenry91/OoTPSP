@@ -18,7 +18,20 @@
 
 #include "ultra64.h"
 
-#define PSP_AUDIO_RAM_START 0x08000000U
+/* The PSP user partition starts at 0x08800000, NOT at 0x08000000.
+ *
+ * 0x08000000..0x087FFFFF is kernel memory. A user-mode thread that reads it
+ * takes an exception and the console loses power -- which is the exact death
+ * this guard exists to prevent, so accepting that range left an 8 MB hole in
+ * the middle of the safety net. Every "guarded" audio path could still walk
+ * straight into it.
+ *
+ * The upper bound is the top of a 64 MB model's user partition (PSP-2000 and
+ * later). A PSP-1000 has only 32 MB and its user RAM ends at 0x0A000000, so
+ * this stays permissive by 32 MB on that model -- still infinitely better than
+ * the old lower bound, and the tighter value would have to be probed at
+ * runtime rather than assumed. */
+#define PSP_AUDIO_RAM_START 0x08800000U
 #define PSP_AUDIO_RAM_END   0x0C000000U
 
 /* Bumped whenever a guard rejects something, so the HUD can show that the

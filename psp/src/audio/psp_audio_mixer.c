@@ -190,7 +190,20 @@ void aClearBufferImpl(uint16_t addr, int nbytes) {
  * be read is zero-filled, which is silence -- the worst case is a note that
  * goes quiet, never a console that switches off. gPspMixerBadRanges says how
  * often it fired, so this stays a diagnosis and not just a bandage. */
-#define PSP_MIXER_RAM_START 0x08000000U
+/* The PSP user partition starts at 0x08800000, NOT at 0x08000000.
+ *
+ * 0x08000000..0x087FFFFF is kernel memory. A user-mode thread that reads it
+ * takes an exception and the console loses power -- which is the exact death
+ * this guard exists to prevent, so accepting that range left an 8 MB hole in
+ * the middle of the safety net. Every "guarded" audio path could still walk
+ * straight into it.
+ *
+ * The upper bound is the top of a 64 MB model's user partition (PSP-2000 and
+ * later). A PSP-1000 has only 32 MB and its user RAM ends at 0x0A000000, so
+ * this stays permissive by 32 MB on that model -- still infinitely better than
+ * the old lower bound, and the tighter value would have to be probed at
+ * runtime rather than assumed. */
+#define PSP_MIXER_RAM_START 0x08800000U
 #define PSP_MIXER_RAM_END 0x0C000000U
 
 uint32_t gPspMixerBadRanges;

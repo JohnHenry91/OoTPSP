@@ -152,7 +152,28 @@ void PspDiag_Step(const char* step) {
     char line[192];
     unsigned int sysFree = (unsigned int)sceKernelMaxFreeMemSize();
     unsigned int sp = DiagStackPointer();
-    unsigned int stackLeft = (sStackBottom != 0 && sp > sStackBottom) ? (sp - sStackBottom) : 0;
+    /* Query the CURRENT thread's stack, every line.
+     *
+     * These bounds used to be captured once, in PspDiag_Init, on the main
+     * thread -- so every line logged from the audio or graphics thread
+     * compared that thread's sp against the MAIN thread's stack, fell through
+     * the `sp > sStackBottom` test, and printed a flat "stkleft=0K". That
+     * reads exactly like a thread with an exhausted stack, and cost real time
+     * chasing a stack overflow that was never there. sStackBottom/sStackSize
+     * survive only as the fallback for when the query fails. */
+    unsigned int stackBottom = sStackBottom;
+    unsigned int stackLeft;
+
+    {
+        SceKernelThreadInfo info;
+
+        memset(&info, 0, sizeof(info));
+        info.size = sizeof(info);
+        if (sceKernelReferThreadStatus(0, &info) >= 0) {
+            stackBottom = (unsigned int)(uintptr_t)info.stack;
+        }
+    }
+    stackLeft = (stackBottom != 0 && sp > stackBottom) ? (sp - stackBottom) : 0;
     u32 zMaxFree = 0, zFree = 0, zAlloc = 0;
 
     /* sceKernelMaxFreeMemSize() alone was useless here: it read a flat 512 KB
