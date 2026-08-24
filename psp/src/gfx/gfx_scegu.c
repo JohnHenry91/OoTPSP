@@ -1424,20 +1424,56 @@ void gfx_scegu_invalidate_texture_binding(void) {
     tmu_state[1].tex = (uint32_t)-1;
 }
 
+/* Bumped whenever a room finishes loading (Room_ProcessRoomRequest). See the
+ * cache note in gfx_scegu_draw_background: a pointer comparison alone cannot
+ * tell "same image" from "different image at the same address". */
+unsigned int gPspBgCacheGeneration = 0;
+
 void gfx_scegu_draw_background(const void *img, int width, int height, int offset_x, int offset_y) {
     static const void *last_img = NULL;
+    static unsigned int last_generation = (unsigned int)-1;
 
     if (img == NULL || width <= 0 || height <= 0) {
+        return;
+    }
+
+    /* Reject implausible dimensions before they become a memory range. These
+     * backgrounds are always 320x240; anything far past that means the
+     * RoomShapeImage was read from data that is not (yet) a room, and both the
+     * cache writeback below and the GE's own fetch would then run off the end
+     * of the buffer -- fatal on hardware, silently tolerated by PPSSPP. */
+    if (width > 1024 || height > 1024) {
         return;
     }
 
     /* The GE reads main memory directly and is not coherent with the CPU's
      * data cache. A blob is written by ordinary file I/O, so write it back
      * once -- when the room changes, not per frame (150 KB of cache
-     * maintenance every frame would cost more than the draw). */
-    if (img != last_img) {
-        sceKernelDcacheWritebackRange(img, (unsigned int)(width * height * 2));
+     * maintenance every frame would cost more than the draw).
+     *
+     * "When the room changes" is NOT the same as "when this pointer changes",
+     * which is what this used to test. OoT alternates between two fixed room
+     * buffers (roomCtx->bufPtrs[activeBufPage], z_room.c), so a DIFFERENT room
+     * routinely arrives at the SAME address -- the pointer compares equal, the
+     * writeback is skipped, and the GE reads whatever the last flush left in
+     * RAM while the new image is still sitting in this core's dirty cache
+     * lines. The result is an image torn into horizontal bands, some rows new
+     * and some stale, which stays that way until the lines happen to evict.
+     * PPSSPP models no cache at all and so cannot reproduce it. Hence the
+     * generation counter, bumped by whoever loads a room.
+     *
+     * The range is aligned outward to 64-byte cache lines: the hardware call
+     * operates on whole lines, and an unaligned base or length can leave the
+     * first and last line of the image unflushed -- which looks like a thin
+     * band of corruption at the top and bottom and is easy to misread as a
+     * geometry problem. */
+    if (img != last_img || gPspBgCacheGeneration != last_generation) {
+        uintptr_t start = (uintptr_t)img & ~63u;
+        uintptr_t end = ((uintptr_t)img + (unsigned int)(width * height * 2) + 63u) & ~63u;
+
+        sceKernelDcacheWritebackRange((const void *)start, (unsigned int)(end - start));
         last_img = img;
+        last_generation = gPspBgCacheGeneration;
     }
 
     const float sx = (float)SCR_WIDTH / (float)width;

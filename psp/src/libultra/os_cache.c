@@ -63,7 +63,26 @@ void osInvalDCache(void* vaddr, s32 nbytes) {
         sceKernelDcacheWritebackInvalidateAll();
         return;
     }
-    sceKernelDcacheInvalidateRange(vaddr, (unsigned int)nbytes);
+    /* Writeback-invalidate over a LINE-ALIGNED range, not a plain invalidate
+     * over the caller's range.
+     *
+     * On N64 this is a pure invalidate because real DMA hardware is about to
+     * overwrite the memory, so any cached copy is worthless. On PSP the
+     * "transfer" is a CPU memcpy or a file read, and the range the engine hands
+     * us is aligned to nothing in particular -- so a plain invalidate covers a
+     * partial cache line at each end and DISCARDS whatever else shares those
+     * lines before it was ever written back. That silently destroys a
+     * neighbour's data, and the loss only shows up much later, somewhere else.
+     *
+     * Widening the range and writing back first makes both edges safe: shared
+     * lines reach RAM instead of being dropped, and the invalidate half still
+     * does its job of forcing the next read to come from memory. */
+    {
+        uintptr_t start = (uintptr_t)vaddr & ~63u;
+        uintptr_t end = ((uintptr_t)vaddr + (unsigned int)nbytes + 63u) & ~63u;
+
+        sceKernelDcacheWritebackInvalidateRange((const void*)start, (unsigned int)(end - start));
+    }
 }
 
 void osInvalICache(void* vaddr, s32 nbytes) {
