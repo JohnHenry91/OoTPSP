@@ -4495,7 +4495,44 @@ static void PspGfxDlRecordJump(const void *from, uint32_t w1, const void *to) {
  * legitimate. */
 #define PSP_DL_MAX_DEPTH 64
 
+#if TARGET_PSP
+/* Rejected display-list cursors, so the HUD can distinguish "the renderer
+ * refused to walk into nowhere" from "the bug is gone". */
+unsigned int gPspGfxBadDlCursors = 0;
+unsigned int gPspGfxBadDlLast = 0;
+
+/* Is this address a Gfx command we may legally dereference?
+ *
+ * The PSP user partition starts at 0x08800000 -- everything below is kernel
+ * memory, and a user-mode read there does not return garbage, it takes an
+ * exception and the console loses power. A display list built from stale or
+ * half-loaded data routinely points somewhere like that, and the interpreter
+ * would follow it: PPSSPP maps guest RAM as one flat host block and happily
+ * reads whatever is there, so the whole class is invisible under emulation
+ * and instantly fatal on hardware.
+ *
+ * reference/oot-psp-z2442 guards the same thing (gfx_validate_dl_cursor in
+ * src/port/psp/gfx/gfx_fast3d.c) and additionally proves provenance against a
+ * registry of known asset ranges. This is the cheap half of that: partition
+ * bounds plus the 8-byte alignment every Gfx has by construction. It cannot
+ * catch a wild pointer that happens to land in valid RAM, but it does catch
+ * every pointer that would kill the console outright, and it costs two
+ * compares per display list rather than a lookup. */
+static inline int PspGfxDlCursorIsSafe(const void* p) {
+    uintptr_t a = (uintptr_t)p;
+
+    return (a >= 0x08800000U) && (a < 0x0C000000U) && ((a & 7u) == 0);
+}
+#endif
+
 static void gfx_run_dl(Gfx* cmd) {
+#if TARGET_PSP
+    if (!PspGfxDlCursorIsSafe(cmd)) {
+        ++gPspGfxBadDlCursors;
+        gPspGfxBadDlLast = (uint32_t)(uintptr_t)cmd;
+        return; /* nothing pushed yet, so nothing to unwind */
+    }
+#endif
 #if TARGET_PSP
     if (sPspGfxDlDepth >= PSP_DL_MAX_DEPTH) {
         ++gPspGfxDlTrace.depth_aborts;
