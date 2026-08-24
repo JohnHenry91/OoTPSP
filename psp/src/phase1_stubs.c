@@ -31,11 +31,34 @@ u64 aspMainTextEnd[1];
 u64 aspMainDataStart[1];
 u64 aspMainDataEnd[1];
 
-/* Real N64 cartridge PI handle init -- no such hardware on PSP. Only
- * consumer is AudioLoad_Init's gAudioCtx.cartHandle assignment; our own
- * osEPiStartDma (psp/src/libultra/os_pi.c) doesn't use the handle at all. */
+/* Real N64 cartridge PI handle init -- no such hardware on PSP. Our own
+ * osEPiStartDma (psp/src/libultra/os_pi.c) ignores the handle entirely, so
+ * this used to return NULL.
+ *
+ * It must not. AudioLoad_Dma (src/audio/internal/load.c) does not merely pass
+ * the handle along -- it WRITES through it first:
+ *
+ *     handle->transferInfo.cmdType = 2;   // OSPiHandle + 0x14
+ *     sDmaHandler(handle, mesg, direction);
+ *
+ * With a NULL handle that is a word store to address 0x00000014, on the audio
+ * thread, roughly twice per frame. PPSSPP catches it, logs "Bad memory access
+ * detected and ignored", and runs on; real hardware takes an address error and
+ * the console dies. That is why the fault only ever appeared on the console,
+ * why it landed just after AudioThread_ScheduleProcessCmds handed the command
+ * stack over (AudioThread_ProcessGlobalCmd -> AudioLoad_SyncInitSeqPlayerInternal
+ * -> AudioLoad_SyncLoadFont -> AudioLoad_SyncLoad -> AudioLoad_SyncDma), and
+ * why disabling the audio thread made it go away.
+ *
+ * So hand out a real, static handle. Writable memory is the entire
+ * requirement -- nothing reads the field back, and the DMA itself is served by
+ * our own osEPiStartDma. Keeping the decomp's store legal is much safer than
+ * editing load.c to skip it, because AudioLoad_Dma is reached from a dozen
+ * call sites and the same store would come back with the next one. */
+static OSPiHandle sPspCartHandle;
+
 OSPiHandle* osCartRomInit(void) {
-    return NULL;
+    return &sPspCartHandle;
 }
 
 /* Environment_FillScreen now comes from the real src/code/z_kankyo.c, which

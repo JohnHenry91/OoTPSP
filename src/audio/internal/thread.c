@@ -12,6 +12,7 @@
 #include "psp_hw_diag.h"
 #include "psp_audio_me.h"
 #include "psp_audio_mixer.h"
+#include "psp_audio_stage.h"
 
 /* Probes written by the AUDIO thread itself.
  *
@@ -184,7 +185,14 @@ AudioTask* AudioThread_UpdateImpl(void) {
         while (osRecvMesg(gAudioCtx.threadCmdProcQueueP, (OSMesg*)&sp4C, OS_MESG_NOBLOCK) != -1) {
             if (1) {}
             PSP_DIAG_AT("      at-cmds-begin");
-            AudioThread_ProcessCmds(sp4C);
+#if TARGET_PSP
+            /* Drained either way: leaving messages in the queue would back up
+             * onto the main thread, which is not the variable under test. */
+            if (PSP_AUDIO_STAGE_AT_LEAST(PSP_AUDIO_STAGE_CMDS))
+#endif
+            {
+                AudioThread_ProcessCmds(sp4C);
+            }
             PSP_DIAG_AT("      at-cmds-done");
             j++;
         }
@@ -194,8 +202,15 @@ AudioTask* AudioThread_UpdateImpl(void) {
     }
 
     PSP_DIAG_AT("      at-synth-begin");
-    gAudioCtx.curAbiCmdBuf =
-        AudioSynth_Update(gAudioCtx.curAbiCmdBuf, &abiCmdCnt, curAiBuffer, gAudioCtx.aiBufLengths[index]);
+#if TARGET_PSP
+    if (!PSP_AUDIO_STAGE_AT_LEAST(PSP_AUDIO_STAGE_SYNTH)) {
+        abiCmdCnt = 0;
+    } else
+#endif
+    {
+        gAudioCtx.curAbiCmdBuf =
+            AudioSynth_Update(gAudioCtx.curAbiCmdBuf, &abiCmdCnt, curAiBuffer, gAudioCtx.aiBufLengths[index]);
+    }
     PSP_DIAG_AT("      at-synth-done");
 #if TARGET_PSP && PSP_AUDIO_DEFERRED_MIXING
     /* AudioSynth_Update only BUILT the list (see psp_audio_mixer.h); on N64
@@ -205,8 +220,10 @@ AudioTask* AudioThread_UpdateImpl(void) {
      * The list starts at abiCmdBufs[rspTaskIndex]; curAbiCmdBuf now points
      * one past its end. */
     PSP_DIAG_AT("      at-mix-begin");
-    PspAudio_RunCommandList(gAudioCtx.abiCmdBufs[gAudioCtx.rspTaskIndex], abiCmdCnt, curAiBuffer,
-                            gAudioCtx.aiBufLengths[index]);
+    if (PSP_AUDIO_STAGE_AT_LEAST(PSP_AUDIO_STAGE_MIX_CPU)) {
+        PspAudio_RunCommandList(gAudioCtx.abiCmdBufs[gAudioCtx.rspTaskIndex], abiCmdCnt, curAiBuffer,
+                                gAudioCtx.aiBufLengths[index]);
+    }
     PSP_DIAG_AT("      at-mix-done");
 #endif
 

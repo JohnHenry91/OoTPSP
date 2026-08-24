@@ -126,8 +126,15 @@ void Audio_InitSampleState(Note* note, NoteSampleState* sampleState, NoteSampleS
      * centred, full-volume sound should land in the low thousands. tgt in
      * the hundreds while the HUD's vol/ent are near full means vel arrived
      * small -- the channel gain never reached the note. */
-    if ((note->playbackState.parentLayer != NULL) &&
-        (note->playbackState.parentLayer->channel != NULL) &&
+    /* NOT a plain != NULL test. OoT parks a note's layer pointer at
+     * NO_LAYER == (SequenceLayer*)-1 (audio.h), which is non-NULL and sails
+     * straight through a null check; the chain below then reads 0xFFFFFFFF+0x50
+     * and dereferences address 0x0000004F. PPSSPP logs that and carries on,
+     * hardware takes an address error and the console dies -- and this probe
+     * runs for every SFX note, so it fires constantly. Use the same range
+     * guard as the rest of the audio path (psp_audio_guard.h). */
+    if (PspAudio_IsAlignedNativePtr(note->playbackState.parentLayer) &&
+        PspAudio_IsAlignedNativePtr(note->playbackState.parentLayer->channel) &&
         (note->playbackState.parentLayer->channel->seqPlayer ==
          &gAudioCtx.seqPlayers[SEQ_PLAYER_SFX])) {
         extern f32 gPspNoteProbeVel;

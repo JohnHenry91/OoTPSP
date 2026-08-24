@@ -318,6 +318,7 @@ PSP_C_FILES += psp/src/audio/psp_audio_mixer.c
 # includes every run under PPSSPP).
 PSP_C_FILES += psp/src/audio/psp_audio_cmdlist.c
 PSP_C_FILES += psp/src/audio/psp_audio_me.c
+PSP_C_FILES += psp/src/audio/psp_audio_stage.c
 PSP_C_FILES += psp/src/audio/psp_audio_debug.c
 # Overrun probe -- see psp/include/psp_audio_probe.h.
 PSP_C_FILES += psp/src/audio/psp_audio_probe.c
@@ -675,7 +676,13 @@ endif
 # one on the graphics thread, which a boot trace alone cannot do.
 PSP_DISABLE_AUDIO ?= 0
 
-CFLAGS = -DPSP_DISABLE_AUDIO=$(PSP_DISABLE_AUDIO) -O2 -G0 -Wall -D_PSP_FW_VERSION=600 -DPLATFORM_N64=1 -DPLATFORM_GC=0 -DPLATFORM_IQUE=0 \
+# -fno-strict-aliasing / -fwrapv: the decomp type-puns constantly (Gfx/Mtx/
+# unions, s16 pairs read as s32) and relies on wrapping signed arithmetic. Both
+# are things -O2 is otherwise free to "optimise" into different code, and the
+# resulting divergence only shows up as a wrong value at runtime -- exactly the
+# class of bug that reads as a hardware-only fault. reference/oot-psp-z2442
+# carries both flags for the same reason.
+CFLAGS = -DPSP_DISABLE_AUDIO=$(PSP_DISABLE_AUDIO) -O2 -G0 -Wall -fno-strict-aliasing -fwrapv -D_PSP_FW_VERSION=600 -DPLATFORM_N64=1 -DPLATFORM_GC=0 -DPLATFORM_IQUE=0 \
          -DOOT_VERSION=PAL_1_0 -DDEBUG_FEATURES=0 -DNDEBUG -DTARGET_PSP=1 -DNON_MATCHING=1 -DAVOID_UB=1 \
          -DF3DEX_GBI_2 -DMML_VERSION=MML_VERSION_OOT $(BOOT_FLAG) -include libc/assert.h
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
@@ -689,7 +696,7 @@ OBJCOPY = psp-objcopy
 LIBDIR = psp/lib
 # -lme-core boots the Media Engine (psp/src/audio/psp_audio_me.c). It embeds
 # the kcall.prx kernel bridge it needs, so nothing extra ships on the stick.
-LIBS = -lme-core -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lpsppower -lpspaudio -lm
+LIBS = -lme-core -lpspfpu -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lpsppower -lpspaudio -lm
 
 # D_01000000 is not data -- it is a segmented ADDRESS that the N64 build's own
 # spec resolves to the literal 0x01000000, and segment 1 is the billboard matrix

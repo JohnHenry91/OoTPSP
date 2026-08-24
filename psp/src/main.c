@@ -32,6 +32,8 @@
 #include "psp_hw_diag.h"
 #include "psp_blob_assets.h"
 #include "psp_audio_me.h"
+#include "psp_fpu.h"
+#include "psp_audio_stage.h"
 
 extern void DmaMgr_InitForTest(void);
 extern void Main(void* arg);
@@ -70,6 +72,10 @@ int main(int argc, char* argv[]) {
      * something to rely on. It also has to precede PspDiag_Init, which writes
      * its log to the same directory. */
     PspBlob_SetBaseDir(argc > 0 ? argv[0] : NULL);
+    /* Reads audiostage.txt from the directory just pinned above. Must be here:
+     * it needs the base dir, and it must be set before AudioMgr's thread
+     * starts. See psp/include/psp_audio_stage.h. */
+    PspAudioStage_Init();
     PspDiag_Init(PspBlob_GetBaseDir());
     PspDiag_Step("boot");
 
@@ -99,6 +105,10 @@ int main(int argc, char* argv[]) {
 #else
     scePowerSetClockFrequency(PSP_CPU_MHZ, PSP_CPU_MHZ, PSP_CPU_MHZ / 2);
 #endif
+    /* Mask the FPU exceptions and flush denormals to zero on the main thread;
+     * every engine thread does the same from OSThreadTrampoline. See
+     * psp/include/psp_fpu.h for why this is not optional on hardware. */
+    PspFpu_ConfigureThread();
     PspDiag_Step("clock-set");
 
     /* Register this thread as the one that must never park forever in a
@@ -131,7 +141,9 @@ int main(int argc, char* argv[]) {
      * kernel bridge through a relative path, and only the main thread has a
      * cwd. A failure is expected and harmless -- under PPSSPP there is no ME
      * and the mixer simply stays where it was. See psp/include/psp_audio_me.h. */
-    PspAudioMe_Init();
+    if (PSP_AUDIO_STAGE_AT_LEAST(PSP_AUDIO_STAGE_MIX_ME)) {
+        PspAudioMe_Init();
+    }
 #endif
     PspDiag_Step("audio-init");
 

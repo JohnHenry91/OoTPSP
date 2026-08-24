@@ -22,6 +22,7 @@
 
 #include "ultra64.h"
 #include "thread.h"
+#include "psp_fpu.h"
 
 /* One entry per libultra thread OoT actually creates (Idle, Main, Graph,
  * Sched, Audio, PadMgr, IrqMgr, DmaMgr, Fault ~= 8-9) plus headroom. */
@@ -142,6 +143,13 @@ static int OSThreadTrampoline(SceSize argSize, void* argp) {
      * though the original argp (a stack local in osStartThread) is long
      * gone by the time this actually runs. */
     ThreadTrampolineArgs args = *(ThreadTrampolineArgs*)argp;
+
+    /* FCR31 is per-thread context: whatever main() set does not carry over
+     * here. Every engine thread that runs float code -- Graph for the renderer,
+     * AudioMgr for the whole synthesis path -- needs its own call, or a
+     * denormal envelope value traps and kills the console. See psp_fpu.h. */
+    PspFpu_ConfigureThread();
+
     args.entry(args.arg);
     return 0;
 }
