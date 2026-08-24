@@ -41,6 +41,10 @@ void PspBlob_SetBaseDir(const char* argv0) {
     sBaseDir[cut] = '\0';
 }
 
+const char* PspBlob_GetBaseDir(void) {
+    return sBaseDir;
+}
+
 /* Absolute first, then the original relative path as a fallback. The fallback
  * is not redundant: argv[0] is whatever the loader chose to hand us, and on an
  * emulator it need not be a path the IO layer can reopen. Trying both means

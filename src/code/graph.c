@@ -282,6 +282,23 @@ void Graph_Destroy(GraphicsContext* gfxCtx) {
 #endif
 }
 
+#if TARGET_PSP
+#include "psp_hw_diag.h"
+/* Trace the first few frames step by step, then go quiet: the per-line file
+ * close is what makes the log survive a power cut, and also what makes it too
+ * slow to leave running. */
+#define PSP_DIAG_FIRST(name) \
+    do { \
+        if (gPspDiagFrameCount < 3) { \
+            PspDiag_Step(name); \
+        } \
+    } while (0)
+/* Frames completed since boot. The first hardware log showed every step of
+ * main() succeeding, so the failure is somewhere in here -- and "which frame"
+ * is the one coordinate that narrows it further without a debugger. */
+u32 gPspDiagFrameCount;
+#endif
+
 void Graph_TaskSet00(GraphicsContext* gfxCtx) {
 #if DEBUG_FEATURES
     static Gfx* sPrevTaskWorkBuffer = NULL;
@@ -436,9 +453,22 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
      * SysCfb_GetFbPtr) tracks which double-buffered target this frame
      * intended to swap to -- the PSP-side main loop reads that after this
      * call to drive its own sceGu buffer swap (see psp/src/main.c). */
+    /* Fine-grained probes for the FIRST frames only.
+     *
+     * The hardware trace now reaches gamestate-init-done and stops before
+     * "frame 1", so the failure is inside this one call chain. These three
+     * split it into the parts that fail for different reasons: sceGu bring-up
+     * of the frame, interpreting the display list (all the geometry, texture
+     * and matrix work), and the finish/swap where the GE is actually waited
+     * on. Limited to the first few frames so the per-line file close does not
+     * dominate once the interesting window is past. */
+    PSP_DIAG_FIRST("gfx-start-frame");
     gfx_start_frame();
+    PSP_DIAG_FIRST("gfx-run-dl");
     gfx_run((Gfx*)task->data_ptr);
+    PSP_DIAG_FIRST("gfx-end-frame");
     gfx_end_frame();
+    PSP_DIAG_FIRST("gfx-done");
 
     /* The other half of what the skipped Sched submission did: hold this frame
      * for cfb->updateRate video fields before the loop runs the game again.
@@ -456,7 +486,9 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     u32 problem;
 
     gameState->inPreNMIState = false;
+    PSP_DIAG_FIRST("gu-enter");
     Graph_InitTHGA(gfxCtx);
+    PSP_DIAG_FIRST("gu-thga");
 
 #if TARGET_PSP
     /* PadMgr still gets its once-per-frame tick as a direct call (no real
@@ -468,7 +500,9 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
      * on osRecvMesg, unlike PadMgr_HandleRetrace which has no such loop to
      * call directly) -- so the fan-out itself now has to run for real. */
     PadMgr_HandleRetrace(&gPadMgr);
+    PSP_DIAG_FIRST("gu-padmgr");
     IrqMgr_HandleRetrace(&gIrqMgr);
+    PSP_DIAG_FIRST("gu-irqmgr");
     /* IrqMgr_HandleRetrace just posted OS_SC_RETRACE_MSG to every
      * registered client, including PadMgr's and Sched's queues -- neither
      * has a real consumer thread on PSP (PadMgr was just handled directly
@@ -495,6 +529,7 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 #endif
 
     GameState_ReqPadData(gameState);
+    PSP_DIAG_FIRST("gu-reqpad");
 
 #if TARGET_PSP
     /* Development framerate override (TRIANGLE + SQUARE, see psp_scene_menu.c).
@@ -510,7 +545,9 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     }
 #endif
 
+    PSP_DIAG_FIRST("gu-update-begin");
     GameState_Update(gameState);
+    PSP_DIAG_FIRST("gu-update-done");
 
 #if DEBUG_FEATURES
     OPEN_DISPS(gfxCtx, "../graph.c", 987);
@@ -565,6 +602,7 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     }
 #endif
 
+    PSP_DIAG_FIRST("gu-dl-built");
     problem = false;
 
     {
@@ -761,6 +799,7 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     }
 
     if (!problem) {
+        PSP_DIAG_FIRST("gu-taskset-call");
         Graph_TaskSet00(gfxCtx);
         gfxCtx->gfxPoolIdx++;
         gfxCtx->fbIdx++;
@@ -808,6 +847,7 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 #endif
 }
 
+
 void Graph_ThreadEntry(void* arg0) {
     GraphicsContext gfxCtx;
     GameState* gameState;
@@ -816,15 +856,30 @@ void Graph_ThreadEntry(void* arg0) {
     GameStateOverlay* ovl;
 
     PRINTF(T("グラフィックスレッド実行開始\n", "Start graphic thread execution\n"));
+#if TARGET_PSP
+    PspDiag_Step("graph-thread-entry");
+#endif
     Graph_Init(&gfxCtx);
+#if TARGET_PSP
+    PspDiag_Step("graph-init");
+#endif
 
     while (nextOvl != NULL) {
         ovl = nextOvl;
+#if TARGET_PSP
+        PspDiag_Step("gs-loop-top");
+#endif
         Overlay_LoadGameState(ovl);
+#if TARGET_PSP
+        PspDiag_Step("gs-ovl-loaded");
+#endif
 
         size = ovl->instanceSize;
         PRINTF(T("クラスサイズ＝%dバイト\n", "Class size = %d bytes\n"), size);
 
+#if TARGET_PSP
+        PspDiag_Note("  gamestate alloc %u bytes (ovl %u)\n", size, (unsigned int)(ovl - gGameStateOverlayTable));
+#endif
         gameState = SYSTEM_ARENA_MALLOC(size, "../graph.c", 1196);
 
         if (gameState == NULL) {
@@ -840,16 +895,84 @@ void Graph_ThreadEntry(void* arg0) {
 #endif
         }
 
+#if TARGET_PSP
+        PspDiag_Step("gamestate-init-begin");
+#endif
         GameState_Init(gameState, ovl->init, &gfxCtx);
+#if TARGET_PSP
+        PspDiag_Step("gamestate-init-done");
+        gPspDiagFrameCount = 0;
+#endif
 
         while (GameState_IsRunning(gameState)) {
             Graph_Update(&gfxCtx, gameState);
+#if TARGET_PSP
+            /* Every frame for the first two seconds, then once a second.
+             * Closing the file per line is what makes this survive a power
+             * cut, and that is also what makes it expensive -- so it thins
+             * out once the interesting window is past. */
+            gPspDiagFrameCount++;
+            if (gPspDiagFrameCount <= 120 || (gPspDiagFrameCount % 60) == 0) {
+                PspDiag_Frame(gPspDiagFrameCount);
+            }
+#endif
         }
 
+#if TARGET_PSP
+        /* The SETUP gamestate sets running = false in its own init
+         * (Setup_InitImpl), so Graph_Update never runs for it and none of the
+         * render probes could ever have fired. The hardware trace stopping
+         * right after gamestate-init-done therefore points HERE, at the
+         * handover to the next gamestate, not at drawing. */
+        PspDiag_Step("gs-loop-exit");
+#endif
         nextOvl = Graph_GetNextGameState(gameState);
+#if TARGET_PSP
+        PspDiag_Step("gs-next-fetched");
+#endif
         GameState_Destroy(gameState);
+#if TARGET_PSP
+        PspDiag_Step("gs-destroyed");
+#endif
+#if TARGET_PSP
+        /* The trace pins the failure to this one call. __osFree first checks
+         * the node header at ptr - sizeof(ArenaNode) and then walks next/prev
+         * to coalesce, so a header that no longer looks like a header, or a
+         * neighbour pointer aimed outside the 2 MB static arena, is exactly
+         * what would take it down -- and would say the real fault happened
+         * EARLIER, as an overwrite, with the free merely being where it
+         * surfaces. Dump the header and the arena root before the call. */
+        /* Is the trace itself lagging?
+         *
+         * The previous run put two Hex dumps here and NEITHER appeared, while
+         * gs-destroyed did -- which has two very different readings: the dump
+         * crashes, or the log is simply one entry behind reality because the
+         * memory stick has not committed the last write when the console dies.
+         * If the second reading is right then every localisation so far is off
+         * by one step and SYSTEM_ARENA_FREE is not the culprit at all.
+         *
+         * These plain markers settle it. They do nothing but write a line, so
+         * whichever of them is last tells us how far the trace really reaches
+         * before anything risky is touched. */
+        PspDiag_Step("gs-marker-a");
+        PspDiag_Step("gs-marker-b");
+        PspDiag_Step("gs-marker-c");
+        /* Safe global first: gSystemArena is a plain BSS object, so reading it
+         * cannot fault. Only then the node header, which is the read that
+         * could. */
+        PspDiag_Hex("  arena", &gSystemArena, 8);
+        PspDiag_Step("gs-hex-arena-ok");
+        PspDiag_Hex("  node", (const u8*)gameState - 32, 8);
+        PspDiag_Step("gs-hex-node-ok");
+#endif
         SYSTEM_ARENA_FREE(gameState, "../graph.c", 1227);
+#if TARGET_PSP
+        PspDiag_Step("gs-freed");
+#endif
         Overlay_FreeGameState(ovl);
+#if TARGET_PSP
+        PspDiag_Step("gs-ovl-freed");
+#endif
     }
     Graph_Destroy(&gfxCtx);
     PRINTF(T("グラフィックスレッド実行終了\n", "End of graphic thread execution\n"));

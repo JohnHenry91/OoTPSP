@@ -267,6 +267,7 @@ PSP_C_FILES += assets/textures/icon_item_24_static/icon_item_24_static.c
 PSP_C_FILES += extracted/pal-1.0/assets/textures/parameter_static/parameter_static.c
 
 PSP_C_FILES += psp/src/psp_blob_assets.c
+PSP_C_FILES += psp/src/psp_hw_diag.c
 PSP_C_FILES += psp/src/psp_frame_pace.c
 
 # Development aid: L + D-Pad steps through the pre-rendered-background test
@@ -331,6 +332,30 @@ OBJS := $(PSP_C_FILES:.c=.o)
 # Assembled, not compiled, so it cannot ride along in PSP_C_FILES. This is the
 # real generated sequence->soundfont mapping table (see its rule below).
 OBJS += psp/build/assets/audio/sequence_font_table.o
+
+# --- Build stamp -------------------------------------------------------------
+#
+# gPspBuildId names the build that is actually running. It is read off the HUD
+# and over the debugger, and three separate measurements this project made
+# against a build the emulator had never loaded were only caught because of it.
+#
+# It CANNOT be __DATE__/__TIME__ inside an ordinary source file: those expand
+# when that one file is compiled, so a build that only touched the renderer left
+# the stamp reading whenever psp_scene_menu.c last happened to be rebuilt --
+# which is worse than no stamp, because it looks authoritative while being
+# stale. FORCE makes this one file regenerate on every invocation, so the stamp
+# always names the link.
+PSP_BUILD_STAMP_C := psp/build/build_stamp.c
+OBJS += $(PSP_BUILD_STAMP_C:.c=.o)
+
+.PHONY: FORCE
+FORCE:
+
+$(PSP_BUILD_STAMP_C): FORCE
+	@mkdir -p $(dir $@)
+	@printf 'char gPspBuildId[24] = "%s";\n' "$$(date '+%b %d %H:%M:%S')" > $@.tmp
+	@cmp -s $@.tmp $@ || mv $@.tmp $@
+	@rm -f $@.tmp
 
 # --- Native-endian asset blobs -----------------------------------------------
 #
@@ -610,7 +635,12 @@ ifneq ($(BOOT),)
 BOOT_FLAG = -DPSP_BOOT_ENTRANCE=$(BOOT)
 endif
 
-CFLAGS = -O2 -G0 -Wall -D_PSP_FW_VERSION=600 -DPLATFORM_N64=1 -DPLATFORM_GC=0 -DPLATFORM_IQUE=0 \
+# Diagnostic: build with PSP_DISABLE_AUDIO=1 to leave AudioMgr and the PSP
+# audio backend unstarted. Used to tell a fault on the audio thread apart from
+# one on the graphics thread, which a boot trace alone cannot do.
+PSP_DISABLE_AUDIO ?= 0
+
+CFLAGS = -DPSP_DISABLE_AUDIO=$(PSP_DISABLE_AUDIO) -O2 -G0 -Wall -D_PSP_FW_VERSION=600 -DPLATFORM_N64=1 -DPLATFORM_GC=0 -DPLATFORM_IQUE=0 \
          -DOOT_VERSION=PAL_1_0 -DDEBUG_FEATURES=0 -DNDEBUG -DTARGET_PSP=1 -DNON_MATCHING=1 -DAVOID_UB=1 \
          -DF3DEX_GBI_2 -DMML_VERSION=MML_VERSION_OOT $(BOOT_FLAG) -include libc/assert.h
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti

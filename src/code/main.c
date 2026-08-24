@@ -187,12 +187,30 @@ void Main(void* arg) {
      * already uses) that registers itself with IrqMgr and is driven by
      * Graph_Update's new IrqMgr_HandleRetrace call (src/code/graph.c). */
     StackCheck_Init(&sAudioStackInfo, sAudioStack, STACK_TOP(sAudioStack), 0, 0x100, "audio");
+#if TARGET_PSP && PSP_DISABLE_AUDIO
+    /* Audio deliberately not started.
+     *
+     * On hardware the boot trace stops after a CONSTANT number of entries --
+     * 19, unchanged across five builds with different code following that
+     * point. A fixed count rather than a fixed code position means the thing
+     * that kills the console is not what the Graph thread is executing; each
+     * trace line costs an open/write/close on the memory stick, so 19 of them
+     * is roughly a second of wall clock, and the failure is on that schedule
+     * instead. AudioMgr is the other real PSP thread in the port and its mixer
+     * is VFPU-heavy, which makes it the obvious thing to rule out first.
+     *
+     * This is a diagnostic build flag (-DPSP_DISABLE_AUDIO=1), not a fix. */
+    (void)sAudioMgr;
+#else
     AudioMgr_Init(&sAudioMgr, STACK_TOP(sAudioStack), THREAD_PRI_AUDIOMGR, THREAD_ID_AUDIOMGR, &gScheduler, &gIrqMgr);
+#endif
 
     StackCheck_Init(&sPadMgrStackInfo, sPadMgrStack, STACK_TOP(sPadMgrStack), 0, 0x100, "padmgr");
     PadMgr_Init(&gPadMgr, &sSerialEventQueue, &gIrqMgr, THREAD_ID_PADMGR, THREAD_PRI_PADMGR, STACK_TOP(sPadMgrStack));
 
+#if !(TARGET_PSP && PSP_DISABLE_AUDIO)
     AudioMgr_WaitForInit(&sAudioMgr);
+#endif
 
 #if TARGET_PSP
     /* Close a boot-time double audio-heap-reset race ("kein Ton"

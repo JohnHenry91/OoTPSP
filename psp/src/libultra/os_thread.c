@@ -33,7 +33,20 @@
  * has no equivalent parameter for — PSP allocates its own thread stacks
  * internally. So the N64 stack buffer becomes dead space and every shim
  * thread gets one fixed, generously-sized real stack instead. */
-#define PSP_THREAD_STACK_SIZE (32 * 1024)
+/* 128 KB, matching what the other PSP port of this game gives its game
+ * threads (reference/oot-psp-z2442, libultra_psp.c: 0x20000).
+ *
+ * This was 32 KB. The Graph thread is not a worker -- it runs the WHOLE game:
+ * Graph_Update, every actor's update and draw, and gfx_pc.c's display list
+ * interpreter, which keeps vertex and clipping arrays on the stack. On N64 that
+ * thread gets a correspondingly large stack from the STACK() macro; the PSP
+ * side sizes it here instead, and 32 KB was simply inherited without anyone
+ * checking it against that call depth.
+ *
+ * Overflowing a thread stack is another failure PPSSPP hides: it writes past
+ * the allocation into whatever happens to follow, which under an emulator is
+ * often unused and harmless, and on hardware is somebody else's data. */
+#define PSP_THREAD_STACK_SIZE (128 * 1024)
 
 typedef struct {
     OSThread* thread; /* NULL = free slot */
@@ -147,8 +160,18 @@ void osCreateThread(OSThread* thread, OSId id, void (*entry)(void*), void* arg, 
 
     e->entry = entry;
     e->arg = arg;
+    /* THREAD_ATTR_USER | THREAD_ATTR_VFPU, not 0.
+     *
+     * These are the game's own threads -- Graph, AudioMgr, PadMgr -- and the
+     * Graph one runs the entire renderer, including sceGum* and pspmath, which
+     * are VFPU code. An attribute of 0 left the vector unit disabled, so the
+     * first such instruction raised a Coprocessor Unusable exception on real
+     * hardware. It never surfaced under PPSSPP, which does not enforce the
+     * attribute; the boot trace from a PSP-2000 showed all of main() completing
+     * and the failure landing immediately afterwards, which is exactly where
+     * Graph_ThreadEntry starts running on this thread. */
     e->uid = sceKernelCreateThread("oot_thread", OSThreadTrampoline, PspPriorityFromOSPri(pri), PSP_THREAD_STACK_SIZE,
-                                    0, NULL);
+                                    THREAD_ATTR_USER | THREAD_ATTR_VFPU, NULL);
 }
 
 void osStartThread(OSThread* thread) {

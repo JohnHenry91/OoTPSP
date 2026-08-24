@@ -28,6 +28,8 @@
 #include "gfx_pc.h"
 #include "gfx_window_manager_api.h"
 #include "gfx_rendering_api.h"
+#include "psp_hw_diag.h"
+#include "psp_blob_assets.h"
 
 extern void DmaMgr_InitForTest(void);
 extern void Main(void* arg);
@@ -35,7 +37,15 @@ extern struct GfxWindowManagerAPI gfx_wm_psp;
 extern struct GfxRenderingAPI gfx_opengl_api; /* gfx_scegu.c's PSP backend -- see gfx_scegu.c */
 
 PSP_MODULE_INFO("OOT_PSP", 0, 1, 0);
-PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
+/* THREAD_ATTR_VFPU is not optional here.
+ *
+ * Without it the vector unit is disabled for the thread, and any VFPU
+ * instruction raises a Coprocessor Unusable exception. This port links
+ * -lpspgum and -lpspmath, both of which ARE VFPU code, so that is not a
+ * hypothetical. PPSSPP does not enforce the attribute and executes the
+ * instructions regardless, which is why months of emulator testing never
+ * showed it while a PSP-1000 and a PSP-2000 both died on real silicon. */
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(-1024);
 
 /* Own display list buffer for the pre-Main() DMA test flash, separate from
@@ -48,14 +58,41 @@ int main(int argc, char* argv[]) {
 
     pspDebugScreenInit();
 
-    /* Run the CPU at its full 333 MHz (bus 166) instead of the 222/111 MHz a
-     * PSP boots user applications at. The port is CPU-bound -- gfx_pc.c
-     * interprets every F3DEX2 command, transforms and clips on the main CPU,
-     * and decodes N64 textures -- so this is close to a straight 50% more
-     * frame budget for one call, and it is what every PSP port that cares
-     * about framerate does. Battery life is the cost; there is no downside
-     * for correctness. */
+    /* Pin blob paths to the game's own directory FIRST. This used to happen
+     * two hundred lines further down, after gfx_init, PspAudio_Init and
+     * PspAudioTables_Init had already run -- all three of which can touch the
+     * asset registry. Under an emulator the process cwd happens to be the game
+     * directory so the relative paths resolve anyway; on hardware that is not
+     * something to rely on. It also has to precede PspDiag_Init, which writes
+     * its log to the same directory. */
+    PspBlob_SetBaseDir(argc > 0 ? argv[0] : NULL);
+    PspDiag_Init(PspBlob_GetBaseDir());
+    PspDiag_Step("boot");
+
+    /* CPU clock.
+     *
+     * This ran at 333/333/166 unconditionally, with a comment claiming
+     * "battery life is the cost; there is no downside for correctness". That
+     * held for every test so far because every test was PPSSPP, which does not
+     * model power draw at all. On real hardware a PSP-1000 and a PSP-2000 both
+     * switch OFF -- not freeze, not fault, but lose power -- and the full
+     * overclock is the obvious suspect: it raises current draw sharply, and an
+     * aged battery can brown out under it.
+     *
+     * So the clock is now a knob rather than a constant, defaulting to the
+     * 222/111 the PSP boots applications at. Build with -DPSP_CPU_MHZ=333 to
+     * get the old behaviour back once the hardware failure is understood. The
+     * chosen value is written to the boot log, so a log from the console says
+     * which clock produced it. */
+#ifndef PSP_CPU_MHZ
+#define PSP_CPU_MHZ 222
+#endif
+#if PSP_CPU_MHZ >= 333
     scePowerSetClockFrequency(333, 333, 166);
+#else
+    scePowerSetClockFrequency(PSP_CPU_MHZ, PSP_CPU_MHZ, PSP_CPU_MHZ / 2);
+#endif
+    PspDiag_Step("clock-set");
 
     /* Register this thread as the one that must never park forever in a
      * libultra message queue. Worker threads (padmgr, DmaMgr) still block
@@ -69,19 +106,26 @@ int main(int argc, char* argv[]) {
      * gfx_wm_psp.c. Must happen before any sceGu* call, including the DMA
      * test flash below. */
     gfx_init(&gfx_wm_psp, &gfx_opengl_api, "OoT PSP", false);
+    PspDiag_Step("gfx-init");
 
     /* PspAudio_Init reserves the sceAudio output channel -- must happen
      * before Main() spawns AudioMgr's real thread (src/code/main.c), whose
      * first retrace tick can call osAiSetNextBuffer -> PspAudio_Output
      * almost immediately. See psp/src/audio/audio_psp.c. */
     extern void PspAudio_Init(void);
+#if !PSP_DISABLE_AUDIO
     PspAudio_Init();
+#endif
+    PspDiag_Step("audio-init");
 
     /* Fills gSequenceTable/gSoundFontTable/gSampleBankTable -- must happen
      * before Main() spawns AudioMgr's real thread, which reads them almost
      * immediately (Audio_Init -> AudioLoad_Init). See psp_audio_tables.c. */
     extern void PspAudioTables_Init(void);
+#if !PSP_DISABLE_AUDIO
     PspAudioTables_Init();
+#endif
+    PspDiag_Step("audio-tables");
 
     OSMesgQueue contMesgQ;
     OSMesg contMesgBuf[1];
@@ -89,6 +133,7 @@ int main(int argc, char* argv[]) {
     u8 contPadMask;
     osCreateMesgQueue(&contMesgQ, contMesgBuf, 1);
     PadSetup_Init(&contMesgQ, &contPadMask, contStatus);
+    PspDiag_Step("pad-init");
 
     /* DmaMgr smoke test (see file header): verify the ported thread/queue
      * machinery against real ROM data, same "dmadata" segment and expected
@@ -96,9 +141,11 @@ int main(int argc, char* argv[]) {
     /* Blob paths are relative, and only the main thread has a cwd to resolve
      * them against -- pin them to the game's own directory before any thread
      * that might load one exists. See psp/include/psp_blob_assets.h. */
-    PspBlob_SetBaseDir(argc > 0 ? argv[0] : NULL);
+    /* (base dir is pinned at the top of main now) */
 
+    PspDiag_Step("rom-init");
     PspRom_Init("oot-pal-1.0.z64");
+    PspDiag_Step("dma-init");
     DmaMgr_InitForTest();
 
     static u8 sDmaTestBuf[0x6000];
