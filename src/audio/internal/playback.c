@@ -3,6 +3,16 @@
  */
 #include "ultra64.h"
 #include "audio.h"
+#if TARGET_PSP
+#include "psp_audio_guard.h"
+
+/* A soundfont index is only usable if it can index a table that is itself in
+ * native RAM. Ported from reference/oot-psp-z2442 (OotPspAudio_IsSafeFontId);
+ * 0x30 is one past the highest font id the game ever asks for. */
+static s32 PspAudio_IsSafeFontId(s32 fontId) {
+    return (fontId >= 0) && (fontId < 0x30) && PspAudio_IsAlignedNativePtr(gAudioCtx.soundFontList);
+}
+#endif
 
 /**
  * original name: Nas_smzSetParam
@@ -105,6 +115,31 @@ void Audio_InitSampleState(Note* note, NoteSampleState* sampleState, NoteSampleS
     sampleState->targetVolLeft = (s32)((vel * volLeft) * (0x1000 - 0.001f));
     sampleState->targetVolRight = (s32)((vel * volRight) * (0x1000 - 0.001f));
 
+#if TARGET_PSP
+    /* Last unmeasured step in the "Link's sounds are quiet" chain. Everything
+     * upstream is now known to be near full (see the SFX HUD line), so if a
+     * note still ends up quiet, it happens right here: vel carries the whole
+     * channel gain, volLeft/volRight only the pan split. Recorded for notes
+     * belonging to the SFX player, whose sounds are the ones in question.
+     *
+     * Reading it: tgt is targetVolLeft out of 0x1000 (4096). A close,
+     * centred, full-volume sound should land in the low thousands. tgt in
+     * the hundreds while the HUD's vol/ent are near full means vel arrived
+     * small -- the channel gain never reached the note. */
+    if ((note->playbackState.parentLayer != NULL) &&
+        (note->playbackState.parentLayer->channel != NULL) &&
+        (note->playbackState.parentLayer->channel->seqPlayer ==
+         &gAudioCtx.seqPlayers[SEQ_PLAYER_SFX])) {
+        extern f32 gPspNoteProbeVel;
+        extern s32 gPspNoteProbeTargetVol;
+        extern u32 gPspNoteProbeCount;
+
+        gPspNoteProbeVel = vel;
+        gPspNoteProbeTargetVol = sampleState->targetVolLeft;
+        gPspNoteProbeCount++;
+    }
+#endif
+
     sampleState->gain = attrs->gain;
     sampleState->filter = attrs->filter;
     sampleState->combFilterSize = attrs->combFilterSize;
@@ -193,9 +228,20 @@ void Audio_ProcessNotes(void) {
             // meaning on a target whose RAM sits below 0x80000000 -- see
             // AUDIO_RELOCATED_ADDRESS_START in audio.h. No behaviour change on
             // N64: no pointer is ever between 0x7FFFFFFF and 0x80000000.
+#if TARGET_PSP
+            /* A lower bound alone is not enough here: freed layers routinely
+             * leave a high-but-wild value behind, which passes the N64 test
+             * and then faults outside the user partition. Check the whole
+             * range and the alignment, as reference/oot-psp-z2442 does. */
+            if (!PspAudio_IsAlignedNativePtr(playbackState->parentLayer)) {
+                PspAudio_NoteBadPtr("process-notes-layer");
+                continue;
+            }
+#else
             if ((u32)playbackState->parentLayer < AUDIO_RELOCATED_ADDRESS_START) {
                 continue;
             }
+#endif
 
             if (note != playbackState->parentLayer->note && playbackState->unk_04 == 0) {
                 playbackState->adsr.action.s.release = true;
@@ -271,6 +317,65 @@ void Audio_ProcessNotes(void) {
             }
 
             scale = Audio_AdsrUpdate(&playbackState->adsr);
+#if TARGET_PSP
+            /* The envelope is the last unexplained factor: the SFX side is
+             * measured at full volume (VOICE vol/ent 1000) while notes arrive
+             * at a few percent, and this scale is the only multiplier in
+             * between.
+             *
+             * cur/tgt are the envelope's live and target amplitude x1000.
+             * d0/a0 are the RAW first envelope point straight out of the
+             * soundfont. That pair decides the byte-order question in one
+             * look: a real OoT attack point is a small positive delay with a
+             * target up to 32767, so d0=1 a0=32767 means the data is being
+             * read correctly, while d0=256 a0=-129 is exactly that same point
+             * with its bytes swapped -- and would explain a near-silent note
+             * while every other volume upstream reads full. */
+            if (scale < 0.2f) {
+                extern f32 gPspAdsrProbeCur;
+                extern f32 gPspAdsrProbeTarget;
+                extern s32 gPspAdsrProbeD0;
+                extern s32 gPspAdsrProbeA0;
+                extern u32 gPspAdsrProbeCount;
+
+                {
+                    extern s32 gPspAdsrProbeDelay;
+                    extern f32 gPspAdsrProbeVel;
+                    extern s32 gPspAdsrProbeTicks;
+                    extern s32 gPspAdsrProbeIndex;
+                    extern s32 gPspAdsrProbeDN;
+                    extern s32 gPspAdsrProbeAN;
+
+                    /* delay is the point's tick count AFTER scaling, vel the
+                     * per-tick step it produces. A correct attack covers most
+                     * of the distance to target within a couple of ticks; a
+                     * delay inflated by a wrong ticksPerUpdateScaled makes vel
+                     * tiny, so a short sound ends while current is still near
+                     * zero -- which is what cur 0 against tgt 806 looks like.
+                     * ticks is the scale factor itself, so the two can be
+                     * told apart: a large delay with a small factor means the
+                     * envelope data asked for it. */
+                    /* Report the ACTIVE point, not envelope[0]: the long
+                     * delay that stalls the attack comes from a later index,
+                     * and index 0 was measured short (d0 2). */
+                    gPspAdsrProbeIndex = playbackState->adsr.envIndex;
+                    if (PspAudio_IsAlignedNativePtr(playbackState->adsr.envelope)) {
+                        gPspAdsrProbeDN = playbackState->adsr.envelope[playbackState->adsr.envIndex].delay;
+                        gPspAdsrProbeAN = playbackState->adsr.envelope[playbackState->adsr.envIndex].arg;
+                    }
+                    gPspAdsrProbeDelay = playbackState->adsr.delay;
+                    gPspAdsrProbeVel = playbackState->adsr.velocity;
+                    gPspAdsrProbeTicks = gAudioCtx.audioBufferParameters.ticksPerUpdateScaled;
+                }
+                gPspAdsrProbeCur = playbackState->adsr.current;
+                gPspAdsrProbeTarget = playbackState->adsr.target;
+                if (PspAudio_IsAlignedNativePtr(playbackState->adsr.envelope)) {
+                    gPspAdsrProbeD0 = playbackState->adsr.envelope[0].delay;
+                    gPspAdsrProbeA0 = playbackState->adsr.envelope[0].arg;
+                }
+                gPspAdsrProbeCount++;
+            }
+#endif
             Audio_NoteVibratoUpdate(note);
             attrs = &playbackState->attributes;
             if (playbackState->unk_04 == 1 || playbackState->unk_04 == 2) {
@@ -345,6 +450,13 @@ Instrument* Audio_GetInstrumentInner(s32 fontId, s32 instId) {
         return NULL;
     }
 
+#if TARGET_PSP
+    if (!PspAudio_IsSafeFontId(fontId) || (instId < 0)) {
+        PspAudio_NoteBadPtr("inst-range");
+        return NULL;
+    }
+#endif
+
     if (!AudioLoad_IsFontLoadComplete(fontId)) {
         gAudioCtx.audioErrorFlags = fontId + 0x10000000;
         return NULL;
@@ -355,7 +467,20 @@ Instrument* Audio_GetInstrumentInner(s32 fontId, s32 instId) {
         return NULL;
     }
 
+#if TARGET_PSP
+    if (!PspAudio_IsAlignedNativePtr(gAudioCtx.soundFontList[fontId].instruments)) {
+        PspAudio_NoteBadPtr("inst-table");
+        return NULL;
+    }
+#endif
+
     inst = gAudioCtx.soundFontList[fontId].instruments[instId];
+#if TARGET_PSP
+    if ((inst != NULL) && !PspAudio_IsAlignedNativePtr(inst)) {
+        PspAudio_NoteBadPtr("inst");
+        return NULL;
+    }
+#endif
     if (inst == NULL) {
         gAudioCtx.audioErrorFlags = ((fontId << 8) + instId) + 0x1000000;
         return inst;
@@ -374,6 +499,13 @@ Drum* Audio_GetDrum(s32 fontId, s32 drumId) {
         return NULL;
     }
 
+#if TARGET_PSP
+    if (!PspAudio_IsSafeFontId(fontId)) {
+        PspAudio_NoteBadPtr("drum-range");
+        return NULL;
+    }
+#endif
+
     if (!AudioLoad_IsFontLoadComplete(fontId)) {
         gAudioCtx.audioErrorFlags = fontId + 0x10000000;
         return NULL;
@@ -383,10 +515,23 @@ Drum* Audio_GetDrum(s32 fontId, s32 drumId) {
         gAudioCtx.audioErrorFlags = ((fontId << 8) + drumId) + 0x4000000;
         return NULL;
     }
+#if TARGET_PSP
+    if (!PspAudio_IsAlignedNativePtr(gAudioCtx.soundFontList[fontId].drums)) {
+        PspAudio_NoteBadPtr("drum-table");
+        return NULL;
+    }
+#else
     if ((u32)gAudioCtx.soundFontList[fontId].drums < AUDIO_RELOCATED_ADDRESS_START) {
         return NULL;
     }
+#endif
     drum = gAudioCtx.soundFontList[fontId].drums[drumId];
+#if TARGET_PSP
+    if ((drum != NULL) && !PspAudio_IsAlignedNativePtr(drum)) {
+        PspAudio_NoteBadPtr("drum");
+        return NULL;
+    }
+#endif
 
     if (drum == NULL) {
         gAudioCtx.audioErrorFlags = ((fontId << 8) + drumId) + 0x5000000;
@@ -405,6 +550,13 @@ SoundEffect* Audio_GetSoundEffect(s32 fontId, s32 sfxId) {
         return NULL;
     }
 
+#if TARGET_PSP
+    if (!PspAudio_IsSafeFontId(fontId)) {
+        PspAudio_NoteBadPtr("sfx-range");
+        return NULL;
+    }
+#endif
+
     if (!AudioLoad_IsFontLoadComplete(fontId)) {
         gAudioCtx.audioErrorFlags = fontId + 0x10000000;
         return NULL;
@@ -415,9 +567,16 @@ SoundEffect* Audio_GetSoundEffect(s32 fontId, s32 sfxId) {
         return NULL;
     }
 
+#if TARGET_PSP
+    if (!PspAudio_IsAlignedNativePtr(gAudioCtx.soundFontList[fontId].soundEffects)) {
+        PspAudio_NoteBadPtr("sfx-table");
+        return NULL;
+    }
+#else
     if ((u32)gAudioCtx.soundFontList[fontId].soundEffects < AUDIO_RELOCATED_ADDRESS_START) {
         return NULL;
     }
+#endif
 
     soundEffect = &gAudioCtx.soundFontList[fontId].soundEffects[sfxId];
 
@@ -779,6 +938,24 @@ void Audio_NotePoolFill(NotePool* pool, s32 count) {
  * original name: Nas_AddListHead
  */
 void Audio_AudioListPushFront(AudioListItem* list, AudioListItem* item) {
+#if TARGET_PSP
+    /* Teardown can hand us a list head or an item that has already been freed;
+     * the splice below writes through both. Ported from
+     * reference/oot-psp-z2442. A head whose links are wild is re-emptied
+     * rather than dropped, so the pool stays usable. */
+    if (!PspAudio_IsAlignedNativePtr(list) || !PspAudio_IsAlignedNativePtr(item)) {
+        PspAudio_NoteBadPtr("push-front");
+        return;
+    }
+
+    if (!PspAudio_IsAlignedNativePtr(list->next)) {
+        PspAudio_NoteBadPtr("push-front-head");
+        list->prev = list;
+        list->next = list;
+        list->u.count = 0;
+    }
+#endif
+
     // add 'item' to the front of the list given by 'list', if it's not in any list
     if (item->prev == NULL) {
         item->prev = list;
@@ -796,6 +973,16 @@ void Audio_AudioListPushFront(AudioListItem* list, AudioListItem* item) {
 void Audio_AudioListRemove(AudioListItem* item) {
     // remove 'item' from the list it's in, if any
     if (item->prev != NULL) {
+#if TARGET_PSP
+        if (!PspAudio_IsAlignedNativePtr(item) || !PspAudio_IsAlignedNativePtr(item->prev) ||
+            !PspAudio_IsAlignedNativePtr(item->next)) {
+            PspAudio_NoteBadPtr("list-remove");
+            if (PspAudio_IsAlignedNativePtr(item)) {
+                item->prev = NULL;
+            }
+            return;
+        }
+#endif
         item->prev->next = item->next;
         item->next->prev = item->prev;
         item->prev = NULL;

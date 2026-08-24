@@ -29,12 +29,33 @@
  * carries a gain argument here that the microcode ignores).
  *
  * Include this AFTER ultra64.h in any file that emits audio commands.
+ *
+ * DEFERRED MODE (PSP_AUDIO_DEFERRED_MIXING, the default). Executing inside
+ * the macros welds the mixer to whichever thread built the list, which rules
+ * out running it on the Media Engine. With this switch on, the macros are
+ * left exactly as the decomp declares them -- AudioSynth_Update goes back to
+ * being a pure list builder -- and the list is walked afterwards by
+ * PspAudioMixer_ExecuteCommandList (psp/src/audio/psp_audio_cmdlist.c),
+ * either on the audio thread or on the ME. Set it to 0 to get the original
+ * immediate mixing back; that is the reference point to compare against if
+ * the sound ever changes after a mixer edit, since the two paths must
+ * produce bit-identical PCM.
  */
 
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "ultra64/abi.h"
+
+#ifndef PSP_AUDIO_DEFERRED_MIXING
+#define PSP_AUDIO_DEFERRED_MIXING 1
+#endif
+
+/* Walks a finished command list. Safe to call from either processor; it
+ * touches no engine state beyond what the commands themselves name. */
+void PspAudioMixer_ExecuteCommandList(const Acmd* cmdList, int32_t cmdCount);
+
+#if !PSP_AUDIO_DEFERRED_MIXING
 
 #undef aADPCMdec
 #undef aAddMixer
@@ -60,6 +81,8 @@
 #undef aSetLoop
 #undef aUnkCmd3
 #undef aUnkCmd19
+
+#endif /* !PSP_AUDIO_DEFERRED_MIXING */
 
 void aClearBufferImpl(uint16_t addr, int nbytes);
 void aLoadBufferImpl(const void* sourceAddr, uint16_t destAddr, uint16_t nbytes);
@@ -112,6 +135,7 @@ void PspAudioMixer_CountCmd(void);
  * negative count reach memcpy/memmove as a ~4 GB size_t. */
 #define PSP_ACMD_LEN(c) ((int)(uint16_t)(c))
 
+#if !PSP_AUDIO_DEFERRED_MIXING
 #define aClearBuffer(pkt, dmem, size) PSP_ACMD(pkt, aClearBufferImpl(dmem, PSP_ACMD_LEN(size)))
 #define aLoadBuffer(pkt, addrSrc, dmemDest, size) PSP_ACMD(pkt, aLoadBufferImpl(addrSrc, dmemDest, PSP_ACMD_LEN(size)))
 #define aSaveBuffer(pkt, dmemSrc, addrDest, size) PSP_ACMD(pkt, aSaveBufferImpl(dmemSrc, addrDest, PSP_ACMD_LEN(size)))
@@ -144,5 +168,7 @@ void PspAudioMixer_CountCmd(void);
         (void)(pkt);              \
     } while (0)
 #define aUnkCmd19(pkt, a1, a2, a3, a4) PSP_ACMD(pkt, aUnkCmd19Impl(a1, a2, a3, a4))
+
+#endif /* !PSP_AUDIO_DEFERRED_MIXING */
 
 #endif /* PSP_AUDIO_MIXER_H */

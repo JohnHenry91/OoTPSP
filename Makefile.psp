@@ -312,6 +312,12 @@ PSP_C_FILES += src/code/audio_thread_manager.c
 PSP_C_FILES += src/code/audio_stop_all_sfx.c
 PSP_C_FILES += psp/src/audio/audio_psp.c
 PSP_C_FILES += psp/src/audio/psp_audio_mixer.c
+# The microcode interpreter and the Media Engine offload that uses it. See
+# psp/include/psp_audio_me.h -- the mixer now runs on the PSP's second core,
+# with the audio thread as the fallback whenever the ME is unavailable (which
+# includes every run under PPSSPP).
+PSP_C_FILES += psp/src/audio/psp_audio_cmdlist.c
+PSP_C_FILES += psp/src/audio/psp_audio_me.c
 PSP_C_FILES += psp/src/audio/psp_audio_debug.c
 # Overrun probe -- see psp/include/psp_audio_probe.h.
 PSP_C_FILES += psp/src/audio/psp_audio_probe.c
@@ -681,7 +687,9 @@ ASFLAGS = $(CFLAGS)
 OBJCOPY = psp-objcopy
 
 LIBDIR = psp/lib
-LIBS = -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lpsppower -lpspaudio -lm
+# -lme-core boots the Media Engine (psp/src/audio/psp_audio_me.c). It embeds
+# the kcall.prx kernel bridge it needs, so nothing extra ships on the stick.
+LIBS = -lme-core -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lpsppower -lpspaudio -lm
 
 # D_01000000 is not data -- it is a segmented ADDRESS that the N64 build's own
 # spec resolves to the literal 0x01000000, and segment 1 is the billboard matrix

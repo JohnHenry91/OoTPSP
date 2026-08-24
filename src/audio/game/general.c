@@ -2686,6 +2686,36 @@ void Audio_SetSfxProperties(u8 bankId, u8 entryIdx, u8 channelIndex) {
             entry->dist = sqrtf(entry->dist * SFX_DIST_SCALING);
 
             vol = Audio_ComputeSfxVolume(bankId, entryIdx) * *entry->vol;
+#if TARGET_PSP
+            /* Probe for "Link's jump/attack sounds are very quiet".
+             *
+             * SFX volume is purely a function of entry->dist, and dist comes
+             * from *entry->pos{X,Y,Z} -- which for an actor sound is the
+             * actor's PROJECTED position (relative to the listener), not its
+             * world position. So a broken view transform makes every
+             * positional sound quiet while music, which has no position at
+             * all, stays correct: exactly the reported symptom.
+             *
+             * Reading it decides between the two candidates on the spot:
+             *   dist small (< ~50) and vol still low -> not the projection,
+             *     look at *entry->vol / the filter path instead
+             *   dist in the hundreds or thousands       -> projected position
+             *     is wrong, and this is a renderer/matrix bug, not audio
+             * BANK_VOICE, not BANK_PLAYER: the reported symptom is Link's
+             * VOICE being quiet while his sword and footsteps are fine, and
+             * those live in different banks with different parameters. */
+            if (bankId == BANK_VOICE) {
+                extern f32 gPspSfxProbeDist;
+                extern f32 gPspSfxProbeVol;
+                extern f32 gPspSfxProbeEntryVol;
+                extern u32 gPspSfxProbeCount;
+
+                gPspSfxProbeDist = entry->dist;
+                gPspSfxProbeVol = vol;
+                gPspSfxProbeEntryVol = *entry->vol;
+                gPspSfxProbeCount++;
+            }
+#endif
             reverb = Audio_ComputeSfxReverb(bankId, entryIdx, channelIndex);
             pan = Audio_ComputeSfxPanSigned(*entry->posX, *entry->posZ, entry->token);
             freqScale = Audio_ComputeSfxFreqScale(bankId, entryIdx) * *entry->freqScale;

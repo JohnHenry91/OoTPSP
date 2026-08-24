@@ -31,6 +31,7 @@
 #include "gfx_rendering_api.h"
 #include "psp_hw_diag.h"
 #include "psp_blob_assets.h"
+#include "psp_audio_me.h"
 
 extern void DmaMgr_InitForTest(void);
 extern void Main(void* arg);
@@ -82,13 +83,16 @@ int main(int argc, char* argv[]) {
      * overclock is the obvious suspect: it raises current draw sharply, and an
      * aged battery can brown out under it.
      *
-     * So the clock is now a knob rather than a constant, defaulting to the
-     * 222/111 the PSP boots applications at. Build with -DPSP_CPU_MHZ=333 to
-     * get the old behaviour back once the hardware failure is understood. The
-     * chosen value is written to the boot log, so a log from the console says
-     * which clock produced it. */
+     * That suspicion was wrong. The power-off was traced to unchecked sample
+     * pointers in the audio thread (see the hardware bring-up notes), which
+     * left the user partition and took the console down with them; the guards
+     * for that are in place. So the clock is back to 333/333/166, which the
+     * audio synthesis genuinely needs -- at 222 the sound is audibly choppy.
+     * It stays a knob: build with -DPSP_CPU_MHZ=222 to drop back. The chosen
+     * value is written to the boot log, so a log from the console says which
+     * clock produced it. */
 #ifndef PSP_CPU_MHZ
-#define PSP_CPU_MHZ 222
+#define PSP_CPU_MHZ 333
 #endif
 #if PSP_CPU_MHZ >= 333
     scePowerSetClockFrequency(333, 333, 166);
@@ -122,6 +126,12 @@ int main(int argc, char* argv[]) {
     extern void PspAudio_Init(void);
 #if !PSP_DISABLE_AUDIO
     PspAudio_Init();
+    /* Boots the second CPU core, which then runs the audio microcode instead
+     * of the audio thread. Must be on the main thread: libme-core loads its
+     * kernel bridge through a relative path, and only the main thread has a
+     * cwd. A failure is expected and harmless -- under PPSSPP there is no ME
+     * and the mixer simply stays where it was. See psp/include/psp_audio_me.h. */
+    PspAudioMe_Init();
 #endif
     PspDiag_Step("audio-init");
 

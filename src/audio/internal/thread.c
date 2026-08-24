@@ -10,6 +10,8 @@
 
 #if TARGET_PSP
 #include "psp_hw_diag.h"
+#include "psp_audio_me.h"
+#include "psp_audio_mixer.h"
 
 /* Probes written by the AUDIO thread itself.
  *
@@ -195,6 +197,18 @@ AudioTask* AudioThread_UpdateImpl(void) {
     gAudioCtx.curAbiCmdBuf =
         AudioSynth_Update(gAudioCtx.curAbiCmdBuf, &abiCmdCnt, curAiBuffer, gAudioCtx.aiBufLengths[index]);
     PSP_DIAG_AT("      at-synth-done");
+#if TARGET_PSP && PSP_AUDIO_DEFERRED_MIXING
+    /* AudioSynth_Update only BUILT the list (see psp_audio_mixer.h); on N64
+     * the RSP would run it from here. PspAudio_RunCommandList sends it to the
+     * Media Engine when that is available and falls back to running it right
+     * here when it is not -- so this call is the whole seam between the two.
+     * The list starts at abiCmdBufs[rspTaskIndex]; curAbiCmdBuf now points
+     * one past its end. */
+    PSP_DIAG_AT("      at-mix-begin");
+    PspAudio_RunCommandList(gAudioCtx.abiCmdBufs[gAudioCtx.rspTaskIndex], abiCmdCnt, curAiBuffer,
+                            gAudioCtx.aiBufLengths[index]);
+    PSP_DIAG_AT("      at-mix-done");
+#endif
 
     // Update audioRandom to the next random number
     gAudioCtx.audioRandom = (gAudioCtx.audioRandom + gAudioCtx.totalTaskCount) * osGetCount();

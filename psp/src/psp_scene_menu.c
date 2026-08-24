@@ -50,6 +50,35 @@
 
 #include "psp_audio.h"
 #include "psp_audio_probe.h"
+#include "psp_audio_guard.h"
+#include "psp_audio_me.h"
+
+/* Probe globals written by Audio_SetSfxProperties (src/audio/game/general.c)
+ * and psp_audio_debug.c. */
+extern f32 gPspSfxProbeDist;
+extern f32 gPspSfxProbeVol;
+extern f32 gPspSfxProbeEntryVol;
+extern u32 gPspSfxProbeCount;
+extern f32 gPspNoteProbeVel;
+extern s32 gPspNoteProbeTargetVol;
+extern u32 gPspNoteProbeCount;
+extern f32 gPspAdsrProbeCur;
+extern f32 gPspAdsrProbeTarget;
+extern s32 gPspAdsrProbeD0;
+extern s32 gPspAdsrProbeA0;
+extern u32 gPspAdsrProbeCount;
+extern s32 gPspAdsrProbeDelay;
+extern f32 gPspAdsrProbeVel;
+extern s32 gPspAdsrProbeTicks;
+extern s32 gPspAdsrProbeIndex;
+extern s32 gPspAdsrProbeDN;
+extern s32 gPspAdsrProbeAN;
+
+/* Kept as accessors rather than reaching into gAudioCtx here: this file does
+ * not include audio.h, and pulling it in for two floats would drag the whole
+ * engine header into the menu's translation unit. */
+f32 PspAudioDebug_SfxPlayerVolume(void);
+f32 PspAudioDebug_BgmPlayerVolume(void);
 
 /* Cullable-room probe, defined in src/code/z_room.c -- see the comment on
  * gPspRoomCullEntries there for what the counters distinguish. */
@@ -231,25 +260,37 @@ enum {
     HUD_SEC_GATE,
     HUD_SEC_LOAD,
     HUD_SEC_BIG,
+    HUD_SEC_SFX,
+    HUD_SEC_ME,
     HUD_SEC_COUNT
 };
 
 static int sHudSection[HUD_SEC_COUNT] = {
     /* FPS  */ 1, /* frame budget -- cheap and always worth seeing */
-    /* PATH */ 0, /* audio decode census */
+    /* PATH */ 1, /* audio decode census + the SFX distance probe */
     /* DROP */ 0, /* audio note drops */
-    /* AUD  */ 0, /* audio output backend */
+    /* AUD  */ 1, /* audio output backend + Media Engine counters */
     /* BGM  */ 0, /* sequence player */
     /* GATE */ 0, /* audio reset gate */
     /* LOAD */ 0, /* asset/blob loading */
-    /* BIG  */ 1, /* biggest-triangle texture probe -- the current subject */
+    /* BIG  */ 0, /* biggest-triangle texture probe -- an older subject */
+    /* SFX  */ 1, /* positional-sound distance/volume probe */
+    /* ME   */ 1, /* Media Engine offload counters */
 };
 
 static const char* const sHudSectionName[HUD_SEC_COUNT] = {
-    "FPS / frame budget", "PATH  audio decode paths", "DROP  audio note drops",
-    "AUD   audio output",  "BGM   sequence player",    "GATE  audio reset gate",
-    "LOAD  asset loading", "BIG   texture probe",
+    "FPS / frame budget", "PATH  decode paths + SFX dist", "DROP  audio note drops",
+    "AUD   audio out + Media Engine", "BGM   sequence player", "GATE  audio reset gate",
+    "LOAD  asset loading", "BIG   texture probe", "SFX   positional sound",
+    "ME    Media Engine",
 };
+
+/* Row 0 of the HUD page is the HUD's own visibility rather than a section.
+ * It used to be reachable only through the TRIANGLE hotkey, which meant the
+ * menu could turn individual lines on while the HUD as a whole stayed
+ * invisible -- looking exactly like a broken toggle. */
+#define HUD_ROW_VISIBLE 0
+#define HUD_ROW_COUNT   (HUD_SEC_COUNT + 1)
 
 /* 0 = scene list, 1 = render hacks, 2 = HUD sections. */
 enum { PAGE_MAPS, PAGE_HACKS, PAGE_HUD, PAGE_COUNT };
@@ -343,8 +384,8 @@ static void PspSceneMenu_Move(s32 delta) {
     if (sPage == PAGE_HUD) {
         sHudCursor += delta;
         if (sHudCursor < 0) {
-            sHudCursor = HUD_SEC_COUNT - 1;
-        } else if (sHudCursor >= HUD_SEC_COUNT) {
+            sHudCursor = HUD_ROW_COUNT - 1;
+        } else if (sHudCursor >= HUD_ROW_COUNT) {
             sHudCursor = 0;
         }
         return;
@@ -512,7 +553,11 @@ void PspSceneMenu_Update(PlayState* play) {
 
     if (PSP_RAW_PRESSED(PSP_CTRL_CROSS)) {
         if (sPage == PAGE_HUD) {
-            sHudSection[sHudCursor] = !sHudSection[sHudCursor];
+            if (sHudCursor == HUD_ROW_VISIBLE) {
+                sHudOpen = !sHudOpen;
+            } else {
+                sHudSection[sHudCursor - 1] = !sHudSection[sHudCursor - 1];
+            }
         } else if (sPage == PAGE_HACKS) {
             /* Deliberately leaves the menu open: a hack is something you flip
              * back and forth, unlike a warp, which is done once. */
@@ -746,16 +791,18 @@ void PspSceneMenu_DrawBackdrop(void) {
     }
 
     if (sPage == PAGE_HUD) {
-        for (i = 0; i < HUD_SEC_COUNT; i++) {
+        for (i = 0; i < HUD_ROW_COUNT; i++) {
             s32 y = 24 + i * (GLYPH_H + 2);
             s32 selected = (i == sHudCursor);
+            s32 on = (i == HUD_ROW_VISIBLE) ? sHudOpen : sHudSection[i - 1];
+            const char* name =
+                (i == HUD_ROW_VISIBLE) ? "SHOW HUD  (or TRIANGLE)" : sHudSectionName[i - 1];
 
             if (selected) {
                 PspSceneMenu_PutString(&v, 8, y, 0xFF00FFFF, ">");
             }
-            PspSceneMenu_PutString(&v, 24, y, sHudSection[i] ? 0xFF00FF00 : 0xFF808080,
-                                   sHudSection[i] ? "[X]" : "[ ]");
-            PspSceneMenu_PutString(&v, 56, y, selected ? 0xFF00FFFF : 0xFFFFFFFF, sHudSectionName[i]);
+            PspSceneMenu_PutString(&v, 24, y, on ? 0xFF00FF00 : 0xFF808080, on ? "[X]" : "[ ]");
+            PspSceneMenu_PutString(&v, 56, y, selected ? 0xFF00FFFF : 0xFFFFFFFF, name);
         }
 
         PspSceneMenu_SubmitText(verts, v);
@@ -821,8 +868,14 @@ void PspSceneMenu_DrawHud(void) {
     MenuVertex* v;
     char line0[64];
     char line1[64];
-    char line2[64];
+    /* Wider than its siblings: the DROP line carries six counters plus a raw
+     * error code, and an overflowing sprintf here smashes the stack (see the
+     * session-4 audio notes). */
+    char line2[96];
     char line3[64];
+    char line7[64];
+    char line8[112];
+    char line9[96];
     char line4[64];
     char line5[64];
     char line6[72];
@@ -924,9 +977,18 @@ void PspSceneMenu_DrawHud(void) {
          * heard: ovr climbing means samplePosInt is still running past the
          * end of a sample; ovr frozen at 0 while the artefact is audible
          * rules that mechanism out on the spot and points somewhere else. */
-        sprintf(line2, "DROP ins %u drm %u fnt %u alc %u ovr %u last %08x", (unsigned)eIns, (unsigned)eDrm,
-                (unsigned)eFnt, (unsigned)eAlc, (unsigned)PspAudioProbe_StatHits(), (unsigned)eLast);
-        sDropTotal = eTot + PspAudioProbe_StatHits();
+        /* grd counts pointers the PSP guard layer refused to dereference --
+         * wild list links, freed layers/channels, soundfont tables outside the
+         * user partition (psp/include/psp_audio_guard.h). It is the one
+         * counter here that is about the console staying alive rather than
+         * about a note being heard: on N64 every one of these would have been
+         * a harmless garbage read, on hardware it is a power-off. Nonzero
+         * means the engine is handing the audio thread stale pointers, so it
+         * names a teardown-ordering bug, not a data bug. */
+        sprintf(line2, "DROP ins %u drm %u fnt %u alc %u ovr %u grd %u last %08x", (unsigned)eIns, (unsigned)eDrm,
+                (unsigned)eFnt, (unsigned)eAlc, (unsigned)PspAudioProbe_StatHits(), (unsigned)gPspAudioBadPtrDrops,
+                (unsigned)eLast);
+        sDropTotal = eTot + PspAudioProbe_StatHits() + gPspAudioBadPtrDrops;
     }
 
     /* AUD: calls = how many times PspAudio_Output has run at all (0 forever
@@ -936,9 +998,55 @@ void PspSceneMenu_DrawHud(void) {
      * the hardware (a volume/mixing bug upstream, not this backend). RSVF
      * counts sceAudioSRCChReserve failures. */
     {
+        /* ME is the Media Engine offload (psp/include/psp_audio_me.h): me =
+         * command lists the second core mixed, cpu = lists this core had to
+         * mix itself, us = how long the last ME job took. me climbing with
+         * cpu frozen is the only real proof the offload is live; cpu climbing
+         * alone means the ME never came up (always the case under PPSSPP) or
+         * timed out once and was switched off for good. */
         sprintf(line3, "AUD calls %u n %u peak %d rsvf %u", (unsigned)PspAudio_StatOutputCalls(),
                 (unsigned)PspAudio_StatLastNumSamples(), (int)PspAudio_StatLastPeakSample(),
                 (unsigned)PspAudio_StatReserveFailures());
+
+        /* SFX: what the engine last computed for a BANK_PLAYER sound (Link's
+         * jump, his sword). vol is the final channel volume x1000, ent is
+         * *entry->vol x1000 -- the caller's own request before distance
+         * attenuation. A healthy close-range sound is d < ~100 with vol near
+         * ent; vol far below ent means distance ate it, and vol == ent while
+         * still sounding quiet means the loss is downstream of here. */
+        /* p/b are the two sequence players' applied fade volumes x1000: SFX
+         * (SEQ_PLAYER_SFX) against music (SEQ_PLAYER_BGM_MAIN). The
+         * per-sound volume above is already known to be near full, so if
+         * sounds are still quiet the loss is a whole-player gain -- and p
+         * well below b would name it outright, since the two are faded
+         * independently. Both near 1000 means the loss is further down still,
+         * in the channel/note path. */
+        sprintf(line7, "VOICE d %d vol %d ent %d n %u p %d b %d", (int)gPspSfxProbeDist,
+                (int)(gPspSfxProbeVol * 1000.0f), (int)(gPspSfxProbeEntryVol * 1000.0f),
+                (unsigned)gPspSfxProbeCount,
+                (int)(PspAudioDebug_SfxPlayerVolume() * 1000.0f),
+                (int)(PspAudioDebug_BgmPlayerVolume() * 1000.0f));
+
+        /* me climbing with cpu frozen is the only proof the Media Engine is
+         * really mixing. Under PPSSPP only cpu can ever move. */
+        /* NOTE is the last unmeasured step of the quiet-sound chain: vel is
+         * the note's velocity x1000 (the whole channel gain, after everything
+         * the SFX line above already showed as near-full), tgt its resulting
+         * target volume out of 4096. tgt in the hundreds means the gain never
+         * reached the note. ME counters share the line: me climbing with cpu
+         * frozen is the only proof the Media Engine is really mixing. */
+        sprintf(line8, "NOTE vel %d tgt %d | ENV cur %d tgt %d d0 %d a0 %d n %u",
+                (int)(gPspNoteProbeVel * 1000.0f), (int)gPspNoteProbeTargetVol,
+                (int)(gPspAdsrProbeCur * 1000.0f), (int)(gPspAdsrProbeTarget * 1000.0f),
+                (int)gPspAdsrProbeD0, (int)gPspAdsrProbeA0, (unsigned)gPspAdsrProbeCount);
+        /* idx is the envelope point the attack is actually sitting on, and
+         * dN/aN are that point's raw delay/target. If dN is itself ~203 the
+         * soundfont really does ask for a multi-second ramp and the fault is
+         * upstream (wrong envelope, wrong font); if dN is small while delay
+         * is 203, the engine inflated it. */
+        sprintf(line9, "ENV delay %d step %d tps %d | idx %d dN %d aN %d",
+                (int)gPspAdsrProbeDelay, (int)(gPspAdsrProbeVel * 1000.0f), (int)gPspAdsrProbeTicks,
+                (int)gPspAdsrProbeIndex, (int)gPspAdsrProbeDN, (int)gPspAdsrProbeAN);
     }
 
     /* SEQ_PLAYER_BGM_MAIN (0) -- the player that actually carries the game's
@@ -1080,6 +1188,20 @@ void PspSceneMenu_DrawHud(void) {
          * outdoors. `rep` is the derived number worth reading: how many times
          * the tile repeats across it. `tex` is 3 when the material wants a
          * second texture this single-TMU pipeline cannot show. */
+        if (sHudSection[HUD_SEC_SFX]) {
+            text[n] = line7;
+            colour[n++] = 0xFFFFFFFF;
+        }
+        if (sHudSection[HUD_SEC_ME]) {
+            /* Green once the offload is live, grey while everything is still
+             * being mixed on this core. */
+            text[n] = line8;
+            colour[n++] = PspAudioMe_IsActive() ? 0xFF80FF80 : 0xFF808080;
+        }
+        if (sHudSection[HUD_SEC_ME]) {
+            text[n] = line9;
+            colour[n++] = 0xFFFFFFFF;
+        }
         if (sHudSection[HUD_SEC_BIG]) {
             s32 du = gPspBigTriU1 - gPspBigTriU0;
             s32 dv = gPspBigTriV1 - gPspBigTriV0;
