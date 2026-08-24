@@ -510,6 +510,15 @@ printf '\n'
 
 ask "Understood -- continue?" Y || { say "Aborted. Nothing was changed."; exit 0; }
 
+printf '\n'
+say "${C_B}Before this goes any further:${C_RST} put your ROM file in"
+printf '\n      %s%s%s\n\n' "$C_B" "$SCRIPT_DIR" "$C_RST"
+say "Any of .z64 / .n64 / .v64 works -- the script sorts out byte order and"
+say "verifies the version later. If it isn't there yet, this script will"
+say "notice and offer to check again once you've added it."
+printf '\n'
+ask "Placed it there -- continue?" Y || { say "Aborted. Nothing was changed."; exit 0; }
+
 # ===========================================================================
 #  1. Privileges
 # ===========================================================================
@@ -1004,64 +1013,83 @@ elif [ -f "$BASEROM_DEC" ] && [ "$(md5_of "$BASEROM_DEC")" = "$ROM_MD5_DECOMPRES
 fi
 
 if [ "$ROM_READY" = 0 ]; then
-    CANDIDATES=()
-    if [ -n "$ROM_ARG" ]; then
-        [ -f "$ROM_ARG" ] || die "--rom: no such file: $ROM_ARG"
-        CANDIDATES=("$ROM_ARG")
-    else
-        # Next to the script first -- that is where the instructions say to put
-        # it -- then inside the checkout.
-        for dir in "$SCRIPT_DIR" "$WORK_DIR" "$BASEROM_DIR"; do
-            for f in "$dir"/*.z64 "$dir"/*.n64 "$dir"/*.v64 \
-                     "$dir"/*.Z64 "$dir"/*.N64 "$dir"/*.V64; do
-                [ -f "$f" ] && CANDIDATES+=("$f")
-            done
-        done
-    fi
-
-    [ ${#CANDIDATES[@]} -gt 0 ] || die "No ROM found.
-
-       Put your own Ocarina of Time ROM next to this script:
-
-           $SCRIPT_DIR/
-
-       It must be the PAL 1.0 (Europe) release, as .z64, .n64 or .v64, with
-       this MD5 once converted to .z64:
-
-           $ROM_MD5_COMPRESSED
-
-       Then run this script again, or point straight at the file:
-           ./install.sh --rom /path/to/rom.z64"
-
-    say "Checking ${#CANDIDATES[@]} candidate file(s):"
-    PICKED=""
-    for c in "${CANDIDATES[@]}"; do
-        tmp="$LOG_DIR/rom-normalized.z64"
-        res=$(normalize_rom "$c" "$tmp" 2>>"$LOG_FILE") || res="NOT_A_ROM"
-        if [ "$res" = "NOT_A_ROM" ]; then
-            warn "$(basename "$c") -- not an N64 ROM image"
-            rm -f "$tmp"; continue
-        fi
-        sum=$(md5_of "$tmp")
-        if [ "$sum" = "$ROM_MD5_COMPRESSED" ]; then
-            ok "$(basename "$c") -- PAL 1.0 ($res)"
-            mv -f "$tmp" "$BASEROM"
-            PICKED=1; break
-        elif [ "$sum" = "$ROM_MD5_DECOMPRESSED" ]; then
-            ok "$(basename "$c") -- PAL 1.0, already decompressed ($res)"
-            mv -f "$tmp" "$BASEROM_DEC"
-            PICKED=1; break
+    while :; do
+        CANDIDATES=()
+        if [ -n "$ROM_ARG" ]; then
+            if [ ! -f "$ROM_ARG" ]; then
+                warn "--rom: no such file: $ROM_ARG"
+                printf '\n'
+                if ask "Fix the file (or the path) and try again?" Y; then
+                    continue
+                fi
+                die "Cannot continue without a ROM."
+            fi
+            CANDIDATES=("$ROM_ARG")
         else
-            warn "$(basename "$c") -- wrong version: $(rom_info "$tmp")"
-            rm -f "$tmp"
+            # Next to the script first -- that is where the instructions say to put
+            # it -- then inside the checkout.
+            for dir in "$SCRIPT_DIR" "$WORK_DIR" "$BASEROM_DIR"; do
+                for f in "$dir"/*.z64 "$dir"/*.n64 "$dir"/*.v64 \
+                         "$dir"/*.Z64 "$dir"/*.N64 "$dir"/*.V64; do
+                    [ -f "$f" ] && CANDIDATES+=("$f")
+                done
+            done
         fi
+
+        if [ ${#CANDIDATES[@]} -eq 0 ]; then
+            warn "No ROM found. Looks like it wasn't placed there after all -- put"
+            warn "your own Ocarina of Time ROM in:"
+            printf '\n      %s%s%s\n\n' "$C_B" "$SCRIPT_DIR" "$C_RST"
+            say "   It must be the PAL 1.0 (Europe) release, as .z64, .n64 or .v64,"
+            say "   with this MD5 once converted to .z64:"
+            say "       ${C_GRY}$ROM_MD5_COMPRESSED${C_RST}"
+            printf '\n'
+            if ask "Added it now -- should I look again?" Y; then
+                continue
+            fi
+            die "Cannot continue without a ROM.
+       Run this script again once it's there, or point straight at it:
+           ./install.sh --rom /path/to/rom.z64"
+        fi
+
+        say "Checking ${#CANDIDATES[@]} candidate file(s):"
+        PICKED=""
+        for c in "${CANDIDATES[@]}"; do
+            tmp="$LOG_DIR/rom-normalized.z64"
+            res=$(normalize_rom "$c" "$tmp" 2>>"$LOG_FILE") || res="NOT_A_ROM"
+            if [ "$res" = "NOT_A_ROM" ]; then
+                warn "$(basename "$c") -- not an N64 ROM image"
+                rm -f "$tmp"; continue
+            fi
+            sum=$(md5_of "$tmp")
+            if [ "$sum" = "$ROM_MD5_COMPRESSED" ]; then
+                ok "$(basename "$c") -- PAL 1.0 ($res)"
+                mv -f "$tmp" "$BASEROM"
+                PICKED=1; break
+            elif [ "$sum" = "$ROM_MD5_DECOMPRESSED" ]; then
+                ok "$(basename "$c") -- PAL 1.0, already decompressed ($res)"
+                mv -f "$tmp" "$BASEROM_DEC"
+                PICKED=1; break
+            else
+                warn "$(basename "$c") -- wrong version: $(rom_info "$tmp")"
+                rm -f "$tmp"
+            fi
+        done
+
+        if [ -z "$PICKED" ]; then
+            warn "None of the files found is the supported ROM."
+            say "   This port needs PAL version 1.0 specifically (MD5 $ROM_MD5_COMPRESSED)."
+            say "   Other regions and revisions lay their data out differently and"
+            say "   will not work."
+            printf '\n'
+            if ask "Put the right ROM in $SCRIPT_DIR and look again?" Y; then
+                continue
+            fi
+            die "Cannot continue without the correct ROM."
+        fi
+
+        break
     done
-
-    [ -n "$PICKED" ] || die "None of the files found is the supported ROM.
-
-       This port needs PAL version 1.0 specifically (MD5 $ROM_MD5_COMPRESSED).
-       Other regions and revisions lay their data out differently and will
-       not work."
     ok "ROM installed into baseroms/$GAME_VERSION/"
 fi
 
