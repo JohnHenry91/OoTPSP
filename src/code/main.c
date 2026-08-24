@@ -21,7 +21,11 @@ extern struct IrqMgr gIrqMgr;
 #include "libu64/rcp_utils.h"
 #include "libu64/runtime.h"
 #include "array_count.h"
+#if TARGET_PSP
+#include "psp_hw_diag.h"
+#endif
 #include "audiomgr.h"
+#include "sfx.h"
 #include "debug_arena.h"
 #include "fault.h"
 #include "gfx.h"
@@ -186,27 +190,49 @@ void Main(void* arg) {
      * real PSP thread (same osCreateThread/osStartThread path DmaMgr
      * already uses) that registers itself with IrqMgr and is driven by
      * Graph_Update's new IrqMgr_HandleRetrace call (src/code/graph.c). */
+#if TARGET_PSP
+    /* Sub-ladder inside Main(). Everything in psp/src/main.c is proven clean
+     * on hardware up to here (bring-up levels 0-3 all returned to the XMB), so
+     * what is left is exactly the three things Main() adds: the AudioMgr
+     * thread, the PadMgr thread, and the Graph loop. */
+    PSP_BRINGUP_STOP_AFTER(4, "bringup-4-premain");
+#endif
     StackCheck_Init(&sAudioStackInfo, sAudioStack, STACK_TOP(sAudioStack), 0, 0x100, "audio");
 #if TARGET_PSP && PSP_DISABLE_AUDIO
-    /* Audio deliberately not started.
+    /* Audio deliberately not started. Diagnostic build flag
+     * (-DPSP_DISABLE_AUDIO=1), not a fix.
      *
-     * On hardware the boot trace stops after a CONSTANT number of entries --
-     * 19, unchanged across five builds with different code following that
-     * point. A fixed count rather than a fixed code position means the thing
-     * that kills the console is not what the Graph thread is executing; each
-     * trace line costs an open/write/close on the memory stick, so 19 of them
-     * is roughly a second of wall clock, and the failure is on that schedule
-     * instead. AudioMgr is the other real PSP thread in the port and its mixer
-     * is VFPU-heavy, which makes it the obvious thing to rule out first.
+     * The engine keeps calling into the audio code regardless -- this flag
+     * only skips AudioMgr's THREAD, not the hundreds of Audio_* calls the
+     * game makes. That made the flag actively misleading on hardware: with
+     * AudioMgr never running, Audio_InitSound() -> Audio_ResetSfx() never
+     * runs either, and Audio_ResetSfx is what writes the 0xFF list
+     * terminators into gSfxBanks[bank][0].next. Left at its BSS zero, the
+     * loop in Audio_StopSfxByBank (src/audio/game/sfx.c) reads entry 0,
+     * finds SFX_STATE_EMPTY, does nothing, re-reads .next as 0 and starts
+     * over -- forever. GameState_Destroy calls AudioMgr_StopAllSfx on the
+     * FIRST game-state handover, so an audio-disabled build hangs there
+     * every single time, on hardware and under an emulator alike.
      *
-     * This is a diagnostic build flag (-DPSP_DISABLE_AUDIO=1), not a fix. */
+     * Every "audio is ruled out" hardware run was therefore measuring this
+     * hang and not the failure being chased. Terminate the free lists here
+     * so the flag means what it says: no audio thread, but well-formed
+     * empty SFX banks that the engine's own calls can walk safely. */
     (void)sAudioMgr;
+    Audio_ResetSfx();
 #else
     AudioMgr_Init(&sAudioMgr, STACK_TOP(sAudioStack), THREAD_PRI_AUDIOMGR, THREAD_ID_AUDIOMGR, &gScheduler, &gIrqMgr);
 #endif
 
+#if TARGET_PSP
+    PSP_BRINGUP_STOP_AFTER(5, "bringup-5-audiomgr");
+#endif
     StackCheck_Init(&sPadMgrStackInfo, sPadMgrStack, STACK_TOP(sPadMgrStack), 0, 0x100, "padmgr");
     PadMgr_Init(&gPadMgr, &sSerialEventQueue, &gIrqMgr, THREAD_ID_PADMGR, THREAD_PRI_PADMGR, STACK_TOP(sPadMgrStack));
+
+#if TARGET_PSP
+    PSP_BRINGUP_STOP_AFTER(6, "bringup-6-padmgr");
+#endif
 
 #if !(TARGET_PSP && PSP_DISABLE_AUDIO)
     AudioMgr_WaitForInit(&sAudioMgr);
@@ -245,6 +271,9 @@ void Main(void* arg) {
     }
 #endif
 
+#if TARGET_PSP
+    PSP_BRINGUP_STOP_AFTER(7, "bringup-7-retracepump");
+#endif
     StackCheck_Init(&sGraphStackInfo, sGraphStack, STACK_TOP(sGraphStack), 0, 0x100, "graph");
 #if TARGET_PSP
     /* Single-loop collapse (plan decision #4): Graph_ThreadEntry's own

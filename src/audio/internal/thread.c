@@ -8,6 +8,36 @@
 #include "versions.h"
 #include "audio.h"
 
+#if TARGET_PSP
+#include "psp_hw_diag.h"
+
+/* Probes written by the AUDIO thread itself.
+ *
+ * Everything on the main thread is now accounted for: Audio_Update runs to
+ * completion (all ten of its callees probed), and the trace stops on the very
+ * next statement -- which is AudioThread_ScheduleProcessCmds handing the
+ * queued commands over. The audio thread's heartbeat is still climbing at
+ * that moment (aud=15, 17), so the fault is in what IT does with them, and no
+ * probe on the main thread can ever see that.
+ *
+ * The log's ring buffer is not thread-safe, but every one of these flushes
+ * immediately and the main thread is about to die anyway; a torn line is a
+ * price worth paying for knowing which side of AudioSynth_Update we are on.
+ * Coarse on purpose -- one entry per command batch and one per synthesis
+ * pass, not one per command, because each costs ~20 ms of memory-stick I/O
+ * and this must not reshape the very timing it is measuring. */
+extern u32 gPspDiagFrameCount;
+#define PSP_DIAG_AT(name)              \
+    do {                               \
+        if (gPspDiagFrameCount < PSP_DIAG_FRAMES) { \
+            PspDiag_Step(name);    \
+        }                              \
+    } while (0)
+#else
+#define PSP_DIAG_AT(name) ((void)0)
+#endif
+
+
 #define SAMPLES_TO_OVERPRODUCE 0x10
 #define EXTRA_BUFFERED_AI_SAMPLES_TARGET 0x80
 
@@ -151,7 +181,9 @@ AudioTask* AudioThread_UpdateImpl(void) {
         // msg = 0000RREE R = read pos, E = End Pos
         while (osRecvMesg(gAudioCtx.threadCmdProcQueueP, (OSMesg*)&sp4C, OS_MESG_NOBLOCK) != -1) {
             if (1) {}
+            PSP_DIAG_AT("      at-cmds-begin");
             AudioThread_ProcessCmds(sp4C);
+            PSP_DIAG_AT("      at-cmds-done");
             j++;
         }
         if ((j == 0) && (gAudioCtx.threadCmdQueueFinished)) {
@@ -159,8 +191,10 @@ AudioTask* AudioThread_UpdateImpl(void) {
         }
     }
 
+    PSP_DIAG_AT("      at-synth-begin");
     gAudioCtx.curAbiCmdBuf =
         AudioSynth_Update(gAudioCtx.curAbiCmdBuf, &abiCmdCnt, curAiBuffer, gAudioCtx.aiBufLengths[index]);
+    PSP_DIAG_AT("      at-synth-done");
 
     // Update audioRandom to the next random number
     gAudioCtx.audioRandom = (gAudioCtx.audioRandom + gAudioCtx.totalTaskCount) * osGetCount();

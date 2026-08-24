@@ -468,6 +468,10 @@ void PadMgr_RequestPadData(PadMgr* padMgr, Input* inputs, s32 gameRequest) {
     PadMgr_UnlockPadData(padMgr);
 }
 
+#if TARGET_PSP
+#include "psp_hw_diag.h"
+#endif
+
 void PadMgr_ThreadEntry(PadMgr* padMgr) {
     s16* msg = NULL;
     s32 exit;
@@ -482,6 +486,9 @@ void PadMgr_ThreadEntry(PadMgr* padMgr) {
         }
 
         osRecvMesg(&padMgr->interruptQueue, (OSMesg*)&msg, OS_MESG_BLOCK);
+#if TARGET_PSP
+        PSP_DIAG_BEAT(PSP_DIAG_BEAT_PADMGR);
+#endif
         LOG_UTILS_CHECK_NULL_POINTER("msg", msg, "../padmgr.c", 563);
 
         switch (*msg) {

@@ -635,6 +635,35 @@ ifneq ($(BOOT),)
 BOOT_FLAG = -DPSP_BOOT_ENTRANCE=$(BOOT)
 endif
 
+# Hardware bring-up ladder: stop after stage n, idle, and exit to the XMB
+# instead of starting the game. See the long note above main() in
+# psp/src/main.c. Only psp/src/main.c reads this, so switching levels does not
+# need a full rebuild -- but the Makefile does NOT track CFLAGS changes at all,
+# so `touch psp/src/main.c` is required when changing it (the same trap that
+# produced a half-audio-disabled binary while chasing this bug).
+#   make -f Makefile.psp BRINGUP=0
+BRINGUP ?=
+ifneq ($(BRINGUP),)
+BOOT_FLAG += -DPSP_BRINGUP_LEVEL=$(BRINGUP)
+endif
+
+# Diagnostic: DIAGSYNC=0 stops the boot trace from force-flushing inside the
+# window under investigation, leaving only the periodic batch flush. See the
+# note on PspDiag_StepSync in psp/src/psp_hw_diag.c -- the Memory Stick write
+# burst is itself a suspect.
+DIAGSYNC ?=
+ifneq ($(DIAGSYNC),)
+BOOT_FLAG += -DPSP_DIAG_SYNC=$(DIAGSYNC)
+endif
+
+# Master switch for ALL diagnostics: DIAG=0 compiles the boot trace, the
+# bring-up ladder and every probe out of the build entirely -- no log file is
+# even opened. See psp/include/psp_hw_diag.h. Default is on.
+DIAG ?=
+ifneq ($(DIAG),)
+BOOT_FLAG += -DPSP_DIAG_ENABLED=$(DIAG)
+endif
+
 # Diagnostic: build with PSP_DISABLE_AUDIO=1 to leave AudioMgr and the PSP
 # audio backend unstarted. Used to tell a fault on the audio thread apart from
 # one on the graphics thread, which a boot trace alone cannot do.

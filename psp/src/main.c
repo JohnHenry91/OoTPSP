@@ -18,6 +18,7 @@
 #include <pspdisplay.h>
 #include <pspiofilemgr.h>
 #include <psppower.h>
+#include <stdio.h>
 
 #include "ultra64.h"
 #include "libu64/pad.h"
@@ -52,6 +53,8 @@ PSP_HEAP_SIZE_KB(-1024);
  * gfx_scegu.c's internal one -- sceGu only cares that whatever buffer is
  * passed to sceGuStart is valid/aligned, not who owns it. */
 static unsigned int __attribute__((aligned(16))) sDmaTestList[16384];
+
+
 
 int main(int argc, char* argv[]) {
     extern void PspOsMesgSetMainThread(void);
@@ -100,6 +103,8 @@ int main(int argc, char* argv[]) {
      * psp/src/libultra/os_mesg.c. Must run before any osCreateMesgQueue. */
     PspOsMesgSetMainThread();
 
+    PSP_BRINGUP_STOP_AFTER(0, "bringup-0-bare");
+
     /* gfx_init() runs the real sceGu bring-up (gfx_scegu_init, via the
      * rendering API's .init callback) and exit-callback registration (via
      * gfx_wm_psp's .init callback) -- see psp/src/gfx/gfx_scegu.c /
@@ -107,6 +112,8 @@ int main(int argc, char* argv[]) {
      * test flash below. */
     gfx_init(&gfx_wm_psp, &gfx_opengl_api, "OoT PSP", false);
     PspDiag_Step("gfx-init");
+
+    PSP_BRINGUP_STOP_AFTER(1, "bringup-1-gfx");
 
     /* PspAudio_Init reserves the sceAudio output channel -- must happen
      * before Main() spawns AudioMgr's real thread (src/code/main.c), whose
@@ -126,6 +133,8 @@ int main(int argc, char* argv[]) {
     PspAudioTables_Init();
 #endif
     PspDiag_Step("audio-tables");
+
+    PSP_BRINGUP_STOP_AFTER(2, "bringup-2-audio");
 
     OSMesgQueue contMesgQ;
     OSMesg contMesgBuf[1];
@@ -182,6 +191,8 @@ int main(int argc, char* argv[]) {
             sceGuSwapBuffers();
         }
     }
+
+    PSP_BRINGUP_STOP_AFTER(3, "bringup-3-rom");
 
     /* Hand off to the real single-loop engine (see file header). Never
      * returns in practice -- Graph_ThreadEntry loops through game states

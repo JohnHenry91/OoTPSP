@@ -284,12 +284,19 @@ void Graph_Destroy(GraphicsContext* gfxCtx) {
 
 #if TARGET_PSP
 #include "psp_hw_diag.h"
-/* Trace the first few frames step by step, then go quiet: the per-line file
- * close is what makes the log survive a power cut, and also what makes it too
- * slow to leave running. */
+/* Trace the first frames step by step, then go quiet.
+ *
+ * Widened from 3 frames to 24 and switched to the force-flushing variant.
+ * Hardware and PPSSPP now produce byte-identical traces for all 258 entries
+ * up to "frame 4", after which the console freezes on the last drawn image
+ * while the emulator sails on -- so whatever differs happens INSIDE a frame,
+ * somewhere between these stages, and the periodic batch flush was dropping
+ * up to seven entries exactly where it matters. Paying ~20 ms per entry for
+ * two dozen frames is affordable for one diagnostic run; it must not stay in
+ * a normal build. */
 #define PSP_DIAG_FIRST(name) \
     do { \
-        if (gPspDiagFrameCount < 3) { \
+        if (gPspDiagFrameCount < PSP_DIAG_FRAMES) { \
             PspDiag_Step(name); \
         } \
     } while (0)
@@ -862,6 +869,10 @@ void Graph_ThreadEntry(void* arg0) {
     Graph_Init(&gfxCtx);
 #if TARGET_PSP
     PspDiag_Step("graph-init");
+    /* Sub-ladder, continued from src/code/main.c. Levels 0-7 all returned to
+     * the XMB, so everything outside this function is proven clean on
+     * hardware. */
+    PSP_BRINGUP_STOP_AFTER(8, "bringup-8-graphinit");
 #endif
 
     while (nextOvl != NULL) {
@@ -901,18 +912,28 @@ void Graph_ThreadEntry(void* arg0) {
         GameState_Init(gameState, ovl->init, &gfxCtx);
 #if TARGET_PSP
         PspDiag_Step("gamestate-init-done");
+        /* Parks exactly where the trace is still alive, one step before the
+         * region every failing run died in. Surviving six seconds here says
+         * the killer is the code that runs next; dying here says something
+         * Graph_Init or GameState_Init armed goes off on its own, which the
+         * moving endpoint between runs 3 and 4 (gsd-audioupd at 217 ms vs
+         * gsd-destroy-cb at 229 ms, with only empty functions between them)
+         * already hints at. */
+        PSP_BRINGUP_STOP_AFTER(9, "bringup-9-gamestate");
         gPspDiagFrameCount = 0;
 #endif
 
         while (GameState_IsRunning(gameState)) {
             Graph_Update(&gfxCtx, gameState);
 #if TARGET_PSP
-            /* Every frame for the first two seconds, then once a second.
-             * Closing the file per line is what makes this survive a power
-             * cut, and that is also what makes it expensive -- so it thins
-             * out once the interesting window is past. */
+            /* Entries are RAM appends now, but the periodic flush behind
+             * them is still an open+write+close every PSP_DIAG_FLUSH_EVERY
+             * of them. One per frame would mean ~7 stick writes a second
+             * forever, which is exactly the per-frame debug I/O the frame
+             * pacing work had to remove once already. Dense while the boot
+             * is interesting, sparse afterwards. */
             gPspDiagFrameCount++;
-            if (gPspDiagFrameCount <= 120 || (gPspDiagFrameCount % 60) == 0) {
+            if (gPspDiagFrameCount <= 60 || (gPspDiagFrameCount % 60) == 0) {
                 PspDiag_Frame(gPspDiagFrameCount);
             }
 #endif
@@ -924,15 +945,15 @@ void Graph_ThreadEntry(void* arg0) {
          * render probes could ever have fired. The hardware trace stopping
          * right after gamestate-init-done therefore points HERE, at the
          * handover to the next gamestate, not at drawing. */
-        PspDiag_Step("gs-loop-exit");
+        PspDiag_StepSync("gs-loop-exit");
 #endif
         nextOvl = Graph_GetNextGameState(gameState);
 #if TARGET_PSP
-        PspDiag_Step("gs-next-fetched");
+        PspDiag_StepSync("gs-next-fetched");
 #endif
         GameState_Destroy(gameState);
 #if TARGET_PSP
-        PspDiag_Step("gs-destroyed");
+        PspDiag_StepSync("gs-destroyed");
 #endif
 #if TARGET_PSP
         /* The trace pins the failure to this one call. __osFree first checks
@@ -954,24 +975,25 @@ void Graph_ThreadEntry(void* arg0) {
          * These plain markers settle it. They do nothing but write a line, so
          * whichever of them is last tells us how far the trace really reaches
          * before anything risky is touched. */
-        PspDiag_Step("gs-marker-a");
-        PspDiag_Step("gs-marker-b");
-        PspDiag_Step("gs-marker-c");
+        PspDiag_StepSync("gs-marker-a");
+        PspDiag_StepSync("gs-marker-b");
+        PspDiag_StepSync("gs-marker-c");
         /* Safe global first: gSystemArena is a plain BSS object, so reading it
          * cannot fault. Only then the node header, which is the read that
          * could. */
         PspDiag_Hex("  arena", &gSystemArena, 8);
-        PspDiag_Step("gs-hex-arena-ok");
+        PspDiag_StepSync("gs-hex-arena-ok");
         PspDiag_Hex("  node", (const u8*)gameState - 32, 8);
-        PspDiag_Step("gs-hex-node-ok");
+        PspDiag_StepSync("gs-hex-node-ok");
 #endif
         SYSTEM_ARENA_FREE(gameState, "../graph.c", 1227);
 #if TARGET_PSP
-        PspDiag_Step("gs-freed");
+        PspDiag_StepSync("gs-freed");
 #endif
         Overlay_FreeGameState(ovl);
 #if TARGET_PSP
-        PspDiag_Step("gs-ovl-freed");
+        PspDiag_StepSync("gs-ovl-freed");
+        PSP_BRINGUP_STOP_AFTER(10, "bringup-10-firststatedone");
 #endif
     }
     Graph_Destroy(&gfxCtx);

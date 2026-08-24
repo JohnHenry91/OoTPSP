@@ -1,3 +1,6 @@
+#if TARGET_PSP
+#include "psp_hw_diag.h"
+#endif
 #include "libc64/malloc.h"
 #include "libc64/os_malloc.h"
 #include "libu64/debug.h"
@@ -537,8 +540,24 @@ void GameState_Init(GameState* gameState, GameStateFunc init, GraphicsContext* g
 
 void GameState_Destroy(GameState* gameState) {
     PRINTF(T("game デストラクタ開始\n", "game destructor start\n"));
+#if TARGET_PSP
+    /* The hardware trace reaches "gs-destroyed" -- i.e. this function
+     * RETURNING -- and then stops, with the three do-nothing markers that
+     * follow it never appearing. Nothing sits between those call sites, so
+     * either the fault is genuinely at that instruction boundary, or the
+     * trace is one durable write behind reality and the real fault is inside
+     * here. These per-sub-call entries settle which, and they are force
+     * flushed so none of them can be lost to a buffering boundary. */
+    PspDiag_StepSync("  gsd-enter");
+#endif
     AudioMgr_StopAllSfx();
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-stopsfx");
+#endif
     Audio_Update();
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-audioupd");
+#endif
 #if TARGET_PSP
     /* On N64 this waits for the Scheduler to report that the RCP has finished
      * the last graphics task before tearing the state down. This port has no
@@ -565,16 +584,46 @@ void GameState_Destroy(GameState* gameState) {
     if (gameState->destroy != NULL) {
         gameState->destroy(gameState);
     }
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-destroy-cb");
+#endif
+    /* One probe per call. Every one of these is a no-op or near enough
+     * (Rumble_Destroy is two pointer stores; SpeedMeter_Destroy and
+     * VisCvg_Destroy are empty; VisZBuf/VisMono resolve to the stubs in
+     * psp/src/phase1_stubs.c) -- which is exactly why the run that died
+     * somewhere in this group is worth pinning to the exact call rather than
+     * reasoned about. */
     Rumble_Destroy();
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-rumble");
+#endif
     SpeedMeter_Destroy(&D_801664D0);
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-speedmeter");
+#endif
     VisCvg_Destroy(&sVisCvg);
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-viscvg");
+#endif
     VisZBuf_Destroy(&sVisZBuf);
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-viszbuf");
+#endif
     VisMono_Destroy(&sVisMono);
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-vismono");
+#endif
     if ((R_VI_MODE_EDIT_STATE == VI_MODE_EDIT_STATE_INACTIVE) || !DEBUG_FEATURES) {
         ViMode_Destroy(&sViMode);
     }
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-vimode");
+#endif
     THA_Destroy(&gameState->tha);
     GameAlloc_Cleanup(&gameState->alloc);
+#if TARGET_PSP
+    PspDiag_StepSync("  gsd-arena");
+#endif
 
 #if PLATFORM_GC && DEBUG_FEATURES
     SystemArena_Display();

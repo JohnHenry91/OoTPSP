@@ -1703,6 +1703,18 @@ void gfx_scegu_on_resize(void) {
  * exchanges them, so this toggles in lockstep with it. Tracked because
  * PspSceneMenu_DrawOverlay writes to the framebuffer with the CPU and has to be
  * given the buffer that is about to be displayed, not the one on screen now. */
+#include "psp_hw_diag.h"
+
+/* Mirrors graph.c's PSP_DIAG_FIRST window without pulling in its private
+ * frame counter's definition. */
+extern u32 gPspDiagFrameCount;
+#define PSP_DIAG_GFX(name)                 \
+    do {                                   \
+        if (gPspDiagFrameCount < PSP_DIAG_FRAMES) {     \
+            PspDiag_Step(name);        \
+        }                                  \
+    } while (0)
+
 static int sDrawBufferIsFbp0 = 1;
 
 static void gfx_scegu_end_frame(void) {
@@ -1711,11 +1723,26 @@ static void gfx_scegu_end_frame(void) {
      * pokes into the finished framebuffer. Splitting it this way also makes the
      * overlay self-diagnosing: a visible panel with no text isolates the
      * failure to the pspDebugScreen half, no panel at all to the input half. */
+    /* Stage probes across the GE handover.
+     *
+     * On hardware the image freezes on the last completed frame and the
+     * console loses power a few seconds later, while PPSSPP runs the
+     * byte-identical trace onwards -- which is what a stalled GE looks like,
+     * not what a crashed CPU looks like. sceGuSync is the one blocking call
+     * in this port that waits on the graphics hardware, so it is the one that
+     * would park the main thread forever with the last swapped frame still on
+     * screen. These four say which side of it we are on, and separate the
+     * menu overlay (drawn into the still-open list) from the engine's own
+     * geometry. First 24 frames only, same window as the rest. */
+    PSP_DIAG_GFX("ge-menu-begin");
     PspSceneMenu_DrawBackdrop();
     PspSceneMenu_DrawHud();
+    PSP_DIAG_GFX("ge-menu-done");
 
     sceGuFinish();
+    PSP_DIAG_GFX("ge-finish");
     sceGuSync(0, 0);
+    PSP_DIAG_GFX("ge-sync");
 
     {
         /* Timed so the pacer can charge this to idle rather than to the
@@ -1725,8 +1752,10 @@ static void gfx_scegu_end_frame(void) {
         sceDisplayWaitVblankStart();
         gPspVblankWaitUsec = (u32)((u64)sceKernelGetSystemTimeWide() - waitStart);
     }
+    PSP_DIAG_GFX("ge-vblank");
 
     sceGuSwapBuffers();
+    PSP_DIAG_GFX("ge-swap");
     sDrawBufferIsFbp0 = !sDrawBufferIsFbp0;
 }
 

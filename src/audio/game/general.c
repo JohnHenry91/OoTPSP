@@ -13,6 +13,21 @@
 #include "audio.h"
 #include "ocarina.h"
 
+#if TARGET_PSP
+#include "psp_hw_diag.h"
+
+/* Frame window shared with graph.c's PSP_DIAG_FIRST. */
+extern u32 gPspDiagFrameCount;
+#define PSP_DIAG_AU(name)              \
+    do {                               \
+        if (gPspDiagFrameCount < PSP_DIAG_FRAMES) { \
+            PspDiag_Step(name);    \
+        }                              \
+    } while (0)
+#else
+#define PSP_DIAG_AU(name) ((void)0)
+#endif
+
 #define ABS_ALT(x) ((x) < 0 ? -(x) : (x))
 
 #if !PLATFORM_N64
@@ -113,6 +128,8 @@ u8 gIsLargeSfxBank[7] = {
         0) > UINT8_MAX,
     (
 #include "tables/sfx/voicebank_table.h"
+
+
         0) > UINT8_MAX,
 };
 #undef DEFINE_SFX
@@ -2340,19 +2357,37 @@ void Audio_Update(void) {
         sAudioUpdateStartTime = osGetTime();
 #endif
 
+        /* Per-call probes.
+         *
+         * Audio_Update is where BOTH hardware failures land: the full-audio
+         * build died inside the call GameState_Destroy makes (trace stopped
+         * between gsd-stopsfx and gsd-audioupd), and the audio-free build
+         * died inside the once-per-frame call at the end of Graph_Update
+         * (trace stopped between gfx-done and "frame 11"). Same function, two
+         * very different moments -- so split it and let the last written line
+         * name the callee. */
+        PSP_DIAG_AU("    au-enter");
         AudioOcarina_Update();
+        PSP_DIAG_AU("    au-ocarina");
         Audio_StepFreqLerp(&sRiverFreqScaleLerp);
         Audio_StepFreqLerp(&sWaterfallFreqScaleLerp);
         Audio_UpdateRiverSoundVolumes();
+        PSP_DIAG_AU("    au-river");
         Audio_UpdateSceneSequenceResumePoint();
+        PSP_DIAG_AU("    au-resume");
         Audio_UpdateFanfare();
+        PSP_DIAG_AU("    au-fanfare");
         if (gAudioSpecId == 7) {
             Audio_ClearSariaBgm();
         }
         Audio_ProcessSfxRequests();
+        PSP_DIAG_AU("    au-sfxreq");
         Audio_ProcessSeqCmds();
+        PSP_DIAG_AU("    au-seqcmds");
         func_800F8F88();
+        PSP_DIAG_AU("    au-800F8F88");
         Audio_UpdateActiveSequences();
+        PSP_DIAG_AU("    au-activeseq");
 
 #if DEBUG_FEATURES
         AudioDebug_SetInput();
@@ -2360,6 +2395,7 @@ void Audio_Update(void) {
 #endif
 
         AudioThread_ScheduleProcessCmds();
+        PSP_DIAG_AU("    au-schedule");
 
 #if DEBUG_FEATURES
         sAudioUpdateTaskEnd = gAudioCtx.totalTaskCount;
