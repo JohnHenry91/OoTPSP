@@ -157,6 +157,11 @@ PSP_C_FILES += assets/objects/gameplay_keep/eff_shockwave.c
 PSP_C_FILES += extracted/pal-1.0/assets/objects/gameplay_field_keep/gameplay_field_keep.c
 
 PSP_C_FILES += psp/src/phase2_stubs.c
+# Real table, not a stub: it is walked as EffectSsOverlay[EFFECT_SS_TYPE_MAX]
+# by z_effect_soft_sprite.c, and the 64-byte char stub it replaces made
+# EffectSs_ClearAll free a wild pointer on every scene transition -- fatal on
+# hardware. See the TARGET_PSP note in the file itself.
+PSP_C_FILES += src/code/z_effect_soft_sprite_dlftbls.c
 PSP_C_FILES += psp/src/phase2_stubs_gen.c
 PSP_C_FILES += psp/src/segment_roms_psp.c
 PSP_C_FILES += psp/src/phase2_debug_log.c

@@ -251,7 +251,11 @@ char gDekuTreeNightEntranceTex[64];
 char gDoorChainDL[64] = PSP_STUB_ENDDL;
 char gDoorLockDL[64] = PSP_STUB_ENDDL;
 char gEffFlash1DL[64] = PSP_STUB_ENDDL;
-char gEffectSsOverlayTable[64];
+/* gEffectSsOverlayTable PROMOTED to the real src/code/z_effect_soft_sprite_
+ * dlftbls.c (TARGET_PSP branch). It must NOT come back as a `char[64]`: the
+ * engine walks it as EffectSsOverlay[EFFECT_SS_TYPE_MAX] (1036 bytes) and a
+ * 64-byte stand-in made every scene teardown free a wild pointer. See the
+ * long note in that file. */
 char gFootShadowDL[64] = PSP_STUB_ENDDL;
 char gForestTempleDayEntranceTex[64];
 char gForestTempleNightEntranceTex[64];
