@@ -899,7 +899,9 @@ void PspSceneMenu_DrawHud(void) {
      * error code, and an overflowing sprintf here smashes the stack (see the
      * session-4 audio notes). */
     char line2[96];
-    char line3[96];
+    /* Same reasoning as line2: the ME counters push this past 96 in the worst
+     * case, and an overflowing sprintf here smashes the stack. */
+    char line3[160];
     char line7[64];
     char line8[112];
     char line9[96];
@@ -1048,10 +1050,22 @@ void PspSceneMenu_DrawHud(void) {
         {
             extern int32_t gPspAudioMeInitResult;
 
-            sprintf(line3, "AUD calls %u peak %d | ME %u/%u to%u i%d",
+            /* w/wx are how long the last collect blocked and the worst so
+             * far, in microseconds, and f counts collects that found the job
+             * already finished. Those three are what tell the offload apart
+             * from the busy-wait it replaced: before the job queue, w tracked
+             * the whole mix time and f never moved, because the main core sat
+             * on the state word until the ME was done. With the queue the ME
+             * mixes tick N while this core builds tick N+1, so a healthy run
+             * is f climbing in step with me/ and w near zero. w staying high
+             * with me/ climbing means the mix is now the slower half -- the
+             * offload works but is not keeping up. */
+            sprintf(line3, "AUD calls %u peak %d | ME %u/%u to%u i%d w%u wx%u f%u",
                     (unsigned)PspAudio_StatOutputCalls(), (int)PspAudio_StatLastPeakSample(),
                     (unsigned)PspAudioMe_StatMeJobs(), (unsigned)PspAudioMe_StatCpuJobs(),
-                    (unsigned)PspAudioMe_StatTimeouts(), (int)gPspAudioMeInitResult);
+                    (unsigned)PspAudioMe_StatTimeouts(), (int)gPspAudioMeInitResult,
+                    (unsigned)PspAudioMe_StatLastWaitUsec(), (unsigned)PspAudioMe_StatMaxWaitUsec(),
+                    (unsigned)PspAudioMe_StatFreeCollects());
         }
 
         /* SFX: what the engine last computed for a BANK_PLAYER sound (Link's

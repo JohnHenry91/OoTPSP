@@ -142,6 +142,20 @@ AudioTask* AudioThread_UpdateImpl(void) {
     AudioLoad_ProcessLoads(gAudioCtx.resetStatus);
     AudioLoad_ProcessScriptLoads();
 
+#if TARGET_PSP && PSP_AUDIO_DEFERRED_MIXING
+    /* A reset tears the audio heap down and rebuilds it. The Media Engine
+     * mixes a tick behind this core (see psp/include/psp_audio_me.h), so the
+     * previous tick's job may still be reading sample buffers, reverb rings
+     * and note state that AudioHeap_ResetStep is about to reuse. Collect it
+     * first. Gated on resetStatus rather than done unconditionally: an
+     * unconditional collect here would put the wait back at the top of the
+     * tick and give up the entire overlap the job queue buys, and this is the
+     * only place in the update that invalidates the ME's inputs. */
+    if (gAudioCtx.resetStatus != 0) {
+        PspAudio_WaitForCommandList();
+    }
+#endif
+
     if (gAudioCtx.resetStatus != 0) {
         if (AudioHeap_ResetStep() == 0) {
             if (gAudioCtx.resetStatus == 0) {
