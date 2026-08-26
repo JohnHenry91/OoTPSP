@@ -89,20 +89,6 @@ verification). Package names vary a bit by distro; the ones below are for
 Debian/Ubuntu (`apt`), with Fedora (`dnf`), Arch (`pacman`) and openSUSE
 (`zypper`) equivalents in brackets.
 
-| Tool | apt package | dnf | pacman | zypper | What it's for |
-|---|---|---|---|---|---|
-| `git` | `git` | `git` | `git` | `git` | cloning the repo |
-| `make` | `make` | `make` | `make` | `make` | driving the build |
-| `gcc` | `build-essential` | `gcc` | `base-devel` | `gcc` | building host-side asset tools |
-| `python3` | `python3` | `python3` | `python` | `python3` | asset extraction |
-| `curl` | `curl` | `curl` | `curl` | `curl` | fetching the PSP toolchain |
-| `tar` | `tar` | `tar` | `tar` | `tar` | unpacking the PSP toolchain |
-| `md5sum` | `coreutils` | `coreutils` | `coreutils` | `coreutils` | verifying your ROM |
-| `xml2-config` | `libxml2-dev` | `libxml2-devel` | `libxml2` | `libxml2-devel` | audio asset tools |
-| `gawk` | `gawk` | `gawk` | `gawk` | `gawk` | packing scene blobs (needs **GNU** awk, not `mawk`/POSIX awk) |
-| `venv` module | `python3-venv` | *(bundled)* | *(bundled)* | *(bundled)* | isolated Python environment |
-| PIL/Pillow | `python3-pil` | `python3-pillow` | `python-pillow` | `python3-Pillow` | texture and font conversion |
-| DejaVu Sans Mono | `fonts-dejavu-core` | `dejavu-sans-mono-fonts` | `ttf-dejavu` | `dejavu-fonts` | on-screen debug font |
 
 ```sh
 # Debian / Ubuntu / Mint:
