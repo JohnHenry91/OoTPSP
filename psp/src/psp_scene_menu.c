@@ -92,6 +92,7 @@ extern s32 gPspRoomCullDisable;
 
 #include <stdio.h>
 #include <string.h>
+#include "psp_hw_diag.h"
 
 /* Implemented in psp/src/gfx/gfx_scegu.c -- the font atlas is bound behind the
  * texture manager's back, same as the pre-rendered background blit does. */
@@ -268,7 +269,7 @@ enum {
 
 static int sHudSection[HUD_SEC_COUNT] = {
     /* FPS  */ 1, /* frame budget -- cheap and always worth seeing */
-    /* PATH */ 1, /* audio decode census + the SFX distance probe */
+    /* PATH */ 0, /* audio decode census + the SFX distance probe */
     /* DROP */ 0, /* audio note drops */
     /* AUD  */ 1, /* audio output backend + Media Engine counters */
     /* BGM  */ 0, /* sequence player */
@@ -279,8 +280,11 @@ static int sHudSection[HUD_SEC_COUNT] = {
                    * silently stopped being written, so it must not depend on
                    * someone having switched it on beforehand. */
     /* BIG  */ 0, /* biggest-triangle texture probe -- an older subject */
-    /* SFX  */ 1, /* positional-sound distance/volume probe */
-    /* ME   */ 1, /* Media Engine offload counters */
+    /* SFX  */ 0, /* positional-sound distance/volume probe */
+    /* ME   */ 0, /* NOTE/ENV envelope probes -- despite the name, this section
+                   * no longer carries the Media Engine counters; those moved
+                   * onto the AUD line, which is where someone looking for
+                   * "is the offload working" will actually look. */
 };
 
 static const char* const sHudSectionName[HUD_SEC_COUNT] = {
@@ -462,13 +466,24 @@ void PspSceneMenu_Update(PlayState* play) {
      * usable from the debugger -- poke sPendingEntrance and the game goes,
      * which is what drives the automated scene sweep. */
     if (sPendingEntrance >= 0 && play != NULL && play->transitionTrigger == TRANS_TRIGGER_OFF) {
+        /* Durable probes on the warp path. A hardware run died warping out of
+         * Hyrule Field after six minutes of play, and the trace ends on an
+         * ordinary frame line with none of the gs-* teardown probes -- so the
+         * fault is before the gamestate handover, in the few frames where the
+         * warp arms the transition. This path runs once per warp, so a forced
+         * flush per step costs nothing. */
+        PspDiag_Note("  warp to entrance %u layer %u\n", (unsigned int)sPendingEntrance,
+                     (unsigned int)sPendingLayer);
+        PspDiag_StepSync("  warp-armed");
         PspSceneMenu_ApplyLayer(sPendingLayer);
+        PspDiag_StepSync("  warp-layer-set");
         sPendingLayer = -1;
         play->nextEntranceIndex = sPendingEntrance;
         play->transitionTrigger = TRANS_TRIGGER_START;
         play->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
         gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK_FAST;
         sPendingEntrance = -1;
+        PspDiag_StepSync("  warp-triggered");
     }
 
     /* HUD and pace override sit OUTSIDE the "menu closed" early-out on
@@ -884,7 +899,7 @@ void PspSceneMenu_DrawHud(void) {
      * error code, and an overflowing sprintf here smashes the stack (see the
      * session-4 audio notes). */
     char line2[96];
-    char line3[64];
+    char line3[96];
     char line7[64];
     char line8[112];
     char line9[96];
@@ -1021,9 +1036,23 @@ void PspSceneMenu_DrawHud(void) {
          * cpu frozen is the only real proof the offload is live; cpu climbing
          * alone means the ME never came up (always the case under PPSSPP) or
          * timed out once and was switched off for good. */
-        sprintf(line3, "AUD calls %u n %u peak %d rsvf %u", (unsigned)PspAudio_StatOutputCalls(),
-                (unsigned)PspAudio_StatLastNumSamples(), (int)PspAudio_StatLastPeakSample(),
-                (unsigned)PspAudio_StatReserveFailures());
+        /* The Media Engine counters belong here.
+         *
+         * They existed (PspAudioMe_StatMeJobs/StatCpuJobs/StatTimeouts) but
+         * were displayed nowhere: HUD_SEC_ME had been repurposed for the ADSR
+         * envelope probes and still carries them under the old name. Since the
+         * offload is opt-in and unproven, "is it actually mixing" has to be
+         * answerable at a glance -- me climbing while cpu stands still is the
+         * only proof, and a rising timeout count is the failure mode that
+         * otherwise looks identical to it never having been enabled. */
+        {
+            extern int32_t gPspAudioMeInitResult;
+
+            sprintf(line3, "AUD calls %u peak %d | ME %u/%u to%u i%d",
+                    (unsigned)PspAudio_StatOutputCalls(), (int)PspAudio_StatLastPeakSample(),
+                    (unsigned)PspAudioMe_StatMeJobs(), (unsigned)PspAudioMe_StatCpuJobs(),
+                    (unsigned)PspAudioMe_StatTimeouts(), (int)gPspAudioMeInitResult);
+        }
 
         /* SFX: what the engine last computed for a BANK_PLAYER sound (Link's
          * jump, his sword). vol is the final channel volume x1000, ent is
