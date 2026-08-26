@@ -6,19 +6,6 @@ architecture follows [sm64-port-psp](https://github.com/blckbearx/sm64-port-psp)
 single native PSP loop drives the real decompiled engine directly, instead of emulating
 the N64's libultra OS threads.
 
-```diff
-- WARNING! -
-
-Work in progress. The world renders, Link walks and a handful of actors are enabled
-(see the Changelog below), but most of the game is not wired up yet. Expect crashes,
-missing actors, and gaps in audio.
-```
-
-**This is not a fork on GitHub** (it wasn't created via the Fork button), but it *is* a
-derivative work: most of `src/`, `include/`, `assets/`, `data/` and `spec/` is the
-zeldaret/oot decompilation, reused and only modified where the port genuinely needs it,
-behind `#if TARGET_PSP`. It is licensed GPLv3, same as upstream — see [LICENSE](LICENSE).
-
 **No game assets or ROMs are distributed here.** This repository is source code only.
 You need your own legally-obtained retail PAL 1.0 ROM to build and extract assets
 locally; see [Building](#building) below.
