@@ -358,6 +358,14 @@ Gfx* Play_SetFog(PlayState* this, Gfx* gfx) {
                        this->lightCtx.fogNear, 1000);
 }
 
+#if TARGET_PSP
+/* Force-flushed: they fire once per scene change, and the run they exist for
+ * died between two ordinary frame lines with the whole teardown path silent. */
+#define PSP_TRANS_PROBE(name) PspDiag_StepSync(name)
+#else
+#define PSP_TRANS_PROBE(name) (void)0
+#endif
+
 void Play_Destroy(GameState* thisx) {
     PlayState* this = (PlayState*)thisx;
     Player* player = GET_PLAYER(this);
@@ -936,6 +944,7 @@ void Play_Update(PlayState* this) {
         if ((u32)this->transitionMode != TRANS_MODE_OFF) {
             switch (this->transitionMode) {
                 case TRANS_MODE_SETUP:
+                    PSP_TRANS_PROBE("    tr-setup");
                     if (this->transitionTrigger != TRANS_TRIGGER_END) {
                         s16 sceneLayer = SCENE_LAYER_CHILD_DAY;
 
@@ -974,7 +983,9 @@ void Play_Update(PlayState* this) {
                     }
                     FALLTHROUGH;
                 case TRANS_MODE_INSTANCE_INIT:
+                    PSP_TRANS_PROBE("    tr-inst-init");
                     this->transitionCtx.init(&this->transitionCtx.instanceData);
+                    PSP_TRANS_PROBE("    tr-inst-inited");
 
                     // circle types
                     if ((this->transitionCtx.transitionType >> 5) == 1) {
@@ -1043,6 +1054,7 @@ void Play_Update(PlayState* this) {
                     }
 
                     this->transitionCtx.start(&this->transitionCtx.instanceData);
+                    PSP_TRANS_PROBE("    tr-inst-started");
 
                     if (this->transitionCtx.transitionType == TRANS_TYPE_FADE_WHITE_CS_DELAYED) {
                         this->transitionMode = TRANS_MODE_INSTANCE_WAIT;
@@ -1052,7 +1064,9 @@ void Play_Update(PlayState* this) {
                     break;
 
                 case TRANS_MODE_INSTANCE_RUNNING:
+                    PSP_TRANS_PROBE("    tr-inst-running");
                     if (this->transitionCtx.isDone(&this->transitionCtx.instanceData)) {
+                        PSP_TRANS_PROBE("    tr-inst-done");
                         if (this->transitionCtx.transitionType >= TRANS_TYPE_MAX) {
                             if (this->transitionTrigger == TRANS_TRIGGER_END) {
                                 this->transitionCtx.destroy(&this->transitionCtx.instanceData);
