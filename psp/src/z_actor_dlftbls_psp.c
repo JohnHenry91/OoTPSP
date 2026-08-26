@@ -26,10 +26,26 @@
 #include "actor.h"
 #include "object.h"
 
-/* A no-op actor used for every not-yet-ported actor id. instanceSize is
- * deliberately generous (not just sizeof(Actor)) so that if real game code
- * touches actor-subclass fields on a dummy instance before we notice, it
- * writes within its own allocation instead of stomping the arena. */
+/* A no-op actor used for every not-yet-ported actor id.
+ *
+ * instanceSize carries a margin over sizeof(Actor) on purpose: if engine code
+ * touches actor-subclass fields on a dummy instance, it should write inside
+ * its own allocation rather than stomp the arena. But the margin used to be
+ * 0x2000 -- 8 KB, twenty-three times the 0x14C of a real Actor -- and every
+ * unported actor in a scene paid it out of the Zelda arena.
+ *
+ * That is not free space, it is the SCENE's space. Play_Init hands the arena
+ * whatever the 1.83 MB THA has left after the 1000 KB object bank and the room
+ * buffer, which for a big overworld scene is only about 406 KB -- the same
+ * figure the N64 works with. Hardware trace oot_boot_pd5.log: the scene loads,
+ * fills the arena to 401K of 406K in its first frame, creeps to zfree=0K on
+ * the second, and the console hangs on the third. 403 KB divided by 8 KB is
+ * roughly fifty actors, which is an ordinary population for such a scene.
+ *
+ * 0x200 keeps the safety property -- it still covers DynaPolyActor (0x164),
+ * the largest subclass the engine itself casts to, with room to spare -- while
+ * costing one sixteenth as much. Raise it again only with a named actor that
+ * needs it, not on principle. */
 static void DummyActor_Noop(struct Actor* thisx, struct PlayState* play) {
 }
 
@@ -38,7 +54,7 @@ ActorProfile gDummyActorProfile = {
     /* category      */ ACTORCAT_MISC,
     /* flags         */ 0,
     /* objectId      */ OBJECT_GAMEPLAY_KEEP,
-    /* instanceSize  */ 0x2000,
+    /* instanceSize  */ 0x200,
     /* init          */ DummyActor_Noop,
     /* destroy       */ DummyActor_Noop,
     /* update        */ DummyActor_Noop,
