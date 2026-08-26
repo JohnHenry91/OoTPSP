@@ -131,15 +131,42 @@ static const PspBlobRangedEntry sRangedBlobs[] = {
 #include "blobs_ranged_registry.inc"
 };
 
-/* Ranged blobs stay open. Unlike a scene load -- one open, one read, done --
- * the sample bank is read several times per audio frame, once per note whose
- * sample window has run out. Opening and closing the file each time would put
- * a Memory Stick directory lookup in the audio thread's per-frame path, which
- * on real hardware is far more expensive than the read itself. Opened lazily
- * on first use and never closed; there are five of them and they live for the
- * whole session. */
+/* Ranged blobs are held open across reads, but only a few at a time.
+ *
+ * Holding them open is the right instinct: unlike a scene load -- one open,
+ * one read, done -- the sample bank is read several times per audio frame,
+ * once per note whose sample window has run out, and a Memory Stick directory
+ * lookup in the audio thread's per-frame path costs far more than the read.
+ *
+ * What was wrong was holding ALL of them open. This used to open lazily and
+ * never close, on the stated grounds that "there are five of them and they
+ * live for the whole session". That was true when it was written. Full audio
+ * coverage then grew the registry to 110 sequences, 38 soundfonts and 6 sample
+ * banks -- 153 entries -- and nobody rechecked the sentence. The PSP allows
+ * far fewer files open at once, so after enough distinct sequences had been
+ * touched, every subsequent sceIoOpen in the whole process failed with
+ * SCE_KERNEL_ERROR_MFILE (0x80020320).
+ *
+ * Measured on hardware, 2026-08-26: entering Hyrule Field (new BGM, hence new
+ * sequence and soundfont blobs) pushed it over, and from that moment the boot
+ * trace could not open its own log -- which is why four separate runs looked
+ * like they "died" a second into the scene while the game was in fact still
+ * playing. Anything else that needs a file from then on fails too.
+ *
+ * So: keep an LRU of at most PSP_BLOB_MAX_OPEN descriptors. The sample bank,
+ * being read constantly, simply never becomes least-recently-used, so the hot
+ * path keeps its open handle and the audio thread never pays for a reopen. */
+#define PSP_BLOB_MAX_OPEN 8
+
 static SceUID sRangedFds[sizeof(sRangedBlobs) / sizeof(sRangedBlobs[0])];
+static unsigned int sRangedUse[sizeof(sRangedBlobs) / sizeof(sRangedBlobs[0])];
+static unsigned int sRangedClock;
+static unsigned int sRangedOpen;
 static int sRangedFdsInited;
+
+/* Descriptors closed to stay under the cap, for the HUD. Distinct from
+ * gPspBlobOpenFails: this one is healthy housekeeping, not an error. */
+unsigned int gPspBlobFdEvictions;
 
 /* Lazily open ranged blob `i`, returning whether it is usable. Shared by both
  * ranged read paths so neither can forget the one-time table init. */
@@ -152,13 +179,39 @@ static int PspBlobOpenRanged(unsigned int i) {
         }
         sRangedFdsInited = 1;
     }
+
     if (sRangedFds[i] < 0) {
+        if (sRangedOpen >= PSP_BLOB_MAX_OPEN) {
+            unsigned int k;
+            unsigned int victim = 0;
+            unsigned int oldest = 0xFFFFFFFFu;
+
+            for (k = 0; k < sizeof(sRangedFds) / sizeof(sRangedFds[0]); k++) {
+                if (sRangedFds[k] >= 0 && sRangedUse[k] < oldest) {
+                    oldest = sRangedUse[k];
+                    victim = k;
+                }
+            }
+            if (sRangedFds[victim] >= 0) {
+                sceIoClose(sRangedFds[victim]);
+                sRangedFds[victim] = -1;
+                --sRangedOpen;
+                ++gPspBlobFdEvictions;
+            }
+        }
+
         sRangedFds[i] = PspBlobOpen(sRangedBlobs[i].path);
+        if (sRangedFds[i] >= 0) {
+            ++sRangedOpen;
+        }
     }
+
     if (sRangedFds[i] < 0) {
         ++gPspBlobOpenFails;
         return 0;
     }
+
+    sRangedUse[i] = ++sRangedClock;
     return 1;
 }
 
