@@ -20,6 +20,84 @@
 #include "attributes.h"
 #include "ultra64.h"
 #include "audio.h"
+#if TARGET_PSP
+#include "psp_audio_guard.h"
+
+/* Structural guards ported from reference/oot-psp-z2442's `#if
+ * defined(TARGET_PSP)` blocks in this file. They cover the doubly-linked note
+ * and layer free lists, which teardown can leave half-unlinked: the audio
+ * thread runs the queued commands a tick or two after the game state that
+ * owned the memory is gone. See psp/include/psp_audio_guard.h. */
+
+static s32 PspAudio_IsNoneSequenceChannel(SequenceChannel* channel) {
+    return channel == &gAudioCtx.sequenceChannelNone;
+}
+
+static s32 PspAudio_IsSafeSequenceChannel(SequenceChannel* channel) {
+    return (channel != NULL) && !PspAudio_IsNoneSequenceChannel(channel) &&
+           PspAudio_IsAlignedNativePtr(channel) && IS_SEQUENCE_CHANNEL_VALID(channel);
+}
+
+/* Walks a list and cuts it short at the first broken link, so a corrupt list
+ * costs the notes past the break instead of the console. Returns false if the
+ * list had to be repaired. */
+static s32 PspAudio_RebuildAudioList(AudioListItem* list) {
+    AudioListItem* prev = list;
+    AudioListItem* cur;
+    s32 count = 0;
+
+    if (!PspAudio_IsAlignedNativePtr(list)) {
+        return false;
+    }
+
+    if (!PspAudio_IsAlignedNativePtr(list->next)) {
+        list->prev = list;
+        list->next = list;
+        list->u.count = 0;
+        return false;
+    }
+
+    cur = list->next;
+    while (cur != list) {
+        // 256 is a cycle brake: a corrupt list can close on itself.
+        if (!PspAudio_IsAlignedNativePtr(cur) || (cur->prev != prev) || (count >= 256)) {
+            prev->next = list;
+            list->prev = prev;
+            list->u.count = count;
+            return false;
+        }
+
+        prev = cur;
+        cur = cur->next;
+        count++;
+    }
+
+    list->prev = prev;
+    list->u.count = count;
+    return true;
+}
+
+/* True when list->prev can be spliced through safely. */
+static s32 PspAudio_PrepareAudioListTail(const char* op, AudioListItem* list) {
+    AudioListItem* item;
+
+    if (!PspAudio_IsAlignedNativePtr(list)) {
+        PspAudio_NoteBadPtr(op);
+        return false;
+    }
+
+    item = list->prev;
+    if ((item == NULL) || !PspAudio_IsAlignedNativePtr(item) ||
+        ((item != list) && (!PspAudio_IsAlignedNativePtr(item->prev) || (item->next != list)))) {
+        PspAudio_NoteBadPtr(op);
+        PspAudio_RebuildAudioList(list);
+    }
+
+    item = list->prev;
+    return (item != NULL) && PspAudio_IsAlignedNativePtr(item) &&
+           ((item == list) || (PspAudio_IsAlignedNativePtr(item->prev) && (item->next == list)));
+}
+#endif
 
 static_assert(MML_VERSION == MML_VERSION_OOT, "This file implements the OoT version of the MML");
 
@@ -372,6 +450,22 @@ s32 AudioSeq_SeqChannelSetLayer(SequenceChannel* channel, s32 layerIndex) {
  * original name: Nas_ReleaseNoteTrack
  */
 void AudioSeq_SeqLayerDisable(SequenceLayer* layer) {
+#if TARGET_PSP
+    if ((layer != NULL) && !PspAudio_IsAlignedNativePtr(layer)) {
+        PspAudio_NoteBadPtr("layer-disable");
+        return;
+    }
+
+    /* A layer outliving its channel is the common teardown shape. Point it at
+     * sequenceChannelNone, which the code below already handles, instead of
+     * following a freed channel into its seqPlayer. */
+    if ((layer != NULL) && (layer->channel != &gAudioCtx.sequenceChannelNone) &&
+        !PspAudio_IsSafeSequenceChannel(layer->channel)) {
+        PspAudio_NoteBadPtr("layer-channel");
+        layer->channel = &gAudioCtx.sequenceChannelNone;
+    }
+#endif
+
     if (layer != NULL) {
         if (layer->channel != &gAudioCtx.sequenceChannelNone && layer->channel->seqPlayer->finished == 1) {
             Audio_SeqLayerNoteRelease(layer);
@@ -387,7 +481,16 @@ void AudioSeq_SeqLayerDisable(SequenceLayer* layer) {
  * original name: Nas_CloseNoteTrack
  */
 void AudioSeq_SeqLayerFree(SequenceChannel* channel, s32 layerIndex) {
-    SequenceLayer* layer = channel->layers[layerIndex];
+    SequenceLayer* layer;
+
+#if TARGET_PSP
+    if (!PspAudio_IsSafeSequenceChannel(channel) || (layerIndex < 0) ||
+        (layerIndex >= (s32)ARRAY_COUNT(channel->layers))) {
+        PspAudio_NoteBadPtr("layer-free");
+        return;
+    }
+#endif
+    layer = channel->layers[layerIndex];
 
     if (layer != NULL) {
         AudioSeq_AudioListPushBack(&gAudioCtx.layerFreeList, &layer->listItem);
@@ -401,6 +504,13 @@ void AudioSeq_SeqLayerFree(SequenceChannel* channel, s32 layerIndex) {
  */
 void AudioSeq_SequenceChannelDisable(SequenceChannel* channel) {
     s32 i;
+
+#if TARGET_PSP
+    if (!PspAudio_IsSafeSequenceChannel(channel)) {
+        PspAudio_NoteBadPtr("channel-disable");
+        return;
+    }
+#endif
 
     for (i = 0; i < 4; i++) {
         AudioSeq_SeqLayerFree(channel, i);
@@ -517,7 +627,19 @@ void AudioSeq_SequencePlayerDisable(SequencePlayer* seqPlayer) {
  * original name: Nas_AddList
  */
 void AudioSeq_AudioListPushBack(AudioListItem* list, AudioListItem* item) {
+#if TARGET_PSP
+    if (!PspAudio_IsAlignedNativePtr(item)) {
+        PspAudio_NoteBadPtr("push-item");
+        return;
+    }
+#endif
+
     if (item->prev == NULL) {
+#if TARGET_PSP
+        if (!PspAudio_PrepareAudioListTail("push-back", list)) {
+            return;
+        }
+#endif
         list->prev->next = item;
         item->prev = list->prev;
         item->next = list;
@@ -531,7 +653,14 @@ void AudioSeq_AudioListPushBack(AudioListItem* list, AudioListItem* item) {
  * original name: Nas_GetList
  */
 void* AudioSeq_AudioListPopBack(AudioListItem* list) {
-    AudioListItem* item = list->prev;
+    AudioListItem* item;
+
+#if TARGET_PSP
+    if (!PspAudio_PrepareAudioListTail("pop-back", list)) {
+        return NULL;
+    }
+#endif
+    item = list->prev;
 
     if (item == list) {
         return NULL;

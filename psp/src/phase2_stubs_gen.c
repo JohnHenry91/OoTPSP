@@ -21,6 +21,42 @@
  * PROMOTED to the real src/audio/game/{general,sequence,sfx}.c (Phase 4 audio
  * bring-up, see Makefile.psp). Stubs removed -- keeping them would be
  * duplicate symbols. */
+/* Screen transitions: these five MUST NOT be `void` stubs.
+ *
+ * z_play.c drives the whole scene change through a function-pointer table and
+ * branches on what these RETURN:
+ *
+ *     case TRANS_MODE_INSTANCE_RUNNING:
+ *         if (this->transitionCtx.isDone(&this->transitionCtx.instanceData)) {
+ *
+ * A `void X_IsDone(void) {}` stub returns nothing, so the caller reads whatever
+ * happened to be left in $v0. When that is zero the transition is never done:
+ * transitionMode stays TRANS_MODE_INSTANCE_RUNNING forever, input stays
+ * blocked, the next scene is never loaded, and the screen keeps whatever
+ * half-drawn state the (equally stubbed) Draw left behind -- while the audio
+ * thread and the port's own menu, which bypass the N64 display list entirely,
+ * carry on working. That is exactly the reported failure on the walk back over
+ * the Kokiri bridge, including its intermittence: whether it hangs depends on
+ * a leftover register value.
+ *
+ * The stub file's own header says signature mismatches "are irrelevant for
+ * linking". True -- and irrelevant only for linking. Calling one is undefined.
+ *
+ * Returning 1 is the honest answer here rather than a fudge: Update and Draw
+ * really are no-ops on this port, so the transition genuinely has nothing left
+ * to do. The scene change happens without a fade until the real transitions
+ * are ported. Init returns the instance pointer it was handed, same as the
+ * real ones. */
+void* TransitionFade_Init(void* thisx) { return thisx; }
+int TransitionFade_IsDone(void* thisx) { (void)thisx; return 1; }
+void* TransitionCircle_Init(void* thisx) { return thisx; }
+int TransitionCircle_IsDone(void* thisx) { (void)thisx; return 1; }
+void* TransitionWipe_Init(void* thisx) { return thisx; }
+int TransitionWipe_IsDone(void* thisx) { (void)thisx; return 1; }
+void* TransitionTriforce_Init(void* thisx) { return thisx; }
+int TransitionTriforce_IsDone(void* thisx) { (void)thisx; return 1; }
+void* TransitionTile_Init(void* thisx) { return thisx; }
+
 void Cutscene_HandleConditionalTriggers(void) {}
 void Cutscene_HandleEntranceTriggers(void) {}
 void Cutscene_InitContext(void) {}
@@ -154,8 +190,6 @@ void SysUcode_GetUCode(void) {}
 void SysUcode_GetUCodeData(void) {}
 void TransitionCircle_Destroy(void) {}
 void TransitionCircle_Draw(void) {}
-void TransitionCircle_Init(void) {}
-void TransitionCircle_IsDone(void) {}
 void TransitionCircle_SetColor(void) {}
 void TransitionCircle_SetType(void) {}
 void TransitionCircle_SetUnkColor(void) {}
@@ -163,28 +197,21 @@ void TransitionCircle_Start(void) {}
 void TransitionCircle_Update(void) {}
 void TransitionFade_Destroy(void) {}
 void TransitionFade_Draw(void) {}
-void TransitionFade_Init(void) {}
-void TransitionFade_IsDone(void) {}
 void TransitionFade_SetColor(void) {}
 void TransitionFade_SetType(void) {}
 void TransitionFade_Start(void) {}
 void TransitionFade_Update(void) {}
 void TransitionTile_Destroy(void) {}
 void TransitionTile_Draw(void) {}
-void TransitionTile_Init(void) {}
 void TransitionTile_Update(void) {}
 void TransitionTriforce_Destroy(void) {}
 void TransitionTriforce_Draw(void) {}
-void TransitionTriforce_Init(void) {}
-void TransitionTriforce_IsDone(void) {}
 void TransitionTriforce_SetColor(void) {}
 void TransitionTriforce_SetType(void) {}
 void TransitionTriforce_Start(void) {}
 void TransitionTriforce_Update(void) {}
 void TransitionWipe_Destroy(void) {}
 void TransitionWipe_Draw(void) {}
-void TransitionWipe_Init(void) {}
-void TransitionWipe_IsDone(void) {}
 void TransitionWipe_SetColor(void) {}
 void TransitionWipe_SetType(void) {}
 void TransitionWipe_Start(void) {}
@@ -251,7 +278,11 @@ char gDekuTreeNightEntranceTex[64];
 char gDoorChainDL[64] = PSP_STUB_ENDDL;
 char gDoorLockDL[64] = PSP_STUB_ENDDL;
 char gEffFlash1DL[64] = PSP_STUB_ENDDL;
-char gEffectSsOverlayTable[64];
+/* gEffectSsOverlayTable PROMOTED to the real src/code/z_effect_soft_sprite_
+ * dlftbls.c (TARGET_PSP branch). It must NOT come back as a `char[64]`: the
+ * engine walks it as EffectSsOverlay[EFFECT_SS_TYPE_MAX] (1036 bytes) and a
+ * 64-byte stand-in made every scene teardown free a wild pointer. See the
+ * long note in that file. */
 char gFootShadowDL[64] = PSP_STUB_ENDDL;
 char gForestTempleDayEntranceTex[64];
 char gForestTempleNightEntranceTex[64];

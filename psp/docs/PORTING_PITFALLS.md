@@ -587,3 +587,44 @@ Full pipeline background, including the PSP `sceAudio` side and a diagnostic lad
   model/skeleton through the same renderer) is a fast, decisive way to separate "bug in this
   specific asset's data" from "bug in the renderer itself."** If a second, unrelated asset through
   the same code breaks identically, every asset-specific theory is eliminated in one test.
+
+## Ein NULL-Stub ist nicht sicher, nur weil der Aufgerufene das Argument ignoriert
+
+`osCartRomInit()` gab `NULL` zurück, mit der Begründung, unser eigenes
+`osEPiStartDma` benutze den PI-Handle ohnehin nicht. Das stimmte -- und war
+trotzdem falsch, weil der *Aufrufer* durch den Handle schreibt, bevor er ihn
+weiterreicht:
+
+```c
+handle->transferInfo.cmdType = 2;   /* OSPiHandle + 0x14 */
+sDmaHandler(handle, mesg, direction);
+```
+
+Beim Stubben also nicht nur prüfen, was die Ersatzfunktion mit dem Wert macht,
+sondern **was der gesamte Aufrufpfad damit macht**. Wenn irgendjemand
+dereferenziert, muss der Stub echten beschreibbaren Speicher liefern, nicht
+NULL. Ein statisches Objekt zurückzugeben ist fast immer billiger und sicherer,
+als den Aufrufer umzuschreiben.
+
+## Nicht jeder „ungültige" Zeiger ist NULL
+
+OoT parkt Zeiger auf Sentinel-Werten. `NO_LAYER` ist `(SequenceLayer*)-1`, und
+ein `!= NULL`-Test lässt den anstandslos durch; die nächste Feldabfrage landet
+dann bei `0xFFFFFFFF + offset`, also einer kleinen Adresse wie `0x0000004F`.
+Im Audio-Pfad immer `PspAudio_IsAlignedNativePtr` (`psp/include/psp_audio_guard.h`)
+benutzen, nie einen blossen Nulltest.
+
+## Eigene Diagnose-Blöcke sind selbst Code und selbst verdächtig
+
+Der zweite tödliche Zugriff oben stand nicht in der Engine, sondern in einer
+von uns eingebauten Sonde („warum sind Links Geräusche leise"). Wenn eine
+Absturzsuche in einen `#if TARGET_PSP`-Block führt, den wir selbst geschrieben
+haben, ist das kein Zufall -- Sonden laufen oft heisser als der Code, den sie
+messen.
+
+## PPSSPP verschweigt genau die Fehler, die Hardware töten
+
+Standardmässig protokolliert PPSSPP `Bad memory access detected and ignored`
+und läuft weiter. Diese Zeilen im Log lesen, bevor irgendetwas anderes
+versucht wird; mit `IgnoreBadMemAccess = False` nennt der Emulator PC und
+Aufrufkette. Details in der Memory-Notiz `reference-ppsspp-bad-memory-access`.

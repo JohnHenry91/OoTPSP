@@ -23,6 +23,7 @@
  * addresses always coincide.
  */
 #include "libc/assert.h"
+#include "psp_hw_diag.h"
 #include "libc64/sleep.h"
 #include "libc64/sprintf.h"
 #include "libu64/debug.h"
@@ -460,6 +461,7 @@ void DmaMgr_ThreadEntry(void* arg) {
     while (true) {
         // Wait for DMA Requests to arrive from other threads
         osRecvMesg(&sDmaMgrMsgQueue, &msg, OS_MESG_BLOCK);
+        PSP_DIAG_BEAT(PSP_DIAG_BEAT_DMA);
         req = (DmaRequest*)msg;
         if (req == NULL) {
             break;

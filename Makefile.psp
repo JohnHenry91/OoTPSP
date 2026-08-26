@@ -157,6 +157,11 @@ PSP_C_FILES += assets/objects/gameplay_keep/eff_shockwave.c
 PSP_C_FILES += extracted/pal-1.0/assets/objects/gameplay_field_keep/gameplay_field_keep.c
 
 PSP_C_FILES += psp/src/phase2_stubs.c
+# Real table, not a stub: it is walked as EffectSsOverlay[EFFECT_SS_TYPE_MAX]
+# by z_effect_soft_sprite.c, and the 64-byte char stub it replaces made
+# EffectSs_ClearAll free a wild pointer on every scene transition -- fatal on
+# hardware. See the TARGET_PSP note in the file itself.
+PSP_C_FILES += src/code/z_effect_soft_sprite_dlftbls.c
 PSP_C_FILES += psp/src/phase2_stubs_gen.c
 PSP_C_FILES += psp/src/segment_roms_psp.c
 PSP_C_FILES += psp/src/phase2_debug_log.c
@@ -267,6 +272,7 @@ PSP_C_FILES += assets/textures/icon_item_24_static/icon_item_24_static.c
 PSP_C_FILES += extracted/pal-1.0/assets/textures/parameter_static/parameter_static.c
 
 PSP_C_FILES += psp/src/psp_blob_assets.c
+PSP_C_FILES += psp/src/psp_hw_diag.c
 PSP_C_FILES += psp/src/psp_frame_pace.c
 
 # Development aid: L + D-Pad steps through the pre-rendered-background test
@@ -311,6 +317,13 @@ PSP_C_FILES += src/code/audio_thread_manager.c
 PSP_C_FILES += src/code/audio_stop_all_sfx.c
 PSP_C_FILES += psp/src/audio/audio_psp.c
 PSP_C_FILES += psp/src/audio/psp_audio_mixer.c
+# The microcode interpreter and the Media Engine offload that uses it. See
+# psp/include/psp_audio_me.h -- the mixer now runs on the PSP's second core,
+# with the audio thread as the fallback whenever the ME is unavailable (which
+# includes every run under PPSSPP).
+PSP_C_FILES += psp/src/audio/psp_audio_cmdlist.c
+PSP_C_FILES += psp/src/audio/psp_audio_me.c
+PSP_C_FILES += psp/src/audio/psp_audio_stage.c
 PSP_C_FILES += psp/src/audio/psp_audio_debug.c
 # Overrun probe -- see psp/include/psp_audio_probe.h.
 PSP_C_FILES += psp/src/audio/psp_audio_probe.c
@@ -331,6 +344,30 @@ OBJS := $(PSP_C_FILES:.c=.o)
 # Assembled, not compiled, so it cannot ride along in PSP_C_FILES. This is the
 # real generated sequence->soundfont mapping table (see its rule below).
 OBJS += psp/build/assets/audio/sequence_font_table.o
+
+# --- Build stamp -------------------------------------------------------------
+#
+# gPspBuildId names the build that is actually running. It is read off the HUD
+# and over the debugger, and three separate measurements this project made
+# against a build the emulator had never loaded were only caught because of it.
+#
+# It CANNOT be __DATE__/__TIME__ inside an ordinary source file: those expand
+# when that one file is compiled, so a build that only touched the renderer left
+# the stamp reading whenever psp_scene_menu.c last happened to be rebuilt --
+# which is worse than no stamp, because it looks authoritative while being
+# stale. FORCE makes this one file regenerate on every invocation, so the stamp
+# always names the link.
+PSP_BUILD_STAMP_C := psp/build/build_stamp.c
+OBJS += $(PSP_BUILD_STAMP_C:.c=.o)
+
+.PHONY: FORCE
+FORCE:
+
+$(PSP_BUILD_STAMP_C): FORCE
+	@mkdir -p $(dir $@)
+	@printf 'char gPspBuildId[24] = "%s";\n' "$$(date '+%b %d %H:%M:%S')" > $@.tmp
+	@cmp -s $@.tmp $@ || mv $@.tmp $@
+	@rm -f $@.tmp
 
 # --- Native-endian asset blobs -----------------------------------------------
 #
@@ -610,7 +647,59 @@ ifneq ($(BOOT),)
 BOOT_FLAG = -DPSP_BOOT_ENTRANCE=$(BOOT)
 endif
 
-CFLAGS = -O2 -G0 -Wall -D_PSP_FW_VERSION=600 -DPLATFORM_N64=1 -DPLATFORM_GC=0 -DPLATFORM_IQUE=0 \
+# Hardware bring-up ladder: stop after stage n, idle, and exit to the XMB
+# instead of starting the game. See the long note above main() in
+# psp/src/main.c. Only psp/src/main.c reads this, so switching levels does not
+# need a full rebuild -- but the Makefile does NOT track CFLAGS changes at all,
+# so `touch psp/src/main.c` is required when changing it (the same trap that
+# produced a half-audio-disabled binary while chasing this bug).
+#   make -f Makefile.psp BRINGUP=0
+BRINGUP ?=
+ifneq ($(BRINGUP),)
+BOOT_FLAG += -DPSP_BRINGUP_LEVEL=$(BRINGUP)
+endif
+
+# Diagnostic: how many frames the IN-FRAME probes stay active for, counted from
+# the start of each gamestate (graph.c resets the counter after
+# gamestate-init-done, so this is "the first n frames of each scene", not "of
+# the boot"). Default 3. Widen it when a scene dies a few frames in -- the
+# Hyrule Field run died in frame 7 of a freshly loaded scene, i.e. four frames
+# past the standard window.
+#   make -f Makefile.psp DIAGFRAMES=16
+DIAGFRAMES ?=
+ifneq ($(DIAGFRAMES),)
+BOOT_FLAG += -DPSP_DIAG_FRAMES=$(DIAGFRAMES)
+endif
+
+# Diagnostic: DIAGSYNC=0 stops the boot trace from force-flushing inside the
+# window under investigation, leaving only the periodic batch flush. See the
+# note on PspDiag_StepSync in psp/src/psp_hw_diag.c -- the Memory Stick write
+# burst is itself a suspect.
+DIAGSYNC ?=
+ifneq ($(DIAGSYNC),)
+BOOT_FLAG += -DPSP_DIAG_SYNC=$(DIAGSYNC)
+endif
+
+# Master switch for ALL diagnostics: DIAG=0 compiles the boot trace, the
+# bring-up ladder and every probe out of the build entirely -- no log file is
+# even opened. See psp/include/psp_hw_diag.h. Default is on.
+DIAG ?=
+ifneq ($(DIAG),)
+BOOT_FLAG += -DPSP_DIAG_ENABLED=$(DIAG)
+endif
+
+# Diagnostic: build with PSP_DISABLE_AUDIO=1 to leave AudioMgr and the PSP
+# audio backend unstarted. Used to tell a fault on the audio thread apart from
+# one on the graphics thread, which a boot trace alone cannot do.
+PSP_DISABLE_AUDIO ?= 0
+
+# -fno-strict-aliasing / -fwrapv: the decomp type-puns constantly (Gfx/Mtx/
+# unions, s16 pairs read as s32) and relies on wrapping signed arithmetic. Both
+# are things -O2 is otherwise free to "optimise" into different code, and the
+# resulting divergence only shows up as a wrong value at runtime -- exactly the
+# class of bug that reads as a hardware-only fault. reference/oot-psp-z2442
+# carries both flags for the same reason.
+CFLAGS = -DPSP_DISABLE_AUDIO=$(PSP_DISABLE_AUDIO) -O2 -G0 -Wall -fno-strict-aliasing -fwrapv -D_PSP_FW_VERSION=600 -DPLATFORM_N64=1 -DPLATFORM_GC=0 -DPLATFORM_IQUE=0 \
          -DOOT_VERSION=PAL_1_0 -DDEBUG_FEATURES=0 -DNDEBUG -DTARGET_PSP=1 -DNON_MATCHING=1 -DAVOID_UB=1 \
          -DF3DEX_GBI_2 -DMML_VERSION=MML_VERSION_OOT $(BOOT_FLAG) -include libc/assert.h
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
@@ -622,7 +711,9 @@ ASFLAGS = $(CFLAGS)
 OBJCOPY = psp-objcopy
 
 LIBDIR = psp/lib
-LIBS = -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lpsppower -lpspaudio -lm
+# -lme-core boots the Media Engine (psp/src/audio/psp_audio_me.c). It embeds
+# the kcall.prx kernel bridge it needs, so nothing extra ships on the stick.
+LIBS = -lme-core -lpspfpu -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspmath -lpsppower -lpspaudio -lm
 
 # D_01000000 is not data -- it is a segmented ADDRESS that the N64 build's own
 # spec resolves to the literal 0x01000000, and segment 1 is the billboard matrix

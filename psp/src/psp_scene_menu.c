@@ -50,6 +50,35 @@
 
 #include "psp_audio.h"
 #include "psp_audio_probe.h"
+#include "psp_audio_guard.h"
+#include "psp_audio_me.h"
+
+/* Probe globals written by Audio_SetSfxProperties (src/audio/game/general.c)
+ * and psp_audio_debug.c. */
+extern f32 gPspSfxProbeDist;
+extern f32 gPspSfxProbeVol;
+extern f32 gPspSfxProbeEntryVol;
+extern u32 gPspSfxProbeCount;
+extern f32 gPspNoteProbeVel;
+extern s32 gPspNoteProbeTargetVol;
+extern u32 gPspNoteProbeCount;
+extern f32 gPspAdsrProbeCur;
+extern f32 gPspAdsrProbeTarget;
+extern s32 gPspAdsrProbeD0;
+extern s32 gPspAdsrProbeA0;
+extern u32 gPspAdsrProbeCount;
+extern s32 gPspAdsrProbeDelay;
+extern f32 gPspAdsrProbeVel;
+extern s32 gPspAdsrProbeTicks;
+extern s32 gPspAdsrProbeIndex;
+extern s32 gPspAdsrProbeDN;
+extern s32 gPspAdsrProbeAN;
+
+/* Kept as accessors rather than reaching into gAudioCtx here: this file does
+ * not include audio.h, and pulling it in for two floats would drag the whole
+ * engine header into the menu's translation unit. */
+f32 PspAudioDebug_SfxPlayerVolume(void);
+f32 PspAudioDebug_BgmPlayerVolume(void);
 
 /* Cullable-room probe, defined in src/code/z_room.c -- see the comment on
  * gPspRoomCullEntries there for what the counters distinguish. */
@@ -62,14 +91,23 @@ extern s32 gPspRoomCullType;
 extern s32 gPspRoomCullDisable;
 
 #include <stdio.h>
+#include <string.h>
 
 /* Implemented in psp/src/gfx/gfx_scegu.c -- the font atlas is bound behind the
  * texture manager's back, same as the pre-rendered background blit does. */
 extern void gfx_scegu_invalidate_texture_binding(void);
 
+/* `entrance` is always a group BASE entrance, never one of the three layer
+ * members that follow it. Play_Init indexes gEntranceTable[entranceIndex +
+ * sceneLayer] and derives sceneLayer itself from age + time of day, so handing
+ * it a member entrance applies the offset twice -- see the long note in
+ * psp/tools/gen_scene_menu.py. `layer` records which of the four variants this
+ * menu row wants; PspSceneMenu_ApplyLayer sets the world state that makes the
+ * engine land on it. */
 typedef struct {
     const char* name;
     s16 entrance;
+    u8 layer;
 } PspSceneMenuEntry;
 
 static const PspSceneMenuEntry sEntries[] = {
@@ -89,6 +127,242 @@ s32 gPspSceneMenuOpen = 0;
 static s32 sCursor = 0;
 static s32 sScroll = 0;
 static s16 sPendingEntrance = -1;
+/* Layer wanted by the pending warp, latched alongside it. -1 == leave the
+ * world state alone, which is what a debugger poke of sPendingEntrance gets. */
+static s8 sPendingLayer = -1;
+
+/* Establish the world state from which Play_Init recomputes sceneLayer, so the
+ * variant the menu row names is the one that loads.
+ *
+ * Play_Init derives the layer from LINK_IS_ADULT and IS_DAY, and IS_DAY reads
+ * nightFlag, which Play_Init itself recomputes from dayTime a few lines
+ * earlier. Setting dayTime (and skyboxTime with it, or the sky would disagree
+ * with the clock) is therefore the way in; writing nightFlag directly would be
+ * overwritten before it was read. Noon and midnight are picked as values
+ * comfortably inside each half rather than near the 6:30/18:00 boundaries. */
+static void PspSceneMenu_ApplyLayer(s32 layer) {
+    if (layer < 0) {
+        return;
+    }
+
+    gSaveContext.save.linkAge = (layer >= SCENE_LAYER_ADULT_DAY) ? LINK_AGE_ADULT : LINK_AGE_CHILD;
+
+    if (layer == SCENE_LAYER_CHILD_NIGHT || layer == SCENE_LAYER_ADULT_NIGHT) {
+        gSaveContext.save.dayTime = CLOCK_TIME(0, 0);
+    } else {
+        gSaveContext.save.dayTime = CLOCK_TIME(12, 0);
+    }
+    gSaveContext.skyboxTime = gSaveContext.save.dayTime;
+
+    /* A cutscene layer outranks the age/time computation entirely (Play_Init
+     * checks it first), so a stale one would silently ignore everything set
+     * above. The menu never wants a cutscene layer. */
+    gSaveContext.save.cutsceneIndex = CS_INDEX_NONE;
+    gSaveContext.nextCutsceneIndex = NEXT_CS_INDEX_NONE;
+}
+
+/* ---------------------------------------------------------------------------
+ * Render hacks page (SQUARE while the warp menu is open).
+ *
+ * Every switch here used to be a #define in gfx_scegu.c, flipped by editing,
+ * rebuilding and relaunching. That is slow, but the real cost was worse: a
+ * screenshot does not say which build produced it, so two shots taken to be an
+ * A/B of one hack were in fact two different scenes under two different builds,
+ * and the conclusion drawn from them was wrong. Live switches remove both
+ * problems -- both halves of a comparison come from one build, one scene and
+ * one camera position, and PspSceneMenu_DrawHud names whatever is active.
+ *
+ * Kept as a table of int* rather than a switch so adding the next probe is one
+ * line here plus the global it points at.
+ * ------------------------------------------------------------------------- */
+extern int gPspGfxHackNoTexture;
+extern int gPspGfxHackPointFilter;
+extern int gPspGfxHackPreferTexel1;
+extern int gPspGfxLerp2Enable;
+extern int gPspLerp2Force;
+extern int gPspGfxTile1LoadsEnable;
+extern int gDebugSkyFaceMask;
+extern int gPspGfxHackHighlightBigTri;
+extern const unsigned char *gPspBigTriTexAddr, *gPspBigTriPalAddr;
+extern unsigned int gPspBigTriTexFmt, gPspBigTriTexSiz, gPspBigTriTexLine, gPspBigTriTexBytes;
+
+/* Request flag for the texture dump below; cleared as soon as it has run. */
+static int sDumpProbeTexture;
+
+/* Biggest-textured-triangle probe, filled in gfx_pc.c's gfx_sp_tri1. */
+extern unsigned int gPspBigTriTexW, gPspBigTriTexH;
+extern unsigned int gPspBigTriTex01, gPspBigTriCcId;
+extern unsigned int gPspBigTriUls, gPspBigTriUlt, gPspBigTriLrs, gPspBigTriLrt;
+extern unsigned int gPspBigTriShiftS, gPspBigTriShiftT;
+extern unsigned int gPspBigTriCms, gPspBigTriCmt;
+/* Declared `int`, not `s32`: gfx_pc.c defines these as int32_t, and s32 is
+ * `long int` here. Same width, but the two are distinct types and nothing
+ * diagnoses a mismatch across translation units. */
+extern int gPspBigTriU0, gPspBigTriV0, gPspBigTriU1, gPspBigTriV1, gPspBigTriU2, gPspBigTriV2;
+
+/* Defined in gfx_scegu.c: drops every cached texture binding, which is what
+ * makes a sampler-state change take effect on already-bound textures. */
+extern void gfx_scegu_invalidate_texture_binding(void);
+
+typedef struct {
+    const char* name;
+    int* value;
+    int onValue;  /* what "on" means; the off state is always 0 */
+} PspRenderHack;
+
+static const PspRenderHack sHacks[] = {
+    { "No textures (vertex colour only)", &gPspGfxHackNoTexture, 1 },
+    { "Point filter (show texel size)", &gPspGfxHackPointFilter, 1 },
+    { "Prefer TEXEL1 (detail layer, diagnostic)", &gPspGfxHackPreferTexel1, 1 },
+    { "Disable two-pass terrain detail", &gPspGfxLerp2Enable, 0 },
+    { "Second pass at FULL strength (diag)", &gPspLerp2Force, 1 },
+    { "Drop tile-1 texture loads (old behaviour)", &gPspGfxTile1LoadsEnable, 0 },
+    /* gPspRoomCullDisable is s32 (long int) while the renderer's own switches
+     * are plain int. Both are 32 bits on this ABI, but they are distinct types
+     * to the compiler, so one cast is needed to keep the table homogeneous. */
+    { "Disable room culling", (int*)&gPspRoomCullDisable, 1 },
+    { "Skybox: side faces only", &gDebugSkyFaceMask, 0x0F },
+    { "Highlight probed triangle (magenta)", &gPspGfxHackHighlightBigTri, 1 },
+    /* Not really a toggle -- flipping it on performs the dump and it is turned
+     * straight back off. Living in the same list keeps one place to look. */
+    { "Dump probed texture to ms0:/bigtex.bin", &sDumpProbeTexture, 1 },
+};
+
+#define HACK_COUNT ((s32)(sizeof(sHacks) / sizeof(sHacks[0])))
+
+/* gDebugSkyFaceMask's "off" is 0xFF (all faces), not 0 (no faces), so the
+ * default has to be recorded rather than assumed. */
+static int sHackDefault[HACK_COUNT];
+static s32 sHackDefaultsCaptured;
+
+/* ---------------------------------------------------------------------------
+ * HUD sections.
+ *
+ * The HUD grew one line per investigation and never lost any, so by now it
+ * covers the top third of the screen -- including, during the renderer work,
+ * exactly the part of the scene being looked at. Most of those lines belong to
+ * the audio work and are dead weight while chasing a texture bug.
+ *
+ * So each block is switchable, and the default is "what the current
+ * investigation needs" rather than "everything". Nothing is lost: the audio
+ * lines are one tab and one press away when audio is the subject again.
+ *
+ * The BUILD line is deliberately NOT in this table. It is always drawn: which
+ * build a screenshot came from is not a preference, and getting that wrong has
+ * already cost this project two separate false conclusions.
+ * ------------------------------------------------------------------------- */
+enum {
+    HUD_SEC_FPS,
+    HUD_SEC_PATH,
+    HUD_SEC_DROP,
+    HUD_SEC_AUD,
+    HUD_SEC_BGM,
+    HUD_SEC_GATE,
+    HUD_SEC_LOAD,
+    HUD_SEC_GFX,
+    HUD_SEC_BIG,
+    HUD_SEC_SFX,
+    HUD_SEC_ME,
+    HUD_SEC_COUNT
+};
+
+static int sHudSection[HUD_SEC_COUNT] = {
+    /* FPS  */ 1, /* frame budget -- cheap and always worth seeing */
+    /* PATH */ 1, /* audio decode census + the SFX distance probe */
+    /* DROP */ 0, /* audio note drops */
+    /* AUD  */ 1, /* audio output backend + Media Engine counters */
+    /* BGM  */ 0, /* sequence player */
+    /* GATE */ 0, /* audio reset gate */
+    /* LOAD */ 0, /* asset/blob loading */
+    /* GFX  */ 1, /* renderer + diagnostic health -- ON by default on purpose:
+                   * it is the only channel that still works once the log has
+                   * silently stopped being written, so it must not depend on
+                   * someone having switched it on beforehand. */
+    /* BIG  */ 0, /* biggest-triangle texture probe -- an older subject */
+    /* SFX  */ 1, /* positional-sound distance/volume probe */
+    /* ME   */ 1, /* Media Engine offload counters */
+};
+
+static const char* const sHudSectionName[HUD_SEC_COUNT] = {
+    "FPS / frame budget", "PATH  decode paths + SFX dist", "DROP  audio note drops",
+    "AUD   audio out + Media Engine", "BGM   sequence player", "GATE  audio reset gate",
+    "LOAD  asset loading", "GFX   renderer health", "BIG   texture probe",
+    "SFX   positional sound", "ME    Media Engine",
+};
+
+/* Row 0 of the HUD page is the HUD's own visibility rather than a section.
+ * It used to be reachable only through the TRIANGLE hotkey, which meant the
+ * menu could turn individual lines on while the HUD as a whole stayed
+ * invisible -- looking exactly like a broken toggle. */
+#define HUD_ROW_VISIBLE 0
+#define HUD_ROW_COUNT   (HUD_SEC_COUNT + 1)
+
+/* 0 = scene list, 1 = render hacks, 2 = HUD sections. */
+enum { PAGE_MAPS, PAGE_HACKS, PAGE_HUD, PAGE_COUNT };
+static s32 sPage = PAGE_MAPS;
+static s32 sHackCursor = 0;
+static s32 sHudCursor = 0;
+
+/* Write the probed triangle's texture, exactly as the display list handed it
+ * over, to the memory stick for off-device inspection.
+ *
+ * This exists because the remaining question about the soft ground cannot be
+ * answered from a screenshot: the coordinate mapping has been measured correct,
+ * so what is left is whether the TEXELS are right -- and those can be compared
+ * byte for byte against the ROM's own asset, which no picture allows.
+ *
+ * Raw source bytes plus the metadata needed to decode them, rather than the
+ * decoded result: this way a decoding bug in the port cannot hide itself in its
+ * own output, and the same file can be checked against the extracted asset.
+ * ms0:/ is the memory stick root, which is ~/.config/ppsspp/ on this host. */
+static void PspSceneMenu_DumpProbeTexture(void) {
+    SceUID fd;
+    u32 header[8];
+
+    if (gPspBigTriTexAddr == NULL || gPspBigTriTexBytes == 0 ||
+        gPspBigTriTexBytes > 64 * 1024) {
+        return;
+    }
+
+    fd = sceIoOpen("ms0:/bigtex.bin", PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
+    if (fd < 0) {
+        return;
+    }
+
+    header[0] = 0x42494754; /* "BIGT" -- so a stale file is recognisable */
+    header[1] = gPspBigTriTexFmt;
+    header[2] = gPspBigTriTexSiz;
+    header[3] = gPspBigTriTexLine;
+    header[4] = gPspBigTriTexBytes;
+    header[5] = gPspBigTriTexW;
+    header[6] = gPspBigTriTexH;
+    header[7] = gPspBigTriCcId;
+    sceIoWrite(fd, header, sizeof(header));
+    sceIoWrite(fd, gPspBigTriTexAddr, gPspBigTriTexBytes);
+    /* Always 1 KB, whether or not this format uses it: a fixed layout is easier
+     * to parse than a conditional one, and 1 KB costs nothing. */
+    if (gPspBigTriPalAddr != NULL) {
+        sceIoWrite(fd, gPspBigTriPalAddr, 1024);
+    }
+    sceIoClose(fd);
+}
+
+static void PspSceneMenu_ToggleHack(s32 i) {
+    const PspRenderHack* h = &sHacks[i];
+
+    if (h->value == &sDumpProbeTexture) {
+        PspSceneMenu_DumpProbeTexture();
+        return;
+    }
+
+    *h->value = (*h->value == h->onValue) ? sHackDefault[i] : h->onValue;
+
+    /* A sampler-mode change only reaches the hardware when a texture is
+     * (re)bound, and gfx_scegu caches those bindings. Without this, toggling
+     * the point filter appeared to do nothing until enough textures had been
+     * evicted naturally. */
+    gfx_scegu_invalidate_texture_binding();
+}
 
 /* Held-direction auto-repeat: 110 entries is far too many to step through one
  * press at a time. */
@@ -96,13 +370,37 @@ static s32 sRepeatTimer = 0;
 static s32 sFontReady = 0;
 /* On by default: this build exists to measure the frame budget, and an
  * overlay nobody knows to press TRIANGLE for measures nothing. */
-static s32 sHudOpen = 1;
+/* Off by default. The HUD is a developer instrument -- frame budget, audio
+ * internals, renderer health -- and a first-time tester who just wants to see
+ * the game should not be met by eight lines of counters. TRIANGLE toggles it,
+ * and the warp menu's HUD page (SELECT) has the same switch plus the
+ * per-section ones. */
+static s32 sHudOpen = 0;
 
 /* 0 = unchecked, 1 = armed, 2 = done. */
 static s32 sAutoCaptureState;
 static s32 sAutoCaptureTimer;
 
 static void PspSceneMenu_Move(s32 delta) {
+    if (sPage == PAGE_HACKS) {
+        sHackCursor += delta;
+        if (sHackCursor < 0) {
+            sHackCursor = HACK_COUNT - 1;
+        } else if (sHackCursor >= HACK_COUNT) {
+            sHackCursor = 0;
+        }
+        return;
+    }
+    if (sPage == PAGE_HUD) {
+        sHudCursor += delta;
+        if (sHudCursor < 0) {
+            sHudCursor = HUD_ROW_COUNT - 1;
+        } else if (sHudCursor >= HUD_ROW_COUNT) {
+            sHudCursor = 0;
+        }
+        return;
+    }
+
     sCursor += delta;
     if (sCursor < 0) {
         sCursor = ENTRY_COUNT - 1;
@@ -134,6 +432,15 @@ void PspSceneMenu_Update(PlayState* play) {
         PspAudioDebug_HealResetGate();
     }
 
+    if (!sHackDefaultsCaptured) {
+        s32 i;
+
+        for (i = 0; i < HACK_COUNT; i++) {
+            sHackDefault[i] = *sHacks[i].value;
+        }
+        sHackDefaultsCaptured = 1;
+    }
+
     if (PSP_RAW_PRESSED(PSP_CTRL_SELECT)) {
         gPspSceneMenuOpen = !gPspSceneMenuOpen;
         sRepeatTimer = 0;
@@ -155,6 +462,8 @@ void PspSceneMenu_Update(PlayState* play) {
      * usable from the debugger -- poke sPendingEntrance and the game goes,
      * which is what drives the automated scene sweep. */
     if (sPendingEntrance >= 0 && play != NULL && play->transitionTrigger == TRANS_TRIGGER_OFF) {
+        PspSceneMenu_ApplyLayer(sPendingLayer);
+        sPendingLayer = -1;
         play->nextEntranceIndex = sPendingEntrance;
         play->transitionTrigger = TRANS_TRIGGER_START;
         play->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
@@ -205,7 +514,7 @@ void PspSceneMenu_Update(PlayState* play) {
             sHudOpen = !sHudOpen;
         }
     }
-    if (sHudOpen && PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
+    if (sHudOpen && !gPspSceneMenuOpen && PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
         /* off -> 3 -> 2 -> 1 -> off. "off" is not the same as 3: it hands
          * R_UPDATE_RATE back to the engine, which drives it to 1 during
          * transitions and 2 in the pause menu. */
@@ -228,8 +537,17 @@ void PspSceneMenu_Update(PlayState* play) {
         PspSceneMenu_Move(1);
         sRepeatTimer = -18;
     } else if (PSP_RAW_PRESSED(PSP_CTRL_LEFT)) {
-        PspSceneMenu_Move(-PAGE_STEP);
+        /* Left/Right switch tabs -- the obvious gesture for a tab strip, and
+         * worth taking even though it displaced the list's +-10 jump, which
+         * moved onto the shoulder buttons (free inside the menu). */
+        sPage = (sPage + PAGE_COUNT - 1) % PAGE_COUNT;
+        sRepeatTimer = 0;
     } else if (PSP_RAW_PRESSED(PSP_CTRL_RIGHT)) {
+        sPage = (sPage + 1) % PAGE_COUNT;
+        sRepeatTimer = 0;
+    } else if (PSP_RAW_PRESSED(PSP_CTRL_LTRIGGER)) {
+        PspSceneMenu_Move(-PAGE_STEP);
+    } else if (PSP_RAW_PRESSED(PSP_CTRL_RTRIGGER)) {
         PspSceneMenu_Move(PAGE_STEP);
     }
 
@@ -244,8 +562,21 @@ void PspSceneMenu_Update(PlayState* play) {
     }
 
     if (PSP_RAW_PRESSED(PSP_CTRL_CROSS)) {
-        sPendingEntrance = sEntries[sCursor].entrance;
-        gPspSceneMenuOpen = 0;
+        if (sPage == PAGE_HUD) {
+            if (sHudCursor == HUD_ROW_VISIBLE) {
+                sHudOpen = !sHudOpen;
+            } else {
+                sHudSection[sHudCursor - 1] = !sHudSection[sHudCursor - 1];
+            }
+        } else if (sPage == PAGE_HACKS) {
+            /* Deliberately leaves the menu open: a hack is something you flip
+             * back and forth, unlike a warp, which is done once. */
+            PspSceneMenu_ToggleHack(sHackCursor);
+        } else {
+            sPendingEntrance = sEntries[sCursor].entrance;
+            sPendingLayer = (s8)sEntries[sCursor].layer;
+            gPspSceneMenuOpen = 0;
+        }
     } else if (PSP_RAW_PRESSED(PSP_CTRL_CIRCLE)) {
         gPspSceneMenuOpen = 0;
     }
@@ -436,7 +767,57 @@ void PspSceneMenu_DrawBackdrop(void) {
     verts = sceGuGetMemory(sizeof(MenuVertex) * 2 * maxChars);
     v = verts;
 
-    PspSceneMenu_PutString(&v, 8, 6, 0xFF80FFFF, "SCENE WARP  UP/DN MOVE  L/R +-10  X LOAD  O CLOSE");
+    /* Tab strip. Drawn on every page, with the active one highlighted, so the
+     * other pages are discoverable rather than something you have to be told
+     * about. */
+    {
+        static const char* const kTabs[PAGE_COUNT] = { "MAPS", "HACKS", "HUD" };
+        s32 x = 8;
+
+        for (i = 0; i < PAGE_COUNT; i++) {
+            PspSceneMenu_PutString(&v, x, 6, (i == sPage) ? 0xFF00FFFF : 0xFF808080, kTabs[i]);
+            x += (s32)strlen(kTabs[i]) * GLYPH_W + 16;
+        }
+        PspSceneMenu_PutString(&v, x + 8, 6, 0xFF80FFFF,
+                               (sPage == PAGE_MAPS) ? "<> TAB  L/R +-10  X LOAD  O CLOSE"
+                                                    : "<> TAB  X TOGGLE  O CLOSE");
+    }
+
+    if (sPage == PAGE_HACKS) {
+        for (i = 0; i < HACK_COUNT; i++) {
+            s32 y = 24 + i * (GLYPH_H + 2);
+            s32 selected = (i == sHackCursor);
+            s32 on = (*sHacks[i].value == sHacks[i].onValue);
+
+            if (selected) {
+                PspSceneMenu_PutString(&v, 8, y, 0xFF00FFFF, ">");
+            }
+            PspSceneMenu_PutString(&v, 24, y, on ? 0xFF00FF00 : 0xFF808080, on ? "[X]" : "[ ]");
+            PspSceneMenu_PutString(&v, 56, y, selected ? 0xFF00FFFF : 0xFFFFFFFF, sHacks[i].name);
+        }
+
+        PspSceneMenu_SubmitText(verts, v);
+        return;
+    }
+
+    if (sPage == PAGE_HUD) {
+        for (i = 0; i < HUD_ROW_COUNT; i++) {
+            s32 y = 24 + i * (GLYPH_H + 2);
+            s32 selected = (i == sHudCursor);
+            s32 on = (i == HUD_ROW_VISIBLE) ? sHudOpen : sHudSection[i - 1];
+            const char* name =
+                (i == HUD_ROW_VISIBLE) ? "SHOW HUD  (or TRIANGLE)" : sHudSectionName[i - 1];
+
+            if (selected) {
+                PspSceneMenu_PutString(&v, 8, y, 0xFF00FFFF, ">");
+            }
+            PspSceneMenu_PutString(&v, 24, y, on ? 0xFF00FF00 : 0xFF808080, on ? "[X]" : "[ ]");
+            PspSceneMenu_PutString(&v, 56, y, selected ? 0xFF00FFFF : 0xFFFFFFFF, name);
+        }
+
+        PspSceneMenu_SubmitText(verts, v);
+        return;
+    }
 
     for (i = sScroll; i < last; i++) {
         s32 y = 24 + (i - sScroll) * (GLYPH_H + 2);
@@ -465,22 +846,56 @@ void PspSceneMenu_DrawBackdrop(void) {
  * formatter, and everything here is naturally fixed-point in tenths.
  * ------------------------------------------------------------------------- */
 
+/* Which build is actually running.
+ *
+ * Two separate hours were lost to not knowing this: once comparing two
+ * screenshots that turned out to come from different builds, and once reading
+ * probe globals over the debugger at symbol addresses that had shifted under a
+ * rebuild the running game had never loaded -- which yields plausible-looking
+ * numbers, not an error. Both failure modes are silent, so the build has to say
+ * who it is. Non-static and non-const so the debugger can find it by symbol and
+ * a screenshot can show it. */
+/* Defined in the generated psp/build/build_stamp.c, which the Makefile
+ * regenerates on every build. Deliberately not __DATE__/__TIME__ here: that
+ * expands when THIS file is compiled, so a build that only touched the renderer
+ * left the stamp naming an older build -- authoritative-looking and wrong. */
+extern char gPspBuildId[24];
+
 /* Set by the DROP line below, read by its colour decision further down. */
 static u32 sDropTotal;
 
+/* The "which hacks are forced" line, built early because the HUD panel has to
+ * be sized before any text is drawn into it. Length <= 4 means "just the HACK
+ * prefix", i.e. nothing is active and the line is suppressed. */
+static char sHackLine[80];
+static s32 sHackLineLen;
+
 #define HUD_X 6
 #define HUD_Y 6
+
+static int sGfxProbeBad;
 
 void PspSceneMenu_DrawHud(void) {
     MenuVertex* verts;
     MenuVertex* v;
     char line0[64];
     char line1[64];
-    char line2[64];
+    /* Wider than its siblings: the DROP line carries six counters plus a raw
+     * error code, and an overflowing sprintf here smashes the stack (see the
+     * session-4 audio notes). */
+    char line2[96];
     char line3[64];
+    char line7[64];
+    char line8[112];
+    char line9[96];
     char line4[64];
     char line5[64];
     char line6[72];
+    /* 480px / GLYPH_W(8) = 60 columns, and PspSceneMenu_DrawText neither wraps
+     * nor clips -- it just keeps advancing x off the side of the screen. So
+     * this gets a line of its own rather than being appended to LOAD, and it
+     * is kept under 60 characters on purpose. */
+    char lineGfx[96];
     int gateVal;
     u32 workUsec;
     u32 frameUsec;
@@ -579,9 +994,18 @@ void PspSceneMenu_DrawHud(void) {
          * heard: ovr climbing means samplePosInt is still running past the
          * end of a sample; ovr frozen at 0 while the artefact is audible
          * rules that mechanism out on the spot and points somewhere else. */
-        sprintf(line2, "DROP ins %u drm %u fnt %u alc %u ovr %u last %08x", (unsigned)eIns, (unsigned)eDrm,
-                (unsigned)eFnt, (unsigned)eAlc, (unsigned)PspAudioProbe_StatHits(), (unsigned)eLast);
-        sDropTotal = eTot + PspAudioProbe_StatHits();
+        /* grd counts pointers the PSP guard layer refused to dereference --
+         * wild list links, freed layers/channels, soundfont tables outside the
+         * user partition (psp/include/psp_audio_guard.h). It is the one
+         * counter here that is about the console staying alive rather than
+         * about a note being heard: on N64 every one of these would have been
+         * a harmless garbage read, on hardware it is a power-off. Nonzero
+         * means the engine is handing the audio thread stale pointers, so it
+         * names a teardown-ordering bug, not a data bug. */
+        sprintf(line2, "DROP ins %u drm %u fnt %u alc %u ovr %u grd %u last %08x", (unsigned)eIns, (unsigned)eDrm,
+                (unsigned)eFnt, (unsigned)eAlc, (unsigned)PspAudioProbe_StatHits(), (unsigned)gPspAudioBadPtrDrops,
+                (unsigned)eLast);
+        sDropTotal = eTot + PspAudioProbe_StatHits() + gPspAudioBadPtrDrops;
     }
 
     /* AUD: calls = how many times PspAudio_Output has run at all (0 forever
@@ -591,9 +1015,55 @@ void PspSceneMenu_DrawHud(void) {
      * the hardware (a volume/mixing bug upstream, not this backend). RSVF
      * counts sceAudioSRCChReserve failures. */
     {
+        /* ME is the Media Engine offload (psp/include/psp_audio_me.h): me =
+         * command lists the second core mixed, cpu = lists this core had to
+         * mix itself, us = how long the last ME job took. me climbing with
+         * cpu frozen is the only real proof the offload is live; cpu climbing
+         * alone means the ME never came up (always the case under PPSSPP) or
+         * timed out once and was switched off for good. */
         sprintf(line3, "AUD calls %u n %u peak %d rsvf %u", (unsigned)PspAudio_StatOutputCalls(),
                 (unsigned)PspAudio_StatLastNumSamples(), (int)PspAudio_StatLastPeakSample(),
                 (unsigned)PspAudio_StatReserveFailures());
+
+        /* SFX: what the engine last computed for a BANK_PLAYER sound (Link's
+         * jump, his sword). vol is the final channel volume x1000, ent is
+         * *entry->vol x1000 -- the caller's own request before distance
+         * attenuation. A healthy close-range sound is d < ~100 with vol near
+         * ent; vol far below ent means distance ate it, and vol == ent while
+         * still sounding quiet means the loss is downstream of here. */
+        /* p/b are the two sequence players' applied fade volumes x1000: SFX
+         * (SEQ_PLAYER_SFX) against music (SEQ_PLAYER_BGM_MAIN). The
+         * per-sound volume above is already known to be near full, so if
+         * sounds are still quiet the loss is a whole-player gain -- and p
+         * well below b would name it outright, since the two are faded
+         * independently. Both near 1000 means the loss is further down still,
+         * in the channel/note path. */
+        sprintf(line7, "VOICE d %d vol %d ent %d n %u p %d b %d", (int)gPspSfxProbeDist,
+                (int)(gPspSfxProbeVol * 1000.0f), (int)(gPspSfxProbeEntryVol * 1000.0f),
+                (unsigned)gPspSfxProbeCount,
+                (int)(PspAudioDebug_SfxPlayerVolume() * 1000.0f),
+                (int)(PspAudioDebug_BgmPlayerVolume() * 1000.0f));
+
+        /* me climbing with cpu frozen is the only proof the Media Engine is
+         * really mixing. Under PPSSPP only cpu can ever move. */
+        /* NOTE is the last unmeasured step of the quiet-sound chain: vel is
+         * the note's velocity x1000 (the whole channel gain, after everything
+         * the SFX line above already showed as near-full), tgt its resulting
+         * target volume out of 4096. tgt in the hundreds means the gain never
+         * reached the note. ME counters share the line: me climbing with cpu
+         * frozen is the only proof the Media Engine is really mixing. */
+        sprintf(line8, "NOTE vel %d tgt %d | ENV cur %d tgt %d d0 %d a0 %d n %u",
+                (int)(gPspNoteProbeVel * 1000.0f), (int)gPspNoteProbeTargetVol,
+                (int)(gPspAdsrProbeCur * 1000.0f), (int)(gPspAdsrProbeTarget * 1000.0f),
+                (int)gPspAdsrProbeD0, (int)gPspAdsrProbeA0, (unsigned)gPspAdsrProbeCount);
+        /* idx is the envelope point the attack is actually sitting on, and
+         * dN/aN are that point's raw delay/target. If dN is itself ~203 the
+         * soundfont really does ask for a multi-second ramp and the fault is
+         * upstream (wrong envelope, wrong font); if dN is small while delay
+         * is 203, the engine inflated it. */
+        sprintf(line9, "ENV delay %d step %d tps %d | idx %d dN %d aN %d",
+                (int)gPspAdsrProbeDelay, (int)(gPspAdsrProbeVel * 1000.0f), (int)gPspAdsrProbeTicks,
+                (int)gPspAdsrProbeIndex, (int)gPspAdsrProbeDN, (int)gPspAdsrProbeAN);
     }
 
     /* SEQ_PLAYER_BGM_MAIN (0) -- the player that actually carries the game's
@@ -656,29 +1126,218 @@ void PspSceneMenu_DrawHud(void) {
         (void)b0;
     }
 
-    PspSceneMenu_FillPanel(HUD_X - 4, HUD_Y - 3, HUD_X + 4 + 54 * GLYPH_W, HUD_Y + 3 + 7 * (GLYPH_H + 2),
-                           0xB0000000);
+    {
+        extern unsigned int gPspPoolOverflows;
+        extern int gPspPoolOpaHeadroomMin;
+        extern unsigned int psp_tex_overflows;
+        extern unsigned int gPspTexCacheResetVram;
+        extern unsigned int gPspTexCacheResetPool;
+        extern unsigned int gPspGfxBadDlCursors;
+        extern unsigned int gPspZeldaAllocFails;
+        extern unsigned int gPspDiagWriteFails;
+        extern int gPspDiagWriteLastErr;
+        extern unsigned int gPspBlobOpenFails;
 
-    verts = sceGuGetMemory(sizeof(MenuVertex) * 2 * 7 * (MENU_SCR_W / GLYPH_W));
-    v = verts;
+        sGfxProbeBad = (gPspPoolOverflows | psp_tex_overflows | gPspTexCacheResetVram |
+                        gPspTexCacheResetPool | gPspGfxBadDlCursors | gPspZeldaAllocFails |
+                        gPspDiagWriteFails | gPspBlobOpenFails) != 0;
+        /* Never print a row of zeroes.
+         *
+         * The first version showed all seven counters as digits, and the
+         * reader could not tell 0 from 8 in an 8x8 font on a 480px screen --
+         * which made a clean reading and a catastrophic one look identical.
+         * Zero is also the expected value, so it carries no information worth
+         * the pixels.
+         *
+         * So: name only what is actually non-zero, and say "clean" in words
+         * when nothing is. The answer then needs no digit at all, and any
+         * digits that do appear are ones that matter. */
+        if (!sGfxProbeBad) {
+            snprintf(lineGfx, sizeof(lineGfx), "GFX  all clean");
+        } else {
+            char* w = lineGfx;
+            char* end = lineGfx + sizeof(lineGfx);
 
-    /* Red once work no longer fits the interval: the pacer is no longer the
-     * thing setting the framerate, the renderer is. */
-    PspSceneMenu_PutString(&v, HUD_X, HUD_Y, headroom10 < 0 ? 0xFF4040FF : 0xFF80FFFF, line0);
-    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + GLYPH_H + 2, 0xFFFFFFFF, line1);
+            w += snprintf(w, (size_t)(end - w), "GFX BAD:");
+            /* First, because the line is drawn without wrapping or clipping and
+             * only ~60 columns fit: if every counter fires at once the tail
+             * runs off the screen, and this is the clause that must survive.
+             * The errno is the whole question here -- the count says the log
+             * stops, it does not say why. */
+            if (gPspDiagWriteFails) {
+                w += snprintf(w, (size_t)(end - w), " log=%u err=%d", gPspDiagWriteFails,
+                              gPspDiagWriteLastErr);
+            }
+            if (gPspBlobOpenFails) {
+                w += snprintf(w, (size_t)(end - w), " blobopen=%u", gPspBlobOpenFails);
+            }
+            if (gPspPoolOverflows) {
+                w += snprintf(w, (size_t)(end - w), " dlpool=%u", gPspPoolOverflows);
+            }
+            if (psp_tex_overflows) {
+                w += snprintf(w, (size_t)(end - w), " texpool=%u", psp_tex_overflows);
+            }
+            if (gPspTexCacheResetVram || gPspTexCacheResetPool) {
+                w += snprintf(w, (size_t)(end - w), " wipe=%u/%u", gPspTexCacheResetVram,
+                              gPspTexCacheResetPool);
+            }
+            if (gPspGfxBadDlCursors) {
+                w += snprintf(w, (size_t)(end - w), " badDL=%u", gPspGfxBadDlCursors);
+            }
+            if (gPspZeldaAllocFails) {
+                w += snprintf(w, (size_t)(end - w), " arena=%u", gPspZeldaAllocFails);
+            }
+        }
+    }
 
-    /* Yellow whenever anything was culled away -- that is the state worth
-     * noticing, and it is invisible in the picture by definition. */
-    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 2 * (GLYPH_H + 2), sDropTotal != 0 ? 0xFF4040FF : 0xFF80FF80,
-                           line2);
 
-    /* Red until at least one real, non-silent buffer has actually gone out --
-     * that is the one line this HUD exists for right now. */
-    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 3 * (GLYPH_H + 2),
-                           PspAudio_StatLastPeakSample() != 0 ? 0xFF80FF80 : 0xFF4040FF, line3);
-    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 4 * (GLYPH_H + 2), 0xFFFFFFFF, line4);
-    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 5 * (GLYPH_H + 2), gateVal != 0 ? 0xFF4040FF : 0xFF80FF80, line5);
-    PspSceneMenu_PutString(&v, HUD_X, HUD_Y + 6 * (GLYPH_H + 2), 0xFFFFFFFF, line6);
+    /* Built before the panel is sized, because whether any hack is active
+     * decides whether there is an eighth row to make room for. */
+    {
+        s32 i;
+
+        sHackLineLen = sprintf(sHackLine, "HACK");
+        for (i = 0; i < HACK_COUNT; i++) {
+            if (*sHacks[i].value == sHacks[i].onValue && *sHacks[i].value != sHackDefault[i]) {
+                /* Short tags, not the menu's full sentences: this line has to
+                 * survive next to six others on a 480px screen. */
+                static const char* const kTags[] = { " notex", " point", " texel1", " no2pass", " full2", " nocull", " sky4",
+                                                     " hilite", " dump" };
+
+                sHackLineLen += sprintf(sHackLine + sHackLineLen, "%s", kTags[i]);
+            }
+        }
+    }
+
+    /* Lines are collected first and drawn afterwards, so that switching a
+     * section off closes the gap instead of leaving a hole -- and so the panel
+     * can be sized to what is actually going to be shown. The BUILD line is
+     * pushed unconditionally and first; see the note on sHudSection.
+     *
+     * Note the numbers above are still COMPUTED for switched-off sections. The
+     * probes are a handful of counter reads, far cheaper than the sprintf and
+     * the text drawing this now skips, and leaving them running means a section
+     * switched on mid-scene shows real values immediately rather than stale
+     * ones. */
+    {
+        const char* text[HUD_SEC_COUNT + 4];
+        u32 colour[HUD_SEC_COUNT + 4];
+        s32 n = 0;
+        s32 k;
+        char buildLine[40];
+        char big0[80];
+        char big1[80];
+
+        sprintf(buildLine, "BUILD %s", gPspBuildId);
+        text[n] = buildLine;
+        colour[n++] = 0xFF808080;
+
+        if (sHudSection[HUD_SEC_FPS]) {
+            /* Red once work no longer fits the interval: the pacer is no longer
+             * the thing setting the framerate, the renderer is. */
+            text[n] = line0;
+            colour[n++] = (headroom10 < 0) ? 0xFF4040FF : 0xFF80FFFF;
+        }
+        if (sHudSection[HUD_SEC_PATH]) {
+            text[n] = line1;
+            colour[n++] = 0xFFFFFFFF;
+        }
+        if (sHudSection[HUD_SEC_DROP]) {
+            /* Red whenever notes were refused -- a state that is invisible in
+             * the picture by definition. */
+            text[n] = line2;
+            colour[n++] = (sDropTotal != 0) ? 0xFF4040FF : 0xFF80FF80;
+        }
+        if (sHudSection[HUD_SEC_AUD]) {
+            /* Red until at least one real, non-silent buffer has gone out. */
+            text[n] = line3;
+            colour[n++] = (PspAudio_StatLastPeakSample() != 0) ? 0xFF80FF80 : 0xFF4040FF;
+        }
+        if (sHudSection[HUD_SEC_BGM]) {
+            text[n] = line4;
+            colour[n++] = 0xFFFFFFFF;
+        }
+        if (sHudSection[HUD_SEC_GATE]) {
+            text[n] = line5;
+            colour[n++] = (gateVal != 0) ? 0xFF4040FF : 0xFF80FF80;
+        }
+        if (sHudSection[HUD_SEC_LOAD]) {
+            text[n] = line6;
+            colour[n++] = 0xFFFFFFFF;
+        }
+        if (sHudSection[HUD_SEC_GFX]) {
+            /* Renderer and diagnostic health, on screen rather than in the log.
+             * The bridge glitch leaves the frame loop, the GE, the audio and
+             * this menu all running while the game's own picture is wrecked --
+             * and in that state the log has already stopped being written, so
+             * the HUD is the only channel left. Red as soon as any of them
+             * leaves zero, so it can be read at a glance from a photograph. */
+            text[n] = lineGfx;
+            colour[n++] = sGfxProbeBad ? 0xFF4040FF : 0xFF80FF80;
+        }
+
+        /* Biggest horizontal textured triangle this frame -- the ground,
+         * outdoors. `rep` is the derived number worth reading: how many times
+         * the tile repeats across it. `tex` is 3 when the material wants a
+         * second texture this single-TMU pipeline cannot show. */
+        if (sHudSection[HUD_SEC_SFX]) {
+            text[n] = line7;
+            colour[n++] = 0xFFFFFFFF;
+        }
+        if (sHudSection[HUD_SEC_ME]) {
+            /* Green once the offload is live, grey while everything is still
+             * being mixed on this core. */
+            text[n] = line8;
+            colour[n++] = PspAudioMe_IsActive() ? 0xFF80FF80 : 0xFF808080;
+        }
+        if (sHudSection[HUD_SEC_ME]) {
+            text[n] = line9;
+            colour[n++] = 0xFFFFFFFF;
+        }
+        if (sHudSection[HUD_SEC_BIG]) {
+            s32 du = gPspBigTriU1 - gPspBigTriU0;
+            s32 dv = gPspBigTriV1 - gPspBigTriV0;
+            s32 repU10 = 0;
+            s32 repV10 = 0;
+
+            if (du < 0) { du = -du; }
+            if (dv < 0) { dv = -dv; }
+            /* u is S10.5 texels, so u/32 is texels; x10 for one decimal. */
+            if (gPspBigTriTexW) { repU10 = (du * 10) / (32 * (s32)gPspBigTriTexW); }
+            if (gPspBigTriTexH) { repV10 = (dv * 10) / (32 * (s32)gPspBigTriTexH); }
+
+            /* Kept under ~50 characters each: the panel is 54 glyphs wide and
+             * an overrun runs off the edge of a screenshot, which cost a round
+             * trip once already. */
+            sprintf(big0, "BIG %ux%u sh%u,%u cm%u,%u tex%u cc%08x", gPspBigTriTexW, gPspBigTriTexH,
+                    gPspBigTriShiftS, gPspBigTriShiftT, gPspBigTriCms, gPspBigTriCmt,
+                    gPspBigTriTex01, gPspBigTriCcId);
+            sprintf(big1, "    rep %d.%d/%d.%d tile %u,%u-%u,%u", repU10 / 10, repU10 % 10,
+                    repV10 / 10, repV10 % 10, gPspBigTriUls, gPspBigTriUlt, gPspBigTriLrs,
+                    gPspBigTriLrt);
+            text[n] = big0;
+            colour[n++] = 0xFFFFFF80;
+            text[n] = big1;
+            colour[n++] = 0xFFFFFF80;
+        }
+
+        /* Always last, and only when something is forced: a screenshot must
+         * state which hacks produced it. */
+        if (sHackLineLen > 4) {
+            text[n] = sHackLine;
+            colour[n++] = 0xFF00FFFF;
+        }
+
+        PspSceneMenu_FillPanel(HUD_X - 4, HUD_Y - 3, HUD_X + 4 + 54 * GLYPH_W,
+                               HUD_Y + 3 + n * (GLYPH_H + 2), 0xB0000000);
+
+        verts = sceGuGetMemory(sizeof(MenuVertex) * 2 * n * (MENU_SCR_W / GLYPH_W));
+        v = verts;
+
+        for (k = 0; k < n; k++) {
+            PspSceneMenu_PutString(&v, HUD_X, HUD_Y + k * (GLYPH_H + 2), colour[k], text[k]);
+        }
+    }
 
     PspSceneMenu_SubmitText(verts, v);
 }

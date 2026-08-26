@@ -105,6 +105,10 @@ void AudioMgr_HandlePreNMI(AudioMgr* audioMgr) {
     Audio_PreNMI();
 }
 
+#if TARGET_PSP
+#include "psp_hw_diag.h"
+#endif
+
 void AudioMgr_ThreadEntry(void* arg) {
     AudioMgr* audioMgr = (AudioMgr*)arg;
     IrqMgrClient irqClient;
@@ -112,18 +116,36 @@ void AudioMgr_ThreadEntry(void* arg) {
 
     PRINTF(T("オーディオマネージャスレッド実行開始\n", "Start running audio manager thread\n"));
 
+#if TARGET_PSP
+    PSP_DIAG_BEAT_SET(PSP_DIAG_BEAT_AUDIO_STAGE, 1);
+#endif
     // Initialize audio driver
     Audio_Init();
+#if TARGET_PSP
+    PSP_DIAG_BEAT_SET(PSP_DIAG_BEAT_AUDIO_STAGE, 2);
+#endif
     AudioLoad_SetDmaHandler(DmaMgr_AudioDmaHandler);
     Audio_InitSound();
+#if TARGET_PSP
+    PSP_DIAG_BEAT_SET(PSP_DIAG_BEAT_AUDIO_STAGE, 3);
+#endif
 
     // Fill init queue to signal that the audio driver is initialized
     osSendMesg(&audioMgr->initQueue, NULL, OS_MESG_BLOCK);
+#if TARGET_PSP
+    PSP_DIAG_BEAT_SET(PSP_DIAG_BEAT_AUDIO_STAGE, 4);
+#endif
 
     IrqMgr_AddClient(audioMgr->irqMgr, &irqClient, &audioMgr->interruptQueue);
+#if TARGET_PSP
+    PSP_DIAG_BEAT_SET(PSP_DIAG_BEAT_AUDIO_STAGE, 5);
+#endif
 
     // Spin waiting for events
     for (;;) {
+#if TARGET_PSP
+        PSP_DIAG_BEAT(PSP_DIAG_BEAT_AUDIO);
+#endif
 #if TARGET_PSP
         /* On N64 this queue is fed by the VI (vertical retrace) interrupt at a
          * constant 50/60 Hz, no matter how fast or slow the game renders. This

@@ -1011,6 +1011,18 @@ s32 Room_ProcessRoomRequest(PlayState* play, RoomContext* roomCtx) {
             }
 #endif
 
+#if TARGET_PSP
+            /* A new room's data now occupies this buffer. Tell the background
+             * blit, which caches its cache-writeback decision and cannot see
+             * this from the pointer alone -- the two room buffers are reused,
+             * so the address repeats while the contents do not. See the long
+             * note in gfx_scegu_draw_background. */
+            {
+                extern unsigned int gPspBgCacheGeneration;
+                gPspBgCacheGeneration++;
+            }
+#endif
+
             Scene_ExecuteCommands(play, roomCtx->curRoom.segment);
             Player_SetBootData(play, GET_PLAYER(play));
             Actor_SpawnTransitionActors(play, &play->actorCtx);

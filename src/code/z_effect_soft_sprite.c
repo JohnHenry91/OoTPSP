@@ -234,6 +234,16 @@ void EffectSs_Spawn(PlayState* play, s32 type, s32 priority, void* initParams) {
                                          : NULL);
     }
 
+#if TARGET_PSP
+    /* Entries whose effect overlay is not in the build yet carry a NULL
+     * profile (see the TARGET_PSP table in z_effect_soft_sprite_dlftbls.c).
+     * Without this the next line dereferences NULL. Same guard, same place, as
+     * reference/oot-psp-z2442. */
+    if (profile == NULL) {
+        return;
+    }
+#endif
+
     if (profile->init == NULL) {
         PRINTF(T("EffectSoftSprite2_makeEffect():すでにエフェクトはロード済みで\n"
                  "すが,コンストラクターがNULLなので追加をやめます。\n"

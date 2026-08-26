@@ -140,6 +140,27 @@ static uint32_t shader_broken[NUM_SHADER_IDS] = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF
 
 unsigned int __attribute__((aligned(64))) list[262144 * 2];
 
+/* How much of `list` a frame actually uses, and the worst frame so far.
+ *
+ * Everything else came back clean on the run that stalled: tex=0/0 (texture
+ * pool never wrapped), rst=0/0 (no mid-frame cache wipe), dl=0 (no display
+ * list cursor refused), zfail=0, blob=72/0. The trace ends durably at
+ * "ge-finish", i.e. immediately before sceGuSync -- the one call that blocks
+ * on the graphics hardware -- and nothing, not even the audio thread, logged
+ * another line. That is a stalled GE.
+ *
+ * This buffer is the remaining way to stall one from our side. It runs in
+ * GU_DIRECT, so the GE executes the list as the CPU writes it, and
+ * sceGuGetMemory carves the per-draw vertex arrays out of the SAME buffer
+ * with no bounds check anywhere in pspsdk. Overrun it and the GE walks off
+ * the end into whatever follows. Hyrule Field is the largest scene in the
+ * game, which makes it the one most likely to get there.
+ *
+ * sceGuFinish() returns the finished list's size, so this costs one store per
+ * frame and needs no instrumentation of the draw path at all. */
+unsigned int gPspGeListBytes;
+unsigned int gPspGeListPeak;
+
 static unsigned int staticOffset = 0;
 unsigned int scegu_fog_color = 0;
 
@@ -485,29 +506,73 @@ static inline int texenv_set_texture_texture(struct ShaderProgram *prg) {
     return GU_TFX_REPLACE;
 }
 
-/* TEMPORARY DIAGNOSTIC (2026-08-14). Set to 1 to render every material with
- * texturing switched off, so geometry comes out in pure vertex/shade colour.
- * This splits the remaining "everything is white with diagonal hatching"
- * problem cleanly in two, in a single test run:
- *   - if the room then shows plausible, solid, *coloured* shaded geometry, the
- *     vertex/lighting/combiner path is fine and the fault is entirely in the
- *     texture stage (upload -> texman binding -> GU_TFX mode);
- *   - if it still comes out white/hatched, texturing is NOT the culprit and the
- *     problem is upstream in vertex colours, lighting or the combiner.
- * Texture *decoding* itself has already been verified correct offline (room
- * hakaana2's RGBA16 tiles decode byte-for-byte to the reference PNGs, modulo
- * +-1 rounding in the 5->8 bit scale), so this is the right next split.
- * Set back to 0 once the answer is known. */
-#define PSP_DIAG_DISABLE_TEXTURING 0
+/* Render hacks, toggled live from the scene menu's hack page (SQUARE) rather
+ * than rebuilt each time. These used to be #defines, which cost a full
+ * rebuild-and-relaunch per experiment and -- worse -- made screenshots
+ * ambiguous: a picture does not say which build produced it, and comparing two
+ * shots taken under uncertain build states produced a wrong conclusion once
+ * already. As runtime switches, both halves of an A/B come from one build, one
+ * scene and one camera position, and the HUD names the active hack.
+ *
+ * gPspGfxHackNoTexture: draw every material with texturing off, so geometry
+ * comes out in pure vertex/shade colour. Splits "is this the texture stage or
+ * the vertex/lighting/combiner path" in one look.
+ *
+ * gPspGfxHackPointFilter: force GU_NEAREST everywhere. Makes texel size
+ * directly visible, which separates "the texture is correctly tiled and merely
+ * filtered soft" (fine detail appears) from "a handful of texels is being
+ * stretched over the whole surface" (big hard-edged blocks). */
+int gPspGfxHackNoTexture = 0;
+int gPspGfxHackPointFilter = 0;
+
+/* gPspGfxHackPreferTexel1: on a two-texture combine, keep TEXEL1 instead of
+ * TEXEL0.
+ *
+ * Measured on Kokiri Forest's ground (2026-08-23): it is a two-texture material
+ * whose TEXEL0 is a 32x32 RGBA16 colour map, CLAMPed on both axes, of which one
+ * triangle uses about 8x20 texels stretched across the whole surface -- i.e.
+ * deliberately low frequency. That is the N64's detail-texture idiom: TEXEL0
+ * carries broad colour, TEXEL1 carries the fine grain, tiled many times over.
+ *
+ * The single-TMU rule below keeps TEXEL0 for every two-texture combine, so this
+ * port systematically keeps the blurry half and discards the sharp one -- which
+ * is exactly what "the ground is soft while the walls are crisp" looks like
+ * (the walls are single-texture materials and are unaffected).
+ *
+ * This switch is a DIAGNOSTIC, not the fix: it trades the colour map away for
+ * the detail rather than combining them. The real answer is a second pass that
+ * multiplies the two, which is what the note in gfx_scegu_select_texture
+ * describes an abandoned attempt at. */
+int gPspGfxHackPreferTexel1 = 0;
+
+/* Master switch for the two-texture terrain second pass (gfx_pc.c decides which
+ * materials qualify). On by default -- it is the fix, not a diagnostic -- but
+ * switchable so its cost and its correctness can be compared side by side in
+ * one build. */
+int gPspGfxLerp2Enable = 1;
+
+/* Defined in gfx_pc.c, which is where the second pass is actually issued
+ * (gfx_sp_tri1's own recursive call); see gPspLerp2Detected there. */
+extern uint32_t gPspLerp2Draws;
+extern int gPspLerp2SecondPass;
+
+/* Draw the second pass at full strength instead of at the material's mix
+ * factor. A diagnostic with one job: the ENV factor measured 128/128/128, i.e.
+ * a plain 50/50 blend, yet the picture does not change -- so either the pass
+ * draws the right thing and half of it is simply hard to see against a base of
+ * the same colour, or it draws the wrong thing entirely. At full strength the
+ * result must look exactly like the (known-good) Prefer-TEXEL1 diagnostic; if
+ * it does not, the pass is not drawing what it is supposed to. */
+int gPspLerp2Force;
 
 /* Last texenv mode forced by gfx_scegu_set_two_texture_tint(); -1 == none. */
 static int mode_override = -1;
 
 static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
-#if PSP_DIAG_DISABLE_TEXTURING
-    sceGuDisable(GU_TEXTURE_2D);
-    return;
-#endif
+    if (gPspGfxHackNoTexture) {
+        sceGuDisable(GU_TEXTURE_2D);
+        return;
+    }
     // If we have textures, Enable otherwise Disable
     if (prg->texture_used[0] || prg->texture_used[1]) {
         sceGuEnable(GU_TEXTURE_2D);
@@ -751,25 +816,50 @@ static inline int nextpow2(int v) {
     return v;
 }
 
+uint32_t gPspWrapSamplerSets;
+
+/* Last texture id actually handed to the GE, so gfx_pc.c can record which
+ * texture each pass of the terrain LERP drew with. */
+uint32_t gPspCurBoundTex;
+
 static inline void gfx_scegu_apply_tmu_state(const int tile) {
     sceGuTexFilter(tmu_state[tile].min_filter, tmu_state[tile].mag_filter);
     sceGuTexWrap(tmu_state[tile].wrap_s, tmu_state[tile].wrap_t);
 }
 
 static void gfx_scegu_set_sampler_parameters(const int tile, const bool linear_filter, const uint32_t cms, const uint32_t cmt) {
-    const int filter = linear_filter ? GU_LINEAR : GU_NEAREST;
+    const int filter = (linear_filter && !gPspGfxHackPointFilter) ? GU_LINEAR : GU_NEAREST;
 
     const int wrap_s = gfx_cm_to_opengl(cms);
     const int wrap_t = gfx_cm_to_opengl(cmt);
+
+    /* Does anything actually ask a non-pow2 texture to repeat? If this stays
+     * zero, padding is safe everywhere and the stretch can go away outright. */
+    if (wrap_s == GU_REPEAT || wrap_t == GU_REPEAT) {
+        gPspWrapSamplerSets++;
+    }
 
     tmu_state[tile].min_filter = filter;
     tmu_state[tile].mag_filter = filter;
     tmu_state[tile].wrap_s = wrap_s;
     tmu_state[tile].wrap_t = wrap_t;
 
-    // set state for the first texture right away
-    if (!tile)
+    /* One physical TMU, so only ONE tile's sampler modes can be in the GE at a
+     * time -- and it has to be the tile whose bind survives
+     * gfx_scegu_select_texture. Normally that is tile 0; under the
+     * prefer-TEXEL1 diagnostic and inside the terrain LERP's second pass it is
+     * tile 1.
+     *
+     * This used to be a flat `if (!tile)`, i.e. tile 1's modes were recorded in
+     * tmu_state[1] but never reached the hardware. The second pass then drew
+     * the detail texture with tile 0's modes -- CLAMP/CLAMP on Kokiri Forest's
+     * ground, where the detail tile needs to REPEAT about eight times. A
+     * clamped detail tile is one stretched band, which on screen is
+     * indistinguishable from "the second pass did nothing at all". */
+    const int bound_tile = (gPspGfxHackPreferTexel1 || gPspLerp2SecondPass) ? 1 : 0;
+    if (tile == bound_tile) {
         gfx_scegu_apply_tmu_state(tile);
+    }
 }
 
 static void gfx_scegu_select_texture(int tile, uint32_t texture_id) {
@@ -815,14 +905,46 @@ static void gfx_scegu_select_texture(int tile, uint32_t texture_id) {
      *
      * Same argument as the boot logo's "NINTENDO 64" text, which this used to
      * special-case: TEXEL0 is the per-character glyph bitmap, TEXEL1 a static
-     * shine overlay. The general rule covers it. */
-    if (tile == 1 && cur_shader != NULL && cur_shader->texture_used[0]) {
+     * shine overlay. The general rule covers it.
+     *
+     * gPspLerp2SecondPass (gfx_pc.c) flips this rule the same way
+     * gPspGfxHackPreferTexel1 does, but scoped to the single recursive
+     * gfx_sp_tri1 call that draws a terrain LERP's detail half: TEXEL1 needs
+     * to be the one that survives for exactly that one triangle, twice
+     * (entering and leaving the second pass), which is why gfx_pc.c forces
+     * rdp.textures_changed on both edges to make sure this function actually
+     * runs instead of being skipped as "nothing changed". */
+    if (tile == 1 && cur_shader != NULL && cur_shader->texture_used[0] &&
+        !(gPspGfxHackPreferTexel1 || gPspLerp2SecondPass)) {
+        return;
+    }
+    /* The mirror image of the rule above: with either switch on, it is TEXEL0
+     * that gets dropped, so that tile 1 -- processed second -- is the bind
+     * that survives. */
+    if (tile == 0 && cur_shader != NULL && cur_shader->texture_used[0] &&
+        cur_shader->texture_used[1] && (gPspGfxHackPreferTexel1 || gPspLerp2SecondPass)) {
         return;
     }
     if (tmu_state[tile].tex != texture_id) {
         tmu_state[tile].tex = texture_id;
+        gPspCurBoundTex = texture_id;
         texman_bind_tex(texture_id);
-        gfx_scegu_set_sampler_parameters(tile, false, 0, 0);
+        /* Re-assert the sampler state this tile already holds, because
+         * texman_bind_tex's sceGuTexMode/sceGuTexImage disturb it -- do NOT
+         * overwrite it. This line used to call
+         * gfx_scegu_set_sampler_parameters(tile, false, 0, 0), i.e. it forced
+         * GU_NEAREST and wrap mode 0 on every texture change.
+         *
+         * That desynced two caches. gfx_pc.c remembers the applied filter and
+         * clamp modes PER CACHED TEXTURE (rendering_state.textures[i]->
+         * linear_filter/cms/cmt) and only re-applies them when its own
+         * remembered value differs from what the RDP now asks for. It never
+         * learned about the (false, 0, 0) written behind its back, so any
+         * texture rebound after a previous use kept whatever the last binding
+         * happened to leave in the hardware instead of its own modes. Only a
+         * freshly cached texture (whose node starts at linear_filter = false)
+         * reliably got its real settings. */
+        gfx_scegu_apply_tmu_state(tile);
     }
 }
 
@@ -921,7 +1043,32 @@ static inline void texman_upload_swizzle_or_plain(int width, int height, unsigne
     }
 }
 
+/* How much non-power-of-two texture traffic there actually is, and what it
+ * looks like.
+ *
+ * The GE can only sample power-of-two textures, so anything else is currently
+ * RESAMPLED up to the next power of two with a nearest-neighbour stretch --
+ * which duplicates columns and rows and costs real sharpness. Daedalus, on the
+ * same hardware, PADS instead (Source/SysPSP/Graphics/NativeTexturePSP.cpp:
+ * mCorrectedWidth/mCorrectedHeight, with mScale = 1/mCorrectedWidth so the
+ * coordinates are normalised by the padded size). Padding is texel-exact.
+ *
+ * It is not a free swap, though: padding only works where the texture does not
+ * REPEAT, because repeating a padded image tiles the padding as well. So the
+ * question that decides whether this is worth changing is not "how many
+ * non-pow2 textures are there" but "how many of them wrap" -- hence the second
+ * counter. Measure before rewriting the upload path. */
+uint32_t gPspNonPow2Uploads;
+uint32_t gPspPow2Uploads;
+uint32_t gPspNonPow2LastDims; /* width << 16 | height */
+
 static void gfx_scegu_upload_texture(const uint8_t *rgba32_buf, int width, int height, unsigned int type) {
+    if (ispow2(width) && ispow2(height)) {
+        gPspPow2Uploads++;
+    } else {
+        gPspNonPow2Uploads++;
+        gPspNonPow2LastDims = ((uint32_t)width << 16) | (uint32_t)(height & 0xFFFF);
+    }
     if (ispow2(width) && ispow2(height)) {
         texman_upload_swizzle_or_plain(width, height, type, (void *) rgba32_buf);
     } else {
@@ -1190,6 +1337,58 @@ static void gfx_scegu_draw_triangles(float buf_vbo[], UNUSED size_t buf_vbo_len,
     // if (cur_fog_ofs) gfx_scegu_blend_fog_tris();
 }
 
+/* Second pass of a two-texture terrain LERP: (TEXEL1 - TEXEL0) * ENV + TEXEL0.
+ *
+ * The first pass has already drawn TEXEL0 into the framebuffer, so it is the
+ * destination here, and the identity
+ *
+ *     src * ENV + dst * (1 - ENV)  ==  (TEXEL1 - TEXEL0) * ENV + TEXEL0
+ *
+ * makes this an exact reproduction rather than an approximation -- provided the
+ * mix factor is constant across the draw, which is why gfx_sp_tri1 only accepts
+ * ENV and PRIM as the factor. GU_FIX supplies both factors as literal colours,
+ * so no per-vertex alpha is needed.
+ *
+ * Unlike the earlier version of this second pass, these two calls do nothing
+ * but toggle GU_BLEND: the actual draw is the ordinary gfx_flush() ->
+ * gfx_rapi->draw_triangles() path, driven by an ordinary recursive gfx_sp_tri1
+ * call in gfx_pc.c (see gPspLerp2SecondPass there). Texture bind, sampler
+ * state and tex-env mode all come from that same normal path, so they cannot
+ * drift out of step with what the first pass did for TEXEL0.
+ *
+ * Depth writes stay ON with the default LEQUAL test: the geometry is bitwise
+ * the same as the first pass, so it compares equal and passes. */
+void gfx_scegu_lerp2_blend_begin(uint8_t mix) {
+    /* One scalar, not three channels. The RDP multiplies the (TEXEL1 - TEXEL0)
+     * term by a single value here -- ENV_ALPHA or the LOD fraction -- so the
+     * two GU_FIX factors are that value and its complement, applied equally to
+     * R, G and B. Feeding three different per-channel factors (which is what
+     * passing env_color.rgb amounted to) tinted the crossfade instead of just
+     * weighting it. */
+    const unsigned int m = gPspLerp2Force ? 255u : (unsigned int)mix;
+    const unsigned int inv = 255u - m;
+    const unsigned int src_fix = m | (m << 8) | (m << 16);
+    const unsigned int dst_fix = inv | (inv << 8) | (inv << 16);
+
+    sceGuEnable(GU_BLEND);
+    sceGuBlendFunc(GU_ADD, GU_FIX, GU_FIX, src_fix, dst_fix);
+}
+
+/* Hand the pipeline back exactly as gfx_pc.c's own cache (gl_blend, mirroring
+ * rendering_state.alpha_blend) believes it left it -- a direct
+ * sceGuEnable/Disable(GU_BLEND) that diverges from that cache desyncs it from
+ * real hardware state. Confirmed via a real regression elsewhere in this file
+ * (see gfx_scegu_draw_n64_logo_cube_2pass): getting this wrong made an
+ * unrelated later draw come out solid white because gfx_pc.c's set_use_alpha()
+ * saw its cached belief already matched the (actually wrong) hardware state
+ * and skipped re-enabling it. */
+void gfx_scegu_lerp2_blend_end(void) {
+    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    if (!gl_blend) {
+        sceGuDisable(GU_BLEND);
+    }
+}
+
 void gfx_scegu_draw_triangles_2d(float buf_vbo[], UNUSED size_t buf_vbo_len, UNUSED size_t buf_vbo_num_tris) {
     if (!is_shader_enabled(cur_shader->shader_id)) {
         gfx_scegu_apply_shader(get_shader_from_id(get_shader_remap(cur_shader->shader_id)));
@@ -1246,20 +1445,56 @@ void gfx_scegu_invalidate_texture_binding(void) {
     tmu_state[1].tex = (uint32_t)-1;
 }
 
+/* Bumped whenever a room finishes loading (Room_ProcessRoomRequest). See the
+ * cache note in gfx_scegu_draw_background: a pointer comparison alone cannot
+ * tell "same image" from "different image at the same address". */
+unsigned int gPspBgCacheGeneration = 0;
+
 void gfx_scegu_draw_background(const void *img, int width, int height, int offset_x, int offset_y) {
     static const void *last_img = NULL;
+    static unsigned int last_generation = (unsigned int)-1;
 
     if (img == NULL || width <= 0 || height <= 0) {
+        return;
+    }
+
+    /* Reject implausible dimensions before they become a memory range. These
+     * backgrounds are always 320x240; anything far past that means the
+     * RoomShapeImage was read from data that is not (yet) a room, and both the
+     * cache writeback below and the GE's own fetch would then run off the end
+     * of the buffer -- fatal on hardware, silently tolerated by PPSSPP. */
+    if (width > 1024 || height > 1024) {
         return;
     }
 
     /* The GE reads main memory directly and is not coherent with the CPU's
      * data cache. A blob is written by ordinary file I/O, so write it back
      * once -- when the room changes, not per frame (150 KB of cache
-     * maintenance every frame would cost more than the draw). */
-    if (img != last_img) {
-        sceKernelDcacheWritebackRange(img, (unsigned int)(width * height * 2));
+     * maintenance every frame would cost more than the draw).
+     *
+     * "When the room changes" is NOT the same as "when this pointer changes",
+     * which is what this used to test. OoT alternates between two fixed room
+     * buffers (roomCtx->bufPtrs[activeBufPage], z_room.c), so a DIFFERENT room
+     * routinely arrives at the SAME address -- the pointer compares equal, the
+     * writeback is skipped, and the GE reads whatever the last flush left in
+     * RAM while the new image is still sitting in this core's dirty cache
+     * lines. The result is an image torn into horizontal bands, some rows new
+     * and some stale, which stays that way until the lines happen to evict.
+     * PPSSPP models no cache at all and so cannot reproduce it. Hence the
+     * generation counter, bumped by whoever loads a room.
+     *
+     * The range is aligned outward to 64-byte cache lines: the hardware call
+     * operates on whole lines, and an unaligned base or length can leave the
+     * first and last line of the image unflushed -- which looks like a thin
+     * band of corruption at the top and bottom and is easy to misread as a
+     * geometry problem. */
+    if (img != last_img || gPspBgCacheGeneration != last_generation) {
+        uintptr_t start = (uintptr_t)img & ~63u;
+        uintptr_t end = ((uintptr_t)img + (unsigned int)(width * height * 2) + 63u) & ~63u;
+
+        sceKernelDcacheWritebackRange((const void *)start, (unsigned int)(end - start));
         last_img = img;
+        last_generation = gPspBgCacheGeneration;
     }
 
     const float sx = (float)SCR_WIDTH / (float)width;
@@ -1358,7 +1593,10 @@ static void gfx_scegu_init(void) {
     sceGuTexOffset(0.0f, 0.0f);
     sceGuTexWrap(GU_REPEAT, GU_REPEAT);
 
-    sceGuFinish();
+    gPspGeListBytes = (unsigned int)sceGuFinish();
+    if (gPspGeListBytes > gPspGeListPeak) {
+        gPspGeListPeak = gPspGeListBytes;
+    }
     sceGuSync(0, 0);
     sceDisplayWaitVblankStart();
     sceGuDisplay(GU_TRUE);
@@ -1525,6 +1763,18 @@ void gfx_scegu_on_resize(void) {
  * exchanges them, so this toggles in lockstep with it. Tracked because
  * PspSceneMenu_DrawOverlay writes to the framebuffer with the CPU and has to be
  * given the buffer that is about to be displayed, not the one on screen now. */
+#include "psp_hw_diag.h"
+
+/* Mirrors graph.c's PSP_DIAG_FIRST window without pulling in its private
+ * frame counter's definition. */
+extern u32 gPspDiagFrameCount;
+#define PSP_DIAG_GFX(name)                 \
+    do {                                   \
+        if (gPspDiagFrameCount < PSP_DIAG_FRAMES) {     \
+            PspDiag_Step(name);        \
+        }                                  \
+    } while (0)
+
 static int sDrawBufferIsFbp0 = 1;
 
 static void gfx_scegu_end_frame(void) {
@@ -1533,11 +1783,48 @@ static void gfx_scegu_end_frame(void) {
      * pokes into the finished framebuffer. Splitting it this way also makes the
      * overlay self-diagnosing: a visible panel with no text isolates the
      * failure to the pspDebugScreen half, no panel at all to the input half. */
+    /* Stage probes across the GE handover.
+     *
+     * On hardware the image freezes on the last completed frame and the
+     * console loses power a few seconds later, while PPSSPP runs the
+     * byte-identical trace onwards -- which is what a stalled GE looks like,
+     * not what a crashed CPU looks like. sceGuSync is the one blocking call
+     * in this port that waits on the graphics hardware, so it is the one that
+     * would park the main thread forever with the last swapped frame still on
+     * screen. These four say which side of it we are on, and separate the
+     * menu overlay (drawn into the still-open list) from the engine's own
+     * geometry. First 24 frames only, same window as the rest. */
+    PSP_DIAG_GFX("ge-menu-begin");
     PspSceneMenu_DrawBackdrop();
     PspSceneMenu_DrawHud();
+    PSP_DIAG_GFX("ge-menu-done");
 
-    sceGuFinish();
+    gPspGeListBytes = (unsigned int)sceGuFinish();
+    if (gPspGeListBytes > gPspGeListPeak) {
+        gPspGeListPeak = gPspGeListBytes;
+    }
+    PSP_DIAG_GFX("ge-finish");
+    /* One durable write per frame, and only inside the probe window (the first
+     * PSP_DIAG_FRAMES frames of each scene, which is exactly when a freshly
+     * loaded scene falls over).
+     *
+     * The tension this resolves: force-flushing every probe costs ~240 ms a
+     * frame, which slows the game enough to make the fault disappear -- a run
+     * instrumented that way rendered the scene that otherwise dies. Leaving
+     * everything buffered keeps the timing honest but loses up to seven
+     * entries, and a run ended with "ge-sync" as its last line with no way to
+     * tell whether the GE had actually stalled there or the tail was simply
+     * still in RAM.
+     *
+     * Flushing here, immediately BEFORE the one blocking call that waits on
+     * the graphics hardware, means a stall inside sceGuSync leaves a log that
+     * durably ends at "ge-finish". One write per frame is ~24 ms and only for
+     * the first few frames of a scene. */
+    if (gPspDiagFrameCount < PSP_DIAG_FRAMES) {
+        PspDiag_Flush();
+    }
     sceGuSync(0, 0);
+    PSP_DIAG_GFX("ge-sync");
 
     {
         /* Timed so the pacer can charge this to idle rather than to the
@@ -1547,8 +1834,10 @@ static void gfx_scegu_end_frame(void) {
         sceDisplayWaitVblankStart();
         gPspVblankWaitUsec = (u32)((u64)sceKernelGetSystemTimeWide() - waitStart);
     }
+    PSP_DIAG_GFX("ge-vblank");
 
     sceGuSwapBuffers();
+    PSP_DIAG_GFX("ge-swap");
     sDrawBufferIsFbp0 = !sDrawBufferIsFbp0;
 }
 

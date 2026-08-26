@@ -168,16 +168,96 @@ void aClearBufferImpl(uint16_t addr, int nbytes) {
     memset(BUF_U8(addr), 0, nbytes);
 }
 
+/* Containment: these three functions are the ONLY places this microcode
+ * touches memory outside its own DMEM window, and every one of them is a raw
+ * memcpy against an address the engine computed.
+ *
+ * On N64 that is safe by construction -- the RSP DMAs within RDRAM, and an
+ * address that has run past the end of a sample still lands on other RAM. It
+ * reads nonsense and the note sounds wrong, which is exactly the "sound
+ * glitches, Ganon's Castle is completely broken" symptom this port has had
+ * for months. PPSSPP reproduces the harmless half for the same reason: guest
+ * RAM is one flat host allocation with nothing to fault against.
+ *
+ * On real PSP hardware the same address leaves the user partition and the
+ * console loses power outright -- no exception screen, no freeze. Guarding
+ * the sample POINTERS in synthesis.c narrowed the window (the bring-up
+ * ladder's level 10 went from dying to returning to the XMB) but did not
+ * close it, because the fatal read is not always a bad pointer: a valid
+ * pointer plus an overrun LENGTH walks off the end just as well.
+ *
+ * So bound it here instead of trying to predict it upstream. Whatever cannot
+ * be read is zero-filled, which is silence -- the worst case is a note that
+ * goes quiet, never a console that switches off. gPspMixerBadRanges says how
+ * often it fired, so this stays a diagnosis and not just a bandage. */
+/* The PSP user partition starts at 0x08800000, NOT at 0x08000000.
+ *
+ * 0x08000000..0x087FFFFF is kernel memory. A user-mode thread that reads it
+ * takes an exception and the console loses power -- which is the exact death
+ * this guard exists to prevent, so accepting that range left an 8 MB hole in
+ * the middle of the safety net. Every "guarded" audio path could still walk
+ * straight into it.
+ *
+ * The upper bound is the top of a 64 MB model's user partition (PSP-2000 and
+ * later). A PSP-1000 has only 32 MB and its user RAM ends at 0x0A000000, so
+ * this stays permissive by 32 MB on that model -- still infinitely better than
+ * the old lower bound, and the tighter value would have to be probed at
+ * runtime rather than assumed. */
+#define PSP_MIXER_RAM_START 0x08800000U
+#define PSP_MIXER_RAM_END 0x0C000000U
+
+uint32_t gPspMixerBadRanges;
+
+/* How many of `nbytes` from `addr` are actually inside PSP user RAM. */
+static int MixerReadableBytes(const void* addr, int nbytes) {
+    uint32_t a = (uint32_t)(uintptr_t)addr;
+
+    if (nbytes <= 0) {
+        return 0;
+    }
+    if ((a < PSP_MIXER_RAM_START) || (a >= PSP_MIXER_RAM_END)) {
+        gPspMixerBadRanges++;
+        return 0;
+    }
+    if ((a + (uint32_t)nbytes) > PSP_MIXER_RAM_END) {
+        gPspMixerBadRanges++;
+        return (int)(PSP_MIXER_RAM_END - a);
+    }
+    return nbytes;
+}
+
 void aLoadBufferImpl(const void* sourceAddr, uint16_t destAddr, uint16_t nbytes) {
-    memcpy(BUF_U8(destAddr), sourceAddr, ROUND_DOWN_16(nbytes));
+    int want = ROUND_DOWN_16(nbytes);
+    int have = MixerReadableBytes(sourceAddr, want);
+
+    if (have > 0) {
+        memcpy(BUF_U8(destAddr), sourceAddr, have);
+    }
+    if (have < want) {
+        memset(BUF_U8(destAddr) + have, 0, want - have);
+    }
 }
 
 void aSaveBufferImpl(uint16_t sourceAddr, int16_t* destAddr, uint16_t nbytes) {
-    memcpy(destAddr, BUF_S16(sourceAddr), ROUND_DOWN_16(nbytes));
+    int want = ROUND_DOWN_16(nbytes);
+    int have = MixerReadableBytes(destAddr, want);
+
+    /* A write, so a clamped range is simply not written -- there is nothing
+     * safe to put outside RAM. */
+    if (have > 0) {
+        memcpy(destAddr, BUF_S16(sourceAddr), have);
+    }
 }
 
 void aLoadADPCMImpl(int numEntriesTimes16, const int16_t* bookSourceAddr) {
-    memcpy(sRspa.adpcmTable, bookSourceAddr, numEntriesTimes16);
+    int have = MixerReadableBytes(bookSourceAddr, numEntriesTimes16);
+
+    if (have > 0) {
+        memcpy(sRspa.adpcmTable, bookSourceAddr, have);
+    }
+    if (have < numEntriesTimes16) {
+        memset((uint8_t*)sRspa.adpcmTable + have, 0, numEntriesTimes16 - have);
+    }
 }
 
 void aSetBufferImpl(uint8_t flags, uint16_t in, uint16_t out, uint16_t nbytes) {

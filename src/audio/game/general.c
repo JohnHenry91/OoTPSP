@@ -13,6 +13,21 @@
 #include "audio.h"
 #include "ocarina.h"
 
+#if TARGET_PSP
+#include "psp_hw_diag.h"
+
+/* Frame window shared with graph.c's PSP_DIAG_FIRST. */
+extern u32 gPspDiagFrameCount;
+#define PSP_DIAG_AU(name)              \
+    do {                               \
+        if (gPspDiagFrameCount < PSP_DIAG_FRAMES) { \
+            PspDiag_Step(name);    \
+        }                              \
+    } while (0)
+#else
+#define PSP_DIAG_AU(name) ((void)0)
+#endif
+
 #define ABS_ALT(x) ((x) < 0 ? -(x) : (x))
 
 #if !PLATFORM_N64
@@ -113,6 +128,8 @@ u8 gIsLargeSfxBank[7] = {
         0) > UINT8_MAX,
     (
 #include "tables/sfx/voicebank_table.h"
+
+
         0) > UINT8_MAX,
 };
 #undef DEFINE_SFX
@@ -2340,19 +2357,37 @@ void Audio_Update(void) {
         sAudioUpdateStartTime = osGetTime();
 #endif
 
+        /* Per-call probes.
+         *
+         * Audio_Update is where BOTH hardware failures land: the full-audio
+         * build died inside the call GameState_Destroy makes (trace stopped
+         * between gsd-stopsfx and gsd-audioupd), and the audio-free build
+         * died inside the once-per-frame call at the end of Graph_Update
+         * (trace stopped between gfx-done and "frame 11"). Same function, two
+         * very different moments -- so split it and let the last written line
+         * name the callee. */
+        PSP_DIAG_AU("    au-enter");
         AudioOcarina_Update();
+        PSP_DIAG_AU("    au-ocarina");
         Audio_StepFreqLerp(&sRiverFreqScaleLerp);
         Audio_StepFreqLerp(&sWaterfallFreqScaleLerp);
         Audio_UpdateRiverSoundVolumes();
+        PSP_DIAG_AU("    au-river");
         Audio_UpdateSceneSequenceResumePoint();
+        PSP_DIAG_AU("    au-resume");
         Audio_UpdateFanfare();
+        PSP_DIAG_AU("    au-fanfare");
         if (gAudioSpecId == 7) {
             Audio_ClearSariaBgm();
         }
         Audio_ProcessSfxRequests();
+        PSP_DIAG_AU("    au-sfxreq");
         Audio_ProcessSeqCmds();
+        PSP_DIAG_AU("    au-seqcmds");
         func_800F8F88();
+        PSP_DIAG_AU("    au-800F8F88");
         Audio_UpdateActiveSequences();
+        PSP_DIAG_AU("    au-activeseq");
 
 #if DEBUG_FEATURES
         AudioDebug_SetInput();
@@ -2360,6 +2395,7 @@ void Audio_Update(void) {
 #endif
 
         AudioThread_ScheduleProcessCmds();
+        PSP_DIAG_AU("    au-schedule");
 
 #if DEBUG_FEATURES
         sAudioUpdateTaskEnd = gAudioCtx.totalTaskCount;
@@ -2650,6 +2686,36 @@ void Audio_SetSfxProperties(u8 bankId, u8 entryIdx, u8 channelIndex) {
             entry->dist = sqrtf(entry->dist * SFX_DIST_SCALING);
 
             vol = Audio_ComputeSfxVolume(bankId, entryIdx) * *entry->vol;
+#if TARGET_PSP
+            /* Probe for "Link's jump/attack sounds are very quiet".
+             *
+             * SFX volume is purely a function of entry->dist, and dist comes
+             * from *entry->pos{X,Y,Z} -- which for an actor sound is the
+             * actor's PROJECTED position (relative to the listener), not its
+             * world position. So a broken view transform makes every
+             * positional sound quiet while music, which has no position at
+             * all, stays correct: exactly the reported symptom.
+             *
+             * Reading it decides between the two candidates on the spot:
+             *   dist small (< ~50) and vol still low -> not the projection,
+             *     look at *entry->vol / the filter path instead
+             *   dist in the hundreds or thousands       -> projected position
+             *     is wrong, and this is a renderer/matrix bug, not audio
+             * BANK_VOICE, not BANK_PLAYER: the reported symptom is Link's
+             * VOICE being quiet while his sword and footsteps are fine, and
+             * those live in different banks with different parameters. */
+            if (bankId == BANK_VOICE) {
+                extern f32 gPspSfxProbeDist;
+                extern f32 gPspSfxProbeVol;
+                extern f32 gPspSfxProbeEntryVol;
+                extern u32 gPspSfxProbeCount;
+
+                gPspSfxProbeDist = entry->dist;
+                gPspSfxProbeVol = vol;
+                gPspSfxProbeEntryVol = *entry->vol;
+                gPspSfxProbeCount++;
+            }
+#endif
             reverb = Audio_ComputeSfxReverb(bankId, entryIdx, channelIndex);
             pan = Audio_ComputeSfxPanSigned(*entry->posX, *entry->posZ, entry->token);
             freqScale = Audio_ComputeSfxFreqScale(bankId, entryIdx) * *entry->freqScale;

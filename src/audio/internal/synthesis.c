@@ -789,6 +789,68 @@ Acmd* AudioSynth_DoOneAudioUpdate(s16* aiBuf, s32 aiBufLen, Acmd* cmd, s32 updat
 /**
  * original name: Nas_SynthMain
  */
+#if TARGET_PSP
+/* Reject a voice whose sample pointers are not real PSP RAM, instead of
+ * dereferencing them.
+ *
+ * This is the fix for the console switching itself off on real hardware. The
+ * bring-up ladder (see psp/include/psp_hw_diag.h) proved every other
+ * subsystem clean by parking six seconds in it and returning to the XMB;
+ * level 10 with the audio thread running died, the identical build with
+ * PSP_DISABLE_AUDIO=1 came back. The main thread's trace kept stopping inside
+ * functions that are literally empty (Setup_Destroy, SpeedMeter_Destroy, both
+ * phase1_stubs.c stubs) at a point that MOVED between runs, which is the
+ * signature of an asynchronous killer: AudioMgr_StopAllSfx and Audio_Update
+ * only QUEUE commands, and the audio thread executes them one or two ticks
+ * later -- visible in the heartbeat going aud=5, 7, 9 across exactly those
+ * probes.
+ *
+ * On N64 a stale or half-torn-down TunedSample pointer still lands somewhere
+ * in RDRAM: the read returns nonsense and the note sounds wrong. There is no
+ * unmapped memory to hit. On PSP the same pointer walks outside the user
+ * partition and the console loses power outright. And under PPSSPP it is
+ * harmless again, because the emulator backs guest RAM with one flat host
+ * allocation -- which is why months of emulator testing only ever surfaced
+ * this as "the sound glitches sometimes, and Ganon's Castle is completely
+ * broken".
+ *
+ * reference/oot-psp-z2442 hit the same wall and solved it the same way
+ * (OotPspAudioSynth_IsAlignedNativePtr / OotPspAudioSynth_DropBadNote in its
+ * own synthesis.c). The window is the PSP user partition; the alignment test
+ * catches a pointer built out of garbage that happens to land inside it. */
+/* 0x08800000, not 0x08000000: everything below the user partition is kernel
+ * memory, and a user-mode read there kills the console -- the very failure
+ * this guard was added to stop. Same correction as psp_audio_guard.h. */
+#define PSP_AUDIO_RAM_START 0x08800000U
+#define PSP_AUDIO_RAM_END 0x0C000000U
+
+/* Reasons, so the HUD can say WHICH pointer was bad rather than just that one
+ * was: 1 tunedSample, 2 sample, 3 loop/book/codec. */
+u32 gPspAudioBadNoteDrops;
+u32 gPspAudioBadNoteReason;
+
+static s32 PspAudioSynth_IsValidPtr(const void* ptr) {
+    u32 addr = (u32)(uintptr_t)ptr;
+
+    return (addr >= PSP_AUDIO_RAM_START) && (addr < PSP_AUDIO_RAM_END) && ((addr & 3) == 0);
+}
+
+/* Retire the voice exactly the way the engine's own "this note finished"
+ * path does, so nothing downstream sees a half-live note. */
+static Acmd* PspAudioSynth_DropBadNote(Acmd* cmd, s32 updateIndex, s32 noteIndex, NoteSampleState* sampleState,
+                                       Note* note, u32 reason) {
+    gPspAudioBadNoteDrops++;
+    gPspAudioBadNoteReason = reason;
+
+    sampleState->bitField0.enabled = false;
+    sampleState->bitField0.finished = true;
+    note->sampleState.bitField0.enabled = false;
+    note->sampleState.bitField0.finished = true;
+    func_800DB2C0(updateIndex, noteIndex);
+    return cmd;
+}
+#endif
+
 Acmd* AudioSynth_ProcessNote(s32 noteIndex, NoteSampleState* sampleState, NoteSynthesisState* synthState, s16* aiBuf,
                              s32 aiBufLen, Acmd* cmd, s32 updateIndex) {
     s32 pad1[3];
@@ -890,8 +952,23 @@ Acmd* AudioSynth_ProcessNote(s32 noteIndex, NoteSampleState* sampleState, NoteSy
         sampleDmemBeforeResampling = DMEM_UNCOMPRESSED_NOTE + (synthState->samplePosInt * (s32)SAMPLE_SIZE);
         synthState->samplePosInt += numSamplesToLoad;
     } else {
+#if TARGET_PSP
+        if (!PspAudioSynth_IsValidPtr(sampleState->tunedSample)) {
+            return PspAudioSynth_DropBadNote(cmd, updateIndex, noteIndex, sampleState, note, 1);
+        }
+        if (!PspAudioSynth_IsValidPtr(sampleState->tunedSample->sample)) {
+            return PspAudioSynth_DropBadNote(cmd, updateIndex, noteIndex, sampleState, note, 2);
+        }
+#endif
         sample = sampleState->tunedSample->sample;
         loopInfo = sample->loop;
+#if TARGET_PSP
+        if (!PspAudioSynth_IsValidPtr(loopInfo) || (sample->codec > CODEC_S16) ||
+            (((sample->codec == CODEC_ADPCM) || (sample->codec == CODEC_SMALL_ADPCM)) &&
+             !PspAudioSynth_IsValidPtr(sample->book))) {
+            return PspAudioSynth_DropBadNote(cmd, updateIndex, noteIndex, sampleState, note, 3);
+        }
+#endif
         loopEndPos = loopInfo->header.end;
 
 #if TARGET_PSP

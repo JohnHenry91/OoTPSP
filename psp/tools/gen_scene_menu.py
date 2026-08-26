@@ -13,12 +13,27 @@ because the ids are already the readable ones: SCENE_LINKS_HOUSE reads as
 "Link's House" where the file is called `link_home`, and SCENE_KOKIRI_FOREST
 where the file is `spot04`.
 
-Entrance choice: the FIRST DEFINE_ENTRANCE naming a scene. entrance_table.h
-warns that entrances come in groups of four scene layers (child day / child
-night / adult day / adult night) and that "only the first entrance within a
-group of layers is expected to be referenced in code" -- the entrance system
-applies the layer offset itself. First-match is therefore exactly right, and
-picking any other member of the group would be wrong.
+Entrance choice: the FIRST DEFINE_ENTRANCE naming a scene -- but reported as
+its GROUP BASE plus a layer index, never as the raw entrance.
+
+entrance_table.h's header states the rule this depends on: entrances come in
+groups of four scene layers (child day / child night / adult day / adult
+night), "groups of scene layers are indicated by line breaks", and "only the
+first entrance within a group of layers is expected to be referenced in code.
+The entrance system will apply the offset on its own." Play_Init duly indexes
+`gEntranceTable[entranceIndex + sceneLayer]`.
+
+So handing the menu a non-base member applies the offset TWICE. That was a real
+bug here: SCENE_MARKET_ENTRANCE_NIGHT's first entrance is 0x034, the layer-1
+member of the group based at 0x033, so warping to it at night landed on
+0x034+1 = 0x035 = the Ruins variant. Every scene that only ever appears as a
+non-base member -- the night/ruins variants of the Market and Market Entrance,
+the adult Kokiri Forest layers -- was reachable only as the wrong variant, and
+the Day variants were not reachable at all.
+
+The fix is to emit the base entrance together with the layer offset that
+selects the wanted variant, and let the menu establish the world state (age and
+time of day) that makes the engine compute that same layer.
 
 FILTERING AGAINST BUILT BLOBS
 ------------------------------
@@ -95,9 +110,26 @@ def main(incdir, outpath, blob_tokens):
         scenes.append((m.group(1), m.group(2)))
 
     # DEFINE_ENTRANCE(ENTR_DEKU_TREE_0, SCENE_DEKU_TREE, 0, ...)
-    first_entr = {}
-    for m in re.finditer(r"DEFINE_ENTRANCE\(\s*(ENTR_\w+)\s*,\s*(SCENE_\w+)", entr_h):
-        first_entr.setdefault(m.group(2), m.group(1))
+    #
+    # Read line by line rather than with one big finditer, because the grouping
+    # into scene layers is carried by the BLANK LINES between entries (see the
+    # module docstring) and a whole-file regex cannot see those.
+    first_entr = {}  # SCENE_id -> (base ENTR_ name, layer offset 0..3)
+    group_base = None
+    layer = 0
+    for line in entr_h.splitlines():
+        m = re.search(r"DEFINE_ENTRANCE\(\s*(ENTR_\w+)\s*,\s*(SCENE_\w+)", line)
+        if not m:
+            # A blank line (or anything else that is not an entry) closes the
+            # current group. Comment lines only appear in the header block.
+            if not line.strip():
+                group_base = None
+            continue
+        name, sid = m.group(1), m.group(2)
+        if group_base is None:
+            group_base, layer = name, 0
+        first_entr.setdefault(sid, (group_base, layer))
+        layer += 1
 
     rows, skipped, no_blob = [], [], []
     for stem, sid in scenes:
@@ -108,7 +140,8 @@ def main(incdir, outpath, blob_tokens):
         if blobbed and stem not in blobbed:
             no_blob.append(sid)
             continue
-        rows.append((pretty(sid), entr, stem, sid))
+        base, layer = entr
+        rows.append((pretty(sid), base, layer, stem, sid))
 
     rows.sort(key=lambda r: r[0].lower())
 
@@ -121,8 +154,8 @@ def main(incdir, outpath, blob_tokens):
             f.write(" * No blob built (unused/leftover scene, no real asset data): %s\n"
                     % ", ".join(no_blob))
         f.write(" */\n")
-        for name, entr, stem, sid in rows:
-            f.write('    { "%s", %s }, /* %s */\n' % (name, entr, stem))
+        for name, base, layer, stem, sid in rows:
+            f.write('    { "%s", %s, %d }, /* %s */\n' % (name, base, layer, stem))
 
     print("gen_scene_menu: %d scenes, %d skipped, %d without a blob -> %s"
           % (len(rows), len(skipped), len(no_blob), outpath))

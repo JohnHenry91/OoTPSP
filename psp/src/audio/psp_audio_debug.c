@@ -267,3 +267,53 @@ void PspAudioDebug_ErrorSummary(u32* total, u32* last, u32* instrument, u32* dru
     *fontLoad = sErrFontLoad;
     *allocFails = gPspAudioNoteAllocFails;
 }
+
+/* Guard-layer bookkeeping, see psp/include/psp_audio_guard.h. Every increment
+ * is one pointer that would have been dereferenced outside the user partition
+ * -- silent corruption on N64/PPSSPP, loss of power on real hardware. */
+u32 gPspAudioBadPtrDrops = 0;
+const char* gPspAudioBadPtrLastWhere = "";
+
+void PspAudio_NoteBadPtr(const char* where) {
+    gPspAudioBadPtrDrops++;
+    gPspAudioBadPtrLastWhere = where;
+}
+
+/* See the probe in Audio_SetSfxProperties (src/audio/game/general.c): the
+ * distance and volume the engine last computed for a BANK_PLAYER sound. */
+f32 gPspSfxProbeDist;
+f32 gPspSfxProbeVol;
+f32 gPspSfxProbeEntryVol;
+u32 gPspSfxProbeCount;
+
+/* The two sequence players' applied fade volumes, for the HUD's SFX line.
+ * They are faded independently, so SFX sitting well below BGM is a
+ * whole-player gain problem rather than anything to do with a single sound. */
+f32 PspAudioDebug_SfxPlayerVolume(void) {
+    return gAudioCtx.seqPlayers[SEQ_PLAYER_SFX].appliedFadeVolume;
+}
+
+f32 PspAudioDebug_BgmPlayerVolume(void) {
+    return gAudioCtx.seqPlayers[SEQ_PLAYER_BGM_MAIN].appliedFadeVolume;
+}
+
+/* Written by the probe in Audio_InitSampleState: the velocity and resulting
+ * target volume of the last note belonging to the SFX sequence player. */
+f32 gPspNoteProbeVel;
+s32 gPspNoteProbeTargetVol;
+u32 gPspNoteProbeCount;
+
+/* Written by the envelope probe in Audio_ProcessNotes. */
+f32 gPspAdsrProbeCur;
+f32 gPspAdsrProbeTarget;
+s32 gPspAdsrProbeD0;
+s32 gPspAdsrProbeA0;
+u32 gPspAdsrProbeCount;
+
+s32 gPspAdsrProbeDelay;
+f32 gPspAdsrProbeVel;
+s32 gPspAdsrProbeTicks;
+
+s32 gPspAdsrProbeIndex;
+s32 gPspAdsrProbeDN;
+s32 gPspAdsrProbeAN;

@@ -1,5 +1,6 @@
 #if TARGET_PSP
 #include "psp_static_assets.h"
+#include "psp_hw_diag.h"
 #endif
 #include "libc64/malloc.h"
 #include "libc64/qrand.h"
@@ -369,6 +370,10 @@ void Play_Destroy(GameState* thisx) {
     SREG(91) = 0;
     R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_OFF;
 
+/* The per-call probes that used to stand here named the killer -- the trace
+ * stopped at "pd-effects", i.e. inside EffectSs_ClearAll, which was walking a
+ * 64-byte stub as a 1036-byte table. Removed now that it is fixed; see the
+ * note in z_effect_soft_sprite_dlftbls.c. */
     PreRender_Destroy(&this->pauseBgPreRender);
     Effect_DeleteAll(this);
     EffectSs_ClearAll(this);
@@ -2218,6 +2223,19 @@ void Play_SpawnScene(PlayState* this, s32 sceneId, s32 spawn) {
     this->loadedScene = scene;
     this->sceneId = sceneId;
     this->sceneDrawConfig = scene->drawConfig;
+
+#if TARGET_PSP
+    /* Name the scene in the boot trace. Reading a hardware log otherwise means
+     * matching arena totals against a remembered walking route, and three
+     * readings of oot_boot_pd4.log disagreed about which scene had hung.
+     *
+     * Here, not in Play_Init before GameState_Realloc, where it first went:
+     * sceneId is assigned on the line above, so the earlier placement logged
+     * whatever the freshly allocated PlayState happened to contain (a run
+     * reported "scene 32048"). */
+    PspDiag_Note("  scene %u entrance %u\n", (unsigned int)sceneId,
+                 (unsigned int)gSaveContext.save.entranceIndex);
+#endif
 
     PRINTF("\nSCENE SIZE %fK\n", (scene->sceneFile.vromEnd - scene->sceneFile.vromStart) / 1024.0f);
 

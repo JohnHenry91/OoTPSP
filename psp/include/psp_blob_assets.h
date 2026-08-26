@@ -49,6 +49,8 @@
  * no current working directory of their own to resolve a relative path
  * against -- see the long comment in psp_blob_assets.c. */
 void PspBlob_SetBaseDir(const char* argv0);
+/* The pinned directory, for anything else that must write beside EBOOT.PBP. */
+const char* PspBlob_GetBaseDir(void);
 
 int PspBlob_Read(uint32_t romOffset, void* dst, size_t size);
 

@@ -192,6 +192,36 @@ unsigned char texman_get_tex_type(unsigned int num) {
     return textures[num].type;
 }
 
+/* Cache maintenance for data the CPU wrote and the GE will read.
+ *
+ * WRITEBACK ONLY, and never invalidate. The two are not symmetrical here:
+ * writeback publishes this core's dirty lines to RAM, which is exactly what
+ * the GE needs; invalidate DISCARDS lines, and is only correct when the GE
+ * wrote and the CPU is about to read -- the opposite direction.
+ *
+ * That distinction is not academic, because the range is not cache-line
+ * aligned. Textures are packed at TEX_ALIGNMENT (16 bytes) and getMemorySize()
+ * returns sizes as small as 32 bytes, while a cache line is 64. So a texture's
+ * first and last lines routinely also hold the NEIGHBOURING texture -- and the
+ * old code's sceKernelDcacheInvalidateRange over that range threw away the
+ * neighbour's dirty data before it ever reached RAM. The GE then fetched stale
+ * bytes for a texture nobody had touched, which shows up as several unrelated
+ * surfaces torn into horizontal bands, persisting until something happens to
+ * rewrite them. PPSSPP models no cache and so renders all of it perfectly.
+ *
+ * The writeback range is widened outward to whole lines instead: flushing a
+ * few extra lines is always safe (a clean line is a no-op, a dirty one needed
+ * flushing anyway), whereas discarding them is not. */
+static void texman_publish_to_ge(const void *addr, unsigned int size) {
+    uintptr_t start = (uintptr_t)addr & ~63u;
+    uintptr_t end = ((uintptr_t)addr + size + 63u) & ~63u;
+
+    if (size == 0) {
+        return;
+    }
+    sceKernelDcacheWritebackRange((const void *)start, (unsigned int)(end - start));
+}
+
 struct PSP_Texture *texman_reserve_memory(int width, int height, unsigned int type) {
     unsigned int tex_size = getMemorySize(width, height, type);
     int i;
@@ -264,7 +294,7 @@ unsigned int texman_create(void) {
 
 void texman_upload_swizzle(int width, int height, unsigned int type, const void *buffer) {
     struct PSP_Texture *current = texman_reserve_memory(width, height, type);
-    sceKernelDcacheWritebackRange(buffer, getMemorySize(width, height, type));
+    texman_publish_to_ge(buffer, getMemorySize(width, height, type));
     current->width = width;
     current->height = height;
     current->type = type;
@@ -274,14 +304,13 @@ void texman_upload_swizzle(int width, int height, unsigned int type, const void 
 #ifdef DEBUG
     printf("TEX_MAN upload swizzled [%d]\n", psp_tex_number);
 #endif
-    sceKernelDcacheWritebackRange(current->location, getMemorySize(width, height, type));
-    sceKernelDcacheInvalidateRange(current->location, getMemorySize(width, height, type));
+    texman_publish_to_ge(current->location, getMemorySize(width, height, type));
     texman_bind_tex(psp_tex_number);
 }
 
 void texman_upload(int width, int height, unsigned int type, const void *buffer) {
     struct PSP_Texture *current = texman_reserve_memory(width, height, type);
-    sceKernelDcacheWritebackRange(buffer, getMemorySize(width, height, type));
+    texman_publish_to_ge(buffer, getMemorySize(width, height, type));
     current->width = width;
     current->height = height;
     current->type = type;
@@ -290,8 +319,7 @@ void texman_upload(int width, int height, unsigned int type, const void *buffer)
 #ifdef DEBUG
     // printf("TEX_MAN upload plain [%d]\n", psp_tex_number);
 #endif
-    sceKernelDcacheWritebackRange(current->location, getMemorySize(width, height, type));
-    sceKernelDcacheInvalidateRange(current->location, getMemorySize(width, height, type));
+    texman_publish_to_ge(current->location, getMemorySize(width, height, type));
     texman_bind_tex(psp_tex_number);
 }
 

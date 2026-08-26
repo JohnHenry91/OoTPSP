@@ -29,8 +29,25 @@ void ZeldaArena_CheckPointer(void* ptr, u32 size, const char* name, const char* 
 #define ZELDA_ARENA_CHECK_POINTER(ptr, size, name, action) (void)0
 #endif
 
+#if TARGET_PSP
+/* A Zelda-arena allocation that fails returns NULL and says nothing: the
+ * DEBUG_FEATURES check macro below compiles to nothing in this build, and
+ * almost every caller in the engine ignores the result. So an exhausted arena
+ * presents as a garbled picture or a hang somewhere else entirely, several
+ * frames later -- which is exactly the shape of the bug being chased. This
+ * counter is the difference between "zfree reached 0K, maybe that matters" and
+ * "n allocations were actually refused". Printed in the trace as `zfail`. */
+unsigned int gPspZeldaAllocFails;
+#endif
+
 void* ZeldaArena_Malloc(u32 size) {
     void* ptr = __osMalloc(&sZeldaArena, size);
+
+#if TARGET_PSP
+    if (ptr == NULL) {
+        gPspZeldaAllocFails++;
+    }
+#endif
 
     // TODO re-evaluate "secure" as a translation (in this file and others using "確保")
     ZELDA_ARENA_CHECK_POINTER(ptr, size, "zelda_malloc", T("確保", "Secure"));
@@ -48,6 +65,12 @@ void* ZeldaArena_MallocDebug(u32 size, const char* file, int line) {
 
 void* ZeldaArena_MallocR(u32 size) {
     void* ptr = __osMallocR(&sZeldaArena, size);
+
+#if TARGET_PSP
+    if (ptr == NULL) {
+        gPspZeldaAllocFails++;
+    }
+#endif
 
     ZELDA_ARENA_CHECK_POINTER(ptr, size, "zelda_malloc_r", T("確保", "Secure"));
     return ptr;
