@@ -444,6 +444,14 @@ void GameState_Realloc(GameState* gameState, size_t size) {
         PRINTF_RST();
         size = systemMaxFree - 0x10;
     }
+#if TARGET_PSP
+    /* Measured, 2026-08-25: this fallback NEVER fires on PSP -- the trace
+     * logged "hyrule want 1918864 got 1918864" on every scene load. The 2 MB
+     * system heap in main.c covers the request, so the Zelda arena is always
+     * N64-sized and its size was never the problem. Do not re-derive this by
+     * enlarging the heap; the arena was being consumed too fast, not handed
+     * out too small (see gDummyActorProfile's instanceSize). */
+#endif
 
     PRINTF(T("ハイラル再確保 サイズ＝%u バイト\n", "Hyrule reallocate size = %u bytes\n"), size);
 

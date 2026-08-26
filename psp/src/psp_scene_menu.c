@@ -259,6 +259,7 @@ enum {
     HUD_SEC_BGM,
     HUD_SEC_GATE,
     HUD_SEC_LOAD,
+    HUD_SEC_GFX,
     HUD_SEC_BIG,
     HUD_SEC_SFX,
     HUD_SEC_ME,
@@ -273,6 +274,10 @@ static int sHudSection[HUD_SEC_COUNT] = {
     /* BGM  */ 0, /* sequence player */
     /* GATE */ 0, /* audio reset gate */
     /* LOAD */ 0, /* asset/blob loading */
+    /* GFX  */ 1, /* renderer + diagnostic health -- ON by default on purpose:
+                   * it is the only channel that still works once the log has
+                   * silently stopped being written, so it must not depend on
+                   * someone having switched it on beforehand. */
     /* BIG  */ 0, /* biggest-triangle texture probe -- an older subject */
     /* SFX  */ 1, /* positional-sound distance/volume probe */
     /* ME   */ 1, /* Media Engine offload counters */
@@ -281,8 +286,8 @@ static int sHudSection[HUD_SEC_COUNT] = {
 static const char* const sHudSectionName[HUD_SEC_COUNT] = {
     "FPS / frame budget", "PATH  decode paths + SFX dist", "DROP  audio note drops",
     "AUD   audio out + Media Engine", "BGM   sequence player", "GATE  audio reset gate",
-    "LOAD  asset loading", "BIG   texture probe", "SFX   positional sound",
-    "ME    Media Engine",
+    "LOAD  asset loading", "GFX   renderer health", "BIG   texture probe",
+    "SFX   positional sound", "ME    Media Engine",
 };
 
 /* Row 0 of the HUD page is the HUD's own visibility rather than a section.
@@ -365,7 +370,12 @@ static s32 sRepeatTimer = 0;
 static s32 sFontReady = 0;
 /* On by default: this build exists to measure the frame budget, and an
  * overlay nobody knows to press TRIANGLE for measures nothing. */
-static s32 sHudOpen = 1;
+/* Off by default. The HUD is a developer instrument -- frame budget, audio
+ * internals, renderer health -- and a first-time tester who just wants to see
+ * the game should not be met by eight lines of counters. TRIANGLE toggles it,
+ * and the warp menu's HUD page (SELECT) has the same switch plus the
+ * per-section ones. */
+static s32 sHudOpen = 0;
 
 /* 0 = unchecked, 1 = armed, 2 = done. */
 static s32 sAutoCaptureState;
@@ -863,6 +873,8 @@ static s32 sHackLineLen;
 #define HUD_X 6
 #define HUD_Y 6
 
+static int sGfxProbeBad;
+
 void PspSceneMenu_DrawHud(void) {
     MenuVertex* verts;
     MenuVertex* v;
@@ -879,6 +891,11 @@ void PspSceneMenu_DrawHud(void) {
     char line4[64];
     char line5[64];
     char line6[72];
+    /* 480px / GLYPH_W(8) = 60 columns, and PspSceneMenu_DrawText neither wraps
+     * nor clips -- it just keeps advancing x off the side of the screen. So
+     * this gets a line of its own rather than being appended to LOAD, and it
+     * is kept under 60 characters on purpose. */
+    char lineGfx[96];
     int gateVal;
     u32 workUsec;
     u32 frameUsec;
@@ -1109,6 +1126,71 @@ void PspSceneMenu_DrawHud(void) {
         (void)b0;
     }
 
+    {
+        extern unsigned int gPspPoolOverflows;
+        extern int gPspPoolOpaHeadroomMin;
+        extern unsigned int psp_tex_overflows;
+        extern unsigned int gPspTexCacheResetVram;
+        extern unsigned int gPspTexCacheResetPool;
+        extern unsigned int gPspGfxBadDlCursors;
+        extern unsigned int gPspZeldaAllocFails;
+        extern unsigned int gPspDiagWriteFails;
+        extern int gPspDiagWriteLastErr;
+        extern unsigned int gPspBlobOpenFails;
+
+        sGfxProbeBad = (gPspPoolOverflows | psp_tex_overflows | gPspTexCacheResetVram |
+                        gPspTexCacheResetPool | gPspGfxBadDlCursors | gPspZeldaAllocFails |
+                        gPspDiagWriteFails | gPspBlobOpenFails) != 0;
+        /* Never print a row of zeroes.
+         *
+         * The first version showed all seven counters as digits, and the
+         * reader could not tell 0 from 8 in an 8x8 font on a 480px screen --
+         * which made a clean reading and a catastrophic one look identical.
+         * Zero is also the expected value, so it carries no information worth
+         * the pixels.
+         *
+         * So: name only what is actually non-zero, and say "clean" in words
+         * when nothing is. The answer then needs no digit at all, and any
+         * digits that do appear are ones that matter. */
+        if (!sGfxProbeBad) {
+            snprintf(lineGfx, sizeof(lineGfx), "GFX  all clean");
+        } else {
+            char* w = lineGfx;
+            char* end = lineGfx + sizeof(lineGfx);
+
+            w += snprintf(w, (size_t)(end - w), "GFX BAD:");
+            /* First, because the line is drawn without wrapping or clipping and
+             * only ~60 columns fit: if every counter fires at once the tail
+             * runs off the screen, and this is the clause that must survive.
+             * The errno is the whole question here -- the count says the log
+             * stops, it does not say why. */
+            if (gPspDiagWriteFails) {
+                w += snprintf(w, (size_t)(end - w), " log=%u err=%d", gPspDiagWriteFails,
+                              gPspDiagWriteLastErr);
+            }
+            if (gPspBlobOpenFails) {
+                w += snprintf(w, (size_t)(end - w), " blobopen=%u", gPspBlobOpenFails);
+            }
+            if (gPspPoolOverflows) {
+                w += snprintf(w, (size_t)(end - w), " dlpool=%u", gPspPoolOverflows);
+            }
+            if (psp_tex_overflows) {
+                w += snprintf(w, (size_t)(end - w), " texpool=%u", psp_tex_overflows);
+            }
+            if (gPspTexCacheResetVram || gPspTexCacheResetPool) {
+                w += snprintf(w, (size_t)(end - w), " wipe=%u/%u", gPspTexCacheResetVram,
+                              gPspTexCacheResetPool);
+            }
+            if (gPspGfxBadDlCursors) {
+                w += snprintf(w, (size_t)(end - w), " badDL=%u", gPspGfxBadDlCursors);
+            }
+            if (gPspZeldaAllocFails) {
+                w += snprintf(w, (size_t)(end - w), " arena=%u", gPspZeldaAllocFails);
+            }
+        }
+    }
+
+
     /* Built before the panel is sized, because whether any hack is active
      * decides whether there is an eighth row to make room for. */
     {
@@ -1182,6 +1264,16 @@ void PspSceneMenu_DrawHud(void) {
         if (sHudSection[HUD_SEC_LOAD]) {
             text[n] = line6;
             colour[n++] = 0xFFFFFFFF;
+        }
+        if (sHudSection[HUD_SEC_GFX]) {
+            /* Renderer and diagnostic health, on screen rather than in the log.
+             * The bridge glitch leaves the frame loop, the GE, the audio and
+             * this menu all running while the game's own picture is wrecked --
+             * and in that state the log has already stopped being written, so
+             * the HUD is the only channel left. Red as soon as any of them
+             * leaves zero, so it can be read at a glance from a photograph. */
+            text[n] = lineGfx;
+            colour[n++] = sGfxProbeBad ? 0xFF4040FF : 0xFF80FF80;
         }
 
         /* Biggest horizontal textured triangle this frame -- the ground,

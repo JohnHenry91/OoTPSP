@@ -659,6 +659,18 @@ ifneq ($(BRINGUP),)
 BOOT_FLAG += -DPSP_BRINGUP_LEVEL=$(BRINGUP)
 endif
 
+# Diagnostic: how many frames the IN-FRAME probes stay active for, counted from
+# the start of each gamestate (graph.c resets the counter after
+# gamestate-init-done, so this is "the first n frames of each scene", not "of
+# the boot"). Default 3. Widen it when a scene dies a few frames in -- the
+# Hyrule Field run died in frame 7 of a freshly loaded scene, i.e. four frames
+# past the standard window.
+#   make -f Makefile.psp DIAGFRAMES=16
+DIAGFRAMES ?=
+ifneq ($(DIAGFRAMES),)
+BOOT_FLAG += -DPSP_DIAG_FRAMES=$(DIAGFRAMES)
+endif
+
 # Diagnostic: DIAGSYNC=0 stops the boot trace from force-flushing inside the
 # window under investigation, leaving only the periodic batch flush. See the
 # note on PspDiag_StepSync in psp/src/psp_hw_diag.c -- the Memory Stick write

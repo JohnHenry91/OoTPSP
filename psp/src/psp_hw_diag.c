@@ -50,6 +50,59 @@
 
 #if PSP_DIAG_ENABLED
 #include "zelda_arena.h"
+#include "psp_blob_assets.h"
+
+/* Refused Zelda-arena allocations; defined in src/code/z_malloc.c. */
+extern unsigned int gPspZeldaAllocFails;
+
+/* Renderer health, for the class of bug that shows as a wrecked picture with a
+ * perfectly healthy heap. Hyrule Field (ENTR_HYRULE_FIELD_3) rendered with
+ * zfail=0, blob=71/0 and every GE stage completing, and still came out
+ * garbled -- so the next question is whether the renderer is silently
+ * discarding state. psp_tex_overflows counts "both texture regions full, wrap
+ * region 0 and corrupt its oldest texture" (psp_texture_manager.c);
+ * gPspGfxBadDlCursors counts display-list cursors refused by the guard added
+ * in 965d76c0b. Both are silent by design and neither has ever been in a log. */
+extern unsigned int psp_tex_overflows;
+extern unsigned int psp_tex_spills;
+extern unsigned int gPspGfxBadDlCursors;
+
+/* Whole-cache throwaways that happen MID-FRAME because the working set does
+ * not fit. gfx_texture_cache_reset()'s own comment calls this path unreachable
+ * in normal play "because one room's textures fit comfortably" -- an
+ * assumption that Hyrule Field, the largest scene in the game, is the obvious
+ * candidate to break. When it is reached, the GE is left holding pointers into
+ * memory that a different texture is being decoded into, which is exactly what
+ * a wrecked picture looks like. Logged as rst=<vram>/<pool>. */
+extern unsigned int gPspTexCacheResetVram;
+extern unsigned int gPspTexCacheResetPool;
+
+/* Peak bytes of the 2 MB GE display list used by any frame so far, and the
+ * triangles the interpreter emitted last frame. See the long note beside
+ * `list` in gfx_scegu.c: with every other counter reading zero on the stalling
+ * run, overrunning that buffer is the remaining way we could stall the GE
+ * ourselves, and pspsdk bounds-checks it nowhere. Logged as ge=<peakKB> and
+ * tri=<count>. */
+extern unsigned int gPspGeListPeak;
+unsigned int gfx_pc_stat_tris_drawn(void);
+
+/* Display-list pool overruns.
+ *
+ * This is the one remaining way we could hand the GE a garbage command, and
+ * the build cannot notice it: with DEBUG_FEATURES=0, OPEN_DISPS/CLOSE_DISPS
+ * compile to nothing and GRAPH_ALLOC is a bare pointer decrement with no
+ * bounds check at all. The TwoHeadGfxArena grows display list commands up from
+ * `p` and allocations (every matrix and viewport) down from `d`; when they
+ * cross, one silently overwrites the other.
+ *
+ * graph.c has measured this for a long time -- but only into globals meant to
+ * be read over the WebSocket debugger, which does not exist on hardware. So
+ * the numbers have never appeared in a log. `over` counting up is the overrun
+ * itself; `hr` is the smallest gap ever seen between the two heads, and a
+ * negative value means they have crossed. */
+extern unsigned int gPspPoolOverflows;
+extern int gPspPoolOpaHeadroomMin;
+#include "libc64/malloc.h"
 #include "ultra64.h"
 
 static char sLogPath[256];
@@ -61,6 +114,34 @@ static int sEnabled;
 #define PSP_DIAG_FLUSH_EVERY 8
 static char sRingBuf[PSP_DIAG_RING_SIZE];
 static int sRingLen;
+
+/* The ring is appended to by the MAIN thread (frame and teardown probes) and
+ * by the AUDIO thread (at-synth/at-mix) with nothing between them, so two
+ * appends could interleave inside memcpy or race on sRingLen. That is not
+ * theoretical: oot_boot_pd4.log line 2335 is the bare fragment "01K", the tail
+ * of a zalloc= field whose head was overwritten, and the Play_Init probes for
+ * the scene that then hung ("gamestate alloc", "hyrule want") are missing from
+ * that log entirely. An instrument that drops the entries you are hunting for
+ * is worse than no instrument. */
+static SceUID sLogSema = -1;
+
+/* Flushes that could not open the log, and the last error code. Read on the
+ * HUD (psp/src/psp_scene_menu.c), because by definition these cannot be
+ * reported through the log itself. */
+unsigned int gPspDiagWriteFails;
+int gPspDiagWriteLastErr;
+
+static void DiagLock(void) {
+    if (sLogSema >= 0) {
+        sceKernelWaitSema(sLogSema, 1, NULL);
+    }
+}
+
+static void DiagUnlock(void) {
+    if (sLogSema >= 0) {
+        sceKernelSignalSema(sLogSema, 1);
+    }
+}
 static int sStepsSinceFlush;
 
 /* Wall clock, microseconds, captured in PspDiag_Init. Every entry is stamped
@@ -101,7 +182,7 @@ static unsigned int DiagStackPointer(void) {
     return sp;
 }
 
-void PspDiag_Flush(void) {
+static void DiagFlushLocked(void) {
     SceUID fd;
 
     if (!sEnabled || sRingLen == 0) {
@@ -111,9 +192,25 @@ void PspDiag_Flush(void) {
     if (fd >= 0) {
         sceIoWrite(fd, sRingBuf, sRingLen);
         sceIoClose(fd);
+    } else {
+        /* The ring is emptied either way (below), so a failing open discards
+         * the lines in complete silence while the game carries on. That is not
+         * hypothetical: on 2026-08-26 four consecutive runs stopped logging
+         * about three frames into Hyrule Field and then played on for another
+         * thirty seconds, which reads exactly like a crash in the trace and is
+         * nothing of the kind. Count it, and put the count somewhere that does
+         * not depend on the file working -- the on-screen HUD. */
+        ++gPspDiagWriteFails;
+        gPspDiagWriteLastErr = (int)fd;
     }
     sRingLen = 0;
     sStepsSinceFlush = 0;
+}
+
+void PspDiag_Flush(void) {
+    DiagLock();
+    DiagFlushLocked();
+    DiagUnlock();
 }
 
 static void DiagAppend(const char* text) {
@@ -125,6 +222,7 @@ static void DiagAppend(const char* text) {
     if (!sEnabled) {
         return;
     }
+    DiagLock();
     ms = (unsigned int)(((u64)sceKernelGetSystemTimeWide() - sTimeBaseUsec) / 1000);
     stampLen = (size_t)snprintf(stamp, sizeof(stamp), "[%6u] ", ms);
     len = strlen(text) + stampLen;
@@ -132,9 +230,10 @@ static void DiagAppend(const char* text) {
      * truncated -- losing a whole entry to save one early flush isn't worth
      * it. */
     if (sRingLen + (int)len > PSP_DIAG_RING_SIZE) {
-        PspDiag_Flush();
+        DiagFlushLocked();
     }
     if ((int)len > PSP_DIAG_RING_SIZE) {
+        DiagUnlock();
         return; /* a single line bigger than the whole ring -- give up on it */
     }
     memcpy(sRingBuf + sRingLen, stamp, stampLen);
@@ -144,12 +243,13 @@ static void DiagAppend(const char* text) {
 
     sStepsSinceFlush++;
     if (sStepsSinceFlush >= PSP_DIAG_FLUSH_EVERY) {
-        PspDiag_Flush();
+        DiagFlushLocked();
     }
+    DiagUnlock();
 }
 
 void PspDiag_Step(const char* step) {
-    char line[192];
+    char line[256];
     unsigned int sysFree = (unsigned int)sceKernelMaxFreeMemSize();
     unsigned int sp = DiagStackPointer();
     /* Query the CURRENT thread's stack, every line.
@@ -187,12 +287,39 @@ void PspDiag_Step(const char* step) {
      * the system figure rather than replacing it, because a failure to grow
      * the heap in the first place would show up in the system one. */
     ZeldaArena_GetSizes(&zMaxFree, &zFree, &zAlloc);
-    snprintf(line, sizeof(line),
-             "%-26s sp=%08X stkleft=%uK aud=%u/%u pad=%u dma=%u sys=%uK zfree=%uK zalloc=%uK\n", step,
-             sp, stackLeft / 1024, gPspDiagBeats[PSP_DIAG_BEAT_AUDIO],
-             gPspDiagBeats[PSP_DIAG_BEAT_AUDIO_STAGE], gPspDiagBeats[PSP_DIAG_BEAT_PADMGR],
-             gPspDiagBeats[PSP_DIAG_BEAT_DMA], sysFree / 1024, (unsigned int)zFree / 1024,
-             (unsigned int)zAlloc / 1024);
+
+    /* The SYSTEM arena, not sceKernelMaxFreeMemSize(), is the number that
+     * decides how big the Zelda arena gets: Play_Init asks GameState_Realloc
+     * for 0x1D4790 (1.83 MB), the PSP never has that much, and game.c then
+     * SILENTLY settles for `systemMaxFree - 0x10` instead. So the Zelda arena
+     * on this port is simply "the biggest free block in the system arena at
+     * the moment the scene loads".
+     *
+     * Measured across one hardware run (oot_boot_pd3.log): Kokiri Forest got
+     * 541K, Hyrule Field 638K, and Kokiri again -- same scene, one round trip
+     * later -- only 403K, at which point it ran dry (zfree=0K) and the picture
+     * fell apart. smax vs salloc is what separates the two possible causes: if
+     * salloc climbs across transitions the system arena is LEAKING, if salloc
+     * holds steady while smax falls it is FRAGMENTING, and the fixes for those
+     * are not the same. */
+    {
+        u32 sysMaxFree = 0, sysArenaFree = 0, sysArenaAlloc = 0;
+
+        SystemArena_GetSizes(&sysMaxFree, &sysArenaFree, &sysArenaAlloc);
+        snprintf(line, sizeof(line),
+                 "%-26s sp=%08X stk=%uK aud=%u/%u pad=%u blob=%u/%u zfail=%u tex=%u/%u rst=%u/%u dl=%u ge=%uK tri=%u pool=%u hr=%d zfree=%uK zalloc=%uK\n",
+                 step, sp, stackLeft / 1024, gPspDiagBeats[PSP_DIAG_BEAT_AUDIO],
+                 gPspDiagBeats[PSP_DIAG_BEAT_AUDIO_STAGE], gPspDiagBeats[PSP_DIAG_BEAT_PADMGR],
+                 gPspBlobMisses, gPspBlobOpenFails, gPspZeldaAllocFails, psp_tex_overflows, psp_tex_spills,
+                 gPspTexCacheResetVram, gPspTexCacheResetPool, gPspGfxBadDlCursors,
+                 gPspGeListPeak / 1024, gfx_pc_stat_tris_drawn(), gPspPoolOverflows,
+                 gPspPoolOpaHeadroomMin, (unsigned int)zFree / 1024,
+                 (unsigned int)zAlloc / 1024);
+        (void)sysFree;
+        (void)sysMaxFree;
+        (void)sysArenaFree;
+        (void)sysArenaAlloc;
+    }
     DiagAppend(line);
 }
 
@@ -318,6 +445,11 @@ void PspDiag_Init(const char* baseDir) {
     }
     sEnabled = 1;
     sTimeBaseUsec = (u64)sceKernelGetSystemTimeWide();
+    /* Before the first append, and on the main thread, so no worker can be
+     * inside DiagAppend while this runs. */
+    if (sLogSema < 0) {
+        sLogSema = sceKernelCreateSema("ootDiagLog", 0, 1, 1, NULL);
+    }
 
     {
         SceKernelThreadInfo info;
@@ -330,8 +462,34 @@ void PspDiag_Init(const char* baseDir) {
         }
     }
 
-    /* Truncate: the log must describe THIS boot, not be an ever-growing pile
-     * in which the interesting last line is impossible to find. */
+    /* Keep the PREVIOUS boot as oot_boot_prev.log before truncating.
+     *
+     * Truncating alone is right for readability -- an ever-growing pile makes
+     * the interesting last line impossible to find -- but it destroys exactly
+     * the evidence this file exists to capture. A console that dies is a
+     * console you then switch back on, and that next boot wiped the crash. It
+     * cost a whole analysis round on 2026-08-25: a run was read as "died in
+     * Hyrule Field" when the real crash had happened during warp-menu scene
+     * changes in an earlier boot whose log no longer existed.
+     *
+     * Rename, do not copy: it is one directory operation, no read-back, no
+     * second buffer, and it cannot half-succeed and leave a truncated file
+     * that reads like a crash. A missing previous log (first ever run) simply
+     * makes this fail harmlessly. */
+    {
+        char prevPath[sizeof(sLogPath) + 8];
+        const char* suffix = strstr(sLogPath, "oot_boot.log");
+
+        if (suffix != NULL) {
+            size_t headLen = (size_t)(suffix - sLogPath);
+
+            memcpy(prevPath, sLogPath, headLen);
+            strcpy(prevPath + headLen, "oot_boot_prev.log");
+            sceIoRemove(prevPath);
+            sceIoRename(sLogPath, prevPath);
+        }
+    }
+
     fd = sceIoOpen(sLogPath, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
     if (fd < 0) {
         sEnabled = 0; /* read-only medium or bad path -- stay silent */

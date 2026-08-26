@@ -140,6 +140,27 @@ static uint32_t shader_broken[NUM_SHADER_IDS] = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF
 
 unsigned int __attribute__((aligned(64))) list[262144 * 2];
 
+/* How much of `list` a frame actually uses, and the worst frame so far.
+ *
+ * Everything else came back clean on the run that stalled: tex=0/0 (texture
+ * pool never wrapped), rst=0/0 (no mid-frame cache wipe), dl=0 (no display
+ * list cursor refused), zfail=0, blob=72/0. The trace ends durably at
+ * "ge-finish", i.e. immediately before sceGuSync -- the one call that blocks
+ * on the graphics hardware -- and nothing, not even the audio thread, logged
+ * another line. That is a stalled GE.
+ *
+ * This buffer is the remaining way to stall one from our side. It runs in
+ * GU_DIRECT, so the GE executes the list as the CPU writes it, and
+ * sceGuGetMemory carves the per-draw vertex arrays out of the SAME buffer
+ * with no bounds check anywhere in pspsdk. Overrun it and the GE walks off
+ * the end into whatever follows. Hyrule Field is the largest scene in the
+ * game, which makes it the one most likely to get there.
+ *
+ * sceGuFinish() returns the finished list's size, so this costs one store per
+ * frame and needs no instrumentation of the draw path at all. */
+unsigned int gPspGeListBytes;
+unsigned int gPspGeListPeak;
+
 static unsigned int staticOffset = 0;
 unsigned int scegu_fog_color = 0;
 
@@ -1572,7 +1593,10 @@ static void gfx_scegu_init(void) {
     sceGuTexOffset(0.0f, 0.0f);
     sceGuTexWrap(GU_REPEAT, GU_REPEAT);
 
-    sceGuFinish();
+    gPspGeListBytes = (unsigned int)sceGuFinish();
+    if (gPspGeListBytes > gPspGeListPeak) {
+        gPspGeListPeak = gPspGeListBytes;
+    }
     sceGuSync(0, 0);
     sceDisplayWaitVblankStart();
     sceGuDisplay(GU_TRUE);
@@ -1775,8 +1799,30 @@ static void gfx_scegu_end_frame(void) {
     PspSceneMenu_DrawHud();
     PSP_DIAG_GFX("ge-menu-done");
 
-    sceGuFinish();
+    gPspGeListBytes = (unsigned int)sceGuFinish();
+    if (gPspGeListBytes > gPspGeListPeak) {
+        gPspGeListPeak = gPspGeListBytes;
+    }
     PSP_DIAG_GFX("ge-finish");
+    /* One durable write per frame, and only inside the probe window (the first
+     * PSP_DIAG_FRAMES frames of each scene, which is exactly when a freshly
+     * loaded scene falls over).
+     *
+     * The tension this resolves: force-flushing every probe costs ~240 ms a
+     * frame, which slows the game enough to make the fault disappear -- a run
+     * instrumented that way rendered the scene that otherwise dies. Leaving
+     * everything buffered keeps the timing honest but loses up to seven
+     * entries, and a run ended with "ge-sync" as its last line with no way to
+     * tell whether the GE had actually stalled there or the tail was simply
+     * still in RAM.
+     *
+     * Flushing here, immediately BEFORE the one blocking call that waits on
+     * the graphics hardware, means a stall inside sceGuSync leaves a log that
+     * durably ends at "ge-finish". One write per frame is ~24 ms and only for
+     * the first few frames of a scene. */
+    if (gPspDiagFrameCount < PSP_DIAG_FRAMES) {
+        PspDiag_Flush();
+    }
     sceGuSync(0, 0);
     PSP_DIAG_GFX("ge-sync");
 
