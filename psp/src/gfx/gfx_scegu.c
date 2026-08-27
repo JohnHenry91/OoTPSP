@@ -2,6 +2,7 @@
 #if defined(TARGET_SCEGU) || defined(TARGET_PSP)
 
 #include <stdint.h>
+#include "psp_screenshot.h"
 #include <stdlib.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -1825,6 +1826,21 @@ static void gfx_scegu_end_frame(void) {
     }
     sceGuSync(0, 0);
     PSP_DIAG_GFX("ge-sync");
+
+    /* Grab the finished picture here, between the GE going idle and the swap:
+     * the buffer just drawn into is complete and nothing is reading it. After
+     * the swap it would be the buffer the DISPLAY owns and the next frame's
+     * target, i.e. one frame stale and being overwritten while it is read.
+     *
+     * The address arithmetic mirrors getStaticVramBufferBytes: sFbp0/sFbp1
+     * hold VRAM-relative offsets with the uncached bit, which is what sceGu
+     * wants and not something the CPU can dereference. */
+    {
+        void *drawn = sDrawBufferIsFbp0 ? sFbp0 : sFbp1;
+
+        PspScreenshot_Tick((const void *)((unsigned int)drawn + (unsigned int)sceGeEdramGetAddr()),
+                           SCR_WIDTH, SCR_HEIGHT, BUF_WIDTH);
+    }
 
     {
         /* Timed so the pacer can charge this to idle rather than to the

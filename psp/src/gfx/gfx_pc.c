@@ -1,4 +1,5 @@
 #include <math.h>
+#include "psp_screenshot.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -4378,6 +4379,12 @@ static void gfx_psp_bg_rect(const PspBgRect *bg) {
             return;
         }
     }
+
+    /* Tell the grabber which background is on screen. Rooms with a fixed
+     * camera can hold several images, one per camera angle, and switching
+     * angle swaps the image without reloading the room -- which is exactly
+     * the moment being investigated. */
+    PspScreenshot_NoteBgImage(img);
 
     gfx_flush();
     gfx_scegu_draw_background(img, bg->width, bg->height, bg->offsetX, bg->offsetY);

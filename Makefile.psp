@@ -283,6 +283,7 @@ PSP_C_FILES += psp/src/psp_test_scenes.c
 # header. Its scene list is generated from the decomp's own tables, so it never
 # needs updating by hand.
 PSP_C_FILES += psp/src/psp_scene_menu.c
+PSP_C_FILES += psp/src/psp_screenshot.c
 
 # --- Audio (Phase 1 bring-up) -------------------------------------------------
 #

@@ -41,6 +41,7 @@
 
 #include "controller.h"
 #include "scene.h"
+#include "psp_screenshot.h"
 #include "save.h"
 #include "psp_raw_input.h"
 #include "psp_scene_menu.h"
@@ -518,7 +519,16 @@ void PspSceneMenu_Update(PlayState* play) {
          * are already spoken for. L doubles as BTN_Z in game, but a Z press
          * that also lands on TRIANGLE is not something that happens by
          * accident. */
-        if (gPspRawButtons & PSP_CTRL_LTRIGGER) {
+        /* BOTH triggers plus TRIANGLE takes the screenshot. The retired
+         * R+TRIANGLE fanfare hotkey is the warning here: R alone is pressed
+         * constantly in normal play, so anything guarded by R fires by
+         * accident. Requiring L as well cannot happen unintentionally, and
+         * this must be checked before the L-only branch or it would never be
+         * reached. Two frames rather than one, because the interesting frame
+         * is rarely the one the thumb lands on. */
+        if ((gPspRawButtons & PSP_CTRL_LTRIGGER) && (gPspRawButtons & PSP_CTRL_RTRIGGER)) {
+            PspScreenshot_Request(2);
+        } else if (gPspRawButtons & PSP_CTRL_LTRIGGER) {
             gPspRoomCullDisable = !gPspRoomCullDisable;
         /* The R+TRIANGLE fanfare hotkey that lived here is gone. It was only
          * ever a bring-up probe for "does any sequence play at all", and once
@@ -529,7 +539,14 @@ void PspSceneMenu_Update(PlayState* play) {
             sHudOpen = !sHudOpen;
         }
     }
-    if (sHudOpen && !gPspSceneMenuOpen && PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
+    /* Arm the automatic grab. The fault this was built for shows on the FIRST
+     * frame after the fixed-camera background changes and is gone by the
+     * second, so no hand-timed hotkey can catch it -- but the change itself is
+     * a thing the renderer can see. Same both-triggers guard as above. */
+    if ((gPspRawButtons & PSP_CTRL_LTRIGGER) && (gPspRawButtons & PSP_CTRL_RTRIGGER) &&
+        PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
+        gPspShotOnBgChange = !gPspShotOnBgChange;
+    } else if (sHudOpen && !gPspSceneMenuOpen && PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
         /* off -> 3 -> 2 -> 1 -> off. "off" is not the same as 3: it hands
          * R_UPDATE_RATE back to the engine, which drives it to 1 during
          * transitions and 2 in the pause menu. */
@@ -1182,6 +1199,8 @@ void PspSceneMenu_DrawHud(void) {
         extern unsigned int gPspTexCacheResetPool;
         extern unsigned int gPspTexCacheHighWater;
         extern unsigned int gPspTexSizeVariants;
+        extern unsigned int gPspBlobResumes;
+        extern unsigned int gPspGfxResumes;
         extern unsigned int gPspGfxBadDlCursors;
         extern unsigned int gPspZeldaAllocFails;
         extern unsigned int gPspDiagWriteFails;
@@ -1220,8 +1239,20 @@ void PspSceneMenu_DrawHud(void) {
          * So: name only what is actually non-zero, and say "clean" in words
          * when nothing is. The answer then needs no digit at all, and any
          * digits that do appear are ones that matter. */
+        /* Resume bookkeeping rides along on this line because it is the one
+         * that is always on screen and usually has nothing to say.
+         *
+         * res is blob/audio/gfx resumes handled. All three staying 0 after a
+         * standby means the power callback never reached us at all, which is a
+         * completely different bug from "the handler ran and was not enough" --
+         * and the two are indistinguishable from the symptom, since both leave
+         * the console looking exactly as broken. rsv counts failed SRC channel
+         * reservations, which is what silent audio after a resume looks like
+         * from inside the backend. */
         if (!sGfxProbeBad) {
-            snprintf(lineGfx, sizeof(lineGfx), "GFX  all clean");
+            snprintf(lineGfx, sizeof(lineGfx), "GFX  all clean  res %u/%u/%u rsv %u",
+                     gPspBlobResumes, (unsigned int)PspAudio_StatResumes(), gPspGfxResumes,
+                     (unsigned int)PspAudio_StatReserveFailures());
         } else {
             char* w = lineGfx;
             char* end = lineGfx + sizeof(lineGfx);
