@@ -43,8 +43,12 @@ static int exit_callback(int arg1, int arg2, void *common) {
 static int power_callback(int unknown, int power_info, void *common) {
     if (power_info & PSP_POWER_CB_RESUME_COMPLETE) {
         extern void PspGfx_NotifyResume(void);
+        extern void PspRom_NotifyResume(void);
 
         PspBlob_NotifyResume();
+        /* The .z64 descriptor, which is the one that has been open since boot
+         * and is still what serves the skybox. */
+        PspRom_NotifyResume();
         PspAudio_NotifyResume();
         PspAudioMe_NotifyResume();
         PspGfx_NotifyResume();

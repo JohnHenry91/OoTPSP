@@ -12,6 +12,11 @@
 void PspRom_Init(const char* path);
 void PspRom_Read(uint32_t romOffset, void* dst, size_t size);
 
+/* Tell the ROM reader the console came back from standby, which invalidated
+ * the descriptor it has held open since boot. Safe from the power callback:
+ * raises a flag, and the next read does the reopen. */
+void PspRom_NotifyResume(void);
+
 /* Reads that left the destination holding stale bytes -- see os_rom.c. */
 extern unsigned int gPspRomUnservedReads;
 

@@ -1224,10 +1224,15 @@ void PspSceneMenu_DrawHud(void) {
          * start and displayed nowhere, which made it the one asset failure
          * that could not be seen from the console at all. */
         extern unsigned int gPspBlobShortReads;
+        /* Raw .z64 reads that did not deliver what was asked for. Counted
+         * since the read path was written, displayed nowhere -- and it is the
+         * counter for the one asset class the blobs do not cover. */
+        extern unsigned int gPspRomUnservedReads;
 
         sGfxProbeBad = (gPspPoolOverflows | psp_tex_overflows | gPspTexCacheResetVram |
                         gPspTexCacheResetPool | gPspGfxBadDlCursors | gPspZeldaAllocFails |
-                        gPspDiagWriteFails | gPspBlobOpenFails | gPspBlobShortReads) != 0;
+                        gPspDiagWriteFails | gPspBlobOpenFails | gPspBlobShortReads |
+                        gPspRomUnservedReads) != 0;
 
         /* Latch WHERE it first went bad.
          *
@@ -1297,6 +1302,9 @@ void PspSceneMenu_DrawHud(void) {
              * most likely to be blamed on the renderer. */
             if (gPspBlobShortReads) {
                 w += snprintf(w, (size_t)(end - w), " blobshort=%u", gPspBlobShortReads);
+            }
+            if (gPspRomUnservedReads) {
+                w += snprintf(w, (size_t)(end - w), " romshort=%u", gPspRomUnservedReads);
             }
             if (gPspPoolOverflows) {
                 w += snprintf(w, (size_t)(end - w), " dlpool=%u", gPspPoolOverflows);
