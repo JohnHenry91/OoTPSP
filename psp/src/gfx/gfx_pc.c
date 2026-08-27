@@ -4914,10 +4914,47 @@ struct GfxRenderingAPI *gfx_get_current_rendering_api(void) {
 
 unsigned int total_t0, total_t1;
 
+#if TARGET_PSP
+/* Raised by the power callback after standby. Acted on here rather than in the
+ * callback because this is the one point in the frame where the GE is provably
+ * idle: gfx_end_frame has already run its sceGuFinish/sceGuSync, and nothing
+ * of this frame has been queued yet. Wiping a texture cache the GE is still
+ * reading from is the speckled corruption this file fights elsewhere. */
+static volatile int sGfxResumePending;
+unsigned int gPspGfxResumes;
+
+/* Bumped by whoever loads a room; see gfx_scegu_draw_background. */
+extern unsigned int gPspBgCacheGeneration;
+void gfx_texture_cache_reset(void);
+
+void PspGfx_NotifyResume(void) {
+    sGfxResumePending = 1;
+}
+#endif
+
 void gfx_start_frame(void) {
     //sceIoWrite(1, "----START FRAME!\n", 18);
     total_t0 = sceKernelLibcClock();
 #if TARGET_PSP
+    if (sGfxResumePending) {
+        sGfxResumePending = 0;
+        ++gPspGfxResumes;
+
+        /* Standby powers the GE's eDRAM down, so every texture the cache
+         * still claims to have in VRAM is gone -- the entries are valid, the
+         * pixels behind them are not. Throw the cache away so the next draws
+         * re-upload instead of sampling whatever survived. */
+        gfx_texture_cache_reset();
+
+        /* And force the fixed-camera background to be flushed to RAM again.
+         * gfx_scegu_draw_background skips its 150 KB writeback when the image
+         * pointer AND the generation both match the last blit -- an
+         * optimisation that is exactly wrong across a resume, because the
+         * room buffer is reused at the same address and the generation only
+         * moves when a room loads. Walking back into the room you slept in
+         * would otherwise blit whatever the GE finds in RAM. */
+        ++gPspBgCacheGeneration;
+    }
     /* Without this the probe would latch onto the largest triangle ever drawn
      * in the session -- typically something from a long-gone scene -- instead
      * of the largest one in the picture being looked at. */

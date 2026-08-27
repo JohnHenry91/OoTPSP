@@ -42,9 +42,12 @@ static int exit_callback(int arg1, int arg2, void *common) {
  * (OotPsp_AssetNotifyResume). */
 static int power_callback(int unknown, int power_info, void *common) {
     if (power_info & PSP_POWER_CB_RESUME_COMPLETE) {
+        extern void PspGfx_NotifyResume(void);
+
         PspBlob_NotifyResume();
         PspAudio_NotifyResume();
         PspAudioMe_NotifyResume();
+        PspGfx_NotifyResume();
     }
     return 0;
 }
