@@ -134,29 +134,55 @@ uint32_t PspAudio_StatResumes(void) {
     return sStatResumes;
 }
 
-/* Standby tears the audio hardware down, and the SRC channel reserved before
- * it does not come back with it. Nothing in this file would notice on its
- * own: sChannel is still >= 0, so the re-reserve below is skipped, and
- * sceAudioOutput2OutputBlocking on a dead channel returns an error INSTANTLY
- * instead of blocking. That second part is the dangerous one -- this call is
- * the audio thread's only clock (see AudioMgr_ThreadEntry's TARGET_PSP
- * branch), so losing it turns a high-priority thread into a spin loop.
+/* Consecutive failures of the blocking output call. The channel can die
+ * without anyone being told -- and a dead one does not block, which is worse
+ * than it sounds: that call is the audio thread's only clock (see
+ * AudioMgr_ThreadEntry's TARGET_PSP branch), so losing it turns a
+ * high-priority thread into a spin loop. Count the failures and rebuild the
+ * channel rather than trusting any single event to have been the cause. */
+static uint32_t sOutputErrorStreak;
+
+/* Give the channel back properly.
  *
- * Release and forget the channel; the existing lazy re-reserve does the rest.
- * The ring goes too: whatever is in it was queued before the console slept
- * and is a good deal older than the DAC's idea of now. */
+ * BOTH calls, in this order. sceAudioSRCChReserve and
+ * sceAudioOutput2OutputBlocking are two halves of one facility, and releasing
+ * only the SRC half can leave the output half holding the driver's channel --
+ * after which every re-reserve fails against a reservation we believe we have
+ * already dropped, and the sound never comes back at all.
+ * reference/oot-psp-z2442 tears both down together in
+ * OotPspAudioBackend_Init for the same reason. */
+static void PspAudioReleaseChannel(void) {
+    sceAudioOutput2Release();
+    sceAudioSRCChRelease();
+    sChannel = -1;
+    sOutputErrorStreak = 0;
+}
+
+/* Standby tears the audio hardware down and the reserved SRC channel does not
+ * reliably come back with it.
+ *
+ * "Not reliably" is the whole design constraint here, and it was learned the
+ * hard way: the first version of this released the channel unconditionally on
+ * every resume, and the sound came back on some wakes and was completely
+ * silent on others. Blind release is the wrong shape -- it destroys a channel
+ * that may well have survived, and if the re-reserve then fails (the audio
+ * driver is not necessarily back up the instant RESUME_COMPLETE arrives) there
+ * is nothing left to fall back on.
+ *
+ * So do not touch the channel here. Drop only the ring, whose contents were
+ * queued before the console slept and are older than anything the DAC still
+ * wants, and let the output path below decide from evidence: if the channel
+ * really did die, its next few writes fail and it is rebuilt then. That
+ * recovers a dead channel and cannot break a live one. */
 static void PspAudioHandleResume(void) {
     sResumePending = 0;
     ++sStatResumes;
 
-    if (sChannel >= 0) {
-        sceAudioSRCChRelease();
-        sChannel = -1;
-    }
     sRingWrite = 0;
     sRingFill = 0;
     sNoOutputStreak = 0;
     sOutputBufferIndex = 0;
+    sOutputErrorStreak = 0;
 }
 
 /**
@@ -211,6 +237,11 @@ void PspAudio_Output(const s16* buf, u32 numSamples) {
     if (sChannel < 0) {
         sChannel = sceAudioSRCChReserve(PSP_AUDIO_BLOCK_FRAMES, PSP_AUDIO_FREQUENCY, PSP_AUDIO_CHANNELS);
         if (sChannel < 0) {
+            /* Retrying the same reserve against a driver that still believes
+             * the channel is taken never converges. Give both halves back
+             * before the next attempt, so a reservation stranded by a standby
+             * is actually cleared instead of being asked about again. */
+            PspAudioReleaseChannel();
             sStatReserveFailures++;
             /* Without a channel sceAudioOutput2OutputBlocking returns instantly,
              * and since it is this thread's only pacer (see AudioMgr_ThreadEntry's
@@ -284,6 +315,20 @@ void PspAudio_Output(const s16* buf, u32 numSamples) {
         sStatLastOutputRet = sceAudioOutput2OutputBlocking(PSP_AUDIO_VOLUME_MAX, out);
         if (sStatLastOutputRet < 0) {
             sStatOutputErrors++;
+            /* Eight in a row, not one: a single failure happens around spec
+             * changes and heap resets and recovers on its own, while a channel
+             * the firmware took away never produces a good one again. Eight
+             * blocks is well under a quarter second, so a real death is
+             * repaired before it is audible as more than a gap. */
+            if (++sOutputErrorStreak >= 8) {
+                PspAudioReleaseChannel();
+                /* Nothing more can be handed over until the channel is back;
+                 * the reserve at the top of the next call does that. Stop
+                 * draining the ring into a channel that is gone. */
+                break;
+            }
+        } else {
+            sOutputErrorStreak = 0;
         }
         /* The driver keeps reading `out` after this returns, so the next
          * block must go into the other buffer. */

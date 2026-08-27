@@ -1201,6 +1201,18 @@ void PspSceneMenu_DrawHud(void) {
         extern unsigned int gPspTexSizeVariants;
         extern unsigned int gPspBlobResumes;
         extern unsigned int gPspGfxResumes;
+        /* The pre-rendered background counters, which existed and were shown
+         * nowhere. drawn/skipped plus the skip reason (1 = the RoomShapeImage
+         * was not RGBA16, 2 = the data is still compressed JPEG) and the
+         * active camera setting. Between them they say which of three things
+         * the broken side view is: the background was blitted and the blit is
+         * wrong, a guard rejected it, or it was never asked for because the
+         * camera is not CAM_SET_PREREND_FIXED -- and only the first of those
+         * is a renderer bug at all. */
+        extern unsigned int gPspBgDrawn;
+        extern unsigned int gPspBgSkipped;
+        extern unsigned int gPspBgLastSkipReason;
+        extern unsigned int gPspBgProbeCamSetting;
         extern unsigned int gPspGfxBadDlCursors;
         extern unsigned int gPspZeldaAllocFails;
         extern unsigned int gPspDiagWriteFails;
@@ -1250,9 +1262,10 @@ void PspSceneMenu_DrawHud(void) {
          * reservations, which is what silent audio after a resume looks like
          * from inside the backend. */
         if (!sGfxProbeBad) {
-            snprintf(lineGfx, sizeof(lineGfx), "GFX  all clean  res %u/%u/%u rsv %u",
+            snprintf(lineGfx, sizeof(lineGfx), "GFX clean res %u/%u/%u rsv %u bg %u/%u r%u cam %u",
                      gPspBlobResumes, (unsigned int)PspAudio_StatResumes(), gPspGfxResumes,
-                     (unsigned int)PspAudio_StatReserveFailures());
+                     (unsigned int)PspAudio_StatReserveFailures(), gPspBgDrawn, gPspBgSkipped,
+                     gPspBgLastSkipReason, gPspBgProbeCamSetting);
         } else {
             char* w = lineGfx;
             char* end = lineGfx + sizeof(lineGfx);

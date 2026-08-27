@@ -110,14 +110,23 @@ void PspScreenshot_Tick(const void *fb565, int width, int height, int stride) {
 
         for (x = 0; x < width; x++) {
             unsigned int p = src[x];
-            /* RGB565 -> 8 bits per channel. The top bits are replicated into
-             * the low ones so full-scale stays full-scale: a plain shift left
-             * would cap white at 0xF8 and tint every screenshot slightly
-             * dark, which is exactly the kind of artefact someone would then
-             * try to explain. */
-            unsigned int r = (p >> 11) & 0x1F;
+            /* GU_PSM_5650 -> 8 bits per channel.
+             *
+             * RED IS IN THE LOW BITS. The PSP's 5650 is not the PC's RGB565:
+             * red occupies bits 0-4 and blue bits 11-15. This file first
+             * assumed the PC order, which swapped red and blue in every shot
+             * -- and the giveaway was Link coming out with cyan skin, an
+             * artefact of the debugging tool that could easily have been
+             * reported as a rendering bug and chased for a day. The port's own
+             * psp/tools/jfif_to_psp.py settles the order: it packs 5551 as
+             * `(b << 10) | (g << 5) | r`.
+             *
+             * The top bits are replicated into the low ones so full-scale
+             * stays full-scale: a plain shift left would cap white at 0xF8 and
+             * tint every screenshot slightly dark. */
+            unsigned int r = p & 0x1F;
             unsigned int g = (p >> 5) & 0x3F;
-            unsigned int b = p & 0x1F;
+            unsigned int b = (p >> 11) & 0x1F;
 
             row[x * 3 + 0] = (unsigned char)((b << 3) | (b >> 2)); /* BMP is BGR */
             row[x * 3 + 1] = (unsigned char)((g << 2) | (g >> 4));

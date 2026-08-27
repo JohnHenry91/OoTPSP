@@ -725,6 +725,16 @@ void Room_DrawImageMulti(PlayState* play, Room* room, u32 flags) {
 
     activeCam = GET_ACTIVE_CAM(play);
     isFixedCamera = (activeCam->setting == CAM_SET_PREREND_FIXED);
+#if TARGET_PSP
+    /* Multi-background rooms are the ones with several camera angles, and the
+     * probe was only ever wired up in Room_DrawImageSingle -- so for exactly
+     * the rooms under investigation the HUD reported the last SINGLE room's
+     * camera instead. The setting is the question here: a background is only
+     * blitted for CAM_SET_PREREND_FIXED, so an angle with any other setting
+     * draws no background at all, by design, and whatever is on screen then
+     * came from somewhere else. */
+    gPspBgProbeCamSetting = activeCam->setting;
+#endif
     roomShape = &room->roomShape->image.multi;
     dListsEntry = SEGMENTED_TO_VIRTUAL(roomShape->base.entry);
 
