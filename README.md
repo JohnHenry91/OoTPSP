@@ -12,13 +12,6 @@ locally; see [Building](#building) below.
 
 Not affiliated with or endorsed by Nintendo.
 
-## Status
-
-Full session-by-session progress, architecture decisions and open bugs are tracked in
-[CHANGELOG.md](CHANGELOG.md) — read it bottom-to-top for the current state. Short
-version: the Market and Kakariko Graveyard render correctly, Link walks around, and the
-first world actors (grass, crates, trees, a patrolling dog) are enabled and working.
-
 ## Building
 
 ### The easy way
