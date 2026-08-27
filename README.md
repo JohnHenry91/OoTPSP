@@ -19,21 +19,6 @@ Full session-by-session progress, architecture decisions and open bugs are track
 version: the Market and Kakariko Graveyard render correctly, Link walks around, and the
 first world actors (grass, crates, trees, a patrolling dog) are enabled and working.
 
-## Repository layout
-
-This repo mixes three kinds of code — here's what's what:
-
-| Path | What it is |
-|---|---|
-| `psp/` | **This port's own code.** PSP main loop, libultra/libu64 shim, the F3DEX2-to-sceGu graphics backend, and the build tools under `psp/tools/` (scene blob packer, texture converters, ...). Everything new lives here. |
-| `install.sh` | One-shot installer: checks the system, installs the toolchains, extracts the assets from your ROM and builds a copy-to-your-memory-stick folder. See [Building](#building). |
-| `Makefile.psp` | This port's build entry point, kept deliberately separate from the decomp's own `Makefile` (see the comment at its top for why). |
-| `src/`, `include/`, `assets/`, `data/`, `spec/` | The **zeldaret/oot decompilation** — reverse-engineered N64 source, unmodified except for the narrow `#if TARGET_PSP` hooks the port needs. |
-| `baseroms/` | Only ROM **metadata** (checksums, segment layout) per supported game version — never the ROM itself. |
-| `tools/`, `docs/` (top level) | The decomp project's own build tooling and documentation (compilers, asm-differ, asset docs, N64 build guide), unmodified. |
-| `psp/docs/` | This port's own documentation: [`PORTING_PITFALLS.md`](psp/docs/PORTING_PITFALLS.md) (the accumulated N64→PSP bug list, read this before chasing a bug that smells familiar) and a mirror of the CloudModding OoT wiki. |
-| `extracted/`, `build/`, `blobs/`, `EBOOT.PBP` | Build output. Gitignored, generated locally, never committed. |
-
 ## Building
 
 ### The easy way
