@@ -168,6 +168,53 @@ static int sRangedFdsInited;
  * gPspBlobOpenFails: this one is healthy housekeeping, not an error. */
 unsigned int gPspBlobFdEvictions;
 
+/* Set from the power callback when the console comes back from standby.
+ * Volatile and scalar-only on purpose: the callback runs on its own thread and
+ * must not do I/O, so it only raises this flag and the next real read acts on
+ * it. Same split the reference port uses (OotPsp_AssetNotifyResume in
+ * reference/oot-psp-z2442/src/port/psp/oot_psp_asset_loader.c). */
+static volatile int sResumePending;
+
+/* Resumes handled, for the HUD -- so "the sound broke after standby" can be
+ * told apart from "the callback never fired". */
+unsigned int gPspBlobResumes;
+
+void PspBlob_NotifyResume(void) {
+    sResumePending = 1;
+}
+
+/* Standby powers the Memory Stick down, and every descriptor open across it
+ * comes back invalid: reads return errors or garbage rather than failing in
+ * any way the callers notice. The audio path is what makes this loud -- the
+ * sample bank is read several times per audio frame and is by construction
+ * never the LRU victim, so its stale descriptor is the one that survives the
+ * cache and feeds every note nonsense until the game is restarted.
+ *
+ * Dropping the whole cache is the entire fix: the descriptors are pure cache,
+ * PspBlobOpenRanged reopens on demand, and the cost is one directory lookup
+ * per blob actually touched afterwards. */
+static void PspBlobHandleResume(void) {
+    unsigned int k;
+
+    sResumePending = 0;
+    ++gPspBlobResumes;
+
+    if (!sRangedFdsInited) {
+        return;
+    }
+
+    for (k = 0; k < sizeof(sRangedFds) / sizeof(sRangedFds[0]); k++) {
+        if (sRangedFds[k] >= 0) {
+            /* Close even though the descriptor is already dead: leaking it
+             * would eat the very budget the LRU exists to protect, and this is
+             * exactly the path that ran out of descriptors before. */
+            sceIoClose(sRangedFds[k]);
+            sRangedFds[k] = -1;
+        }
+    }
+    sRangedOpen = 0;
+}
+
 /* Lazily open ranged blob `i`, returning whether it is usable. Shared by both
  * ranged read paths so neither can forget the one-time table init. */
 static int PspBlobOpenRanged(unsigned int i) {
@@ -309,6 +356,12 @@ int PspBlob_Read(uint32_t romOffset, void* dst, size_t size) {
     SceUID fd;
     int got;
     unsigned int i;
+
+    /* The single funnel every asset transfer passes through, so this is the
+     * one place a post-standby descriptor flush has to sit. */
+    if (sResumePending) {
+        PspBlobHandleResume();
+    }
 
     for (i = 0; i < sizeof(sBlobs) / sizeof(sBlobs[0]); i++) {
         if (sBlobs[i].vromStart == romOffset) {

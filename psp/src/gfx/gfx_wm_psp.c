@@ -13,18 +13,50 @@
 #include <pspkernel.h>
 #include <pspctrl.h>
 #include <pspdisplay.h>
+#include <psppower.h>
 #include <psprtc.h>
 
 #include "gfx_window_manager_api.h"
+#include "psp_audio.h"
+#include "psp_audio_me.h"
+#include "psp_blob_assets.h"
 
 static int exit_callback(int arg1, int arg2, void *common) {
     sceKernelExitGame();
     return 0;
 }
 
+/* Standby is not a pause: the Memory Stick and the audio hardware are powered
+ * down, and everything the port was holding on to across them comes back dead.
+ * Nothing noticed, because the port registered an exit callback and no power
+ * callback at all -- so flipping the power switch in-game and back left every
+ * cached blob descriptor stale (the sample bank is read several times per audio
+ * frame and never ages out of the LRU, so every note was fed nonsense) and the
+ * reserved SRC channel gone, which also costs the audio thread its only
+ * blocking point.
+ *
+ * This runs on its own callback thread and does no work itself. Each of the
+ * three notify calls sets a flag that the owning thread acts on at its next
+ * natural point -- closing files or touching sceAudio from here would be doing
+ * I/O in a callback, and reference/oot-psp-z2442 splits it the same way
+ * (OotPsp_AssetNotifyResume). */
+static int power_callback(int unknown, int power_info, void *common) {
+    if (power_info & PSP_POWER_CB_RESUME_COMPLETE) {
+        PspBlob_NotifyResume();
+        PspAudio_NotifyResume();
+        PspAudioMe_NotifyResume();
+    }
+    return 0;
+}
+
 static int callback_thread(SceSize args, void *argp) {
     int cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+    int pwid = sceKernelCreateCallback("Power Callback", power_callback, NULL);
+
     sceKernelRegisterExitCallback(cbid);
+    if (pwid >= 0) {
+        scePowerRegisterCallback(0, pwid);
+    }
     sceKernelSleepThreadCB();
     return 0;
 }

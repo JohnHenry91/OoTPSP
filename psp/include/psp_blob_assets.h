@@ -54,6 +54,12 @@ const char* PspBlob_GetBaseDir(void);
 
 int PspBlob_Read(uint32_t romOffset, void* dst, size_t size);
 
+/* Tell the blob layer the console just came back from standby, which
+ * invalidates every Memory Stick descriptor held open across it. Safe to call
+ * from the power callback: it only raises a flag, and the next PspBlob_Read
+ * does the closing. */
+void PspBlob_NotifyResume(void);
+
 /* True if `p` points into memory most recently filled from a blob, i.e. data
  * that is ALREADY native-endian and must NOT be run through any
  * PspFixup*Endian pass -- doing so would byte-reverse correct data. */

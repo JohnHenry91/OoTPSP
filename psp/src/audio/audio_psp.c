@@ -121,6 +121,44 @@ void PspAudio_Init(void) {
     sChannel = sceAudioSRCChReserve(PSP_AUDIO_BLOCK_FRAMES, PSP_AUDIO_FREQUENCY, PSP_AUDIO_CHANNELS);
 }
 
+/* Raised by the power callback after standby. Scalar only -- the callback
+ * thread must not touch sceAudio or the ring. */
+static volatile int sResumePending;
+static uint32_t sStatResumes;
+
+void PspAudio_NotifyResume(void) {
+    sResumePending = 1;
+}
+
+uint32_t PspAudio_StatResumes(void) {
+    return sStatResumes;
+}
+
+/* Standby tears the audio hardware down, and the SRC channel reserved before
+ * it does not come back with it. Nothing in this file would notice on its
+ * own: sChannel is still >= 0, so the re-reserve below is skipped, and
+ * sceAudioOutput2OutputBlocking on a dead channel returns an error INSTANTLY
+ * instead of blocking. That second part is the dangerous one -- this call is
+ * the audio thread's only clock (see AudioMgr_ThreadEntry's TARGET_PSP
+ * branch), so losing it turns a high-priority thread into a spin loop.
+ *
+ * Release and forget the channel; the existing lazy re-reserve does the rest.
+ * The ring goes too: whatever is in it was queued before the console slept
+ * and is a good deal older than the DAC's idea of now. */
+static void PspAudioHandleResume(void) {
+    sResumePending = 0;
+    ++sStatResumes;
+
+    if (sChannel >= 0) {
+        sceAudioSRCChRelease();
+        sChannel = -1;
+    }
+    sRingWrite = 0;
+    sRingFill = 0;
+    sNoOutputStreak = 0;
+    sOutputBufferIndex = 0;
+}
+
 /**
  * Output one finished AI buffer. `buf` is real N64-engine-synthesized
  * interleaved stereo s16 PCM (gAudioCtx.aiBuffers[index]);  `numSamples` is
@@ -128,6 +166,10 @@ void PspAudio_Init(void) {
  */
 void PspAudio_Output(const s16* buf, u32 numSamples) {
     u32 i;
+
+    if (sResumePending) {
+        PspAudioHandleResume();
+    }
 
     /* Drain the engine's own dropped-note account. This is the audio thread,
      * which is where the errors are produced, and it costs one load of a

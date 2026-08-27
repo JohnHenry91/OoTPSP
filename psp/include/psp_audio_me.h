@@ -77,6 +77,12 @@ void PspAudio_RunCommandList(const Acmd* cmdList, int32_t cmdCount, int16_t* aiB
  * down. Must be called from the submitting thread. */
 void PspAudio_WaitForCommandList(void);
 
+/* Tell the offload the console came back from standby, which left the second
+ * core powered down and any job in flight orphaned. Safe from the power
+ * callback: raises a flag, and the audio thread retires the job and switches
+ * to CPU mixing at its next collect instead of waiting out the timeout. */
+void PspAudioMe_NotifyResume(void);
+
 /* HUD/debugger counters. meJobs climbing while cpuJobs stays flat is the
  * only positive proof the ME is really doing the work. */
 uint32_t PspAudioMe_StatMeJobs(void);

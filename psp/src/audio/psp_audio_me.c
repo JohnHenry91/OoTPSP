@@ -141,6 +141,13 @@ static int32_t sPendingJob;
 static SceUID sCompletionSema = -1;
 static int32_t sCompletionIntrReady;
 
+/* Raised by the power callback after standby. Standby powers the second core
+ * down, so meLibOnProcess is simply gone when the console comes back: a job
+ * published before the sleep stays marked RUN for ever, and the collector
+ * would sit out the full 40 ms timeout to discover that. Acted on by the
+ * audio thread so the pending-job bookkeeping stays single-owner. */
+static volatile int32_t sResumePending;
+
 static int32_t PspAudioMe_JobIsRunning(void) {
     return sMeState == PSP_AUDIO_ME_STATE_RUN;
 }
@@ -387,6 +394,22 @@ void PspAudio_WaitForCommandList(void) {
     uint32_t waitStart;
     uint32_t elapsed;
 
+    if (sResumePending) {
+        /* Give up on the ME immediately rather than waiting out a job whose
+         * executor no longer exists. Re-booting it here is deliberately not
+         * attempted: meLibDefaultInit reloads a PRX through a relative path
+         * and wants the main thread, and getting that wrong on a core that
+         * cannot be inspected is how hardware stops booting. Mixing falls
+         * back to this core for the rest of the session, which is exactly
+         * where it was before the offload existed. */
+        sResumePending = 0;
+        if (sPendingJob) {
+            PspAudioMe_FallBackFromPending();
+        }
+        sMeAvailable = 0;
+        return;
+    }
+
     if (!sPendingJob) {
         return;
     }
@@ -490,6 +513,10 @@ void PspAudio_RunCommandList(const Acmd* cmdList, int32_t cmdCount, int16_t* aiB
     /* Deliberately no wait here. The collect happens at the next call. */
 }
 
+void PspAudioMe_NotifyResume(void) {
+    sResumePending = 1;
+}
+
 int32_t PspAudioMe_IsActive(void) {
     return sMeAvailable;
 }
@@ -504,6 +531,9 @@ void PspAudioMe_Shutdown(void) {
 }
 
 void PspAudio_WaitForCommandList(void) {
+}
+
+void PspAudioMe_NotifyResume(void) {
 }
 
 void PspAudio_RunCommandList(const Acmd* cmdList, int32_t cmdCount, int16_t* aiBuffer, int32_t aiFrames) {
