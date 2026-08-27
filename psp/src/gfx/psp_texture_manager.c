@@ -332,6 +332,27 @@ void texman_bind_tex(unsigned int num) {
 #endif
     sceGuTexMode(current->type, 0, 0, current->swizzled);
     sceGuTexImage(0, current->width, current->height, current->width, current->location);
+    /* The GE keeps its OWN texture cache, and it is not coherent with writes
+     * to texture memory. Nothing in this port ever invalidated it.
+     *
+     * That went unnoticed for as long as it did because the allocator hands
+     * out addresses monotonically: a newly uploaded texture normally lands
+     * somewhere the GE has never sampled, so it misses and fetches the real
+     * data. The moment that stops being true is a whole-cache wipe --
+     * texman_clear resets every region to its start, and every address is then
+     * handed out a SECOND time, to different pixels. The GE happily serves
+     * what it cached for that address the first time round.
+     *
+     * That is the "speckled corruption" this port has attributed to a wipe
+     * happening mid-frame while the GE was still reading. The timing was never
+     * the mechanism; the stale texture cache was. It also explains why the
+     * fault appears after a standby, which is simply another way to end up
+     * re-uploading everything into addresses that have been used before, and
+     * why it is only VISIBLE in prerendered rooms with a PIVOT camera -- the
+     * only view where no background image and no skybox covers the geometry.
+     *
+     * One GE command per bind. */
+    sceGuTexFlush();
     psp_tex_bound = num;
 }
 
