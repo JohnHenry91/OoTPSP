@@ -189,6 +189,11 @@ static unsigned int getMemorySize(unsigned int width, unsigned int height, unsig
 }
 
 #define TEX_ALIGNMENT (16)
+/* How much spill actually got reserved, for the HUD -- the difference between
+ * "the budget is too small" and "the region was never allocated" is not
+ * visible from any other number. */
+unsigned int gPspTexSpillBytes;
+
 void *getStaticVramBuffer(unsigned int width, unsigned int height, unsigned int psm) {
     unsigned int memSize = getMemorySize(width, height, psm);
     void *result = (void *) (staticOffset | 0x40000000);
@@ -1624,12 +1629,29 @@ static void gfx_scegu_init(void) {
     texman_reset(texman_aligned, texman_size);
 
     /* Spill region in main RAM. VRAM alone is not enough for a busy scene --
-     * the Market overflows ~1.2 MB on its own -- and overflowing used to mean
-     * wiping both texture caches mid-frame (the speckled corruption). With a
-     * fallback the hot textures still land in VRAM and only the tail is slower. */
-    void *texman_overflow = memalign(TEX_ALIGNMENT, TEXMAN_OVERFLOW_SIZE);
-    if (texman_overflow != NULL) {
-        texman_set_overflow_buffer(texman_overflow, TEXMAN_OVERFLOW_SIZE);
+     * the Market overflows ~1.2 MB on its own -- and overflowing means wiping
+     * both texture caches mid-frame (the speckled corruption). With a fallback
+     * the hot textures still land in VRAM and only the tail is slower.
+     *
+     * Take the largest that fits. One fixed request would mean that the day it
+     * no longer fits, the region silently disappears entirely and every busy
+     * scene starts wiping again -- a failure that looks like a rendering
+     * regression and has nothing to do with rendering. */
+    {
+        unsigned int want = TEXMAN_OVERFLOW_SIZE;
+        void *texman_overflow = NULL;
+
+        while (want >= TEXMAN_OVERFLOW_MIN) {
+            texman_overflow = memalign(TEX_ALIGNMENT, want);
+            if (texman_overflow != NULL) {
+                break;
+            }
+            want /= 2;
+        }
+        if (texman_overflow != NULL) {
+            texman_set_overflow_buffer(texman_overflow, want);
+            gPspTexSpillBytes = want;
+        }
     }
     if (!texman_buffer) {
         char msg[32];

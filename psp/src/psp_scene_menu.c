@@ -1199,6 +1199,8 @@ void PspSceneMenu_DrawHud(void) {
         extern unsigned int gPspTexCacheResetPool;
         extern unsigned int gPspTexCacheHighWater;
         extern unsigned int gPspTexSizeVariants;
+        extern unsigned int psp_tex_spills;
+        extern unsigned int gPspTexSpillBytes;
         extern unsigned int gPspBlobResumes;
         extern unsigned int gPspGfxResumes;
         /* The pre-rendered background counters, which existed and were shown
@@ -1333,9 +1335,10 @@ void PspSceneMenu_DrawHud(void) {
                  * entries are mostly duplicates of the same textures at
                  * different tile sizes, which is a keying question, not a
                  * capacity one. */
-                w += snprintf(w, (size_t)(end - w), " wipe=%u/%u hw=%u var=%u",
+                w += snprintf(w, (size_t)(end - w), " wipe=%u/%u hw=%u var=%u sp=%u/%uk",
                               gPspTexCacheResetVram, gPspTexCacheResetPool,
-                              gPspTexCacheHighWater, gPspTexSizeVariants);
+                              gPspTexCacheHighWater, gPspTexSizeVariants, psp_tex_spills,
+                              gPspTexSpillBytes / 1024u);
             }
             if (gPspGfxBadDlCursors) {
                 w += snprintf(w, (size_t)(end - w), " badDL=%u", gPspGfxBadDlCursors);

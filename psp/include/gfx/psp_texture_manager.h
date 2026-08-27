@@ -34,14 +34,22 @@
 
 /* Main-RAM spill region, used once VRAM is full.
  *
- * Kept small on purpose. The measured answer is that it is never touched:
- * psp_tex_spills and gPspTexCacheResetVram both stay 0 through normal play, so
- * ~1.2 MB of VRAM is genuinely enough for a scene once the caches are reset per
- * scene load. This exists as a safety net, not as capacity -- without it, an
- * overflow falls back to wrapping the pool, which corrupts the oldest texture.
- * If psp_tex_spills is still 0 after a long session, this can go to 0 and the
- * whole second region with it. */
-#define TEXMAN_OVERFLOW_SIZE (1 * 1024 * 1024)
+ * THE PARAGRAPH THAT USED TO BE HERE WAS MEASURED WRONG. It said the region is
+ * never touched -- "psp_tex_spills and gPspTexCacheResetVram both stay 0
+ * through normal play" -- and concluded it could eventually be deleted. On
+ * hardware, 2026-08-27: `wipe=1/0 hw=282`, i.e. a real VRAM exhaustion, with
+ * the entry pool barely half full. So ~1.2 MB of VRAM plus 1 MB of spill is
+ * NOT enough for every scene, and the wipe that follows throws away all 282
+ * live textures in the middle of a frame. That is the single-frame corruption
+ * seen while walking through a room: more geometry comes into view, the
+ * budget runs out, everything is dropped and re-uploaded.
+ *
+ * Ask for more, and settle for what is available. The allocation is best
+ * effort and a smaller region is strictly better than none, so try in
+ * descending order rather than taking one size and falling back to nothing --
+ * which is what a single memalign would do the day this no longer fits. */
+#define TEXMAN_OVERFLOW_SIZE (4 * 1024 * 1024)
+#define TEXMAN_OVERFLOW_MIN (1 * 1024 * 1024)
 #define TEXMAN_BUFFER_SIZE (4 * 1024 * 1024)
 
 struct PSP_Texture {
