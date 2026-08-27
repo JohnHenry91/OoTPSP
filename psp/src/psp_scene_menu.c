@@ -1180,6 +1180,8 @@ void PspSceneMenu_DrawHud(void) {
         extern unsigned int psp_tex_overflows;
         extern unsigned int gPspTexCacheResetVram;
         extern unsigned int gPspTexCacheResetPool;
+        extern unsigned int gPspTexCacheHighWater;
+        extern unsigned int gPspTexSizeVariants;
         extern unsigned int gPspGfxBadDlCursors;
         extern unsigned int gPspZeldaAllocFails;
         extern unsigned int gPspDiagWriteFails;
@@ -1247,8 +1249,21 @@ void PspSceneMenu_DrawHud(void) {
                 w += snprintf(w, (size_t)(end - w), " texpool=%u", psp_tex_overflows);
             }
             if (gPspTexCacheResetVram || gPspTexCacheResetPool) {
-                w += snprintf(w, (size_t)(end - w), " wipe=%u/%u", gPspTexCacheResetVram,
-                              gPspTexCacheResetPool);
+                /* The two numbers are vram/pool, and they are not variations
+                 * on one problem -- they have different fixes (a bigger or
+                 * better-packed VRAM budget vs. more than 512 cache entries),
+                 * so the split is the whole point of printing both.
+                 *
+                 * hw is how full the entry pool was when it happened and var
+                 * is how often the size-aware key made a SECOND entry for an
+                 * address already cached. Together they settle the pool case
+                 * without another run: hw at 512 with a large var means the
+                 * entries are mostly duplicates of the same textures at
+                 * different tile sizes, which is a keying question, not a
+                 * capacity one. */
+                w += snprintf(w, (size_t)(end - w), " wipe=%u/%u hw=%u var=%u",
+                              gPspTexCacheResetVram, gPspTexCacheResetPool,
+                              gPspTexCacheHighWater, gPspTexSizeVariants);
             }
             if (gPspGfxBadDlCursors) {
                 w += snprintf(w, (size_t)(end - w), " badDL=%u", gPspGfxBadDlCursors);
