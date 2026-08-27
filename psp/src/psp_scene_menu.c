@@ -889,6 +889,11 @@ static s32 sHackLineLen;
 #define HUD_Y 6
 
 static int sGfxProbeBad;
+/* Entrance index at the moment the GFX health line first went red, and whether
+ * it has been captured. Latched once and never cleared: the first failure is
+ * the interesting one, later ones are usually its consequences. */
+static int sGfxProbeBadLatched;
+static unsigned int sGfxProbeBadEntrance;
 
 void PspSceneMenu_DrawHud(void) {
     MenuVertex* verts;
@@ -1184,6 +1189,24 @@ void PspSceneMenu_DrawHud(void) {
         sGfxProbeBad = (gPspPoolOverflows | psp_tex_overflows | gPspTexCacheResetVram |
                         gPspTexCacheResetPool | gPspGfxBadDlCursors | gPspZeldaAllocFails |
                         gPspDiagWriteFails | gPspBlobOpenFails) != 0;
+
+        /* Latch WHERE it first went bad.
+         *
+         * These counters are cumulative and the line says how many, never
+         * where. That is fine for a fault that reproduces on demand and
+         * useless for one that does not: this line has been seen going red
+         * "very rarely, on entering a house with a fixed camera", and by the
+         * time anyone reads the HUD the room is long gone. Recording the
+         * entrance the first time it trips turns the next sighting into an
+         * address instead of an anecdote.
+         *
+         * Entrance rather than scene id: every house shares a handful of
+         * interior scenes, so the scene would not say which door was walked
+         * through, and the door is the reproduction step. */
+        if (sGfxProbeBad && !sGfxProbeBadLatched) {
+            sGfxProbeBadLatched = 1;
+            sGfxProbeBadEntrance = (unsigned int)gSaveContext.save.entranceIndex;
+        }
         /* Never print a row of zeroes.
          *
          * The first version showed all seven counters as digits, and the
@@ -1201,7 +1224,10 @@ void PspSceneMenu_DrawHud(void) {
             char* w = lineGfx;
             char* end = lineGfx + sizeof(lineGfx);
 
-            w += snprintf(w, (size_t)(end - w), "GFX BAD:");
+            /* The entrance goes first, ahead of even the log clause: it is the
+             * only field here that cannot be recovered afterwards, and the
+             * line is drawn without wrapping or clipping. */
+            w += snprintf(w, (size_t)(end - w), "GFX BAD @%04x:", sGfxProbeBadEntrance);
             /* First, because the line is drawn without wrapping or clipping and
              * only ~60 columns fit: if every counter fires at once the tail
              * runs off the screen, and this is the clause that must survive.
