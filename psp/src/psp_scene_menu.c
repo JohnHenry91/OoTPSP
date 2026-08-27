@@ -1218,10 +1218,16 @@ void PspSceneMenu_DrawHud(void) {
         extern unsigned int gPspDiagWriteFails;
         extern int gPspDiagWriteLastErr;
         extern unsigned int gPspBlobOpenFails;
+        /* A read that came back short leaves the tail of the destination
+         * holding whatever was there before -- so it produces wrong PIXELS,
+         * never a crash and never a failed open. It was counted from the
+         * start and displayed nowhere, which made it the one asset failure
+         * that could not be seen from the console at all. */
+        extern unsigned int gPspBlobShortReads;
 
         sGfxProbeBad = (gPspPoolOverflows | psp_tex_overflows | gPspTexCacheResetVram |
                         gPspTexCacheResetPool | gPspGfxBadDlCursors | gPspZeldaAllocFails |
-                        gPspDiagWriteFails | gPspBlobOpenFails) != 0;
+                        gPspDiagWriteFails | gPspBlobOpenFails | gPspBlobShortReads) != 0;
 
         /* Latch WHERE it first went bad.
          *
@@ -1285,6 +1291,12 @@ void PspSceneMenu_DrawHud(void) {
             }
             if (gPspBlobOpenFails) {
                 w += snprintf(w, (size_t)(end - w), " blobopen=%u", gPspBlobOpenFails);
+            }
+            /* Second only to the log clause: this is the failure that shows up
+             * as a wrong picture rather than as an error, so it is the one
+             * most likely to be blamed on the renderer. */
+            if (gPspBlobShortReads) {
+                w += snprintf(w, (size_t)(end - w), " blobshort=%u", gPspBlobShortReads);
             }
             if (gPspPoolOverflows) {
                 w += snprintf(w, (size_t)(end - w), " dlpool=%u", gPspPoolOverflows);
