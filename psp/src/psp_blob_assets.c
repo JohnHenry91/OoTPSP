@@ -83,6 +83,15 @@ unsigned int gPspBlobOpenFails;
 unsigned int gPspBlobLastMissVrom;
 unsigned int gPspBlobLastMissSize;
 unsigned int gPspBlobShortReads;
+/* WHICH blob came up short, and by how many bytes. The bare count cannot
+ * answer the only question that matters about it: a blob built a little
+ * smaller than the ROM file it stands in for short-reads on every single load
+ * and zero-fills padding nobody looks at, which is harmless noise, while a
+ * genuinely truncated transfer leaves real data missing. Same counter, two
+ * completely different situations, and the shortfall separates them -- a few
+ * bytes is the first, a large round number is the second. */
+unsigned int gPspBlobShortLastVrom;
+unsigned int gPspBlobShortLastMissing;
 /* Sample-bank reads whose window ran past the end of the bank and were served
  * short with a zeroed tail. Expected to be nonzero and harmless -- see the
  * long comment at the tail-read path in PspBlob_Read. Counted because "a lot
@@ -428,6 +437,9 @@ int PspBlob_Read(uint32_t romOffset, void* dst, size_t size) {
 
                 if (got < 0 || (size_t)got != size) {
                     ++gPspBlobShortReads;
+                    gPspBlobShortLastVrom = romOffset;
+                    gPspBlobShortLastMissing =
+                        (got > 0) ? (unsigned int)(size - (size_t)got) : (unsigned int)size;
                     if (got > 0 && (size_t)got < size) {
                         memset((char*)dst + got, 0, size - (size_t)got);
                     }
@@ -472,6 +484,8 @@ int PspBlob_Read(uint32_t romOffset, void* dst, size_t size) {
          * Recorded rather than silently tolerated, because a short read leaves
          * the tail of dst holding whatever was there before. */
         ++gPspBlobShortReads;
+        gPspBlobShortLastVrom = romOffset;
+        gPspBlobShortLastMissing = (got > 0) ? (unsigned int)(size - (size_t)got) : (unsigned int)size;
         if (got > 0 && (size_t)got < size) {
             memset((char*)dst + got, 0, size - (size_t)got);
         }

@@ -375,6 +375,8 @@ s32 Room_DecodeJpeg(void* data) {
 }
 
 #if TARGET_PSP
+#include "psp_screenshot.h"
+
 u32 gPspBgProbeCalls = 0;
 u32 gPspBgProbeCamSetting = 0;
 u32 gPspBgProbeFlags = 0;
@@ -527,6 +529,7 @@ void Room_DrawImageSingle(PlayState* play, Room* room, u32 flags) {
      * be read off directly instead of guessed at. */
     ++gPspBgProbeCalls;
     gPspBgProbeCamSetting = activeCam->setting;
+    PspScreenshot_NoteCamSetting((unsigned int)activeCam->setting);
     gPspBgProbeFlags = ((flags & ROOM_DRAW_OPA) ? 1 : 0) | (isFixedCamera ? 2 : 0) |
                        ((roomShape->source != NULL) ? 4 : 0) |
                        (!(R_ROOM_IMAGE_NODRAW_FLAGS & ROOM_IMAGE_NODRAW_BACKGROUND) ? 8 : 0);
@@ -734,6 +737,9 @@ void Room_DrawImageMulti(PlayState* play, Room* room, u32 flags) {
      * draws no background at all, by design, and whatever is on screen then
      * came from somewhere else. */
     gPspBgProbeCamSetting = activeCam->setting;
+    /* Arm a capture on the switch between the room's two views -- the first
+     * frame after it is the one that still glitches. */
+    PspScreenshot_NoteCamSetting((unsigned int)activeCam->setting);
 #endif
     roomShape = &room->roomShape->image.multi;
     dListsEntry = SEGMENTED_TO_VIRTUAL(roomShape->base.entry);

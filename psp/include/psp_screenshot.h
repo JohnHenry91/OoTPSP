@@ -39,4 +39,11 @@ unsigned int PspScreenshot_StatFails(void);
 extern int gPspShotOnBgChange;
 void PspScreenshot_NoteBgImage(const void *img);
 
+/* Same trigger, keyed on the active camera SETTING instead. Switching between
+ * a prerendered room's two views changes the setting (CAM_SET_PREREND_FIXED ->
+ * CAM_SET_PREREND_PIVOT), and the frame that goes wrong is the first one after
+ * that. NoteBgImage cannot see it: it only runs while a background is being
+ * blitted, and the whole point of the pivot view is that it is not. */
+void PspScreenshot_NoteCamSetting(unsigned int setting);
+
 #endif

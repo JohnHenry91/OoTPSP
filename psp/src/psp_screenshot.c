@@ -44,6 +44,21 @@ void PspScreenshot_NoteBgImage(const void *img) {
     }
 }
 
+static unsigned int sLastCamSetting = 0xFFFFFFFFu;
+
+void PspScreenshot_NoteCamSetting(unsigned int setting) {
+    if (setting != sLastCamSetting) {
+        unsigned int was = sLastCamSetting;
+
+        sLastCamSetting = setting;
+        /* Not on the first call: at startup every value is "new", and a shot
+         * of the boot logo is not what anyone armed this for. */
+        if (gPspShotOnBgChange && (was != 0xFFFFFFFFu)) {
+            PspScreenshot_Request(2);
+        }
+    }
+}
+
 /* 54-byte BITMAPFILEHEADER + BITMAPINFOHEADER, little-endian, which is also
  * this machine's byte order -- so the fields are written out a byte at a time
  * rather than as structs, and no packing attribute can go wrong. */

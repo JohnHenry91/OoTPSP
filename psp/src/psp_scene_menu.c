@@ -1224,6 +1224,8 @@ void PspSceneMenu_DrawHud(void) {
          * start and displayed nowhere, which made it the one asset failure
          * that could not be seen from the console at all. */
         extern unsigned int gPspBlobShortReads;
+        extern unsigned int gPspBlobShortLastVrom;
+        extern unsigned int gPspBlobShortLastMissing;
         /* Raw .z64 reads that did not deliver what was asked for. Counted
          * since the read path was written, displayed nowhere -- and it is the
          * counter for the one asset class the blobs do not cover. */
@@ -1284,7 +1286,12 @@ void PspSceneMenu_DrawHud(void) {
             /* The entrance goes first, ahead of even the log clause: it is the
              * only field here that cannot be recovered afterwards, and the
              * line is drawn without wrapping or clipping. */
-            w += snprintf(w, (size_t)(end - w), "GFX BAD @%04x:", sGfxProbeBadEntrance);
+            /* The resume count belongs on BOTH branches. It was only on the
+             * clean one, so the moment anything went red -- exactly when it
+             * matters -- there was no way to tell a fault that follows a
+             * standby from one that does not. */
+            w += snprintf(w, (size_t)(end - w), "GFX BAD @%04x res%u:", sGfxProbeBadEntrance,
+                          gPspBlobResumes);
             /* First, because the line is drawn without wrapping or clipping and
              * only ~60 columns fit: if every counter fires at once the tail
              * runs off the screen, and this is the clause that must survive.
@@ -1301,7 +1308,8 @@ void PspSceneMenu_DrawHud(void) {
              * as a wrong picture rather than as an error, so it is the one
              * most likely to be blamed on the renderer. */
             if (gPspBlobShortReads) {
-                w += snprintf(w, (size_t)(end - w), " blobshort=%u", gPspBlobShortReads);
+                w += snprintf(w, (size_t)(end - w), " blobshort=%u-%u@%08x", gPspBlobShortReads,
+                              gPspBlobShortLastMissing, gPspBlobShortLastVrom);
             }
             if (gPspRomUnservedReads) {
                 w += snprintf(w, (size_t)(end - w), " romshort=%u", gPspRomUnservedReads);
