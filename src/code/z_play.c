@@ -456,6 +456,13 @@ void Play_Init(GameState* thisx) {
         gfx_texture_cache_reset();
     }
 
+    /* Entering a room is the event under investigation, and it is the one the
+     * camera-setting trigger cannot see reliably. */
+    {
+        extern void PspScreenshot_NoteSceneLoad(void);
+        PspScreenshot_NoteSceneLoad();
+    }
+
     /* Every blob address range belongs to the scene that registered it. */
     {
         extern void PspBlob_ResetRanges(void);

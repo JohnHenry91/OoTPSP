@@ -30,12 +30,35 @@ static int sAutoBudget = 6;
 
 static const void *sLastBgImg;
 
+/* Automatic triggers that fired, whether or not a file came of it. Without
+ * this, "no screenshots appeared" has three causes that look identical from
+ * the Memory Stick: the trigger never fired, it fired and the budget was
+ * spent, or it fired and every open failed. */
+static unsigned int sStatAutoFired;
+
 static void PspScreenshotRequestAuto(int frames) {
+    ++sStatAutoFired;
     if (!gPspShotOnBgChange || sAutoBudget <= 0) {
         return;
     }
     --sAutoBudget;
     PspScreenshot_Request(frames);
+}
+
+unsigned int PspScreenshot_StatAutoFired(void) {
+    return sStatAutoFired;
+}
+
+/* Called when a scene is loaded. The camera-setting trigger cannot cover
+ * entering a room reliably -- it only runs from the room draw, and the setting
+ * on the first drawn frame is not necessarily different from the last
+ * prerendered room's. A scene load, by contrast, is exactly the event being
+ * investigated. */
+void PspScreenshot_NoteSceneLoad(void) {
+    /* Three: the first frame of a new scene is not always the first frame
+     * DRAWN, and the glitch is reported on entry rather than at a precise
+     * frame index. */
+    PspScreenshotRequestAuto(3);
 }
 
 void PspScreenshot_Request(int frames) {

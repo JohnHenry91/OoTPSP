@@ -34,6 +34,12 @@ unsigned int PspScreenshot_StatFails(void);
 /* Automatic grabs still allowed this session; 0 means the budget is spent and
  * only the manual hotkey will produce anything. */
 int PspScreenshot_StatAutoBudget(void);
+/* Automatic triggers that fired, whether or not a file resulted. Separates
+ * "the trigger never ran" from "it ran and nothing was written". */
+unsigned int PspScreenshot_StatAutoFired(void);
+
+/* Grab the first frames of a newly loaded scene. */
+void PspScreenshot_NoteSceneLoad(void);
 
 /* The automatic trigger, ON by default and limited to a handful of grabs per
  * session (PspScreenshot_StatAutoBudget reports what is left). L+R+SQUARE

@@ -1277,10 +1277,12 @@ void PspSceneMenu_DrawHud(void) {
          * reservations, which is what silent audio after a resume looks like
          * from inside the backend. */
         if (!sGfxProbeBad) {
-            snprintf(lineGfx, sizeof(lineGfx), "GFX clean res %u/%u/%u rsv %u bg %u/%u r%u cam %u",
+            snprintf(lineGfx, sizeof(lineGfx),
+                     "GFX clean res %u/%u/%u bg %u/%u r%u cam %u shot %u/%u f%u b%d",
                      gPspBlobResumes, (unsigned int)PspAudio_StatResumes(), gPspGfxResumes,
-                     (unsigned int)PspAudio_StatReserveFailures(), gPspBgDrawn, gPspBgSkipped,
-                     gPspBgLastSkipReason, gPspBgProbeCamSetting);
+                     gPspBgDrawn, gPspBgSkipped, gPspBgLastSkipReason, gPspBgProbeCamSetting,
+                     PspScreenshot_StatAutoFired(), PspScreenshot_StatCount(),
+                     PspScreenshot_StatFails(), PspScreenshot_StatAutoBudget());
         } else {
             char* w = lineGfx;
             char* end = lineGfx + sizeof(lineGfx);
