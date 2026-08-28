@@ -1232,6 +1232,12 @@ uint32_t gPspTexCacheResetVram;
 uint32_t gPspTexCacheResetPool;
 uint32_t gPspTexCacheHighWater;
 
+/* Set by gfx_texture_cache_lookup below when the cache needs wiping, acted on
+ * in gfx_start_frame(). Same variable, same reasoning as sGfxResumePending
+ * further down this file -- see the comment there and at the two call sites
+ * below for the hardware evidence that made this necessary. */
+static int sTexWipePending;
+
 
 /* How often the size-aware cache key created a SECOND entry for an address
  * that was already cached at different dimensions. Non-zero means the fix is
@@ -1329,13 +1335,19 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
         }
         gPspTexCacheHighWater = gfx_texture_cache.pool_pos;
 #endif
-        texman_clear();
-
-        // Pool is full. We just invalidate everything and start over.
-        gfx_texture_cache.pool_pos = 0;
-        memset(gfx_texture_cache.pool, 0, sizeof(gfx_texture_cache.pool));
-        node = &gfx_texture_cache.hashmap[hash];
-        //puts("Clearing texture cache");
+        /* Used to wipe right here with texman_clear() + a pool reset. Two
+         * consecutive hardware frames captured on room entry (2026-08-28)
+         * showed why that was wrong: the glitch frame has correctly-textured
+         * geometry sitting next to rectangular blocks of texel-rate
+         * green/white noise, at exactly the polygon boundaries where the
+         * NEXT frame's (correct) wall/curtain textures land. That is a wipe
+         * reassigning VRAM the GE was still reading draws from, mid-list --
+         * not a geometry, matrix, or combiner bug. Only note the wipe is due
+         * and let the current, overfull frame finish drawing; the actual
+         * reset now happens in gfx_start_frame(), the one point where
+         * gfx_end_frame's sceGuFinish/sceGuSync already guarantee the GE has
+         * gone idle (same guarantee sGfxResumePending relies on there). */
+        sTexWipePending = 1;
     }
 #if TARGET_PSP
     /* Walk the chain again to see whether this address is already present at
@@ -1357,7 +1369,23 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
         }
     }
 #endif
-    *node = &gfx_texture_cache.pool[gfx_texture_cache.pool_pos++];
+    if (gfx_texture_cache.pool_pos < sizeof(gfx_texture_cache.pool) / sizeof(struct TextureHashmapNode)) {
+        *node = &gfx_texture_cache.pool[gfx_texture_cache.pool_pos++];
+    } else {
+        /* The one real trap in deferring the wipe above: pool_pos used to be
+         * guaranteed < 512 because the wipe above reset it to 0 the instant
+         * it reached the cap. Now that the wipe waits for gfx_start_frame(),
+         * a scene that references more than 512 distinct textures in one
+         * frame would walk pool_pos past the end of a fixed 512-entry array
+         * -- real memory corruption, the same class this port has already
+         * produced once (see the "Both conditions below" comment above on
+         * pool[512] vs textures[512] going out of sync). Pin pool_pos at the
+         * cap and reuse the last slot for the rest of the frame instead:
+         * that one texture thrashes (repeatedly re-decoded into the same
+         * VRAM slot), but every other cached entry stays valid until
+         * gfx_start_frame() actually clears everything. */
+        *node = &gfx_texture_cache.pool[sizeof(gfx_texture_cache.pool) / sizeof(struct TextureHashmapNode) - 1];
+    }
     if ((*node)->texture_addr == NULL) {
         (*node)->texture_id = gfx_rapi->new_texture();
     }
@@ -4961,6 +4989,20 @@ void gfx_start_frame(void) {
          * moves when a room loads. Walking back into the room you slept in
          * would otherwise blit whatever the GE finds in RAM. */
         ++gPspBgCacheGeneration;
+    }
+    if (sTexWipePending) {
+        sTexWipePending = 0;
+
+        /* gfx_texture_cache_lookup set this when the cache/VRAM was full,
+         * instead of wiping right there while the GE could still be mid-list
+         * over draws pointing into the memory a wipe hands out next -- see
+         * the comment at that call site for the hardware capture that showed
+         * this happening. This is the same idle point sGfxResumePending
+         * above relies on: gfx_end_frame has already run its
+         * sceGuFinish/sceGuSync for the PREVIOUS frame, and nothing of this
+         * one has been queued yet, so it is safe to hand this frame's
+         * textures out at addresses the last frame's draws used. */
+        gfx_texture_cache_reset();
     }
     /* Without this the probe would latch onto the largest triangle ever drawn
      * in the session -- typically something from a long-gone scene -- instead

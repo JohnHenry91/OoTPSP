@@ -50,6 +50,12 @@
  * which is what a single memalign would do the day this no longer fits. */
 #define TEXMAN_OVERFLOW_SIZE (4 * 1024 * 1024)
 #define TEXMAN_OVERFLOW_MIN (1 * 1024 * 1024)
+
+/* Emergency slot for textures requested after the budget is gone, carved off
+ * the tail of the spill region. Sized for the largest texture the importers
+ * can produce -- the 256x256 RGBA case this file's own reserve comment names,
+ * at 256 KB. See texman_reserve_memory for what it is for. */
+#define TEXMAN_SCRATCH_SIZE (256 * 1024)
 #define TEXMAN_BUFFER_SIZE (4 * 1024 * 1024)
 
 struct PSP_Texture {
