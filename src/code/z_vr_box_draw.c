@@ -23,7 +23,11 @@ int gDebugSkyFaceMask = 0xFF;
 #define SKY_DL(k) gSPDisplayList(POLY_OPA_DISP++, skyboxCtx->dListBuf[k])
 #endif
 #if TARGET_PSP
-u32 gPspSkyCall[8] = { 0 };
+/* [8] and [9] carry the two addresses the CI8 decoder's endian verdict is taken
+ * from -- see the endian-classification probe on PspGfxFrameStats in gfx_pc.c.
+ * These are raw .z64 buffers in the shared arena, so whether an abandoned blob
+ * range still covers them is a runtime fact, not a static one. */
+u32 gPspSkyCall[12] = { 0 };
 u32 gPspSkyVtx[8] = { 0 };
 u32 gPspSkyVtxDump[96] = { 0 };
 #endif
@@ -61,6 +65,8 @@ void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId
     gPspSkyCall[5] = (u32)(s32)x;
     gPspSkyCall[6] = (u32)(s32)y;
     gPspSkyCall[7] = (u32)(s32)z;
+    gPspSkyCall[8] = (u32)(uintptr_t)skyboxCtx->staticSegments[0];
+    gPspSkyCall[9] = (u32)(uintptr_t)skyboxCtx->palettes;
     if (skyboxCtx->roomVtx != NULL) {
         /* All 32 vertices of face 0, not just the first two. z_vr_box.c is
          * byte-identical to the decomp (tables included), so the grid SHOULD be

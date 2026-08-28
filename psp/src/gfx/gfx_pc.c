@@ -445,6 +445,29 @@ typedef struct {
     uint32_t tri_stale_mtx;
     uint32_t vtx_stale_examples;
     uint32_t vtx_stale_slot[8];
+
+    /* --- endian-classification probe (session: PREREND-PIVOT first frame) ----
+     * Every texture importer asks tex_needs_u64_unswap() whether its source
+     * bytes are already native, and reverses each group of eight if they are
+     * not. That predicate is an ADDRESS-RANGE test (PspStaticAssetIsStatic ->
+     * PspBlob_IsNative), and psp_blob_assets.c already documents it answering
+     * wrongly for exactly one asset: the skybox, the last thing in the game
+     * still read raw from the .z64 into the shared arena, where an abandoned
+     * blob range can still cover the buffer. The recorded symptom of that
+     * misclassification is "the speckled skybox, with the room's own textures
+     * still perfectly sharp beside it" -- which is the open bug, in a room type
+     * where the skybox IS the visible surroundings.
+     *
+     * So: split every import by its verdict, and again by whether it happened
+     * inside the skybox's BEGIN/END markers. On the corrupted frame,
+     * sky_tex_unswap > 0 convicts the predicate; sky_tex_imports > 0 with
+     * sky_tex_unswap == 0 clears it and points at the DATA instead; and
+     * sky_tex_imports == 0 takes the skybox out of the case entirely. */
+    uint32_t tex_unswap_yes;   /* imports that reversed byte octets           */
+    uint32_t tex_unswap_no;    /* imports that took the source as-is          */
+    uint32_t sky_tex_imports;  /* imports between the skybox markers          */
+    uint32_t sky_tex_unswap;   /* ...of which reversed                        */
+    uint32_t sky_tex_hits;     /* skybox tiles served from the cache instead  */
 } PspGfxFrameStats;
 
 PspGfxFrameStats gPspGfxStats;      /* live, currently being built */
@@ -991,6 +1014,10 @@ int gDebugFogCombinerBit = 1;
  * The skybox is the Market's buildings and Link's House's interior walls, and
  * neither shows up -- these say whether its geometry even survives to a draw. */
 uint32_t gPspSkyTri[4];
+/* Defined in src/code/z_vr_box_draw.c: [0] call count, [1] skyboxId,
+ * [2] drawType. Declared here rather than in a header because the skybox probe
+ * is diagnostic scaffolding, not an interface. */
+extern uint32_t gPspSkyCall[12];
 float gPspSkyMtx[4][4];
 uint32_t gPspSkyTriMark;
 
@@ -1451,7 +1478,20 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
  * copies of the segment discriminator drifting apart, and this is the same
  * trap. */
 static inline bool tex_needs_u64_unswap(const void *addr) {
-    return PspStaticAssetIsStatic(addr) != 0;
+    const bool native = PspStaticAssetIsStatic(addr) != 0;
+
+    /* Counted here rather than at the call sites: there are eight importers and
+     * each asks exactly once, so this is the one place that cannot be missed
+     * when a ninth is added. See the probe comment on PspGfxFrameStats. */
+    if (native) {
+        GFXSTAT_INC(tex_unswap_yes);
+        if (gPspSkyTriMark) {
+            GFXSTAT_INC(sky_tex_unswap);
+        }
+    } else {
+        GFXSTAT_INC(tex_unswap_no);
+    }
+    return native;
 }
 
 /* Undo the compiler's little-endian storage of a u64 literal: byte i of the
@@ -1855,9 +1895,15 @@ static void import_texture(int tile) {
 
     if (gfx_texture_cache_lookup(tile, &rendering_state.textures[tile], LOADED_TEX(tile).addr, fmt, siz)) {
         GFXSTAT_INC(tex_hits);
+        if (gPspSkyTriMark) {
+            GFXSTAT_INC(sky_tex_hits);
+        }
         return;
     }
     GFXSTAT_INC(tex_imports);
+    if (gPspSkyTriMark) {
+        GFXSTAT_INC(sky_tex_imports);
+    }
 
     //int t0 = get_time();
     if (fmt == G_IM_FMT_RGBA) {
@@ -5141,6 +5187,55 @@ unsigned int gfx_pc_stat_tex_imports(void) {
 
 unsigned int gfx_pc_stat_tex_hits(void) {
     return gPspGfxStatsPrev.tex_hits;
+}
+
+/* The CURRENT frame's counters, for the screenshot writer.
+ *
+ * Not Prev: the grab happens in gfx_scegu's end-of-frame path, after the GE
+ * has gone idle and before the next gfx_run rotates the generations -- so the
+ * frame in the picture is the one still sitting in gPspGfxStats. Reading Prev
+ * there would label the image with the previous frame's numbers, which is
+ * exactly the picture-and-counters mismatch this whole mechanism exists to
+ * prevent.
+ *
+ * One out-parameter block rather than eleven accessors: the caller wants all
+ * of them at the same instant anyway. */
+void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out) {
+    if (out == NULL) {
+        return;
+    }
+    out->frame        = gPspGfxStats.frame;
+    out->tris_drawn   = gPspGfxStats.tris_drawn;
+    out->tri_calls    = gPspGfxStats.tri_calls;
+    out->flushes      = gPspGfxStats.flushes;
+    out->tex_imports  = gPspGfxStats.tex_imports;
+    out->tex_hits     = gPspGfxStats.tex_hits;
+    out->tex_used     = gPspGfxStats.tex_used;
+    out->tex_unused   = gPspGfxStats.tex_unused;
+    out->settimg      = gPspGfxStats.settimg;
+    out->loadblock    = gPspGfxStats.loadblock;
+    out->loadtile     = gPspGfxStats.loadtile;
+    out->settile      = gPspGfxStats.settile;
+    /* sky_tris is per-frame (reset at the BEGIN marker); sky_begins and
+     * sky_calls are running totals since boot, hence the "Total" suffix on
+     * their labels in the file. Mixing the two silently would invite reading a
+     * cumulative number as this frame's. */
+    out->sky_tris     = gPspSkyTri[0];
+    out->sky_begins   = gPspSkyTri[1];
+    out->sky_calls    = gPspSkyCall[0];
+    out->sky_id       = gPspSkyCall[1];
+    out->sky_drawtype = gPspSkyCall[2];
+    out->tex_unswap_yes  = gPspGfxStats.tex_unswap_yes;
+    out->tex_unswap_no   = gPspGfxStats.tex_unswap_no;
+    out->sky_tex_imports = gPspGfxStats.sky_tex_imports;
+    out->sky_tex_unswap  = gPspGfxStats.sky_tex_unswap;
+    out->sky_tex_hits    = gPspGfxStats.sky_tex_hits;
+    out->sky_seg0        = gPspSkyCall[8];
+    out->sky_seg0_native = (unsigned int)(gPspSkyCall[8] != 0 &&
+        PspStaticAssetIsStatic((const void *)(uintptr_t)gPspSkyCall[8]) != 0);
+    out->sky_pal         = gPspSkyCall[9];
+    out->sky_pal_native  = (unsigned int)(gPspSkyCall[9] != 0 &&
+        PspStaticAssetIsStatic((const void *)(uintptr_t)gPspSkyCall[9]) != 0);
 }
 
 void gfx_end_frame(void) {

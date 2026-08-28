@@ -9,6 +9,40 @@
 
 #include "psp_blob_assets.h"
 
+/* Declared by hand rather than by including gfx/gfx_pc.h: that header's other
+ * prototypes need the N64 Gfx type, and pulling the whole ultra64 headers into
+ * a BMP writer to reach one struct is the wrong trade. Keep in step with
+ * gfx_pc.h. */
+struct GfxPcFrameSnapshot {
+    unsigned int frame;
+    unsigned int tris_drawn;
+    unsigned int tri_calls;
+    unsigned int flushes;
+    unsigned int tex_imports;
+    unsigned int tex_hits;
+    unsigned int tex_used;
+    unsigned int tex_unused;
+    unsigned int settimg;
+    unsigned int loadblock;
+    unsigned int loadtile;
+    unsigned int settile;
+    unsigned int sky_tris;
+    unsigned int sky_begins;
+    unsigned int sky_calls;
+    unsigned int sky_id;
+    unsigned int sky_drawtype;
+    unsigned int tex_unswap_yes;
+    unsigned int tex_unswap_no;
+    unsigned int sky_tex_imports;
+    unsigned int sky_tex_unswap;
+    unsigned int sky_tex_hits;
+    unsigned int sky_seg0;
+    unsigned int sky_seg0_native;
+    unsigned int sky_pal;
+    unsigned int sky_pal_native;
+};
+void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out);
+
 static int sPending;
 static unsigned int sSeq;
 static unsigned int sStatCount;
@@ -256,5 +290,64 @@ static void PspScreenshotWriteCounters(void) {
     if (len > 0) {
         sceIoWrite(fd, text, (SceSize)len);
     }
+
+    /* The counters above are all RESOURCE counters, and on the frame this was
+     * built for every one of them read zero -- which is a real result, but a
+     * purely negative one: it says what the broken frame is not. These say what
+     * the frame actually DID.
+     *
+     * They are what separates the two live explanations for a single corrupted
+     * frame on room entry, without another round trip:
+     *
+     *   tex_imports large   -> this frame decoded and uploaded the room's whole
+     *                          texture set, and the corruption rides on the
+     *                          upload (stride, swizzle, or a GE that read the
+     *                          pool before the CPU's dirty cache lines reached
+     *                          RAM). Later frames are all cache hits, which is
+     *                          exactly why only the first frame breaks.
+     *   tex_imports ~0      -> nothing was uploaded, so the upload path is out.
+     *
+     *   sky_tris large      -> the skybox is on screen and is a candidate for
+     *                          the rectangular blocks (its faces ARE a grid of
+     *                          quads, and in a PREREND-PIVOT room it is the
+     *                          visible environment, not decoration).
+     *   sky_tris 0          -> the skybox drew nothing and is out.
+     *
+     * tex_used/tex_unused settle the third question the display lists raise:
+     * the shrine room's own polygons ask for no texture at all
+     * (gsSPTexture(..., G_OFF), a combine with no TEXEL), yet the "no textures"
+     * hack removes the corruption. If tex_used is far above the number of
+     * genuinely textured surfaces, something untextured is being drawn
+     * textured. */
+    {
+        struct GfxPcFrameSnapshot g;
+
+        gfx_pc_stat_snapshot_current(&g);
+        len = snprintf(text, sizeof(text),
+                       "frame %u\ntrisDrawn %u\ntriCalls %u\nflushes %u\n"
+                       "texImports %u\ntexHits %u\ntexUsed %u\ntexUnused %u\n"
+                       "setTimg %u\nloadBlock %u\nloadTile %u\nsetTile %u\n"
+                       "skyTris %u\nskyBeginsTotal %u\nskyCallsTotal %u\nskyId %u\nskyDrawType %u\n",
+                       g.frame, g.tris_drawn, g.tri_calls, g.flushes,
+                       g.tex_imports, g.tex_hits, g.tex_used, g.tex_unused,
+                       g.settimg, g.loadblock, g.loadtile, g.settile,
+                       g.sky_tris, g.sky_begins, g.sky_calls, g.sky_id, g.sky_drawtype);
+        if (len > 0) {
+            sceIoWrite(fd, text, (SceSize)len);
+        }
+
+        /* The endian verdict, per import and for the skybox's own buffers. */
+        len = snprintf(text, sizeof(text),
+                       "unswapYes %u\nunswapNo %u\n"
+                       "skyTexImports %u\nskyTexUnswap %u\nskyTexHits %u\n"
+                       "skySeg0 %08x\nskySeg0Native %u\nskyPal %08x\nskyPalNative %u\n",
+                       g.tex_unswap_yes, g.tex_unswap_no,
+                       g.sky_tex_imports, g.sky_tex_unswap, g.sky_tex_hits,
+                       g.sky_seg0, g.sky_seg0_native, g.sky_pal, g.sky_pal_native);
+        if (len > 0) {
+            sceIoWrite(fd, text, (SceSize)len);
+        }
+    }
+
     sceIoClose(fd);
 }
