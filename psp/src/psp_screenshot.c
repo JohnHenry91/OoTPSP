@@ -108,6 +108,8 @@ void PspScreenshot_NoteCamSetting(unsigned int setting) {
 /* 54-byte BITMAPFILEHEADER + BITMAPINFOHEADER, little-endian, which is also
  * this machine's byte order -- so the fields are written out a byte at a time
  * rather than as structs, and no packing attribute can go wrong. */
+static void PspScreenshotWriteCounters(void);
+
 static void PutU16(unsigned char *p, unsigned int v) {
     p[0] = (unsigned char)(v & 0xFF);
     p[1] = (unsigned char)((v >> 8) & 0xFF);
@@ -198,4 +200,61 @@ void PspScreenshot_Tick(const void *fb565, int width, int height, int stride) {
 
     sceIoClose(fd);
     ++sStatCount;
+
+    PspScreenshotWriteCounters();
+}
+
+/* Write the renderer's counters beside the image.
+ *
+ * This exists because two fixes were built on an association that was never
+ * checked. A texture-cache exhaustion was measured once, and the corrupted
+ * frames were captured separately with the HUD switched off -- so "the glitch
+ * frame is an exhaustion" was an assumption, and both fixes aimed at it
+ * changed nothing. A picture without its numbers is an anecdote.
+ *
+ * Written as plain text next to the BMP, at the same moment, so the two can
+ * never be attributed to different frames. */
+static void PspScreenshotWriteCounters(void) {
+    extern unsigned int gPspTexCacheResetVram;
+    extern unsigned int gPspTexCacheResetPool;
+    extern unsigned int gPspTexCacheHighWater;
+    extern unsigned int psp_tex_overflows;
+    extern unsigned int psp_tex_spills;
+    extern unsigned int gPspTexSpillBytes;
+    extern unsigned int gPspPoolOverflows;
+    extern unsigned int gPspBlobShortReads;
+    extern unsigned int gPspRomUnservedReads;
+    extern unsigned int gPspZeldaAllocFails;
+    extern unsigned int gPspGfxBadDlCursors;
+    extern unsigned int gPspBgDrawn;
+    extern unsigned int gPspBgSkipped;
+    extern unsigned int gPspBgLastSkipReason;
+    extern unsigned int gPspBgProbeCamSetting;
+    extern unsigned int gPspTexSizeVariants;
+
+    char path[128];
+    char text[512];
+    int len;
+    SceUID fd;
+
+    snprintf(path, sizeof(path), "%sshot%03u.txt", PspBlob_GetBaseDir(), sSeq - 1u);
+    fd = sceIoOpen(path, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
+    if (fd < 0) {
+        return;
+    }
+
+    len = snprintf(text, sizeof(text),
+                   "wipeVram %u\nwipePool %u\npoolHigh %u\nsizeVariants %u\n"
+                   "texOverflow %u\ntexSpills %u\nspillBytes %u\ndlPool %u\n"
+                   "blobShort %u\nromUnserved %u\narenaFail %u\nbadDl %u\n"
+                   "bgDrawn %u\nbgSkipped %u\nbgSkipReason %u\ncamSetting %u\n",
+                   gPspTexCacheResetVram, gPspTexCacheResetPool, gPspTexCacheHighWater,
+                   gPspTexSizeVariants, psp_tex_overflows, psp_tex_spills, gPspTexSpillBytes,
+                   gPspPoolOverflows, gPspBlobShortReads, gPspRomUnservedReads, gPspZeldaAllocFails,
+                   gPspGfxBadDlCursors, gPspBgDrawn, gPspBgSkipped, gPspBgLastSkipReason,
+                   gPspBgProbeCamSetting);
+    if (len > 0) {
+        sceIoWrite(fd, text, (SceSize)len);
+    }
+    sceIoClose(fd);
 }
