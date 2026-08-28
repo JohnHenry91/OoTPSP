@@ -14,8 +14,29 @@ static unsigned int sSeq;
 static unsigned int sStatCount;
 static unsigned int sStatFails;
 
-int gPspShotOnBgChange;
+/* ON by default. It was off, and had to be armed with a button combo that only
+ * someone who had just read this file would know -- so the automatic grab, the
+ * one built precisely for frames a human cannot time, reliably did not happen.
+ *
+ * Being on by default is only safe because of the budget below: without it,
+ * a camera change every few steps in a prerendered room would write a 390 KB
+ * file each time and fill the Memory Stick. */
+int gPspShotOnBgChange = 1;
+
+/* Automatic grabs left this session. The first occurrence is the one worth
+ * having; the hundredth is just a full stick. The manual hotkey ignores this
+ * and always works, so a deliberate press is never refused. */
+static int sAutoBudget = 6;
+
 static const void *sLastBgImg;
+
+static void PspScreenshotRequestAuto(int frames) {
+    if (!gPspShotOnBgChange || sAutoBudget <= 0) {
+        return;
+    }
+    --sAutoBudget;
+    PspScreenshot_Request(frames);
+}
 
 void PspScreenshot_Request(int frames) {
     if (frames > 0) {
@@ -31,16 +52,18 @@ unsigned int PspScreenshot_StatFails(void) {
     return sStatFails;
 }
 
+int PspScreenshot_StatAutoBudget(void) {
+    return sAutoBudget;
+}
+
 void PspScreenshot_NoteBgImage(const void *img) {
     if (img != sLastBgImg) {
         sLastBgImg = img;
-        if (gPspShotOnBgChange) {
-            /* Two, not one: which frame is "the first" depends on where in the
-             * room-load sequence the image pointer moves, and a second file
-             * costs nothing next to guessing wrong and having to reproduce the
-             * whole thing again. */
-            PspScreenshot_Request(2);
-        }
+        /* Two, not one: which frame is "the first" depends on where in the
+         * room-load sequence the image pointer moves, and a second file costs
+         * nothing next to guessing wrong and having to reproduce the whole
+         * thing again. */
+        PspScreenshotRequestAuto(2);
     }
 }
 
@@ -52,9 +75,9 @@ void PspScreenshot_NoteCamSetting(unsigned int setting) {
 
         sLastCamSetting = setting;
         /* Not on the first call: at startup every value is "new", and a shot
-         * of the boot logo is not what anyone armed this for. */
-        if (gPspShotOnBgChange && (was != 0xFFFFFFFFu)) {
-            PspScreenshot_Request(2);
+         * of the boot logo is not what this is for. */
+        if (was != 0xFFFFFFFFu) {
+            PspScreenshotRequestAuto(2);
         }
     }
 }

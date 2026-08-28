@@ -31,9 +31,13 @@ void PspScreenshot_Tick(const void *fb565, int width, int height, int stride);
  * its file looks exactly like a hotkey that never fired. */
 unsigned int PspScreenshot_StatCount(void);
 unsigned int PspScreenshot_StatFails(void);
+/* Automatic grabs still allowed this session; 0 means the budget is spent and
+ * only the manual hotkey will produce anything. */
+int PspScreenshot_StatAutoBudget(void);
 
-/* Arm the automatic trigger: grab the first frames after the fixed-camera
- * background image changes. The reported corruption shows on the FIRST frame
+/* The automatic trigger, ON by default and limited to a handful of grabs per
+ * session (PspScreenshot_StatAutoBudget reports what is left). L+R+SQUARE
+ * turns it off. Grabs the first frames after the fixed-camera The reported corruption shows on the FIRST frame
  * of the side-view background and is gone by the second, which no hotkey can
  * catch by hand. */
 extern int gPspShotOnBgChange;
