@@ -344,6 +344,19 @@ unsigned int texman_create(void) {
     return psp_tex_number;
 }
 
+/* gfx_scegu.c remembers, per tile, which texture id it last bound, and skips
+ * the bind when the id has not changed. The two upload paths below go straight
+ * to texman_bind_tex and never touch that record, so after an upload the GE is
+ * bound to the new texture while gfx_scegu still believes the OLD one is
+ * current -- and the next draw that genuinely wants the old one is skipped as
+ * "already bound" and draws with the new one instead.
+ *
+ * That desync can only happen on a frame that uploads, which is why it shows
+ * up as the first frame after entering a room being wrong and every frame
+ * after it being right: once everything is a cache hit, no upload happens and
+ * the record stays true. Tell gfx_scegu its record is stale. */
+void gfx_scegu_invalidate_texture_binding(void);
+
 void texman_upload_swizzle(int width, int height, unsigned int type, const void *buffer) {
     struct PSP_Texture *current = texman_reserve_memory(width, height, type);
     texman_publish_to_ge(buffer, getMemorySize(width, height, type));
@@ -358,6 +371,7 @@ void texman_upload_swizzle(int width, int height, unsigned int type, const void 
 #endif
     texman_publish_to_ge(current->location, getMemorySize(width, height, type));
     texman_bind_tex(psp_tex_number);
+    gfx_scegu_invalidate_texture_binding();
 }
 
 void texman_upload(int width, int height, unsigned int type, const void *buffer) {
@@ -373,6 +387,7 @@ void texman_upload(int width, int height, unsigned int type, const void *buffer)
 #endif
     texman_publish_to_ge(current->location, getMemorySize(width, height, type));
     texman_bind_tex(psp_tex_number);
+    gfx_scegu_invalidate_texture_binding();
 }
 
 void texman_bind_tex(unsigned int num) {

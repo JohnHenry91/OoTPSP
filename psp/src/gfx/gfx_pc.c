@@ -2763,6 +2763,17 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
                 gfx_flush();
                 import_texture(i);
                 rdp.textures_changed[i] = false;
+                /* A cache MISS uploads, and the upload binds whatever it just
+                 * decoded -- for tile 1 that means tile 1's texture wins the
+                 * single GE texture unit, the opposite of the TEXEL0-wins rule
+                 * gfx_scegu_select_texture applies on every other frame (see
+                 * its comment and the Chamber of the Sages water it cites).
+                 * Ask for the binding explicitly, so a miss ends up in the
+                 * same state a hit would instead of in whatever order the
+                 * uploads happened to finish. */
+                if (rendering_state.textures[i] != NULL) {
+                    gfx_rapi->select_texture(i, rendering_state.textures[i]->texture_id);
+                }
             }
             bool linear_filter = (rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT;
             if (linear_filter != rendering_state.textures[i]->linear_filter || rdp.texture_tile[i].cms != rendering_state.textures[i]->cms || rdp.texture_tile[i].cmt != rendering_state.textures[i]->cmt) {
@@ -3432,6 +3443,17 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
                 gfx_flush();
                 import_texture(i);
                 rdp.textures_changed[i] = false;
+                /* A cache MISS uploads, and the upload binds whatever it just
+                 * decoded -- for tile 1 that means tile 1's texture wins the
+                 * single GE texture unit, the opposite of the TEXEL0-wins rule
+                 * gfx_scegu_select_texture applies on every other frame (see
+                 * its comment and the Chamber of the Sages water it cites).
+                 * Ask for the binding explicitly, so a miss ends up in the
+                 * same state a hit would instead of in whatever order the
+                 * uploads happened to finish. */
+                if (rendering_state.textures[i] != NULL) {
+                    gfx_rapi->select_texture(i, rendering_state.textures[i]->texture_id);
+                }
             }
             bool linear_filter = (rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT;
             if (linear_filter != rendering_state.textures[i]->linear_filter || rdp.texture_tile[i].cms != rendering_state.textures[i]->cms || rdp.texture_tile[i].cmt != rendering_state.textures[i]->cmt) {
