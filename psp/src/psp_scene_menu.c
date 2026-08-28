@@ -182,6 +182,7 @@ extern int gPspGfxHackPointFilter;
 extern int gPspGfxHackPreferTexel1;
 extern int gPspGfxLerp2Enable;
 extern int gPspLerp2Force;
+extern int gPspLerp2ForceReimport;
 extern int gPspGfxTile1LoadsEnable;
 extern int gDebugSkyFaceMask;
 extern int gPspGfxHackHighlightBigTri;
@@ -218,6 +219,7 @@ static const PspRenderHack sHacks[] = {
     { "Prefer TEXEL1 (detail layer, diagnostic)", &gPspGfxHackPreferTexel1, 1 },
     { "Disable two-pass terrain detail", &gPspGfxLerp2Enable, 0 },
     { "Second pass at FULL strength (diag)", &gPspLerp2Force, 1 },
+    { "LERP2: force re-import (old behaviour)", &gPspLerp2ForceReimport, 1 },
     { "Drop tile-1 texture loads (old behaviour)", &gPspGfxTile1LoadsEnable, 0 },
     /* gPspRoomCullDisable is s32 (long int) while the renderer's own switches
      * are plain int. Both are 32 bits on this ABI, but they are distinct types

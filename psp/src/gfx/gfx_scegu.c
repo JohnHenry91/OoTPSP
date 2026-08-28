@@ -1334,6 +1334,8 @@ static uint32_t n64_logo_text_env_color(void) {
  * deliberately DECLINES to bind tile 0 -- leaving whatever the upload bound. */
 uint32_t gPspTexBindDesyncs;
 uint32_t gPspTexBindDesyncs2nd;
+/* Value at the start of the current frame; see gfx_run in gfx_pc.c. */
+uint32_t gPspTexBindDesyncsFrameBase;
 
 static void gfx_scegu_draw_triangles(float buf_vbo[], UNUSED size_t buf_vbo_len, size_t buf_vbo_num_tris) {
     if (cur_shader != NULL && (cur_shader->texture_used[0] || cur_shader->texture_used[1])) {

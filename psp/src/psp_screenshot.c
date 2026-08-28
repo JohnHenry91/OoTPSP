@@ -41,6 +41,7 @@ struct GfxPcFrameSnapshot {
     unsigned int sky_pal;
     unsigned int sky_pal_native;
     unsigned int bind_desyncs;
+    unsigned int bind_desyncs_frame;
     unsigned int bind_desyncs_2nd;
     unsigned int lerp2_draws;
 };
@@ -344,11 +345,11 @@ static void PspScreenshotWriteCounters(void) {
                        "unswapYes %u\nunswapNo %u\n"
                        "skyTexImports %u\nskyTexUnswap %u\nskyTexHits %u\n"
                        "skySeg0 %08x\nskySeg0Native %u\nskyPal %08x\nskyPalNative %u\n"
-                       "bindDesync %u\nbindDesync2nd %u\nlerp2Draws %u\n",
+                       "bindDesync %u\nbindDesyncFrame %u\nbindDesync2nd %u\nlerp2Draws %u\n",
                        g.tex_unswap_yes, g.tex_unswap_no,
                        g.sky_tex_imports, g.sky_tex_unswap, g.sky_tex_hits,
                        g.sky_seg0, g.sky_seg0_native, g.sky_pal, g.sky_pal_native,
-                       g.bind_desyncs, g.bind_desyncs_2nd, g.lerp2_draws);
+                       g.bind_desyncs, g.bind_desyncs_frame, g.bind_desyncs_2nd, g.lerp2_draws);
         if (len > 0) {
             sceIoWrite(fd, text, (SceSize)len);
         }

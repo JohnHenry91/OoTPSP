@@ -2565,15 +2565,55 @@ static void gfx_tile_dimensions(int tile, uint32_t *out_w, uint32_t *out_h) {
  * times across the surface -- came out as a single stretched band, i.e. no
  * detail. This is the same trap the two earlier attempts fell into: never take
  * the state a render pass depends on from a path that only runs on a change. */
+/* Old behaviour: reach the bind by forcing the whole import loop to run again.
+ * Kept as a runtime switch rather than deleted, so both halves of the A/B come
+ * from ONE build -- the rule this port adopted after two screenshots taken
+ * under uncertain build states produced a wrong conclusion. Default off. */
+int gPspLerp2ForceReimport = 0;
+
 static void gfx_lerp2_assert_texture_state(void) {
     const int tile = gPspLerp2SecondPass ? 1 : 0;
     const bool linear_filter = (rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT;
 
-    rdp.textures_changed[0] = true;
-    rdp.textures_changed[1] = true;
+    /* Ask for the BIND, not for a re-import.
+     *
+     * This used to set rdp.textures_changed[0] and [1], purely so that the
+     * import loop in gfx_sp_tri1 would run and reach its select_texture call.
+     * That works, but textures_changed is the display list's flag for "a new
+     * texture was loaded", and setting it drags import_texture along with the
+     * bind. On the ONE frame per room where the cache is cold, that turns every
+     * LERP triangle into a second full cache lookup for BOTH tiles.
+     *
+     * Measured on hardware, same room, same first frame (2026-08-28):
+     *
+     *   second pass on   79 texture imports, 60 of them the skybox's -> broken
+     *   second pass off  50 texture imports, 31 of them the skybox's -> clean
+     *   frame after      0 imports, second pass still running        -> clean
+     *
+     * So the fault needs the second pass AND an upload, and the second pass's
+     * own contribution is that it roughly DOUBLES the uploads on precisely the
+     * frame that comes out wrong. Neither half is guilty alone; this is where
+     * they meet.
+     *
+     * gfx_scegu_invalidate_texture_binding() below already guarantees that
+     * select_texture will not short-circuit, so the flags were never what made
+     * the bind happen -- they only added the imports. Bind directly instead.
+     *
+     * (A different mechanism was suspected first and is now ruled out by
+     * measurement: that the upload's own texman_bind_tex left the GE bound to
+     * tile 0 while the second pass wanted tile 1. bindDesync2nd measured 0 on
+     * the corrupted frame, i.e. the binding never desyncs inside the second
+     * pass. Do not re-chase it.) */
+    if (gPspLerp2ForceReimport) {
+        rdp.textures_changed[0] = true;
+        rdp.textures_changed[1] = true;
+    }
     /* Force the bind itself to happen: without this, select_texture's own
      * "same id, nothing to do" test skips it and the wrong tile stays bound. */
     gfx_scegu_invalidate_texture_binding();
+    if (!gPspLerp2ForceReimport && rendering_state.textures[tile] != NULL) {
+        gfx_rapi->select_texture(tile, rendering_state.textures[tile]->texture_id);
+    }
 
     gfx_rapi->set_sampler_parameters(tile, linear_filter,
                                      rdp.texture_tile[tile].cms,
@@ -5104,6 +5144,18 @@ void gfx_run(Gfx *commands) {
         gPspGfxDlTrace.frame = next_frame;
         gPspGfxDlTrace.dl_top = (uint32_t)(uintptr_t)commands;
 
+        /* gPspTexBindDesyncs lives in gfx_scegu.c next to the draw it guards and
+         * so cannot be reset by the rotation above. Remember where it stood at
+         * the start of this frame instead, and report the difference -- a
+         * cumulative counter beside a single screenshot cannot say whether that
+         * frame contributed anything, which cost a reading already. */
+        {
+            extern uint32_t gPspTexBindDesyncs;
+            extern uint32_t gPspTexBindDesyncsFrameBase;
+
+            gPspTexBindDesyncsFrameBase = gPspTexBindDesyncs;
+        }
+
         gPspGfxMtxPrev2 = gPspGfxMtxPrev;
         gPspGfxMtxPrev = gPspGfxMtx;
         memset(&gPspGfxMtx, 0, sizeof(gPspGfxMtx));
@@ -5245,7 +5297,10 @@ void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out) {
         extern uint32_t gPspTexBindDesyncs;
         extern uint32_t gPspTexBindDesyncs2nd;
 
-        out->bind_desyncs     = gPspTexBindDesyncs;
+        extern uint32_t gPspTexBindDesyncsFrameBase;
+
+        out->bind_desyncs       = gPspTexBindDesyncs;
+        out->bind_desyncs_frame = gPspTexBindDesyncs - gPspTexBindDesyncsFrameBase;
         out->bind_desyncs_2nd = gPspTexBindDesyncs2nd;
     }
     out->lerp2_draws = gPspLerp2Draws;

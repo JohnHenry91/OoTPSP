@@ -61,6 +61,7 @@ struct GfxPcFrameSnapshot {
     unsigned int sky_pal;
     unsigned int sky_pal_native;
     unsigned int bind_desyncs;
+    unsigned int bind_desyncs_frame;
     unsigned int bind_desyncs_2nd;
     unsigned int lerp2_draws;
 };
