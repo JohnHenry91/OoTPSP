@@ -1037,6 +1037,15 @@ s32 Room_ProcessRoomRequest(PlayState* play, RoomContext* roomCtx) {
                 extern unsigned int gPspBgCacheGeneration;
                 gPspBgCacheGeneration++;
             }
+
+            /* This is every room boundary within a scene, e.g. walking through
+             * a door inside one dungeon or house -- the case
+             * PspScreenshot_NoteSceneLoad cannot see, since Play_Init only runs
+             * once per SCENE and most rooms are never its first. */
+            {
+                extern void PspScreenshot_NoteRoomChange(void);
+                PspScreenshot_NoteRoomChange();
+            }
 #endif
 
             Scene_ExecuteCommands(play, roomCtx->curRoom.segment);

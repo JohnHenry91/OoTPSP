@@ -41,6 +41,16 @@ unsigned int PspScreenshot_StatAutoFired(void);
 /* Grab the first frames of a newly loaded scene. */
 void PspScreenshot_NoteSceneLoad(void);
 
+/* Grab the first frames after a ROOM change within the same scene --
+ * Room_ProcessRoomRequest applying a newly DMA'd room, e.g. walking through a
+ * door between two rooms of one dungeon/house. NoteSceneLoad does not cover
+ * this: Play_Init only runs once, when the SCENE changes, and most rooms are
+ * never seen by it at all. This is the trigger that also fires for the first
+ * room of a new scene (Room_ProcessRoomRequest runs there too), so it
+ * overlaps NoteSceneLoad rather than replacing it -- redundant on that one
+ * event, but the only coverage for every room boundary after it. */
+void PspScreenshot_NoteRoomChange(void);
+
 /* The automatic trigger, ON by default and limited to a handful of grabs per
  * session (PspScreenshot_StatAutoBudget reports what is left). L+R+SQUARE
  * turns it off. Grabs the first frames after the fixed-camera The reported corruption shows on the FIRST frame

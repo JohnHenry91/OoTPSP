@@ -99,6 +99,14 @@ void PspScreenshot_NoteSceneLoad(void) {
     PspScreenshotRequestAuto(3);
 }
 
+/* Called from Room_ProcessRoomRequest once a newly DMA'd room is live --
+ * every room boundary, not just a scene's first room (NoteSceneLoad only
+ * catches that one, from Play_Init). Same three-frame reasoning: the room is
+ * "loaded" a moment before anything of it is actually drawn. */
+void PspScreenshot_NoteRoomChange(void) {
+    PspScreenshotRequestAuto(3);
+}
+
 void PspScreenshot_Request(int frames) {
     if (frames > 0) {
         sPending = frames;
