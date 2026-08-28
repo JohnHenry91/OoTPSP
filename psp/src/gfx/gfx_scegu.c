@@ -1318,7 +1318,37 @@ static uint32_t n64_logo_text_env_color(void) {
            (uint32_t)clamp_u8_from_unit(outg) << 8 | clamp_u8_from_unit(outr);
 }
 
+/* Draws issued while the GE's PHYSICAL texture binding is not the one
+ * gfx_scegu_select_texture chose.
+ *
+ * The two can only disagree by way of an upload: texman_upload/_swizzle end
+ * with a direct texman_bind_tex(), which changes the binding without going
+ * through the tile-priority rule above and without re-asserting the sampler
+ * state (see the comment in gfx_scegu_select_texture about exactly that). A
+ * frame that uploads nothing therefore cannot desync -- and the one frame
+ * after a room load uploads EVERYTHING, which is precisely the frame that comes
+ * out corrupted. This counts whether that coincidence is the mechanism or just
+ * a coincidence. Split by pass, because the terrain LERP's second pass is the
+ * confirmed trigger (turning it off makes the corruption go away, measured on
+ * hardware 2026-08-28) and it is also the one path where select_texture
+ * deliberately DECLINES to bind tile 0 -- leaving whatever the upload bound. */
+uint32_t gPspTexBindDesyncs;
+uint32_t gPspTexBindDesyncs2nd;
+
 static void gfx_scegu_draw_triangles(float buf_vbo[], UNUSED size_t buf_vbo_len, size_t buf_vbo_num_tris) {
+    if (cur_shader != NULL && (cur_shader->texture_used[0] || cur_shader->texture_used[1])) {
+        const int want_tile = ((gPspGfxHackPreferTexel1 || gPspLerp2SecondPass) &&
+                               cur_shader->texture_used[0] && cur_shader->texture_used[1])
+                                  ? 1
+                                  : (cur_shader->texture_used[0] ? 0 : 1);
+
+        if (tmu_state[want_tile].tex != (uint32_t)texman_get_bound()) {
+            ++gPspTexBindDesyncs;
+            if (gPspLerp2SecondPass) {
+                ++gPspTexBindDesyncs2nd;
+            }
+        }
+    }
     if (!is_shader_enabled(cur_shader->shader_id)) {
         gfx_scegu_apply_shader(get_shader_from_id(get_shader_remap(cur_shader->shader_id)));
     }

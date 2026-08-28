@@ -5236,6 +5236,19 @@ void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out) {
     out->sky_pal         = gPspSkyCall[9];
     out->sky_pal_native  = (unsigned int)(gPspSkyCall[9] != 0 &&
         PspStaticAssetIsStatic((const void *)(uintptr_t)gPspSkyCall[9]) != 0);
+    {
+        /* Cumulative since boot, not per-frame: the counter lives in gfx_scegu.c
+         * next to the draw it guards, and a per-frame reset there would have to
+         * reach across into this file's generation rotation. Two consecutive
+         * shots give the per-frame figure by subtraction, and the automatic grab
+         * always takes three. */
+        extern uint32_t gPspTexBindDesyncs;
+        extern uint32_t gPspTexBindDesyncs2nd;
+
+        out->bind_desyncs     = gPspTexBindDesyncs;
+        out->bind_desyncs_2nd = gPspTexBindDesyncs2nd;
+    }
+    out->lerp2_draws = gPspLerp2Draws;
 }
 
 void gfx_end_frame(void) {

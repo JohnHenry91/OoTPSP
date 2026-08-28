@@ -86,3 +86,7 @@ struct PSP_Texture *texman_reserve_memory(int width, int height, unsigned int ty
 void texman_upload_swizzle(int width, int height, unsigned int type, const void *buffer);
 void texman_upload(int width, int height, unsigned int type, const void *buffer);
 void texman_bind_tex(unsigned int num);
+/* Which texture id the GE is PHYSICALLY bound to right now. Not the same
+ * question as "which id did the renderer select": the upload paths bind
+ * directly, so the two can disagree. */
+unsigned int texman_get_bound(void);
