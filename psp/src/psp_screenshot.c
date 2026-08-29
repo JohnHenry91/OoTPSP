@@ -52,14 +52,19 @@ static unsigned int sSeq;
 static unsigned int sStatCount;
 static unsigned int sStatFails;
 
-/* ON by default. It was off, and had to be armed with a button combo that only
- * someone who had just read this file would know -- so the automatic grab, the
- * one built precisely for frames a human cannot time, reliably did not happen.
+/* OFF by default. This used to be on by default, on the reasoning that a
+ * button combo nobody but the person who had just read this file would know
+ * meant the automatic grab -- built precisely for frames a human cannot
+ * time -- reliably never happened.
  *
- * Being on by default is only safe because of the budget below: without it,
- * a camera change every few steps in a prerendered room would write a 390 KB
- * file each time and fill the Memory Stick. */
-int gPspShotOnBgChange = 1;
+ * That reasoning stopped holding once this became a hack-menu entry ("Auto
+ * screenshot on scene/room/camera change", SELECT -> HACKS): the switch is
+ * now something a player can find and flip in five seconds, not something
+ * that only a developer editing this file could reach. Defaulting it on
+ * meant every ordinary play session -- not just a debug run -- silently
+ * wrote up to 6 BMPs (2.3 MB) to the Memory Stick the first time a room
+ * changed or a camera cut happened, which is every session. */
+int gPspShotOnBgChange = 0;
 
 /* Automatic grabs left this session. The first occurrence is the one worth
  * having; the hundredth is just a full stick. The manual hotkey ignores this

@@ -51,11 +51,14 @@ void PspScreenshot_NoteSceneLoad(void);
  * event, but the only coverage for every room boundary after it. */
 void PspScreenshot_NoteRoomChange(void);
 
-/* The automatic trigger, ON by default and limited to a handful of grabs per
- * session (PspScreenshot_StatAutoBudget reports what is left). L+R+SQUARE
- * turns it off. Grabs the first frames after the fixed-camera The reported corruption shows on the FIRST frame
- * of the side-view background and is gone by the second, which no hotkey can
- * catch by hand. */
+/* The automatic trigger, OFF by default and limited to a handful of grabs
+ * per session even once armed (PspScreenshot_StatAutoBudget reports what is
+ * left). Toggled from the hack menu (SELECT -> HACKS -> "Auto screenshot on
+ * scene/room/camera change"), not a hotkey -- see the definition in
+ * psp_screenshot.c for why a hotkey stopped being the right home for this.
+ * Grabs the first frames after a fixed-camera background image changes: the
+ * reported corruption shows on the FIRST frame of the side-view background
+ * and is gone by the second, which no hand-timed hotkey could catch anyway. */
 extern int gPspShotOnBgChange;
 void PspScreenshot_NoteBgImage(const void *img);
 

@@ -183,6 +183,7 @@ extern int gPspGfxHackPreferTexel1;
 extern int gPspGfxLerp2Enable;
 extern int gPspLerp2Force;
 extern int gPspLerp2ForceReimport;
+extern int gPspShotOnBgChange;
 extern int gPspGfxTile1LoadsEnable;
 extern int gDebugSkyFaceMask;
 extern int gPspGfxHackHighlightBigTri;
@@ -220,6 +221,7 @@ static const PspRenderHack sHacks[] = {
     { "Disable two-pass terrain detail", &gPspGfxLerp2Enable, 0 },
     { "Second pass at FULL strength (diag)", &gPspLerp2Force, 1 },
     { "LERP2: force re-import (old behaviour)", &gPspLerp2ForceReimport, 1 },
+    { "Auto screenshot on scene/room/camera change", &gPspShotOnBgChange, 1 },
     { "Drop tile-1 texture loads (old behaviour)", &gPspGfxTile1LoadsEnable, 0 },
     /* gPspRoomCullDisable is s32 (long int) while the renderer's own switches
      * are plain int. Both are 32 bits on this ABI, but they are distinct types
@@ -541,14 +543,10 @@ void PspSceneMenu_Update(PlayState* play) {
             sHudOpen = !sHudOpen;
         }
     }
-    /* Arm the automatic grab. The fault this was built for shows on the FIRST
-     * frame after the fixed-camera background changes and is gone by the
-     * second, so no hand-timed hotkey can catch it -- but the change itself is
-     * a thing the renderer can see. Same both-triggers guard as above. */
-    if ((gPspRawButtons & PSP_CTRL_LTRIGGER) && (gPspRawButtons & PSP_CTRL_RTRIGGER) &&
-        PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
-        gPspShotOnBgChange = !gPspShotOnBgChange;
-    } else if (sHudOpen && !gPspSceneMenuOpen && PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
+    /* The L+R+SQUARE toggle that used to live here (auto-screenshot on/off) is
+     * gone -- that switch moved into the HACKS page (SELECT), which is
+     * reachable without knowing a button combo. */
+    if (sHudOpen && !gPspSceneMenuOpen && PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
         /* off -> 3 -> 2 -> 1 -> off. "off" is not the same as 3: it hands
          * R_UPDATE_RATE back to the engine, which drives it to 1 during
          * transitions and 2 in the pause menu. */
