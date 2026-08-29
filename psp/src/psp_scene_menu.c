@@ -178,6 +178,14 @@ static void PspSceneMenu_ApplyLayer(s32 layer) {
  * line here plus the global it points at.
  * ------------------------------------------------------------------------- */
 extern int gPspGfxHackNoTexture;
+/* Distance fog on the GE's fog unit -- see psp_fog_apply in gfx_pc.c. Listed
+ * as a hack because it changes the look of every scene with a fog colour, and
+ * because it is an approximation of the N64's ramp rather than a port of it,
+ * so being able to turn it off in place is the only honest way to judge it. */
+extern int gPspFogMode;
+/* Pillarboxing of 2D rectangles -- the "coloured box with black bars" bug.
+ * See the long comment in gfx_draw_rectangle. */
+extern int gPspRect2dPillarbox;
 extern int gPspGfxHackPointFilter;
 extern int gPspGfxHackPreferTexel1;
 extern int gPspGfxLerp2Enable;
@@ -231,13 +239,17 @@ static const PspRenderHack sHacks[] = {
     { "Highlight probed triangle (magenta)", &gPspGfxHackHighlightBigTri, 1 },
     /* Not really a toggle -- flipping it on performs the dump and it is turned
      * straight back off. Living in the same list keeps one place to look. */
+    { "Disable distance fog", &gPspFogMode, 0 },
+    { "Pillarbox 2D rects (old behaviour)", &gPspRect2dPillarbox, 1 },
     { "Dump probed texture to ms0:/bigtex.bin", &sDumpProbeTexture, 1 },
 };
 
 #define HACK_COUNT ((s32)(sizeof(sHacks) / sizeof(sHacks[0])))
 
-/* gDebugSkyFaceMask's "off" is 0xFF (all faces), not 0 (no faces), so the
- * default has to be recorded rather than assumed. */
+/* gDebugSkyFaceMask's "off" is 0xFFF (all faces), not 0 (no faces), so the
+ * default has to be recorded rather than assumed. It was 0xFF, which silently
+ * dropped the skybox's top face -- see the comment on the variable itself in
+ * src/code/z_vr_box_draw.c. */
 static int sHackDefault[HACK_COUNT];
 static s32 sHackDefaultsCaptured;
 

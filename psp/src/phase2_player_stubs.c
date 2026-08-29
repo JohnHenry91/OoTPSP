@@ -25,20 +25,16 @@ struct EnItem00;
  * dyna-poly actors). Stub removed -- keeping it would be a duplicate symbol. */
 
 void EffectBlure_AddVertex(void* this, void* p1, void* p2) {}
-void EffectSsBlast_SpawnWhiteShockwave(void* play, void* pos, void* velocity, void* accel) {}
-void EffectSsBubble_Spawn(void* play, void* pos, f32 yPosOffset, f32 yPosRandScale, f32 xzPosRandScale, f32 arg5) {}
-void EffectSsFhgFlash_SpawnShock(void* play, void* actor, void* pos, s16 scale, u8 param) {}
-void EffectSsFireTail_SpawnFlameOnPlayer(void* play, f32 scale, s16 bodyPart, f32 colorIntensity) {}
-void EffectSsGFire_Spawn(void* play, void* pos) {}
-void EffectSsGSplash_Spawn(void* play, void* pos, void* primColor, void* envColor, s16 type, s32 arg6) {}
-void EffectSsIcePiece_SpawnBurst(void* play, void* refPos, f32 scale) {}
-void EffectSsStick_Spawn(void* play, void* pos, s16 yaw) {}
+
+/* The nine EffectSs*_Spawn stubs that stood here are PROMOTED to the real
+ * src/code/z_effect_soft_sprite_old_init.c, which came into the build with the
+ * Bg_* scenery actors (see Makefile.psp). Player's water bubbles, ice shards
+ * and stick fragments are real effects now rather than no-ops. */
 
 /* Environment_ChangeLightSetting / Environment_WarpSongLeave now come from the
  * real src/code/z_kankyo.c (see Makefile.psp). */
 
-void func_8002836C(void* play, void* pos, void* velocity, void* accel, void* primColor, void* envColor, f32 scale,
-                    s32 arg7, s32 arg8, s32 arg9) {}
+/* func_8002836C promoted with the block above. */
 void func_800849EC(void* play) {}
 /* func_800F4138/func_800F4190 PROMOTED to the real src/audio/game/general.c
  * (Phase 4 audio bring-up, see Makefile.psp). */

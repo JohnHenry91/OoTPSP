@@ -177,6 +177,11 @@ static struct RSP {
         // U0.16
         uint16_t s, t;
     } texture_scaling_factor;
+
+    /* gsSPTexture's `on` field (G_ON/G_OFF). Recorded rather than discarded so
+     * the two counters below can measure what honouring it would change; the
+     * draw path does NOT act on it yet -- see tex_off_draws. */
+    bool texture_on;
     
     struct VertexColor loaded_vertices_2D[4];
     struct LoadedVertex loaded_vertices[MAX_VERTICES];
@@ -276,10 +281,19 @@ static struct RenderingState {
     /* Set by upload_texture_mirrored for the import in progress, then copied
      * onto the cache node so a later cache HIT still knows the UV scale. */
     uint8_t mirror_s, mirror_t;
+    /* Distance fog, see psp_fog_apply. -1 == not decided yet. The parameters
+     * are cached beside the flag because a CHANGE of range or colour matters
+     * exactly as much as a change of the flag: triangles already sitting in
+     * buf_vbo would otherwise be drawn under the new fog. */
+    int fog_enabled;
+    float fog_start, fog_end;
+    unsigned int fog_color;
 } rendering_state __attribute__((aligned(16)));
 
 /* gfx_scegu.c -- per-draw texenv override; see the call sites in gfx_sp_tri1. */
 void gfx_scegu_set_two_texture_tint(int has_tint);
+/* gfx_scegu.c -- the GE's fog unit; see psp_fog_apply below. */
+void gfx_scegu_set_fog(int enable, float start, float end, unsigned int color);
 /* gfx_scegu.c -- forget which texture each tile has bound. */
 void gfx_scegu_invalidate_texture_binding(void);
 /* Last texture id gfx_scegu_select_texture actually handed to the GE. */
@@ -468,6 +482,26 @@ typedef struct {
     uint32_t sky_tex_imports;  /* imports between the skybox markers          */
     uint32_t sky_tex_unswap;   /* ...of which reversed                        */
     uint32_t sky_tex_hits;     /* skybox tiles served from the cache instead  */
+
+    /* --- gsSPTexture(..., G_OFF) probe (Auftrag 09) ---------------------------
+     * gfx_sp_texture threw the `on` flag away, and the same command that
+     * carries G_OFF also sets the scaling factors to 0. Two separate questions
+     * follow, and neither had ever been counted:
+     *
+     *   tex_off_draws  draws whose COMBINER asked for a texture while the RSP's
+     *                  texture unit was switched off. On the N64 those draw
+     *                  untextured. Zero means honouring the flag would change
+     *                  nothing and the port's behaviour is accidentally right;
+     *                  non-zero names the draws that are wrong today.
+     *   tex_sc0_draws  draws that used a texture while texture_scaling_factor.s
+     *                  was 0, i.e. every texture coordinate collapses to 0 and
+     *                  the surface samples a single texel -- a flat coloured
+     *                  quad. That is the shape of the reported "yellow box",
+     *                  so it is worth knowing whether it ever happens.
+     *
+     * Measurement only. Do not add behaviour here without a number first. */
+    uint32_t tex_off_draws;
+    uint32_t tex_sc0_draws;
 } PspGfxFrameStats;
 
 PspGfxFrameStats gPspGfxStats;      /* live, currently being built */
@@ -2503,6 +2537,182 @@ static inline bool psp_depth_test_enabled(void) {
     return gDebugZCmpMode ? (zbuf && zcmp) : zbuf;
 }
 
+/* --- Distance fog ---------------------------------------------------------
+ *
+ * This was dead code for the whole life of the port: the G_FOG block in
+ * gfx_sp_vertex is commented out and gfx_scegu.c's sceGuFog call with it. The
+ * consequence is not subtle, and it is not a fog-only consequence -- in OoT the
+ * scene's ATMOSPHERE is fog. Measured in the scene data (Auftrag 04):
+ *
+ *   Zora's Domain   fogColor (25,100,100), fogNear 990  -- reported as
+ *                   "the bluish cast is missing entirely, the scene looks neutral"
+ *   Skulltula House fogColor (10,0,10),   fogNear 930, zFar 2000 -- reported
+ *                   as "too bright"
+ *
+ * Both reports are this one gap, not a lighting bug.
+ *
+ * WHAT THE N64 DOES. G_MOVEWORD/G_MW_FOG carries (fog_mul, fog_offset), and the
+ * RSP computes per vertex
+ *     fog = clamp(z_ndc * fog_mul + fog_offset, 0, 255)
+ * which the blender then uses to lerp the finished pixel towards fog_color.
+ * gSPFogPosition(near, far) generates fog_mul = 128000/(far-near) and
+ * fog_offset = (500-near)*256/(far-near), with near/far on a 0..1000 scale.
+ * Substituting shows what that scale IS: the fog factor is 0 exactly where
+ * 500*(z_ndc+1) == near and 255 where it == far. So "N64 fog depth" is simply
+ * the normalised device depth mapped onto 0..1000. That identity is what makes
+ * the conversion below possible, and it is worth stating because it is not
+ * written down anywhere in the GBI headers.
+ *
+ * WHAT THE GE DOES. sceGuFog(start, end, colour) fogs linearly in EYE-SPACE
+ * DISTANCE, and applies it after texturing -- the same place in the pipeline as
+ * the N64's blender. Since session 13 this port hands the GE eye-space vertices
+ * with GU_MODEL/GU_VIEW at identity, so the GE has exactly the z it needs.
+ *
+ * THE CONVERSION. Undo the gSPFogPosition arithmetic to recover near/far, then
+ * ask the current projection which eye distance produces a given z_ndc:
+ *   z_ndc(e) = (a2*(-e) + b2) / (a3*(-e) + b3)   for eye distance e > 0
+ * taken straight from P_matrix, so it holds for whatever projection is loaded
+ * rather than assuming a particular guPerspective form.
+ *
+ * THE APPROXIMATION, stated plainly because it is the one thing here that is
+ * not a faithful port: the N64 ramps linearly in z_ndc, i.e. in 1/e, while the
+ * GE ramps linearly in e. Matching both endpoints would put the GE ramp far
+ * below the N64's across the whole middle of the range -- with OoT's typical
+ * fogNear of 990 the visible result would be almost no fog at all, which is the
+ * bug this is meant to fix. So the ramp is fitted at the 0% and 50% points
+ * instead: start is the exact distance where the N64 fog begins, and end is
+ * placed so the GE reaches 50% where the N64 does. Perceptually the half-way
+ * point is what reads as "how foggy is it", and the endpoints clamp anyway.
+ *
+ * A second pass per fogged triangle would be exact (that is what Daedalus does
+ * on this hardware, reference/daedalus RendererPSP::RenderFog, because its
+ * vertices reach the GE already projected). It also doubles the triangle count
+ * on exactly the geometry that is already the heaviest. Start with the free
+ * one; gPspFogMode makes the comparison possible without a rebuild.
+ */
+
+/* 0 = off (the behaviour up to now), 1 = GE hardware fog. Runtime-switchable
+ * from the hack menu, because this changes the look of every outdoor scene. */
+int gPspFogMode = 1;
+
+/* Draws that asked for fog, and draws where the conversion could not produce a
+ * usable range (a degenerate projection, or fog_mul == 0). The second being
+ * non-zero means the maths below, not the GE, is what to look at. */
+uint32_t gPspFogDraws;
+uint32_t gPspFogBadRange;
+
+static void psp_fog_disable(void) {
+    if (rendering_state.fog_enabled != 0) {
+        gfx_flush();
+        gfx_scegu_set_fog(0, 0.0f, 0.0f, 0);
+        rendering_state.fog_enabled = 0;
+    }
+}
+
+static void psp_fog_set(float start, float end, unsigned int color) {
+    if (rendering_state.fog_enabled != 1 || start != rendering_state.fog_start ||
+        end != rendering_state.fog_end || color != rendering_state.fog_color) {
+        gfx_flush();
+        gfx_scegu_set_fog(1, start, end, color);
+        rendering_state.fog_enabled = 1;
+        rendering_state.fog_start = start;
+        rendering_state.fog_end = end;
+        rendering_state.fog_color = color;
+    }
+}
+
+static void psp_fog_apply(void) {
+    if (!gPspFogMode || (rsp.geometry_mode & G_FOG) != G_FOG) {
+        psp_fog_disable();
+        return;
+    }
+
+    /* The GE takes 0x00BBGGRR and ignores alpha. */
+    const unsigned int color = ((unsigned int)rdp.fog_color.b << 16) |
+                               ((unsigned int)rdp.fog_color.g << 8) |
+                               ((unsigned int)rdp.fog_color.r);
+
+    /* Gfx_SetFog's three special cases never go through gSPFogPosition, so they
+     * arrive here with a zero multiplier and have to be read from the offset:
+     * (0, 0) is "no fog at all" and (0, 255) is "everything fully fogged" (see
+     * src/code/z_rcp.c). Treating both as "no fog" -- which a bare
+     * `fog_mul == 0` test does -- would silently drop the whiteout case. */
+    if (rsp.fog_mul == 0) {
+        if (rsp.fog_offset >= 255) {
+            ++gPspFogDraws;
+            /* Everything at or beyond `end` is fully fogged, so a range that
+             * closes immediately in front of the camera fogs the whole scene.
+             * Not 0/0: sceGuFog divides by (far - near). */
+            psp_fog_set(0.0f, 0.001f, color);
+        } else {
+            psp_fog_disable();
+        }
+        return;
+    }
+
+    /* The four projection terms the conversion needs. P_matrix is stored the
+     * way sceGuSetMatrix and the VFPU transform above both read it, so P[i][j]
+     * is row i of the N64's row-vector matrix and column i of the GE's: with
+     * v = (0,0,z,1), clip_z = z*P[2][2] + P[3][2] and clip_w = z*P[2][3] +
+     * P[3][3]. No particular guPerspective form is assumed. */
+    const float a2 = rsp.P_matrix[2][2], b2 = rsp.P_matrix[3][2];
+    const float a3 = rsp.P_matrix[2][3], b3 = rsp.P_matrix[3][3];
+
+    /* This runs per TRIANGLE, and the answer changes per material at most --
+     * the fog factors come from a display-list command and the projection from
+     * a matrix load. Two divisions per triangle is real money in a frame budget
+     * measured at 7.2 ms, so memoise on the six inputs. */
+    static int16_t memo_mul, memo_off;
+    static float memo_a2, memo_b2, memo_a3, memo_b3;
+    static float memo_start, memo_end;
+    static int memo_valid;
+
+    float start, end;
+
+    if (memo_valid && memo_mul == rsp.fog_mul && memo_off == rsp.fog_offset &&
+        memo_a2 == a2 && memo_b2 == b2 && memo_a3 == a3 && memo_b3 == b3) {
+        start = memo_start;
+        end = memo_end;
+    } else {
+        /* Recover the 0..1000 near/far the display list asked for. */
+        const float span = 128000.0f / (float)rsp.fog_mul;      /* far - near */
+        const float n64_near = 500.0f - (float)rsp.fog_offset * 500.0f / (float)rsp.fog_mul;
+        const float n64_half = n64_near + span * 0.5f;
+
+        float e[2];
+        for (int i = 0; i < 2; i++) {
+            const float t = ((i == 0 ? n64_near : n64_half) / 500.0f) - 1.0f; /* target z_ndc */
+            /* (a2*z + b2) = t*(a3*z + b3), with z = -e */
+            const float denom = a2 - t * a3;
+            if (denom == 0.0f) {
+                ++gPspFogBadRange;
+                return;
+            }
+            e[i] = -((t * b3 - b2) / denom);
+        }
+
+        start = e[0];
+        end = start + 2.0f * (e[1] - start);
+        if (!(end > start) || !(start >= 0.0f)) {
+            ++gPspFogBadRange;
+            return;
+        }
+
+        memo_mul = rsp.fog_mul;
+        memo_off = rsp.fog_offset;
+        memo_a2 = a2; memo_b2 = b2; memo_a3 = a3; memo_b3 = b3;
+        memo_start = start;
+        memo_end = end;
+        memo_valid = 1;
+    }
+
+    ++gPspFogDraws;
+    /* sceGuFog's own contract (pspsdk, sceGuFog.c): near >= 0, far > near,
+     * far <= 65535. The first two are checked above; clamp the third rather
+     * than hand the GE a value its register cannot hold. */
+    psp_fog_set(start, end > 65535.0f ? 65535.0f : end, color);
+}
+
 /* Dimensions of the texture a tile actually had UPLOADED, which is what its
  * texture coordinates must be normalised by. Derived from the load's line size
  * and byte count -- the same arithmetic every import_texture_* uses to decide
@@ -2746,6 +2956,8 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         clipped_vertices = ptr_clipped_vertices;
     }
 
+    psp_fog_apply();
+
     bool depth_test = psp_depth_test_enabled();
     if (depth_test != rendering_state.depth_test) {
         gfx_flush();
@@ -2874,6 +3086,8 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     
     bool use_texture = used_textures[0] || used_textures[1];
     if (use_texture) { GFXSTAT_INC(tex_used); } else { GFXSTAT_INC(tex_unused); }
+    if (use_texture && !rsp.texture_on) { GFXSTAT_INC(tex_off_draws); }
+    if (use_texture && rsp.texture_scaling_factor.s == 0) { GFXSTAT_INC(tex_sc0_draws); }
 
     /* Texture coordinates are normalised by the size of the texture that was
      * actually UPLOADED, which is derived from the load's line size and byte
@@ -3426,6 +3640,12 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
     struct VertexColor *v2 = &rsp.loaded_vertices_2D[vtx2_idx];
     struct VertexColor *v_arr[2] = {v1, v2};
 
+    /* Never fog the 2D path: the HUD, the texture rectangles and the
+     * pre-rendered backgrounds are screen-space quads whose eye-space Z means
+     * nothing. Their vertices would land at whatever depth the fog range
+     * happens to cover, and the HUD would fade with the scenery. */
+    psp_fog_disable();
+
     bool depth_test = psp_depth_test_enabled();
     if (depth_test != rendering_state.depth_test) {
         gfx_flush();
@@ -3780,10 +4000,10 @@ static void gfx_sp_moveword(uint8_t index, uint16_t offset, uint32_t data) {
 static void gfx_sp_texture(uint16_t sc, uint16_t tc, uint8_t level, uint8_t tile, uint8_t on) {
     _UNUSED(level);
     _UNUSED(tile);
-    _UNUSED(on);
 
     rsp.texture_scaling_factor.s = sc;
     rsp.texture_scaling_factor.t = tc;
+    rsp.texture_on = (on != 0);
 }
 
 static void gfx_dp_set_scissor(uint32_t mode, uint32_t ulx, uint32_t uly, uint32_t lrx, uint32_t lry) {
@@ -4163,6 +4383,11 @@ static void gfx_dp_set_fill_color(uint32_t packed_color) {
     rdp.fill_color.a = a * 255;
 }
 
+/* 1 = the old behaviour, aspect-correct 2D rectangles (and pillarbox them).
+ * 0 = the fix. A switch rather than a deletion because this path also carries
+ * the HUD and the screen fades, so the two can be compared in place. */
+int gPspRect2dPillarbox = 0;
+
 static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
     uint32_t saved_other_mode_h = rdp.other_mode_h;
     uint32_t cycle_type = (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE));
@@ -4181,9 +4406,42 @@ static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lr
     ulyf = (ulyf / (4.0f * HALF_SCREEN_HEIGHT)) - 1.0f;
     lrxf = lrxf / (4.0f * HALF_SCREEN_WIDTH) - 1.0f;
     lryf = (lryf / (4.0f * HALF_SCREEN_HEIGHT)) - 1.0f;
-    
-    ulxf = gfx_adjust_x_for_aspect_ratio(ulxf);
-    lrxf = gfx_adjust_x_for_aspect_ratio(lrxf);
+
+    /* NOT aspect-corrected, and that is the fix rather than an oversight.
+     *
+     * gfx_adjust_x_for_aspect_ratio multiplies x by (4/3)/(480/272) = 0.7556.
+     * Applied here it PILLARBOXES every screen-space rectangle: a full-width
+     * N64 rect (0..319) came out spanning pixels 59..421 of 480, with a 59-pixel
+     * black bar down each side.
+     *
+     * The 3D scene has no such bar. gfx_calc_and_set_viewport scales the
+     * viewport by RATIO_X = 480/320 = 1.5, i.e. the full width, and the only
+     * place the 3D path applies the aspect factor is the CLIP test in
+     * gfx_sp_vertex -- never the coordinates the GE rasterises (see the long
+     * comment there, which flags exactly this inconsistency and says it is real
+     * and worth revisiting). So 2D rectangles were pillarboxed onto a world
+     * that is not.
+     *
+     * What made it visible: OoT paints a full-screen rectangle in the scene's
+     * FOG COLOUR whenever skyboxId is SKYBOX_UNSET_1D -- that is how a scene
+     * with no skybox gets a sky (Environment_DrawSkyboxFilters, z_kankyo.c,
+     * where UNSET_1D also forces alpha to 1.0). Every scene the user reported
+     * as "a coloured box with black bars left and right" is SKYBOX_UNSET_1D and
+     * no other: Kokiri Forest, Sacred Forest Meadow, Lost Woods, Zora's
+     * Fountain, Lord Jabu-Jabu's boss room, the Windmill/Dampe's Grave scene and
+     * the Water Temple. It also explains the colours -- olive in Kokiri Forest
+     * (76,83,60), yellow-green in the Windmill (150,170,120), dark blue in the
+     * Lost Woods at night -- because they ARE those scenes' fog colours, and why
+     * two of them are interiors with no sky at all, which is what made the
+     * report look like two unrelated bugs.
+     *
+     * The HUD uses this same path and moves with it. That is the point: it has
+     * to line up with a world that fills the width. Nobody noticed it was inset
+     * because almost all of Interface_* is still stubbed. */
+    if (gPspRect2dPillarbox) {
+        ulxf = gfx_adjust_x_for_aspect_ratio(ulxf);
+        lrxf = gfx_adjust_x_for_aspect_ratio(lrxf);
+    }
 
     ulxf = (ulxf*240)+240;
     lrxf = (lrxf*240)+240;
@@ -4999,6 +5257,10 @@ static void gfx_sp_reset() {
     rsp.modelview_matrix_stack_size = 1;
     rsp.current_num_lights = 2;
     rsp.lights_changed = true;
+    /* Default ON. A frame that draws before its first gsSPTexture must not be
+     * counted as "texturing switched off" -- that would be a measurement
+     * artefact, not the condition tex_off_draws is asking about. */
+    rsp.texture_on = true;
 }
 
 void gfx_get_dimensions(uint32_t *width, uint32_t *height) {
@@ -5124,6 +5386,15 @@ void gfx_start_frame(void) {
 
 void gfx_run(Gfx *commands) {
     gfx_sp_reset();
+#if TARGET_PSP
+    /* The GE's fog state does not survive whatever else touched the hardware
+     * between frames, and neither does the cache in gfx_scegu_set_fog once the
+     * display list is rebuilt. Start every frame not knowing, so the first draw
+     * that cares establishes it. */
+    rendering_state.fog_enabled = -1;
+    gPspFogDraws = 0;
+    gPspFogBadRange = 0;
+#endif
 #if TARGET_PSP
     /* Rotate the stat generations *before* building this frame, so prev/prev2
      * always describe two fully completed, consecutive frames while the game
@@ -5282,6 +5553,10 @@ void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out) {
     out->sky_tex_imports = gPspGfxStats.sky_tex_imports;
     out->sky_tex_unswap  = gPspGfxStats.sky_tex_unswap;
     out->sky_tex_hits    = gPspGfxStats.sky_tex_hits;
+    out->tex_off_draws   = gPspGfxStats.tex_off_draws;
+    out->tex_sc0_draws   = gPspGfxStats.tex_sc0_draws;
+    out->fog_draws       = gPspFogDraws;
+    out->fog_bad_range   = gPspFogBadRange;
     out->sky_seg0        = gPspSkyCall[8];
     out->sky_seg0_native = (unsigned int)(gPspSkyCall[8] != 0 &&
         PspStaticAssetIsStatic((const void *)(uintptr_t)gPspSkyCall[8]) != 0);

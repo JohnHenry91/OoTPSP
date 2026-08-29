@@ -676,6 +676,54 @@ void gfx_scegu_set_two_texture_tint(int has_tint) {
     }
 }
 
+/* Distance fog, on the GE's own fog unit.
+ *
+ * The N64 fogs in the BLENDER, i.e. after texturing: the final pixel is
+ * lerp(pixel, fogColor, fogFactor). The GE's fog unit sits in the same place in
+ * its pipeline, so this is one draw call, not a second pass -- unlike Daedalus
+ * on this same hardware (reference/daedalus, RendererPSP::RenderFog), which
+ * re-draws every fogged triangle untextured with the fog factor in vertex
+ * alpha. It has to: Daedalus transforms vertices on the CPU and hands the GE
+ * screen-space positions, so the GE has no view-space Z to fog with. This port
+ * does not -- since session 13 the vertex handed to the GE is in EYE space and
+ * GU_PROJECTION alone does the rest (see gfx_sp_vertex), which is exactly the
+ * input the fog unit wants. The expensive path is not needed here.
+ *
+ * `start` and `end` are eye-space distances; gfx_pc.c derives them from the
+ * N64's fog multiplier/offset and the current projection. See the derivation
+ * there, including the one place this is an APPROXIMATION rather than a port:
+ * the GE's ramp is linear in distance, the N64's is linear in screen depth. */
+void gfx_scegu_set_fog(int enable, float start, float end, unsigned int color) {
+    static int cur_enable = -1;
+    static float cur_start = 0.0f, cur_end = 0.0f;
+    static unsigned int cur_color = 0xFFFFFFFFu;
+
+    if (!enable) {
+        if (cur_enable != 0) {
+            sceGuDisable(GU_FOG);
+            cur_enable = 0;
+        }
+        return;
+    }
+
+    if (cur_enable != 1) {
+        sceGuEnable(GU_FOG);
+        cur_enable = 1;
+        /* Force the parameters through on the enabling draw: the cached values
+         * describe the last time fog was ON, and the GE registers may have been
+         * left anywhere by whatever ran in between. */
+        cur_start = cur_end = 0.0f;
+        cur_color = 0xFFFFFFFFu;
+    }
+
+    if (start != cur_start || end != cur_end || color != cur_color) {
+        sceGuFog(start, end, color);
+        cur_start = start;
+        cur_end = end;
+        cur_color = color;
+    }
+}
+
 static void gfx_scegu_unload_shader(struct ShaderProgram *old_prg) {
     if (cur_shader && (cur_shader == old_prg || !old_prg)) {
         cur_shader->enabled = false;

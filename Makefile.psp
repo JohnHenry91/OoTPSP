@@ -188,11 +188,137 @@ PSP_C_FILES += extracted/pal-1.0/assets/objects/object_mizu_objects/object_mizu_
 # Engine sources these actors pull in (DynaPolyActor_Init / the path system).
 PSP_C_FILES += src/code/z_bg_item.c
 PSP_C_FILES += src/code/z_path.c
+# The "old init" soft-sprite spawners (func_8002829C, EffectSsDeadDb_Spawn,
+# EffectSsHahen_SpawnBurst). Pulled in by the Bg_* scenery actors below;
+# compiled for real rather than stubbed because the effect system it drives
+# (z_effect_soft_sprite.c and its real dlftbls table) is already in the build.
+PSP_C_FILES += src/code/z_effect_soft_sprite_old_init.c
 PSP_C_FILES += extracted/pal-1.0/assets/objects/object_kibako2/object_kibako2.c
 PSP_C_FILES += extracted/pal-1.0/assets/objects/object_wood02/object_wood02.c
 PSP_C_FILES += extracted/pal-1.0/assets/objects/object_dog/object_dog.c
 PSP_C_FILES += assets/objects/gameplay_keep/cuttable_shrub.c
 PSP_C_FILES += extracted/pal-1.0/assets/objects/object_kusa/object_kusa.c
+# En_Holl: the invisible plane that triggers Room_RequestNewRoom when Link
+# walks through it. Measured (offline inventory of every ActorEntryList under
+# extracted/pal-1.0/assets/scenes): 203 instances across the game, and it is
+# the ONLY transition actor in Kokiri Forest (29x), Temple of Time (12x) and
+# Royal Family Tomb -- three of the scenes reported as "the player cannot get
+# into the next room". As a dummy it spawns and does nothing, so the room load
+# is never requested. Draws from gameplay_keep plus its own inline plane DL,
+# so it costs one object file and no new dependency web.
+PSP_C_FILES += src/overlays/actors/ovl_En_Holl/z_en_holl.c
+# Door_Shutter: the dungeon door, and the transition actor for Treasure Box
+# Shop (6x), Spirit Temple Boss (12x), Gerudo Training (21x), Ganon's Tower
+# (19x) and Lord Jabu-Jabu (32x) -- the rest of the "cannot reach the next
+# room" reports. 269 instances game-wide. It indexes ONE table covering every
+# dungeon's door model, so all of its objects have to be resident even in a
+# scene that uses a single variant, exactly like En_Door.
+PSP_C_FILES += src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c
+# Door_Shutter's model table: every dungeon's door variant plus the boss doors
+# in gameplay_keep. All of them, because the actor selects by scene at runtime.
+PSP_C_FILES += assets/objects/gameplay_keep/gameplay_keep_0x49F20.c
+PSP_C_FILES += assets/objects/gameplay_keep/gameplay_keep_0x4A090.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_gnd/object_gnd.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_goma/object_goma.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_ydan_objects/object_ydan_objects.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_ddan_objects/object_ddan_objects.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_bdan_objects/object_bdan_objects.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_bdoor/object_bdoor.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_ganon_objects/object_ganon_objects.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_jya_door/object_jya_door.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_ice_objects/object_ice_objects.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_menkuri_objects/object_menkuri_objects.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_demo_kekkai/object_demo_kekkai.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_ouke_haka/object_ouke_haka.c
+# The chain and lock textures the barred-door variants draw over the model.
+PSP_C_FILES += extracted/pal-1.0/assets/objects/gameplay_dangeon_keep/gameplay_dangeon_keep.c
+
+# --- Scenery actors named by the offline actor inventory --------------------
+# Every ActorEntryList under extracted/pal-1.0/assets/scenes was counted and
+# matched against the reported "part of the room is missing" scenes. Each line
+# below is one of those matches, with the count that named it. None of this is
+# a renderer defect: the geometry is drawn by an actor that was a no-op dummy.
+#
+# Deku Tree, lower floor: the floor there IS the giant spider web, drawn and
+# collided by Bg_Ydan_Sp (7x in ydan). Hasi (the bridge, 4x) and Maruta (the
+# rotating logs, 2x) share its object and are the same room's missing pieces.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Ydan_Sp/z_bg_ydan_sp.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Ydan_Hasi/z_bg_ydan_hasi.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Ydan_Maruta/z_bg_ydan_maruta.c
+# Kokiri Forest: "the Deku Tree is incomplete". Bg_Treemouth (12x in spot04) is
+# the tree's mouth -- the entrance geometry, not part of the room model.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Treemouth/z_bg_treemouth.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_spot04_objects/object_spot04_objects.c
+# Kakariko Village: "a whole house is missing, only the door is there".
+# Bg_Spot01_Objects2 (14x in spot01) draws the houses themselves.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Spot01_Objects2/z_bg_spot01_objects2.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_spot01_matoya/object_spot01_matoya.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_spot01_matoyab/object_spot01_matoyab.c
+# Ice Cavern: "floor areas completely black, see-through into other rooms".
+# Bg_Ice_Shelter (23x) is the ice platform/block geometry; its object is
+# already resident for Door_Shutter's ice variant.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Ice_Shelter/z_bg_ice_shelter.c
+# Bottom of the Well: "holes, see-through into the map". Bg_Haka_Megane is the
+# false wall/floor set (3x in HAKAdanCH).
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_hakach_objects/object_hakach_objects.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_haka_objects/object_haka_objects.c
+# Temple of Time: the Master Sword room. Bg_Toki_Swd is the pedestal and sword
+# (11x), Bg_Toki_Hikari the light shafts (16x).
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Toki_Hikari/z_bg_toki_hikari.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_toki_objects/object_toki_objects.c
+# Shadow Temple boss room: "the floor at the bottom of the pit is missing, the
+# player falls through -- collision, not just optics". Measured: HAKAdan_bs
+# room 1 contains exactly ONE actor, ACTOR_BOSS_SST. Bongo Bongo's drum IS the
+# floor of that room -- there is no room-model floor to draw -- so as a dummy
+# there is nothing to stand on. This is the report's own description of the
+# mechanism, arrived at from the scene data rather than from the renderer.
+PSP_C_FILES += src/overlays/actors/ovl_Boss_Sst/z_boss_sst.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_sst/object_sst.c
+PSP_C_FILES += assets/objects/gameplay_keep/gameplay_keep_0x173D0.c
+# Bg_Sst_Floor: Bongo Bongo's drum as a walkable surface. Boss_Sst DRAWS the
+# drum but spawns this actor at runtime (z_boss_sst.c:303) for the collision --
+# DynaPolyActor_Init + DynaPoly_SetBgActor(gBongoDrumCol). Without it the player
+# sees the drum and falls straight through it, which is exactly what the user
+# reported once Boss_Sst was in. Costs no new object file: object_sst is already
+# resident for Boss_Sst.
+#
+# Note for the next actor hunt: psp/tools/actor_inventory.py reads SCENE data and
+# therefore cannot see this actor at all -- nothing places it, another actor
+# spawns it. The inventory is a LOWER BOUND. When a newly enabled actor draws but
+# misbehaves, grep its own source for Actor_Spawn before trusting the inventory.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c
+
+# --- The water surfaces -----------------------------------------------------
+# Four "the water is missing" reports, four actors that draw it. In OoT a water
+# surface is an ACTOR, not room geometry, so as dummies these scenes are simply
+# dry. Two of them cost nothing but this line: their objects are already resident
+# because other actors brought them in.
+#
+#   Bg_Mizu_Water      Water Temple        11x  object_mizu_objects   (En_Door)
+#   Bg_Haka_Water      Bottom of the Well   1x  object_hakach_objects (Bg_Haka_Megane)
+#   Bg_Spot07_Taki     Zora's Domain        6x  object_spot07_object  (new)
+#   Bg_Spot06_Objects  Lake Hylia          13x  object_spot06_objects (new)
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Mizu_Water/z_bg_mizu_water.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Haka_Water/z_bg_haka_water.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Spot07_Taki/z_bg_spot07_taki.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_spot07_object/object_spot07_object.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Spot06_Objects/z_bg_spot06_objects.c
+PSP_C_FILES += extracted/pal-1.0/assets/objects/object_spot06_objects/object_spot06_objects.c
+
+# --- Scene textures named directly by z_scene_table.c -----------------------
+# Generated: psp/tools/gen_scene_textures.py copies the definitions out of the
+# scene sources, because those symbols are referenced by C name while the scenes
+# themselves are runtime blobs. They were 64-byte placeholders, and a placeholder
+# is worse than nothing here -- the display list reads a full texture from the
+# address regardless, so the GE got the neighbouring globals as pixels. That is
+# the Dodongo's Cavern lava and the coloured pixel bands on the Kakariko and
+# Lon Lon walls. ~78 KB of real data.
+PSP_C_FILES += psp/build/psp_scene_textures_gen.c
+# The 41st of that set. It is not scene data at all -- it lives in gameplay_keep
+# and simply had never been compiled in.
+PSP_C_FILES += assets/objects/gameplay_keep/lens_mask_tex.c
 
 # --- Phase 2: real Player (flattened, no overlay indirection -- see file header) ---
 PSP_C_FILES += src/overlays/actors/ovl_player_actor/z_player.c
@@ -472,12 +598,25 @@ $(SCENE_MENU_INC): include/tables/scene_table.h include/tables/entrance_table.h 
 	@mkdir -p $(BLOB_DIR)
 	@python3 psp/tools/gen_scene_menu.py include $@ $(BLOB_SCENES)
 
+# The scene textures z_scene_table.c names by C symbol. Generated rather than
+# hand-written: the definitions are copied verbatim out of the scene sources, so
+# a change there cannot silently drift away from what is compiled in. Depends on
+# z_scene_table.c because that is the file that names these symbols in the first
+# place -- add a draw config that references a new texture and this picks it up.
+# (It deliberately does NOT read the placeholder list: that was circular, and
+# removing the placeholders once made the generator emit nothing.)
+SCENE_TEX_GEN = psp/build/psp_scene_textures_gen.c
+$(SCENE_TEX_GEN): psp/tools/gen_scene_textures.py src/code/z_scene_table.c
+	@mkdir -p psp/build
+	@python3 psp/tools/gen_scene_textures.py . $@
+
 MENU_FONT_INC = $(BLOB_DIR)/psp_menu_font.inc
 $(MENU_FONT_INC): psp/tools/gen_menu_font.py
 	@mkdir -p $(BLOB_DIR)
 	@python3 psp/tools/gen_menu_font.py $@
 
 psp/src/psp_scene_menu.o: $(SCENE_MENU_INC) $(MENU_FONT_INC)
+psp/build/psp_scene_textures_gen.o: $(SCENE_TEX_GEN)
 
 blobs: $(BLOB_REGISTRY)
 .PHONY: blobs

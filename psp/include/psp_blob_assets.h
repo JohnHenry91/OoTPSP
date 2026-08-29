@@ -72,6 +72,12 @@ void PspBlob_InvalidateRange(const void* dst, size_t size);
 /* Retire every range. Call at scene load. */
 void PspBlob_ResetRanges(void);
 
+/* Descriptors currently held open by the ranged LRU (capped at
+ * PSP_BLOB_MAX_OPEN). For the once-per-scene memory trace in
+ * PspDiag_Scene -- if this were ever found climbing across scene changes it
+ * would mean the cap itself is broken, not just under pressure. */
+unsigned int PspBlob_OpenFdCount(void);
+
 /* Diagnostics, read with the WebSocket debugger like every other counter here
  * (never file I/O -- that was itself a crash cause once). gPspBlobMagic is a
  * magic word so a stale symbol address after a rebuild is caught instead of

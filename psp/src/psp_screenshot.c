@@ -9,43 +9,7 @@
 
 #include "psp_blob_assets.h"
 
-/* Declared by hand rather than by including gfx/gfx_pc.h: that header's other
- * prototypes need the N64 Gfx type, and pulling the whole ultra64 headers into
- * a BMP writer to reach one struct is the wrong trade. Keep in step with
- * gfx_pc.h. */
-struct GfxPcFrameSnapshot {
-    unsigned int frame;
-    unsigned int tris_drawn;
-    unsigned int tri_calls;
-    unsigned int flushes;
-    unsigned int tex_imports;
-    unsigned int tex_hits;
-    unsigned int tex_used;
-    unsigned int tex_unused;
-    unsigned int settimg;
-    unsigned int loadblock;
-    unsigned int loadtile;
-    unsigned int settile;
-    unsigned int sky_tris;
-    unsigned int sky_begins;
-    unsigned int sky_calls;
-    unsigned int sky_id;
-    unsigned int sky_drawtype;
-    unsigned int tex_unswap_yes;
-    unsigned int tex_unswap_no;
-    unsigned int sky_tex_imports;
-    unsigned int sky_tex_unswap;
-    unsigned int sky_tex_hits;
-    unsigned int sky_seg0;
-    unsigned int sky_seg0_native;
-    unsigned int sky_pal;
-    unsigned int sky_pal_native;
-    unsigned int bind_desyncs;
-    unsigned int bind_desyncs_frame;
-    unsigned int bind_desyncs_2nd;
-    unsigned int lerp2_draws;
-};
-void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out);
+#include "gfx/gfx_pc_frame_snapshot.h"
 
 static int sPending;
 static unsigned int sSeq;
@@ -358,11 +322,14 @@ static void PspScreenshotWriteCounters(void) {
                        "unswapYes %u\nunswapNo %u\n"
                        "skyTexImports %u\nskyTexUnswap %u\nskyTexHits %u\n"
                        "skySeg0 %08x\nskySeg0Native %u\nskyPal %08x\nskyPalNative %u\n"
-                       "bindDesync %u\nbindDesyncFrame %u\nbindDesync2nd %u\nlerp2Draws %u\n",
+                       "bindDesync %u\nbindDesyncFrame %u\nbindDesync2nd %u\nlerp2Draws %u\n"
+                       "texOffDraws %u\ntexSc0Draws %u\n"
+                       "fogDraws %u\nfogBadRange %u\n",
                        g.tex_unswap_yes, g.tex_unswap_no,
                        g.sky_tex_imports, g.sky_tex_unswap, g.sky_tex_hits,
                        g.sky_seg0, g.sky_seg0_native, g.sky_pal, g.sky_pal_native,
-                       g.bind_desyncs, g.bind_desyncs_frame, g.bind_desyncs_2nd, g.lerp2_draws);
+                       g.bind_desyncs, g.bind_desyncs_frame, g.bind_desyncs_2nd, g.lerp2_draws,
+                       g.tex_off_draws, g.tex_sc0_draws, g.fog_draws, g.fog_bad_range);
         if (len > 0) {
             sceIoWrite(fd, text, (SceSize)len);
         }

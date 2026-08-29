@@ -11,8 +11,20 @@ Mtx* sSkyboxDrawMatrix;
 /* Session 16: draw only the selected face display lists, bit k == dListBuf[k].
  * The four side faces are drawn -z, +x, +z, -x with no depth write, so a face
  * that projects badly simply paints over the one that projected correctly.
- * 0xFF is vanilla; poke 0x30 for the +z face alone, etc. */
-int gDebugSkyFaceMask = 0xFF;
+ * Poke 0x30 for the +z face alone, etc.
+ *
+ * THE DEFAULT WAS 0xFF AND THAT WAS A BUG, not a setting. The 128-type skybox
+ * -- every outdoor scene -- draws faces 0, 2, 4, 6 and 8, and 8 is the TOP.
+ * 1 << 8 is 0x100, outside an 0xFF mask, so the ceiling of the sky was never
+ * drawn: a black rectangle straight overhead, which is what the user reported
+ * in Hyrule Field ("a square black area at the top"), Gerudo's Fortress,
+ * Kakariko Village, Lon Lon Ranch, Lake Hylia and Outside Ganon's Castle. Face
+ * 10 (the cutscene map's floor) was dropped the same way.
+ *
+ * A diagnostic default that silently does not cover its own range -- this
+ * port's most expensive recurring mistake, and the reason the range is now
+ * spelt out rather than left at "all the bits I happened to think of". */
+int gDebugSkyFaceMask = 0xFFF;
 #define SKY_DL(k)                                             \
     do {                                                      \
         if (gDebugSkyFaceMask & (1 << (k))) {                 \

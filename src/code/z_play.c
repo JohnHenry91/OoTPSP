@@ -815,6 +815,26 @@ void Play_Init(GameState* thisx) {
     AnimTaskQueue_Update(this, &this->animTaskQueue);
     gSaveContext.respawnFlag = 0;
 
+#if TARGET_PSP
+    /* Auftrag 01: one line per scene change, see PspDiag_Scene. Placed at the
+     * very end of Play_Init so the object bank and the initial actor list are
+     * already populated -- earlier would undercount both. Bytes used is the
+     * bank's own allocation cursor (slots[numEntries].segment), same value
+     * Object_SpawnPersistent's own ASSERT compares against spaceEnd. */
+    {
+        extern int gPspPlayInitCount;
+        extern unsigned int PspBlob_OpenFdCount(void);
+        unsigned int objBytesUsed = (unsigned int)((uintptr_t)this->objectCtx.slots[this->objectCtx.numEntries].segment -
+                                                     (uintptr_t)this->objectCtx.spaceStart);
+        unsigned int objBytesTotal =
+            (unsigned int)((uintptr_t)this->objectCtx.spaceEnd - (uintptr_t)this->objectCtx.spaceStart);
+
+        PspDiag_Scene((unsigned int)gPspPlayInitCount, (unsigned int)gSaveContext.save.entranceIndex,
+                      this->objectCtx.numEntries, objBytesUsed, objBytesTotal, this->actorCtx.total,
+                      PspBlob_OpenFdCount());
+    }
+#endif
+
 #if DEBUG_FEATURES
     if (R_USE_DEBUG_CUTSCENE) {
         static u64 sDebugCutsceneScriptBuf[0xA00];
@@ -1867,18 +1887,27 @@ void Play_Draw(PlayState* this) {
                 Scene_Draw(this);
             PSP_STAGE(60);
                 Room_Draw(this, &this->roomCtx.curRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
-#if TARGET_PSP
-                /* roomCtx.prevRoom is only ever populated by a real room transition
-                 * (Room_RequestNewRoom / Room_FinishRoomChange), which this port's
-                 * single-room milestone never triggers. Room_Draw() itself gates on
-                 * room->segment != NULL before indexing sRoomDrawHandlers[] with
-                 * room->roomShape->base.type, so a stray nonzero write into
-                 * prevRoom.segment elsewhere in the frame (same corruption class as
-                 * transitionCtx.draw and pauseCtx, see above) makes it call a garbage
-                 * function pointer. Force it NULL right before use rather than trust
-                 * upstream state to stay clean for the whole frame. */
-                this->roomCtx.prevRoom.segment = NULL;
-#endif
+                /* The forced `roomCtx.prevRoom.segment = NULL` that used to stand
+                 * here is GONE, and its own comment says why it had to go: it
+                 * argued that "prevRoom is only ever populated by a real room
+                 * transition (Room_RequestNewRoom / Room_FinishRoomChange), which
+                 * this port's single-room milestone never triggers".
+                 *
+                 * That stopped being true the moment En_Holl and Door_Shutter
+                 * entered the build -- those are exactly the actors that call
+                 * Room_RequestNewRoom. Room transitions are real now, prevRoom is
+                 * genuinely populated, and NULLing it meant the OLD room was never
+                 * drawn while the new one was still loading. OoT draws BOTH across
+                 * a transition; with only one of them you look straight through the
+                 * walls, which is what walking through a door showed, and in the
+                 * Lost Woods tunnels no room was drawn at all -- just Link, En_Holl's
+                 * black plane and the background fill.
+                 *
+                 * The danger it guarded against was real but the remedy was too
+                 * broad: a corrupted roomShape pointer would index
+                 * sRoomDrawHandlers[] out of bounds. Room_Draw now checks that
+                 * directly (NULL and range, plus gPspRoomDrawRejected to count it),
+                 * which is a bound rather than a switch-off. */
             PSP_STAGE(65);
                 Room_Draw(this, &this->roomCtx.prevRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
             }

@@ -41,6 +41,19 @@ void PspDiag_Frame(unsigned int n);
 void PspDiag_Hex(const char* label, const void* addr, int words);
 void PspDiag_Note(const char* fmt, unsigned int a, unsigned int b);
 
+/* One line per scene change, forced durable immediately (see PspDiag_StepSync
+ * -- this is exactly the "fires once per transition, can afford it" case).
+ * Auftrag 01: the frame-level counters in PspDiag_Step cannot tell an actor or
+ * object-bank leak apart from ordinary per-frame churn, because nothing in
+ * that line is scoped to "one scene lifetime". This adds the numbers that
+ * are: which entrance, how full the object bank and actor list are right
+ * after Play_Init, how many blob descriptors the ranged LRU is holding open,
+ * and a running count of scene changes so a monotonic column can be told from
+ * a flat one. */
+void PspDiag_Scene(unsigned int changeCount, unsigned int entranceIndex, unsigned int objEntries,
+                    unsigned int objBytesUsed, unsigned int objBytesTotal, unsigned int actorTotal,
+                    unsigned int blobOpenFds);
+
 /* Force whatever is still sitting in the RAM ring buffer out to the memory
  * stick right now. Normal appends only do this every PSP_DIAG_FLUSH_EVERY
  * steps -- see the file header in psp_hw_diag.c for why per-line I/O was
@@ -135,6 +148,17 @@ static inline void PspDiag_Note(const char* fmt, unsigned int a, unsigned int b)
     (void)fmt;
     (void)a;
     (void)b;
+}
+static inline void PspDiag_Scene(unsigned int changeCount, unsigned int entranceIndex, unsigned int objEntries,
+                                  unsigned int objBytesUsed, unsigned int objBytesTotal, unsigned int actorTotal,
+                                  unsigned int blobOpenFds) {
+    (void)changeCount;
+    (void)entranceIndex;
+    (void)objEntries;
+    (void)objBytesUsed;
+    (void)objBytesTotal;
+    (void)actorTotal;
+    (void)blobOpenFds;
 }
 static inline void PspDiag_Flush(void) {
 }

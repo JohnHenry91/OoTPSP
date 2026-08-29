@@ -81,11 +81,6 @@ void EffectSpark_Destroy(void) {}
 void EffectSpark_Draw(void) {}
 void EffectSpark_Init(void) {}
 void EffectSpark_Update(void) {}
-void EffectSsGRipple_Spawn(void) {}
-void EffectSsHitMark_SpawnFixedScale(void) {}
-void EffectSsKiraKira_SpawnDispersed(void) {}
-void EffectSsKiraKira_SpawnSmall(void) {}
-void EffectSsSibuki_SpawnBurst(void) {}
 /* Environment_* PROMOTED to the real src/code/z_kankyo.c (see Makefile.psp).
  *
  * Second instance of the same failure mode as the Quake_* block below, and the
@@ -220,9 +215,6 @@ void func_80026400(void) {}
 void func_80026608(void) {}
 void func_80026860(void) {}
 void func_80026A6C(void) {}
-void func_8002857C(void) {}
-void func_8002865C(void) {}
-void func_800286CC(void) {}
 void func_80043334(void) {}
 void func_800BB2B4(void) {}
 /* func_800F4010/func_800F4C58/func_800F6964 PROMOTED to the real
@@ -245,6 +237,20 @@ void guS2DInitBg(void) {}
  * intent the zeroed stub had, but actually expressed. */
 #define PSP_STUB_ENDDL { [3] = (char)0xDF }
 
+/* The 41 scene-texture placeholders that stood here are GONE.
+ *
+ * They were `char x[64];` while the display lists loaded a FULL texture
+ * from that address -- a kilobyte or more read off a 64-byte object, so the
+ * GE was handed whatever globals followed it. That is why the symptom was
+ * bands of random colour rather than black: Dodongo's Cavern's lava floor,
+ * and the confetti pixels on the walls of Kakariko and Lon Lon Ranch (the
+ * only two scenes whose draw config binds a window texture).
+ *
+ * 40 of them now come from psp/build/psp_scene_textures_gen.c, copied out of
+ * the scene sources by psp/tools/gen_scene_textures.py. The 41st,
+ * gLensOfTruthMaskTex, lives in gameplay_keep and is compiled directly.
+ * See Makefile.psp. */
+
 /* NOTE: nine `char x[64]` placeholders were removed here -- gWeatherMode,
  * gTimeSpeed, gTimeBasedSkyboxConfigs, gNormalSkyFiles, gLensFlareScale,
  * gLensFlareGlareStrength, gLensFlareColorIntensity, gCustomLensFlarePos and
@@ -260,23 +266,14 @@ void guS2DInitBg(void) {}
  * safe when nothing reads or writes it. */
 
 /* --- data: 57 --- */
-char gBossDoorChainDL[64] = PSP_STUB_ENDDL;
-char gBossDoorLockDL[64] = PSP_STUB_ENDDL;
+/* gBossDoorChainDL / gBossDoorLockDL PROMOTED to the real data in
+ * extracted/pal-1.0/assets/objects/object_bdoor (see Makefile.psp): Door_Shutter
+ * came into the build and draws the chain and lock over the barred boss doors,
+ * so the placeholders would have been the visible thing. */
 char gCircleShadowDL[64] = PSP_STUB_ENDDL;
-char gDCDayEntranceTex[64];
-char gDCLavaFloor1Tex[64];
-char gDCLavaFloor2Tex[64];
-char gDCLavaFloor3Tex[64];
-char gDCLavaFloor4Tex[64];
-char gDCLavaFloor5Tex[64];
-char gDCLavaFloor6Tex[64];
-char gDCLavaFloor7Tex[64];
-char gDCLavaFloor8Tex[64];
-char gDCNightEntranceTex[64];
-char gDekuTreeDayEntranceTex[64];
-char gDekuTreeNightEntranceTex[64];
-char gDoorChainDL[64] = PSP_STUB_ENDDL;
-char gDoorLockDL[64] = PSP_STUB_ENDDL;
+/* gDoorChainDL / gDoorLockDL PROMOTED to the real data in
+ * extracted/pal-1.0/assets/objects/gameplay_dangeon_keep, same reason as the
+ * boss-door pair above. */
 char gEffFlash1DL[64] = PSP_STUB_ENDDL;
 /* gEffectSsOverlayTable PROMOTED to the real src/code/z_effect_soft_sprite_
  * dlftbls.c (TARGET_PSP branch). It must NOT come back as a `char[64]`: the
@@ -284,40 +281,11 @@ char gEffFlash1DL[64] = PSP_STUB_ENDDL;
  * 64-byte stand-in made every scene teardown free a wild pointer. See the
  * long note in that file. */
 char gFootShadowDL[64] = PSP_STUB_ENDDL;
-char gForestTempleDayEntranceTex[64];
-char gForestTempleNightEntranceTex[64];
-char gGTGDayEntranceTex[64];
-char gGTGNightEntranceTex[64];
-char gGerudoFortressDayWallTex[64];
-char gGerudoFortressNightWallTex[64];
 char gGlowCircleDL[64] = PSP_STUB_ENDDL;
 char gGlowCircleTextureLoadDL[64] = PSP_STUB_ENDDL;
-char gGoronCityDayEntranceTex[64];
-char gGoronCityNightEntranceTex[64];
-char gGuardHouseOutSideView1DayTex[64];
-char gGuardHouseOutSideView1NightTex[64];
-char gGuardHouseOutSideView2DayTex[64];
-char gGuardHouseOutSideView2NightTex[64];
 char gHorseShadowDL[64] = PSP_STUB_ENDDL;
-char gIceCavernDayEntranceTex[64];
-char gIceCavernNightEntranceTex[64];
-char gKakarikoVillageDayWindowTex[64];
-char gKakarikoVillageNightWindowTex[64];
-char gLensOfTruthMaskTex[64];
 char gLockOnArrowDL[64] = PSP_STUB_ENDDL;
 char gLockOnReticleTriangleDL[64] = PSP_STUB_ENDDL;
-char gLonLonHouseDayEntranceTex[64];
-char gLonLonHouseNightEntranceTex[64];
-char gLonLonRanchDayWindowTex[64];
-char gLonLonRangeNightWindowsTex[64];
-char gSpiritTempleDayEntranceTex[64];
-char gSpiritTempleNightEntranceTex[64];
-char gThievesHideoutDayEntranceTex[64];
-char gThievesHideoutNightEntranceTex[64];
-char gWaterTempleDayEntranceTex[64];
-char gWaterTempleNightEntranceTex[64];
-char gZorasDomainDayEntranceTex[64];
-char gZorasDomainNightEntranceTex[64];
 char gspS2DEX2d_fifoDataStart[64];
 char spot00_room_0DL_012B20[64] = PSP_STUB_ENDDL;
 char spot16_room_0DL_00AA48[64] = PSP_STUB_ENDDL;

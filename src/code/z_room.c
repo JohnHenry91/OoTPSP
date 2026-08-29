@@ -1059,6 +1059,18 @@ s32 Room_ProcessRoomRequest(PlayState* play, RoomContext* roomCtx) {
     return true;
 }
 
+#if TARGET_PSP
+/* Rooms whose draw was refused by the guard below -- a NULL roomShape or an
+ * out-of-range shape type. This is the counter that makes the guard honest:
+ * z_play.c used to force roomCtx.prevRoom.segment to NULL right before drawing
+ * it, which silenced the same danger by never drawing the previous room at all.
+ * That was fine while nothing ever populated prevRoom and wrong the moment
+ * En_Holl and Door_Shutter brought real room transitions into the build. If
+ * this ever climbs, the pointer really is being corrupted and the old blanket
+ * approach was hiding it. */
+u32 gPspRoomDrawRejected;
+#endif
+
 void Room_Draw(PlayState* play, Room* room, u32 flags) {
     if (room->segment != NULL) {
         gSegments[3] = OS_K0_TO_PHYSICAL(room->segment);
@@ -1071,7 +1083,8 @@ void Room_Draw(PlayState* play, Room* room, u32 flags) {
          * sRoomDrawHandlers[] out of bounds and jalr through whatever garbage
          * sits there -- this is the exact "CPU Jump to 00000040" crash observed
          * a few dozen frames into gameplay. Actually check the bound here. */
-        if (room->roomShape->base.type >= ARRAY_COUNTU(sRoomDrawHandlers)) {
+        if (room->roomShape == NULL || room->roomShape->base.type >= ARRAY_COUNTU(sRoomDrawHandlers)) {
+            ++gPspRoomDrawRejected;
             return;
         }
 #endif

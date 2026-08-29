@@ -192,6 +192,10 @@ void PspBlob_NotifyResume(void) {
     sResumePending = 1;
 }
 
+unsigned int PspBlob_OpenFdCount(void) {
+    return sRangedOpen;
+}
+
 /* Standby powers the Memory Stick down, and every descriptor open across it
  * comes back invalid: reads return errors or garbage rather than failing in
  * any way the callers notice. The audio path is what makes this loud -- the
