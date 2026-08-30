@@ -68,11 +68,9 @@ void DebugDisplay_Init(void) {}
 void DynaPolyActor_TransformCarriedActor(void) {}
 /* Promoted to the real src/code/z_bg_item.c (Phase 3, enabled by the first
  * dyna-poly actors). Stub removed -- keeping it would be a duplicate symbol. */
-void EffectBlure_Destroy(void) {}
-void EffectBlure_Draw(void) {}
-void EffectBlure_Init1(void) {}
-void EffectBlure_Init2(void) {}
-void EffectBlure_Update(void) {}
+/* EffectBlure_Destroy/Draw/Init1/Init2/Update PROMOTED to the real
+ * src/code/z_eff_blure.c (Phase 3, all actors). Stubs removed -- keeping them
+ * would be duplicate symbols. */
 void EffectShieldParticle_Destroy(void) {}
 void EffectShieldParticle_Draw(void) {}
 void EffectShieldParticle_Init(void) {}
@@ -112,7 +110,8 @@ void GameOver_FadeInLights(void) {}
 void GameOver_Init(void) {}
 void GameOver_Update(void) {}
 void Health_InitMeter(void) {}
-void Horse_InitPlayerHorse(void) {}
+/* Horse_InitPlayerHorse PROMOTED to the real src/code/z_horse.c
+ * (Phase 3). Stub removed. */
 void Interface_ChangeHudVisibilityMode(void) {}
 void Interface_Draw(void) {}
 void Interface_SetSceneRestrictions(void) {}
@@ -211,10 +210,8 @@ void TransitionWipe_SetColor(void) {}
 void TransitionWipe_SetType(void) {}
 void TransitionWipe_Start(void) {}
 void TransitionWipe_Update(void) {}
-void func_80026400(void) {}
-void func_80026608(void) {}
-void func_80026860(void) {}
-void func_80026A6C(void) {}
+/* func_80026400/80026608/80026860/80026A6C PROMOTED to the real
+ * src/code/z_eff_ss_dead.c (Phase 3). Stubs removed. */
 void func_80043334(void) {}
 void func_800BB2B4(void) {}
 /* func_800F4010/func_800F4C58/func_800F6964 PROMOTED to the real
@@ -270,22 +267,33 @@ void guS2DInitBg(void) {}
  * extracted/pal-1.0/assets/objects/object_bdoor (see Makefile.psp): Door_Shutter
  * came into the build and draws the chain and lock over the barred boss doors,
  * so the placeholders would have been the visible thing. */
-char gCircleShadowDL[64] = PSP_STUB_ENDDL;
 /* gDoorChainDL / gDoorLockDL PROMOTED to the real data in
  * extracted/pal-1.0/assets/objects/gameplay_dangeon_keep, same reason as the
  * boss-door pair above. */
-char gEffFlash1DL[64] = PSP_STUB_ENDDL;
 /* gEffectSsOverlayTable PROMOTED to the real src/code/z_effect_soft_sprite_
  * dlftbls.c (TARGET_PSP branch). It must NOT come back as a `char[64]`: the
  * engine walks it as EffectSsOverlay[EFFECT_SS_TYPE_MAX] (1036 bytes) and a
  * 64-byte stand-in made every scene teardown free a wild pointer. See the
  * long note in that file. */
-char gFootShadowDL[64] = PSP_STUB_ENDDL;
-char gGlowCircleDL[64] = PSP_STUB_ENDDL;
-char gGlowCircleTextureLoadDL[64] = PSP_STUB_ENDDL;
-char gHorseShadowDL[64] = PSP_STUB_ENDDL;
-char gLockOnArrowDL[64] = PSP_STUB_ENDDL;
-char gLockOnReticleTriangleDL[64] = PSP_STUB_ENDDL;
+
+/* TEN MORE PROMOTED (Phase 3, all actors): gCircleShadowDL, gEffFlash1DL,
+ * gFootShadowDL, gGlowCircleDL, gGlowCircleTextureLoadDL, gHorseShadowDL,
+ * gLockOnArrowDL, gLockOnReticleTriangleDL, spot00_room_0DL_012B20 and
+ * spot16_room_0DL_00AA48.
+ *
+ * All ten are real display lists in gameplay_keep or in a scene, and all ten
+ * are now available -- the object and scene blobs define every one of them
+ * (psp/build/psp_object_syms_gen.c, psp/build/psp_scene_syms_gen.c).
+ *
+ * KEEPING THEM WOULD HAVE BEEN WORSE THAN USELESS, and in a way that is easy
+ * to miss: the blob definitions are WEAK, deliberately, so that anything the
+ * EBOOT still compiles in wins. A stub here is a strong definition, so each of
+ * these ten silently beat the real display list it was standing in for. The
+ * game then submitted an immediately-terminating list and drew nothing, with
+ * no counter and no error anywhere -- Lights_DrawGlow submitting
+ * gGlowCircleTextureLoadDL every frame and getting an empty list back is
+ * exactly that.
+ *
+ * The rule this establishes: when a placeholder's real data becomes reachable,
+ * the placeholder is not neutral any more. It outranks it. */
 char gspS2DEX2d_fifoDataStart[64];
-char spot00_room_0DL_012B20[64] = PSP_STUB_ENDDL;
-char spot16_room_0DL_00AA48[64] = PSP_STUB_ENDDL;

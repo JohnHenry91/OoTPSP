@@ -24,7 +24,7 @@ struct EnItem00;
  * Promoted to the real src/code/z_bg_item.c (Phase 3, enabled by the first
  * dyna-poly actors). Stub removed -- keeping it would be a duplicate symbol. */
 
-void EffectBlure_AddVertex(void* this, void* p1, void* p2) {}
+/* EffectBlure_AddVertex PROMOTED to src/code/z_eff_blure.c (Phase 3). */
 
 /* The nine EffectSs*_Spawn stubs that stood here are PROMOTED to the real
  * src/code/z_effect_soft_sprite_old_init.c, which came into the build with the
@@ -62,9 +62,9 @@ void Inventory_UpdateBottleItem(void* play, u8 item, u8 button) {}
 u8 Item_CheckObtainability(u8 item) {
     return item;
 }
-void* Item_DropCollectible(void* play, void* spawnPos, s16 params) {
-    return NULL;
-}
+/* Item_DropCollectible PROMOTED to the real src/code/z_en_item00.c
+ * (Phase 3) -- it now really does drop the collectible instead of
+ * returning NULL. */
 
 void Magic_Fill(void* play) {}
 s32 Magic_RequestChange(void* play, s16 amount, s16 type) {

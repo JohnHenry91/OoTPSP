@@ -166,12 +166,36 @@ LDEOF
 link_one ""
 $OBJCOPY -O binary --only-section=.scene "$TMP/link.elf" "$OUT/${NAME}_scene.bin"
 
+# Where each of this scene's symbols landed inside segment 2.
+#
+# Actors reach into scene data by C name: En_Zl4 does
+# `play->csCtx.script = SEGMENTED_TO_VIRTUAL(gZeldasCourtyardMeetCs)`, and that
+# array is defined in nakaniwa_scene.c, not in any object. With the scene itself
+# a runtime blob there is nothing in the EBOOT to resolve the name against, so
+# emit its segment-2 address and let Makefile.psp turn the collection into weak
+# absolute definitions -- the same arrangement the object blobs use.
+#
+# Filtered to 0x02xxxxxx because the link also carries blob_identity_mtx.o and
+# any absolute symbols the --defsym flags introduced; only what actually lives
+# in this scene's segment belongs in the map.
+${NM:-psp-nm} "$TMP/link.elf" | $AWK -v n="$NAME" '
+    $2 ~ /^[DRT]$/ && $1 ~ /^02/ { printf "%s %s %s\n", $3, $1, n }' \
+    > "$OUT/${NAME}.sym"
+
 # One blob per room, each based at 0x03000000.
 i=0
 while [ "$i" -lt "$NROOMS" ]; do
     compile "$DIR/${NAME}_room_${i}.c" "$TMP/room.o"
     link_one "\"$TMP/room.o\"(.data.${NAME}_room_${i}) \"$TMP/room.o\"(.data .data.* .rodata .rodata.* .text)"
     $OBJCOPY -O binary --only-section=.room "$TMP/link.elf" "$OUT/${NAME}_room_${i}.bin"
+    # Rooms own named assets too, and actors reach for them by name just as
+    # they do for the scene's: Boss_Dodongo draws gDodongosCavernBossLavaFloorTex,
+    # which is defined in ddan_boss_room_1.c. Segment 3, appended to the same
+    # per-scene map. (The scene's own symbols are dumped once, above; this link
+    # contains them again and they are filtered out by the 03 prefix.)
+    ${NM:-psp-nm} "$TMP/link.elf" | $AWK -v n="$NAME" '
+        $2 ~ /^[DRT]$/ && $1 ~ /^03/ { printf "%s %s %s\n", $3, $1, n }' \
+        >> "$OUT/${NAME}.sym"
     i=$((i + 1))
 done
 

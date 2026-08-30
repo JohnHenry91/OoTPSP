@@ -25,10 +25,8 @@ u8 gUseCutsceneCam;
  * generated file: the linker matches by name, and declaring the real signature
  * would drag in the header this stub exists to avoid. */
 
-/* Real def: src/overlays/actors/ovl_En_Item00/z_en_item00.c. Returns nothing
- * useful; En_Kusa ignores the return value. */
-void Item_DropCollectibleRandom(void) {
-}
+/* Item_DropCollectibleRandom PROMOTED: src/overlays/actors/ovl_En_Item00/
+ * z_en_item00.c is in the build now (Phase 3, all actors). */
 
 /* --- Phase 3: pulled in by Door_Shutter -----------------------------------
  * Real def: src/code/z_onepointdemo.c (the one-point cutscene camera, not in
@@ -71,14 +69,12 @@ u16 gCamAtPointAppliedFrame;
  * one stops at the first command instead of walking into whatever follows.
  * Spelled as literals to keep the cutscene headers out of this file:
  * CS_CMD_END_OF_SCRIPT is -1 (include/cutscene.h). */
-#define PSP_STUB_EMPTY_CS { 0, 1, -1, 0 }
-s32 gDekuTreeMeetingCs[4] = PSP_STUB_EMPTY_CS;
-s32 gDekuTreeChoiceCs[4] = PSP_STUB_EMPTY_CS;
-s32 gDekuTreeMouthOpeningCs[4] = PSP_STUB_EMPTY_CS;
-s32 gDekuTreeAskAgainCs[4] = PSP_STUB_EMPTY_CS;
-s32 gPullMasterSwordCs[4] = PSP_STUB_EMPTY_CS;
-s32 gPlaceMasterSwordCs[4] = PSP_STUB_EMPTY_CS;
-s32 gRevealMasterSwordCs[4] = PSP_STUB_EMPTY_CS;
+/* ALL SEVEN PROMOTED (Phase 3, all actors). These scripts live in the actors'
+ * own *_cutscene_data.c files -- ovl_Bg_Treemouth for the four Deku Tree ones,
+ * ovl_Bg_Toki_Swd for the three Master Sword ones -- and those files are in
+ * the build now, so the real scripts are present and these placeholders would
+ * be duplicate symbols. The empty-script reasoning above is kept because it
+ * still applies to any future stub of this kind. */
 
 /* Boss_Sst brackets its intro with these two. Real defs: src/code/z_demo.c
  * (not in the build). Both return void, so a no-op is the whole behaviour --

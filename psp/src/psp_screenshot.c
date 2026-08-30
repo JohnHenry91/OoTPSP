@@ -246,6 +246,15 @@ static void PspScreenshotWriteCounters(void) {
     extern unsigned int gPspBgLastSkipReason;
     extern unsigned int gPspBgProbeCamSetting;
     extern unsigned int gPspTexSizeVariants;
+    /* Blob range-table evictions, split by lifetime class (psp_blob_assets.c).
+     * Scene and room MUST read 0: a live one being pushed out silently makes
+     * the endian fixups reverse already-native data, which shows up as
+     * full-screen speckle and reads as a renderer bug. Object is expected to
+     * be nonzero in a dungeon and means nothing on its own. */
+    extern unsigned int gPspBlobSceneEvictions;
+    extern unsigned int gPspBlobRoomEvictions;
+    extern unsigned int gPspBlobKeepEvictions;
+    extern unsigned int gPspBlobObjEvictions;
 
     char path[128];
     char text[512];
@@ -262,12 +271,14 @@ static void PspScreenshotWriteCounters(void) {
                    "wipeVram %u\nwipePool %u\npoolHigh %u\nsizeVariants %u\n"
                    "texOverflow %u\ntexSpills %u\nspillBytes %u\ndlPool %u\n"
                    "blobShort %u\nromUnserved %u\narenaFail %u\nbadDl %u\n"
-                   "bgDrawn %u\nbgSkipped %u\nbgSkipReason %u\ncamSetting %u\n",
+                   "bgDrawn %u\nbgSkipped %u\nbgSkipReason %u\ncamSetting %u\n"
+                   "blobEvictScene %u\nblobEvictRoom %u\nblobEvictKeep %u\nblobEvictObj %u\n",
                    gPspTexCacheResetVram, gPspTexCacheResetPool, gPspTexCacheHighWater,
                    gPspTexSizeVariants, psp_tex_overflows, psp_tex_spills, gPspTexSpillBytes,
                    gPspPoolOverflows, gPspBlobShortReads, gPspRomUnservedReads, gPspZeldaAllocFails,
                    gPspGfxBadDlCursors, gPspBgDrawn, gPspBgSkipped, gPspBgLastSkipReason,
-                   gPspBgProbeCamSetting);
+                   gPspBgProbeCamSetting, gPspBlobSceneEvictions, gPspBlobRoomEvictions,
+                   gPspBlobKeepEvictions, gPspBlobObjEvictions);
     if (len > 0) {
         sceIoWrite(fd, text, (SceSize)len);
     }
