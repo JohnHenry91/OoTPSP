@@ -16,9 +16,18 @@ Usage:
     python3 psp/tools/actor_inventory.py                # summary, all scenes
     python3 psp/tools/actor_inventory.py ydan spot04    # named scenes in full
 
-The "in the build" column comes from Makefile.psp: an actor whose .c is listed
-there defines a strong name##_Profile, everything else falls back to the weak
-alias gDummyActorProfile in psp/src/z_actor_dlftbls_psp.c.
+The "in the build" column comes from Makefile.psp: an actor whose .c is compiled
+defines a strong name##_Profile, everything else falls back to the weak alias
+gDummyActorProfile in psp/src/z_actor_dlftbls_psp.c.
+
+Since the object-blob pipeline landed, the makefile no longer lists actors one
+`PSP_C_FILES +=` line at a time -- it sweeps them with
+
+    PSP_ALL_ACTOR_SRCS := $(filter-out %.inc.c,$(wildcard src/overlays/actors/ovl_*/z_*.c))
+
+Reading only the explicit lines therefore reported almost every actor as a
+dummy while all of them were in fact built, which is exactly the kind of stale
+measurement this port keeps getting caught by. The wildcard is honoured below.
 """
 import collections
 import os
@@ -36,8 +45,39 @@ def actor_id_of_overlay(name):
 
 
 def built_actor_ids():
+    """Actor ids whose overlay is genuinely compiled into the PSP build.
+
+    Two sources, because the makefile uses both: the explicit `PSP_C_FILES +=`
+    lines, and the wildcard sweep over src/overlays/actors. If the sweep is
+    present, every directory it matches counts -- checking the filesystem
+    rather than the makefile text is the only way to see what it expands to.
+    """
     text = open(MAKEFILE).read()
-    return {actor_id_of_overlay(m) for m in re.findall(r"ovl_[A-Za-z_0-9]+", text)}
+    ids = {actor_id_of_overlay(m) for m in re.findall(r"ovl_[A-Za-z_0-9]+", text)}
+
+    if "wildcard src/overlays/actors/ovl_*/z_*.c" in text:
+        actors_dir = os.path.join(ROOT, "src", "overlays", "actors")
+        if os.path.isdir(actors_dir):
+            for name in os.listdir(actors_dir):
+                if not name.startswith("ovl_"):
+                    continue
+                d = os.path.join(actors_dir, name)
+                if not os.path.isdir(d):
+                    continue
+                # The sweep only picks up z_*.c that are not .inc.c.
+                if any(f.startswith("z_") and f.endswith(".c") and not f.endswith(".inc.c")
+                       for f in os.listdir(d)):
+                    ids.add(actor_id_of_overlay(name))
+
+    # A few actors are not overlays at all -- they are linked into `code` and
+    # live in src/code/z_en_*.c (En_Item00 is the one that matters: 173
+    # placements across 28 scenes). Judging those by the ovl_ directories alone
+    # reported them as dummies while they were compiled all along.
+    for line in text.splitlines():
+        m = re.search(r"src/code/(z_en_[a-z_0-9]+)\.c", line)
+        if m and not line.strip().startswith("#"):
+            ids.add("ACTOR_" + m.group(1)[len("z_"):].upper())
+    return ids
 
 
 def scan():

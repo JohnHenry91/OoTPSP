@@ -1918,7 +1918,36 @@ void Environment_ChangeLightSetting(PlayState* play, u32 lightSetting) {
  *
  * An example usage of a filter is to dim the skybox in cloudy conditions.
  */
+#if TARGET_PSP
+/* N38 probe. In a SKYBOX_UNSET_1D scene -- Lost Woods and Kokiri Forest among
+ * them -- there IS no skybox: what stands in for the sky is the screen-filling
+ * rectangle below, drawn opaque in lightCtx.fogColor. A black sky therefore
+ * says fogColor is (0,0,0), which is the same question N21/N33 ask ("why does
+ * the fog not arrive in some scenes"). Recording it here, at the one place the
+ * colour is actually consumed, turns the visible sky into a measurement of it.
+ *
+ * gPspEnvFilterDrawn is the condition's own verdict, so "the fill never ran"
+ * and "the fill ran and was black" stay distinguishable. */
+u32 gPspEnvFogColor;
+u32 gPspEnvFogNearFar;
+u32 gPspEnvSkyboxId;
+u32 gPspEnvFilterDrawn;
+#endif
+
 void Environment_DrawSkyboxFilters(PlayState* play) {
+#if TARGET_PSP
+    gPspEnvSkyboxId = (u32)play->skyboxId;
+    gPspEnvFogColor = ((u32)play->lightCtx.fogColor[0] << 16) |
+                      ((u32)play->lightCtx.fogColor[1] << 8) |
+                      ((u32)play->lightCtx.fogColor[2]);
+    gPspEnvFogNearFar = ((u32)(u16)play->lightCtx.fogNear << 16) |
+                        ((u32)(u16)play->lightCtx.zFar);
+    gPspEnvFilterDrawn =
+        ((((play->skyboxId != SKYBOX_NONE) && (play->lightCtx.fogNear < 980)) ||
+          (play->skyboxId == SKYBOX_UNSET_1D))
+             ? 1U
+             : 0U);
+#endif
     if (((play->skyboxId != SKYBOX_NONE) && (play->lightCtx.fogNear < 980)) || (play->skyboxId == SKYBOX_UNSET_1D)) {
         f32 alpha;
 

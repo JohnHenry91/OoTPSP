@@ -11,6 +11,13 @@
 
 #include "gfx/gfx_pc_frame_snapshot.h"
 
+/* z_kankyo.c's Environment_DrawSkyboxFilters probe -- see the comment there.
+ * In a SKYBOX_UNSET_1D scene the "sky" IS this fill, in fogColor. */
+extern u32 gPspEnvFogColor;
+extern u32 gPspEnvFogNearFar;
+extern u32 gPspEnvSkyboxId;
+extern u32 gPspEnvFilterDrawn;
+
 static int sPending;
 static unsigned int sSeq;
 static unsigned int sStatCount;
@@ -336,13 +343,18 @@ static void PspScreenshotWriteCounters(void) {
                        "bindDesync %u\nbindDesyncFrame %u\nbindDesync2nd %u\nlerp2Draws %u\n"
                        "texOffDraws %u\ntexSc0Draws %u\n"
                        "fogDraws %u\nfogBadRange %u\n"
-                       "lightsMax %u\nlightsOverOld %u\nambColor %06x\nlitColor %06x\n",
+                       "lightsMax %u\nlightsOverOld %u\nambColor %06x\nlitColor %06x\n"
+                       "skyboxId %u\nfogColor %06x\nfogNear %u\nzFar %u\nenvFilterDrawn %u\n",
                        g.tex_unswap_yes, g.tex_unswap_no,
                        g.sky_tex_imports, g.sky_tex_unswap, g.sky_tex_hits,
                        g.sky_seg0, g.sky_seg0_native, g.sky_pal, g.sky_pal_native,
                        g.bind_desyncs, g.bind_desyncs_frame, g.bind_desyncs_2nd, g.lerp2_draws,
                        g.tex_off_draws, g.tex_sc0_draws, g.fog_draws, g.fog_bad_range,
-                       g.lights_max, g.lights_over_old, g.amb_color, g.lit_color);
+                       g.lights_max, g.lights_over_old, g.amb_color, g.lit_color,
+                       gPspEnvSkyboxId, gPspEnvFogColor,
+                       (unsigned)(gPspEnvFogNearFar >> 16),
+                       (unsigned)(gPspEnvFogNearFar & 0xFFFFu),
+                       gPspEnvFilterDrawn);
         if (len > 0) {
             sceIoWrite(fd, text, (SceSize)len);
         }

@@ -216,6 +216,9 @@ extern int gPspBigTriU0, gPspBigTriV0, gPspBigTriU1, gPspBigTriV1, gPspBigTriU2,
  * makes a sampler-state change take effect on already-bound textures. */
 extern void gfx_scegu_invalidate_texture_binding(void);
 
+/* gfx_scegu.c -- the per-frame GU_ALPHA_TEST switch. */
+extern int gDebugAlphaTest;
+
 typedef struct {
     const char* name;
     int* value;
@@ -241,6 +244,13 @@ static const PspRenderHack sHacks[] = {
      * straight back off. Living in the same list keeps one place to look. */
     { "Disable distance fog", &gPspFogMode, 0 },
     { "Pillarbox 2D rects (old behaviour)", &gPspRect2dPillarbox, 1 },
+    /* The blunt alpha discard. gfx_scegu_start_frame turns GU_ALPHA_TEST on
+     * every frame with GU_GREATER, 0x55 -- every fragment with alpha <= 85 is
+     * thrown away, whatever other_mode_l's alpha compare actually asked for.
+     * A light shaft is a gradient from opaque at the top to clear at the
+     * bottom, so it gets cut off in mid-air rather than reaching the floor.
+     * Off = let the faded end through. See FEHLERLISTE2 N37. */
+    { "Disable blunt alpha discard (0x55)", &gDebugAlphaTest, 0 },
     { "Dump probed texture to ms0:/bigtex.bin", &sDumpProbeTexture, 1 },
 };
 
