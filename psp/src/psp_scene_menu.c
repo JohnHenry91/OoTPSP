@@ -218,6 +218,8 @@ extern void gfx_scegu_invalidate_texture_binding(void);
 
 /* gfx_scegu.c -- the per-frame GU_ALPHA_TEST switch. */
 extern int gDebugAlphaTest;
+/* gfx_pc.c -- pick the old single-bit use_alpha test over the reference one. */
+extern int gPspUseAlphaLegacy;
 
 typedef struct {
     const char* name;
@@ -251,6 +253,10 @@ static const PspRenderHack sHacks[] = {
      * blunt cut may have been hiding missing sorting of transparent surfaces.
      * See FEHLERLISTE2 N37. */
     { "Blunt alpha discard 0x55 (old behaviour)", &gDebugAlphaTest, 1 },
+    /* use_alpha: sm64-port's single-bit test (old) vs the three-part one both
+     * reference ports use. Decides whether a shader gets the texture's alpha
+     * channel at all -- see gfx_use_alpha_for. On = old single-bit test. */
+    { "use_alpha: single-bit test (old behaviour)", &gPspUseAlphaLegacy, 1 },
     { "Dump probed texture to ms0:/bigtex.bin", &sDumpProbeTexture, 1 },
 };
 

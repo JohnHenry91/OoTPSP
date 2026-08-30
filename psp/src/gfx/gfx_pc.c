@@ -181,6 +181,47 @@ static uint16_t color_combiner_pool_size;
 uint32_t gPspLightsMax;
 uint32_t gPspLightsOverOld;
 
+/* How the two reference ports decide whether a draw's alpha matters.
+ *
+ * Ours was `(other_mode_l & (G_BL_A_MEM << 18)) == 0` -- a single bit, taken
+ * unchanged from sm64-port, and it feeds tcc_for_alpha's opt_alpha guard:
+ * false there means the shader is bound GU_TCC_RGB, i.e. alpha comes from the
+ * vertex ALONE and the texture's alpha channel never reaches the blender.
+ *
+ * reference/oot-psp-z2442 (gfx_fast3d.c:3239-3250) asks three questions
+ * instead, and reference/daedalus -- an N64 emulator on this same GE --
+ * doesn't gate on blending at all (RenderSettings.cpp:155-166: the alpha row
+ * using a texel is the whole test). The N64's alpha channel is used for the
+ * alpha COMPARE as well as for blending, so "is the blender reading the
+ * framebuffer" is the wrong question to hang it on: SETUPDL_65 (Navi's glow)
+ * and SETUPDL_20 (the forest motes) both ask for G_AC_THRESHOLD.
+ *
+ * Switchable so the two can be held against each other in one build --
+ * gPspUseAlphaLegacy = 1 restores the single-bit test. */
+static inline bool gfx_blend_cycle_uses_framebuffer(uint32_t other_mode_l, uint32_t m2a_shift,
+                                                    uint32_t m2b_shift) {
+    uint32_t m2a = (other_mode_l >> m2a_shift) & 3;
+    uint32_t m2b = (other_mode_l >> m2b_shift) & 3;
+
+    return (m2a == G_BL_CLR_MEM) && ((m2b == G_BL_1MA) || (m2b == G_BL_1));
+}
+
+int gPspUseAlphaLegacy;
+
+static inline bool gfx_use_alpha_for(uint32_t other_mode_l) {
+    if (gPspUseAlphaLegacy) {
+        return (other_mode_l & (G_BL_A_MEM << 18)) == 0;
+    }
+
+    const uint32_t alpha_compare = other_mode_l & (3U << G_MDSFT_ALPHACOMPARE);
+    const bool alpha_blend = (other_mode_l & FORCE_BL) &&
+                             (gfx_blend_cycle_uses_framebuffer(other_mode_l, 22, 18) ||
+                              gfx_blend_cycle_uses_framebuffer(other_mode_l, 20, 16));
+    const bool texture_edge = (other_mode_l & CVG_X_ALPHA) == CVG_X_ALPHA;
+
+    return alpha_blend || texture_edge || (alpha_compare != G_AC_NONE);
+}
+
 static struct RSP {
     float modelview_matrix_stack[11][4][4]__attribute__((aligned(16)));
 
@@ -3028,7 +3069,7 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     
     uint32_t cc_id = rdp.combine_mode;
     
-    bool use_alpha = (rdp.other_mode_l & (G_BL_A_MEM << 18)) == 0;
+    bool use_alpha = gfx_use_alpha_for(rdp.other_mode_l);
     bool use_fog = (rdp.other_mode_l >> 30) == G_BL_CLR_FOG;
     bool texture_edge = (rdp.other_mode_l & CVG_X_ALPHA) == CVG_X_ALPHA;
     bool use_noise = (rdp.other_mode_l & G_AC_DITHER) == G_AC_DITHER;
@@ -3731,7 +3772,7 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
     
     uint32_t cc_id = rdp.combine_mode;
     
-    bool use_alpha = (rdp.other_mode_l & (G_BL_A_MEM << 18)) == 0;
+    bool use_alpha = gfx_use_alpha_for(rdp.other_mode_l);
     bool use_fog = (rdp.other_mode_l >> 30) == G_BL_CLR_FOG;
     bool texture_edge = (rdp.other_mode_l & CVG_X_ALPHA) == CVG_X_ALPHA;
     bool use_noise = (rdp.other_mode_l & G_AC_DITHER) == G_AC_DITHER;
