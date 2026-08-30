@@ -1611,6 +1611,47 @@ void gfx_scegu_lerp2_blend_end(void) {
     }
 }
 
+/* Fog mode 2's second pass -- see gPspFogSecondPass in gfx_pc.c. Ported from
+ * reference/oot-psp-z2442 (commit 471a7eae7, "FOG!"): draw the same triangle
+ * again, flat fog-coloured and untextured, blended over the first pass by
+ * ordinary alpha (the vertex alpha carries the per-vertex N64 fog factor,
+ * written at the vertex-buffering site in gfx_sp_tri1 -- this function only
+ * owns the GE state around that draw, not the vertices themselves).
+ *
+ * GU_EQUAL, not the base pass's own depth func: the geometry is bitwise the
+ * same triangle at the same position as the base pass just drew (same
+ * argument as gfx_scegu_lerp2_blend_begin), so its depth compares equal
+ * exactly where the base pass wrote depth -- which is to say, exactly the
+ * pixels that passed the base pass's own alpha test. That is what keeps an
+ * alpha-tested cutout (foliage, a grate) from getting a flat fog-coloured
+ * quad drawn over the holes: a discarded pixel never had its depth written,
+ * so it can never compare equal here either. */
+void gfx_scegu_fog2_blend_begin(void) {
+    sceGuDisable(GU_TEXTURE_2D);
+    sceGuEnable(GU_BLEND);
+    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    sceGuDepthFunc(GU_EQUAL);
+}
+
+/* Hand GU_TEXTURE_2D and the depth func back exactly as gfx_pc.c's own state
+ * believes they are left -- the same discipline gfx_scegu_lerp2_blend_end
+ * documents, and for the same reason: GU_TEXTURE_2D is only ever re-applied
+ * by gfx_scegu_apply_shader on a SHADER CHANGE (see there), and this pass
+ * deliberately makes none, so leaving it disabled would silently carry over
+ * into whatever ordinary draw comes next. `textured` is the caller's own
+ * used_textures[0]||[1] for the material this fog pass was drawn for. */
+void gfx_scegu_fog2_blend_end(bool textured) {
+    sceGuDepthFunc(GU_GEQUAL); /* matches gfx_scegu_set_depth_test's own func */
+    if (textured) {
+        sceGuEnable(GU_TEXTURE_2D);
+    } else {
+        sceGuDisable(GU_TEXTURE_2D);
+    }
+    if (!gl_blend) {
+        sceGuDisable(GU_BLEND);
+    }
+}
+
 void gfx_scegu_draw_triangles_2d(float buf_vbo[], UNUSED size_t buf_vbo_len, UNUSED size_t buf_vbo_num_tris) {
     if (!is_shader_enabled(cur_shader->shader_id)) {
         gfx_scegu_apply_shader(get_shader_from_id(get_shader_remap(cur_shader->shader_id)));

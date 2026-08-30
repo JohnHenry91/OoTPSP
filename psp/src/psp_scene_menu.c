@@ -178,10 +178,12 @@ static void PspSceneMenu_ApplyLayer(s32 layer) {
  * line here plus the global it points at.
  * ------------------------------------------------------------------------- */
 extern int gPspGfxHackNoTexture;
-/* Distance fog on the GE's fog unit -- see psp_fog_apply in gfx_pc.c. Listed
- * as a hack because it changes the look of every scene with a fog colour, and
- * because it is an approximation of the N64's ramp rather than a port of it,
- * so being able to turn it off in place is the only honest way to judge it. */
+/* Distance fog -- see psp_fog_apply in gfx_pc.c. Defaults to mode 2, the
+ * two-pass blend that ports the RDP's own per-pixel lerp; the entries below
+ * are the ways OUT of that default (off entirely, or back to the GE fog
+ * unit's cheaper approximation), kept because fog changes the look of every
+ * scene with a fog colour and an in-place A/B is the only honest way to
+ * judge it. */
 extern int gPspFogMode;
 /* Pillarboxing of 2D rectangles -- the "coloured box with black bars" bug.
  * See the long comment in gfx_draw_rectangle. */
@@ -245,6 +247,16 @@ static const PspRenderHack sHacks[] = {
     /* Not really a toggle -- flipping it on performs the dump and it is turned
      * straight back off. Living in the same list keeps one place to look. */
     { "Disable distance fog", &gPspFogMode, 0 },
+    /* Both this entry and the one above write &gPspFogMode, so toggling both
+     * on leaves whichever was toggled LAST in charge -- same as toggling any
+     * other pair of mutually exclusive diagnostics here, not a new problem.
+     *
+     * The two-pass blend (mode 2) is now the DEFAULT, so this entry is the
+     * way back to the old GE-hardware-fog approximation (mode 1) rather than
+     * the way forward to the new one: toggling it off restores mode 2 like
+     * every other entry restores its default. See the gPspFogSecondPass
+     * comment in gfx_pc.c for what the two modes actually do. */
+    { "Fog: GE hardware fog (old approximation)", &gPspFogMode, 1 },
     { "Pillarbox 2D rects (old behaviour)", &gPspRect2dPillarbox, 1 },
     /* The old blanket alpha discard: GU_ALPHA_TEST forced on for the whole
      * frame with GU_GREATER, 0x55, throwing away every fragment below alpha

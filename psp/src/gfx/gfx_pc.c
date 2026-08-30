@@ -88,6 +88,12 @@ extern void gfx_scegu_draw_triangles_2d(float buf_vbo[], size_t buf_vbo_len, siz
  * terrain LERP's second pass (see gPspLerp2SecondPass in gfx_sp_tri1). */
 extern void gfx_scegu_lerp2_blend_begin(uint8_t mix);
 extern void gfx_scegu_lerp2_blend_end(void);
+/* gfx_scegu.c -- untextured GU_BLEND overlay used to draw fog mode 2's
+ * second pass (see gPspFogSecondPass in gfx_sp_tri1). `textured` tells
+ * blend_end whether GU_TEXTURE_2D has to come back on, since the GE only
+ * re-applies that on a shader change and this pass deliberately makes none. */
+extern void gfx_scegu_fog2_blend_begin(void);
+extern void gfx_scegu_fog2_blend_end(bool textured);
 extern float identity_matrix[4][4];
 
 struct RGBA {
@@ -237,6 +243,15 @@ static struct RSP {
     
     uint32_t geometry_mode;
     int16_t fog_mul, fog_offset;
+    /* G_RDPHALF_1's payload, consumed by G_BRANCH_Z (see gfx_run_dl). OoT's
+     * scene-chunk / detail-level display lists use this pair to jump to a
+     * different display list depending on distance -- Death Mountain Trail
+     * and other outdoor scenes with far detail chunks rely on it. Ported
+     * from reference/oot-psp-z2442 commit f234ee7f2 ("fix daeth mountain
+     * trail"): this port never implemented the pair at all, so every such
+     * branch silently fell through the switch and the far chunk's geometry
+     * never rendered -- "half the floor/walls missing" is exactly that. */
+    uint32_t rdp_half_1;
     
     struct {
         // U0.16
@@ -324,7 +339,21 @@ static struct RDP {
     uint8_t combine_c0_raw;
     /* Low byte of G_SETPRIMCOLOR: the other legal mix source for that LERP. */
     uint8_t prim_lod_frac;
-    
+    /* True when cycle 2's ALPHA row is (COMBINED - 0) * PRIMITIVE + 0 and
+     * cycle 1's alpha is the constant 1 -- i.e. the finished alpha is meant
+     * to be PRIM's alpha, unmodified. Unlike combine_cyc2_tint above, this
+     * port's G_SETCOMBINE handler never captured cycle 2's alpha row AT ALL
+     * (see the dead comment next to where combine_cyc2_tint is set --
+     * "alpha cycle 2 would be color_comb(...)", never actually read); every
+     * material shaped this way rendered fully opaque instead of respecting
+     * PRIM's alpha, since cycle 1 alone reduces to "always 1". OoT's water
+     * materials use exactly this shape for their fade. Ported from
+     * reference/oot-psp-z2442 commit 9a3b2926c ("fix water blending"),
+     * adapted the same way combine_cyc2_tint is: computed once at
+     * G_SETCOMBINE time from the raw operands, applied at draw time only in
+     * 2-cycle mode (see its use next to alpha_src in gfx_sp_tri1). */
+    bool combine_cyc2_alpha_is_prim;
+
     struct RGBA env_color, prim_color, fog_color, fill_color;
     struct XYWidthHeight viewport, scissor;
     bool viewport_or_scissor_changed;
@@ -2669,15 +2698,82 @@ static inline bool psp_depth_test_enabled(void) {
  * one; gPspFogMode makes the comparison possible without a rebuild.
  */
 
-/* 0 = off (the behaviour up to now), 1 = GE hardware fog. Runtime-switchable
- * from the hack menu, because this changes the look of every outdoor scene. */
-int gPspFogMode = 1;
+/* 0 = off, 1 = GE hardware fog (the approximation described above), 2 = the
+ * two-pass blend (see gPspFogSecondPass below). Runtime-switchable from the
+ * hack menu, because this changes the look of every outdoor scene.
+ *
+ * Default 2, not 1: mode 2 is a faithful port of the RDP's own per-pixel lerp
+ * rather than a two-point fit to a differently-shaped ramp, so it is right
+ * across the whole distance range instead of only at the endpoints and the
+ * halfway point. Mode 1 stays reachable from the hack menu as the cheaper
+ * fallback and as the A/B partner for judging mode 2. */
+int gPspFogMode = 2;
 
 /* Draws that asked for fog, and draws where the conversion could not produce a
  * usable range (a degenerate projection, or fog_mul == 0). The second being
  * non-zero means the maths below, not the GE, is what to look at. */
 uint32_t gPspFogDraws;
 uint32_t gPspFogBadRange;
+
+/* --- Fog mode 2: two-pass blend --------------------------------------------
+ *
+ * Mode 1 above fits sceGuFog's EYE-SPACE-linear ramp to the N64's
+ * 1/eye-space-linear one at two points and accepts the mismatch in between
+ * (see THE APPROXIMATION above) -- cheap (one extra GE register write per
+ * fog-colour change), but wrong in the middle of the range, which is exactly
+ * what "too strong in some scenes, absent in others" (FEHLERLISTE2) looks
+ * like for a ramp that is fitted at the wrong two points for a given
+ * near/far.
+ *
+ * The exact fix, ported from reference/oot-psp-z2442 (commit 471a7eae7,
+ * "FOG!"): resubmit the SAME triangle through gfx_sp_tri1 a second time,
+ * this time with a flat fog-coloured, untextured vertex colour whose ALPHA
+ * is the true per-vertex N64 fog factor (the identity this port's own
+ * comment above already derives: fog = clamp(z_ndc*fog_mul+fog_offset,
+ * 0, 255)), blended over the first pass with ordinary SRC_ALPHA. That is
+ * the RDP's own per-pixel lerp towards fog_color, done in a second pass
+ * because the GE has no equivalent blend stage of its own.
+ *
+ * z2442 keeps a second, parallel vertex buffer and a dedicated
+ * draw_fog_triangles call in its rendering API for this. This port already
+ * tried that shape once for a different feature (the terrain LERP's second
+ * pass) and it silently drew the wrong thing -- see the LERP comment on
+ * gPspLerp2SecondPass below for why two buffers in lockstep is the wrong
+ * shape here. So mode 2 reuses that same recursive-resubmission technique
+ * instead: gPspFogSecondPass, read at the vertex-colour site in gfx_sp_tri1
+ * and at the trigger just below the LERP block, forces exactly the colour
+ * and blend state the second pass needs while going through the ordinary
+ * clip/transform/UV code path -- it cannot disagree with the first pass
+ * about where the triangle is. */
+int gPspFogSecondPass;
+uint32_t gPspFog2Draws;
+
+/* The N64 fog factor for one already-clipped vertex: clamp(z_ndc*fog_mul +
+ * fog_offset, 0, 255). Same derivation as psp_fog_apply's WHAT THE N64 DOES
+ * above and the dead code in gfx_sp_vertex this replaces, but evaluated per
+ * vertex AFTER clipping (v->_z/_w, not the pre-transform x/y/z/w) since that
+ * is what is available at the vertex-buffering site in gfx_sp_tri1. */
+static inline uint8_t psp_fog_vertex_alpha(const struct LoadedVertex *v) {
+    if (rsp.fog_mul == 0) {
+        /* Gfx_SetFog's specials (see psp_fog_apply): offset >= 255 is
+         * "everything fully fogged", anything else is "no fog at all". */
+        return (rsp.fog_offset >= 255) ? 255 : 0;
+    }
+
+    float w = v->_w;
+    if (fabsf(w) < 0.001f) {
+        w = 0.001f;
+    }
+    float winv = 1.0f / w;
+    if (winv < 0.0f) {
+        winv = 32767.0f;
+    }
+
+    float fog_z = v->_z * winv * (float)rsp.fog_mul + (float)rsp.fog_offset;
+    if (fog_z < 0.0f) fog_z = 0.0f;
+    if (fog_z > 255.0f) fog_z = 255.0f;
+    return (uint8_t)fog_z;
+}
 
 static void psp_fog_disable(void) {
     if (rendering_state.fog_enabled != 0) {
@@ -2700,7 +2796,9 @@ static void psp_fog_set(float start, float end, unsigned int color) {
 }
 
 static void psp_fog_apply(void) {
-    if (!gPspFogMode || (rsp.geometry_mode & G_FOG) != G_FOG) {
+    /* Mode 2 leaves the GE's hardware fog unit off entirely -- the two-pass
+     * trigger near the end of gfx_sp_tri1 does the work instead. */
+    if (gPspFogMode != 1 || (rsp.geometry_mode & G_FOG) != G_FOG) {
         psp_fog_disable();
         return;
     }
@@ -3232,7 +3330,18 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
      * recurse forever. */
     bool lerp2 = false;
     uint8_t lerp2_mix = 0;
-    if (!gPspLerp2SecondPass && used_textures[0] && used_textures[1] && gPspGfxLerp2Enable) {
+    /* Also skipped while gPspFogSecondPass is set, for a related reason: fog
+     * mode 2 resubmits this same triangle too, with an unchanged combine id, so
+     * a fogged LERP terrain triangle used to qualify a SECOND time inside its
+     * own fog pass. That ran gfx_scegu_lerp2_blend_begin() over the fog pass's
+     * state, replacing the SRC_ALPHA/1-SRC_ALPHA blend that carries the
+     * per-vertex fog factor with the LERP's fixed ENV/(1-ENV) factors -- so on
+     * two-texture ground (Kakariko's paths, outdoor terrain generally) the fog
+     * colour came in at a constant material fraction instead of by distance,
+     * which reads as the ground changing colour while fog elsewhere looks
+     * right. The fog pass is untextured and flat by construction; there is no
+     * second tile for it to mix in. */
+    if (!gPspLerp2SecondPass && !gPspFogSecondPass && used_textures[0] && used_textures[1] && gPspGfxLerp2Enable) {
         const uint8_t a = (cc_id >> 0) & 7;
         const uint8_t b = (cc_id >> 3) & 7;
         const uint8_t d = (cc_id >> 9) & 7;
@@ -3262,6 +3371,30 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
                     lerp2_mix = rdp.env_color.a;
                     break;
                 case G_CCMUX_PRIM_LOD_FRAC:
+                    lerp2_mix = rdp.prim_lod_frac;
+                    break;
+                /* Fixed-LOD portal/warp-glow materials: the display list sets
+                 * this cycle's C operand to the true LOD_FRACTION register,
+                 * but never turns on real per-pixel texture LOD (no
+                 * G_TL_LOD/detail texturing here) -- on real RDP hardware
+                 * LOD_FRACTION then just reads back whatever gDPSetPrimColor
+                 * last wrote into PRIM_LOD_FRAC, i.e. this case and the one
+                 * above are the SAME hardware value for these materials.
+                 * Before this, an unrecognised C operand fell through to
+                 * `have_mix = false`, this shape missed the LERP path
+                 * entirely, and generic combiner handling's CC_LOD case
+                 * synthesised a DISTANCE-based fraction instead of the
+                 * fixed one -- close to the camera that reads near 0, so
+                 * the glow came out black instead of tinted. Ported from
+                 * reference/oot-psp-z2442 commit d6411ef9c
+                 * ("fix exit warps"), adapted to this port's shape: z2442
+                 * special-cases the combine in its shader-selection code,
+                 * this port already has a general two-texture-LERP second
+                 * pass for exactly this cycle-1 shape (TEXEL1,TEXEL0,mix,
+                 * TEXEL0), so recognising this operand here is enough to
+                 * route it through that existing, proven mechanism instead
+                 * of adding a second one. */
+                case G_CCMUX_LOD_FRACTION:
                     lerp2_mix = rdp.prim_lod_frac;
                     break;
                 case G_CCMUX_PRIMITIVE_ALPHA:
@@ -3650,8 +3783,22 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
          * a constant 1 means. Note this also stops the vertex alpha picking up
          * gfx_sp_vertex's fog factor, which it stores in color.a when G_FOG is
          * set (the room's display lists do set it) and which is not an alpha at
-         * all; that is the likely source of the walls' half-transparent look. */
-        buf_vbo[buf_num_vert].color.a = alpha_src->a;
+         * all; that is the likely source of the walls' half-transparent look.
+         *
+         * Exception: cycle 2 alpha == COMBINED*PRIMITIVE over a cycle-1
+         * constant 1 (see combine_cyc2_alpha_is_prim) means the material
+         * WANTS PRIM's alpha here, not the opaque default that "constant 1"
+         * reduces to on its own -- water materials use this shape for their
+         * fade. Gated on 2-cycle mode the same way combine_cyc2_tint is: the
+         * flag is computed unconditionally at G_SETCOMBINE time from
+         * whatever bits happen to be there, and only means anything once
+         * G_SETOTHERMODE_H has actually turned 2-cycle mode on. */
+        if (rdp.combine_cyc2_alpha_is_prim &&
+            (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) {
+            buf_vbo[buf_num_vert].color.a = rdp.prim_color.a;
+        } else {
+            buf_vbo[buf_num_vert].color.a = alpha_src->a;
+        }
 
         /* Shade probe -- the other half of the cut, see PspGfxFrameStats.
          * Only textured, lit draws: that is the walls and the floor. */
@@ -3672,6 +3819,19 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         if((rendering_state.shader_program->shader_id == 0x01A00045)){
             color = &tmp;
         }
+#if TARGET_PSP
+        /* Fog mode 2's second pass: overrides every material-specific colour
+         * decided above with flat fog_color, alpha = this vertex's N64 fog
+         * factor. Deliberately the LAST write before buffering, so it wins
+         * over the shader-id special cases too -- the fog pass has to look
+         * the same regardless of what material the base pass drew. */
+        if (gPspFogSecondPass) {
+            buf_vbo[buf_num_vert].color.r = rdp.fog_color.r;
+            buf_vbo[buf_num_vert].color.g = rdp.fog_color.g;
+            buf_vbo[buf_num_vert].color.b = rdp.fog_color.b;
+            buf_vbo[buf_num_vert].color.a = psp_fog_vertex_alpha(clipped_vertices[i]);
+        }
+#endif
         buf_num_vert++;
         buf_vbo_len += sizeof(psp_fast_t);
     }
@@ -3723,6 +3883,29 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         gfx_lerp2_assert_texture_state();
         gfx_scegu_lerp2_blend_end();
         gPspLerp2Draws++;
+    }
+
+    /* Fog mode 2's second pass -- see the long comment on gPspFogSecondPass
+     * above psp_fog_apply. Runs AFTER the LERP block on purpose: if this
+     * triangle is both a terrain LERP and fogged, the LERP block above has
+     * already flushed its own blended result into the framebuffer, so this
+     * pass draws fog over the composed picture instead of only over the
+     * LERP's first half.
+     *
+     * fog_mul == 0 && fog_offset < 255 is Gfx_SetFog's "no fog at all"
+     * special case (see psp_fog_apply); skipped here to save the draw
+     * instead of submitting a triangle whose every vertex would come out at
+     * alpha 0 anyway. */
+    if (!gPspFogSecondPass && gPspFogMode == 2 && (rsp.geometry_mode & G_FOG) == G_FOG &&
+        (rsp.fog_mul != 0 || rsp.fog_offset >= 255)) {
+        gfx_flush(); /* the base pass must be in the framebuffer before fog blends over it */
+        gfx_scegu_fog2_blend_begin();
+        gPspFogSecondPass = 1;
+        gfx_sp_tri1(vtx1_idx, vtx2_idx, vtx3_idx);
+        gfx_flush();
+        gPspFogSecondPass = 0;
+        gfx_scegu_fog2_blend_end(used_textures[0] || used_textures[1]);
+        gPspFog2Draws++;
     }
 #endif
 }
@@ -4176,14 +4359,24 @@ static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t t
         rdp.texture_tile[tile].cms = cms;
         rdp.texture_tile[tile].cmt = cmt;
         rdp.texture_tile[tile].line_size_bytes = line * 8;
-        rdp.texture_tile[tile].tmem_slot = (tmem / 256) & 1;
+        /* Which of this port's only TWO tracked texture slots (this is a
+         * simplified stand-in for the RDP's real 4KB TMEM, not a full
+         * emulation of it -- see LOADED_TEX) a nonzero TMEM base belongs to.
+         * Was `(tmem / 256) & 1`, which only tells slot 0 (0x000) from slot 1
+         * at exactly 0x100 apart; OoT's two-texture display lists also place
+         * tile 1 at TMEM 0x80 for smaller tiles, which that formula still
+         * read as slot 0, colliding with whatever tile 0 had just loaded.
+         * Since there are only two slots here regardless of the real TMEM
+         * offset, "nonzero" is the whole test. Ported from
+         * reference/oot-psp-z2442 commit 3f7c9cf3c ("Improve skybox!"). */
+        rdp.texture_tile[tile].tmem_slot = (tmem != 0) ? 1 : 0;
         rdp.texture_tile[tile].shifts = shifts & 0xf;
         rdp.texture_tile[tile].shiftt = shiftt & 0xf;
         rdp.textures_changed[tile] = true;
     }
 
     if (tile == G_TX_LOADTILE) {
-        rdp.texture_to_load.tile_number = tmem / 256;
+        rdp.texture_to_load.tile_number = (tmem != 0) ? 1 : 0;
     }
 }
 
@@ -4438,6 +4631,18 @@ static uint8_t combine_cycle2_tint(uint32_t a, uint32_t b, uint32_t c, uint32_t 
     }
 
     return (reg == CC_PRIM || reg == CC_ENV || reg == CC_SHADE) ? reg : CC_0;
+}
+
+/* Cycle 1 alpha == the constant 1 ((0-0)*0+1) and cycle 2 alpha ==
+ * (COMBINED-0)*PRIMITIVE+0, i.e. the finished alpha is just PRIM's alpha.
+ * Raw G_ACMUX_* operands, not CC_* codes -- same reasoning as
+ * combine_c0_raw above: CC_* has no way to say "this scalar, unmodified". */
+static bool combine_cycle2_alpha_is_prim(uint32_t a0, uint32_t b0, uint32_t c0, uint32_t d0,
+                                         uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1) {
+    if (a0 != G_ACMUX_0 || b0 != G_ACMUX_0 || c0 != G_ACMUX_0 || d0 != G_ACMUX_1) {
+        return false;
+    }
+    return (a1 == G_ACMUX_COMBINED) && (b1 == G_ACMUX_0) && (c1 == G_ACMUX_PRIMITIVE) && (d1 == G_ACMUX_0);
 }
 
 static void gfx_dp_set_combine_mode(uint32_t rgb, uint32_t alpha) {
@@ -5137,6 +5342,23 @@ static void gfx_run_dl(Gfx* cmd) {
                 gfx_sp_texture(C1(16, 16), C1(0, 16), C0(11, 3), C0(8, 3), C0(0, 8));
 #endif
                 break;
+            case (uint8_t)G_RDPHALF_1:
+                rsp.rdp_half_1 = cmd->words.w1;
+                break;
+            case (uint8_t)G_BRANCH_Z:
+                /* This port keeps vertices in OBJECT space and lets the GE
+                 * transform at draw time (see LoadedVertex's mtx_slot_at_load
+                 * comment), so it never has the RSP's fixed-point screen Z the
+                 * real hardware branches on. Follow the branch unconditionally
+                 * whenever the display list actually set one up -- rendering
+                 * the detailed chunk at every distance costs more triangles
+                 * than a real LOD switch would, but a missing chunk is a worse
+                 * defect than an early one. */
+                if (rsp.rdp_half_1 != 0) {
+                    cmd = (Gfx *)seg_addr(rsp.rdp_half_1);
+                    --cmd;
+                }
+                break;
             case G_VTX:
 #ifdef F3DEX_GBI_2
                 gfx_sp_vertex(C0(12, 8), C0(1, 7) - C0(12, 8), seg_addr(cmd->words.w1));
@@ -5288,7 +5510,9 @@ static void gfx_run_dl(Gfx* cmd) {
                  * purpose so shader ids are unaffected. */
                 rdp.combine_cyc2_tint = combine_cycle2_tint(C0(5, 4), C1(24, 4), C0(0, 5), C1(6, 3));
                 rdp.combine_c0_raw = C0(15, 5);
-                /* alpha cycle 2 would be color_comb(C1(21,3), C1(3,3), C1(18,3), C1(0,3)) */
+                rdp.combine_cyc2_alpha_is_prim = combine_cycle2_alpha_is_prim(
+                    C0(12, 3), C1(12, 3), C0(9, 3), C1(9, 3),
+                    C1(21, 3), C1(3, 3), C1(18, 3), C1(0, 3));
                 break;
             // G_SETPRIMCOLOR, G_CCMUX_PRIMITIVE, G_ACMUX_PRIMITIVE, is used by Goddard
             // G_CCMUX_TEXEL1, LOD_FRACTION is used in Bowser room 1
@@ -5385,6 +5609,7 @@ static void gfx_sp_reset() {
      * counted as "texturing switched off" -- that would be a measurement
      * artefact, not the condition tex_off_draws is asking about. */
     rsp.texture_on = true;
+    rsp.rdp_half_1 = 0;
 }
 
 void gfx_get_dimensions(uint32_t *width, uint32_t *height) {
