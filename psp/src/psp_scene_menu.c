@@ -244,13 +244,13 @@ static const PspRenderHack sHacks[] = {
      * straight back off. Living in the same list keeps one place to look. */
     { "Disable distance fog", &gPspFogMode, 0 },
     { "Pillarbox 2D rects (old behaviour)", &gPspRect2dPillarbox, 1 },
-    /* The blunt alpha discard. gfx_scegu_start_frame turns GU_ALPHA_TEST on
-     * every frame with GU_GREATER, 0x55 -- every fragment with alpha <= 85 is
-     * thrown away, whatever other_mode_l's alpha compare actually asked for.
-     * A light shaft is a gradient from opaque at the top to clear at the
-     * bottom, so it gets cut off in mid-air rather than reaching the floor.
-     * Off = let the faded end through. See FEHLERLISTE2 N37. */
-    { "Disable blunt alpha discard (0x55)", &gDebugAlphaTest, 0 },
+    /* The old blanket alpha discard: GU_ALPHA_TEST forced on for the whole
+     * frame with GU_GREATER, 0x55, throwing away every fragment below alpha
+     * 85 whatever other_mode_l asked for. Now off by default -- the test
+     * follows the render mode per draw instead. Kept switchable because the
+     * blunt cut may have been hiding missing sorting of transparent surfaces.
+     * See FEHLERLISTE2 N37. */
+    { "Blunt alpha discard 0x55 (old behaviour)", &gDebugAlphaTest, 1 },
     { "Dump probed texture to ms0:/bigtex.bin", &sDumpProbeTexture, 1 },
 };
 

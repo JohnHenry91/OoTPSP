@@ -436,6 +436,43 @@ static inline bool is_n64_logo_text_combine(struct ShaderProgram *prg) {
            prg->cc.c[0][2] == SHADER_INPUT_2 && prg->cc.c[0][3] == SHADER_TEXEL0;
 }
 
+/* (PRIM - ENV) * TEXEL0 + ENV  --  a genuine LERP between two colour
+ * registers, steered by the texture. OoT uses it for the Kokiri forest's
+ * floating dust motes (gKokiriDustMoteMaterialDL), whose two variants are
+ * white core / blue rim and pale-yellow core / orange rim.
+ *
+ * This is NOT an approximation on the GE. GU_TFX_BLEND computes
+ *     out = Cvertex * (1 - Ct) + Ctexenv * Ct
+ * so with ENV in the vertex colour (which gfx_sp_tri1's input loop already
+ * puts there -- ENV is the last matched input) and PRIM as the tex-env
+ * colour, that is exactly (PRIM - ENV) * T + ENV. The alpha row
+ * (PRIM - 0) * TEXEL0 + 0 lands correctly too: BLEND takes alpha as
+ * Avertex * Atexture, and the input loop puts PRIM in the vertex alpha.
+ *
+ * Under the inherited default of GU_TFX_MODULATE the result was
+ * ENV * TEXEL0 instead -- the rim colour everywhere, no core. That is why
+ * the motes came out blue and orange rather than white and yellow.
+ *
+ * Matched structurally on the operands, not on a shader id: the identity
+ * above holds wherever the shape holds, so there is nothing to misapply.
+ * Distinct from is_n64_logo_cube_combine, whose shape is (TEXEL0-X)*Y+TEXEL0
+ * and which really is an approximation -- hence its boot-phase gating. */
+static inline bool is_prim_env_lerp_combine(struct ShaderProgram *prg) {
+    return prg->cc.c[0][0] == SHADER_INPUT_1 && prg->cc.c[0][1] == SHADER_INPUT_2 &&
+           prg->cc.c[0][2] == SHADER_TEXEL0 && prg->cc.c[0][3] == SHADER_INPUT_2;
+}
+
+int gfx_scegu_shader_is_prim_env_lerp(void) {
+    return (cur_shader != NULL && is_prim_env_lerp_combine(cur_shader)) ? 1 : 0;
+}
+
+/* The tex-env colour carries PRIM for the LERP above, and PRIM changes per
+ * mote, so gfx_pc.c re-issues this per draw (after a flush) the same way it
+ * does for the two-texture tint. */
+void gfx_scegu_set_lerp_prim_color(uint32_t packed) {
+    sceGuTexEnvColor(packed);
+}
+
 static inline int texenv_set_texture_color(struct ShaderProgram *prg) {
     int mode;
     /*@Hack: lord forgive me for this, but this is easier */
@@ -449,7 +486,11 @@ static inline int texenv_set_texture_color(struct ShaderProgram *prg) {
             mode = GU_TFX_BLEND;
             break;
         default:
-            mode = is_n64_logo_cube_combine(prg) ? GU_TFX_BLEND : GU_TFX_MODULATE;
+            if (is_n64_logo_cube_combine(prg) || is_prim_env_lerp_combine(prg)) {
+                mode = GU_TFX_BLEND;
+            } else {
+                mode = GU_TFX_MODULATE;
+            }
             break;
     }
 
@@ -579,6 +620,21 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
         sceGuDisable(GU_TEXTURE_2D);
         return;
     }
+    /* Alpha test FIRST, before the untextured early-out below.
+     *
+     * This block used to sit after that `return`, so an untextured draw
+     * inherited whatever the last textured one had left switched on. It is
+     * per-draw state, not per-texture state. */
+    if (prg->shader_id & SHADER_OPT_TEXTURE_EDGE) {
+        /* CVG_X_ALPHA (G_RM_AA_ZB_TEX_EDGE et al): the N64 turns partial
+         * coverage into a hard edge. A mid-grey cut is the usual stand-in and
+         * is what leaves foliage, gratings and fences their shape. */
+        sceGuEnable(GU_ALPHA_TEST);
+        sceGuAlphaFunc(GU_GREATER, 0x55, 0xff);
+    } else {
+        sceGuDisable(GU_ALPHA_TEST);
+    }
+
     // If we have textures, Enable otherwise Disable
     if (prg->texture_used[0] || prg->texture_used[1]) {
         sceGuEnable(GU_TEXTURE_2D);
@@ -608,14 +664,6 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
         glColorPointer(4, GL_FLOAT, cur_buf_stride, ofs + hack);
         ofs += 4 * prg->num_inputs;
         */
-    }
-
-    if (prg->shader_id & SHADER_OPT_TEXTURE_EDGE) {
-        // (horrible) alpha discard
-        sceGuEnable(GU_ALPHA_TEST);
-        sceGuAlphaFunc(GU_GREATER, 0x55, 0xff); /* 0.3f  */
-    } else {
-        sceGuDisable(GU_ALPHA_TEST);
     }
 
     if (!prg->enabled) {
@@ -1769,15 +1817,28 @@ int gPspGuClipPlanes = 0;
  * flipping this fixes or dramatically worsens the picture instantly -- either
  * outcome is an answer.
  *
- * gDebugAlphaTest -- the inherited setup enables GU_ALPHA_TEST unconditionally
- * with GU_GREATER, 0x55, i.e. every fragment with alpha <= 0x55 is discarded,
- * regardless of what other_mode_l's alpha compare actually asks for. That is a
- * standalone candidate for the HOLES in the mesh. 0 = disable the test.
+ * gDebugAlphaTest -- restores the OLD blanket behaviour: GU_ALPHA_TEST forced
+ * on for the whole frame with GU_GREATER, 0x55, discarding every fragment
+ * below alpha 85 regardless of what other_mode_l's alpha compare asked for.
+ *
+ * That was the default until it was measured. Object_Kankyo draws both the
+ * forest's floating fairy motes and its light shafts, and cycles their alpha
+ * between 0 and 100 (z_object_kankyo.c:545-550) -- against a fixed cut at 85,
+ * almost every one of them was thrown away. Their render mode asks for
+ * G_AC_THRESHOLD (SETUPDL_20), which on the N64 compares against the blend
+ * colour's alpha, not against a constant. The blanket test also cut light
+ * shafts off in mid-air instead of letting them fade into the floor.
+ *
+ * Now the alpha test follows the shader: on with the mid-grey cut for
+ * CVG_X_ALPHA / texture-edge materials (foliage, gratings, fences), off
+ * otherwise. Keep this switch for side-by-side comparison -- the old cut may
+ * have been hiding missing sorting of transparent surfaces, and that would
+ * show up as newly visible overlap rather than as anything disappearing.
  *
  * Both are applied per frame, so a poke takes effect on the next frame -- no
  * rebuild, no scene reload. */
 int gDebugDepthMode = 0;
-int gDebugAlphaTest = 1;
+int gDebugAlphaTest = 0;
 /* Flip ONLY the depth comparison (range and clear untouched) -> the far surface
  * wins instead of the near one. This is the actual inversion test. */
 int gDebugDepthFuncFlip = 0;
@@ -1815,7 +1876,11 @@ static void gfx_scegu_start_frame(void) {
         sceGuDisable(GU_DEPTH_TEST);
     }
     if (gDebugAlphaTest) {
+        /* Old behaviour, kept switchable: force the blanket cut for the whole
+         * frame. Off (the default) leaves the test to gfx_scegu_apply_shader,
+         * which decides it per draw from the render mode. */
         sceGuEnable(GU_ALPHA_TEST);
+        sceGuAlphaFunc(GU_GREATER, 0x55, 0xff);
     } else {
         sceGuDisable(GU_ALPHA_TEST);
     }

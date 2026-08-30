@@ -302,6 +302,9 @@ static struct RenderingState {
     /* Texenv mode last forced for two-texture combines: 1 == MODULATE,
      * 0 == REPLACE, -1 == unknown / not forced yet. */
     int two_texture_tint;
+    /* Last PRIM handed to the GE as the tex-env colour for the PRIM/ENV LERP.
+     * Starts at an impossible value so the first draw always issues it. */
+    uint32_t lerp_prim_color;
     /* Set by upload_texture_mirrored for the import in progress, then copied
      * onto the cache node so a later cache HIT still knows the UV scale. */
     uint8_t mirror_s, mirror_t;
@@ -316,6 +319,12 @@ static struct RenderingState {
 
 /* gfx_scegu.c -- per-draw texenv override; see the call sites in gfx_sp_tri1. */
 void gfx_scegu_set_two_texture_tint(int has_tint);
+/* The (PRIM - ENV) * TEXEL0 + ENV LERP -- see is_prim_env_lerp_combine in
+ * gfx_scegu.c. PRIM rides in the tex-env colour and changes per draw. */
+int gfx_scegu_shader_is_prim_env_lerp(void);
+void gfx_scegu_set_lerp_prim_color(uint32_t packed);
+/* Defined further down this file, at G_SETPRIMCOLOR. */
+extern uint32_t gRdpPrimColorPacked;
 /* gfx_scegu.c -- the GE's fog unit; see psp_fog_apply below. */
 void gfx_scegu_set_fog(int enable, float start, float end, unsigned int color);
 /* gfx_scegu.c -- forget which texture each tile has bound. */
@@ -3045,8 +3054,12 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         gfx_rapi->load_shader(prg);
         rendering_state.shader_program = prg;
         /* Applying a shader re-issues sceGuTexFunc, so the override below has
-         * to be re-decided rather than assumed still in force. */
+         * to be re-decided rather than assumed still in force. Same for the
+         * LERP's tex-env colour: other paths (the boot logo, the 2D blit)
+         * write sceGuTexEnvColor directly, so a remembered value cannot be
+         * trusted across a shader change. */
         rendering_state.two_texture_tint = -1;
+        rendering_state.lerp_prim_color = 0xFFFFFFFFu ^ gRdpPrimColorPacked;
     }
     if (use_alpha != rendering_state.alpha_blend) {
         gfx_flush();
@@ -3077,6 +3090,17 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             gfx_scegu_set_two_texture_tint(tint);
             rendering_state.two_texture_tint = tint;
         }
+    }
+
+    /* The PRIM/ENV LERP carries PRIM in the tex-env colour, and PRIM changes
+     * per draw (each dust mote sets its own). Same shape as the tint above:
+     * only when it actually changed, and behind a flush, since the buffered
+     * triangles were built against the previous value. */
+    if (gfx_scegu_shader_is_prim_env_lerp() &&
+        gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
+        gfx_flush();
+        gfx_scegu_set_lerp_prim_color(gRdpPrimColorPacked);
+        rendering_state.lerp_prim_color = gRdpPrimColorPacked;
     }
 
     for (int i = 0; i < 2; i++) {
@@ -3733,8 +3757,12 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
         gfx_rapi->load_shader(prg);
         rendering_state.shader_program = prg;
         /* Applying a shader re-issues sceGuTexFunc, so the override below has
-         * to be re-decided rather than assumed still in force. */
+         * to be re-decided rather than assumed still in force. Same for the
+         * LERP's tex-env colour: other paths (the boot logo, the 2D blit)
+         * write sceGuTexEnvColor directly, so a remembered value cannot be
+         * trusted across a shader change. */
         rendering_state.two_texture_tint = -1;
+        rendering_state.lerp_prim_color = 0xFFFFFFFFu ^ gRdpPrimColorPacked;
     }
     if (use_alpha != rendering_state.alpha_blend) {
         gfx_flush();
@@ -3765,6 +3793,17 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
             gfx_scegu_set_two_texture_tint(tint);
             rendering_state.two_texture_tint = tint;
         }
+    }
+
+    /* The PRIM/ENV LERP carries PRIM in the tex-env colour, and PRIM changes
+     * per draw (each dust mote sets its own). Same shape as the tint above:
+     * only when it actually changed, and behind a flush, since the buffered
+     * triangles were built against the previous value. */
+    if (gfx_scegu_shader_is_prim_env_lerp() &&
+        gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
+        gfx_flush();
+        gfx_scegu_set_lerp_prim_color(gRdpPrimColorPacked);
+        rendering_state.lerp_prim_color = gRdpPrimColorPacked;
     }
     
     for (int i = 0; i < 2; i++) {
