@@ -963,6 +963,12 @@ void PspSceneMenu_DrawHud(void) {
      * this gets a line of its own rather than being appended to LOAD, and it
      * is kept under 60 characters on purpose. */
     char lineGfx[96];
+    /* N34: which guard sent a shader down the GU_TCC_RGB path, i.e. bound it
+     * so the texture's alpha channel never reaches the blender. On the HUD and
+     * not only in shotNNN.txt, because L+R+Triangle does not reach the game
+     * under the emulator -- and a photograph of the screen is then the only
+     * channel left. Same reason the GFX line above lives here. */
+    char lineAlpha[96];
     int gateVal;
     u32 workUsec;
     u32 frameUsec;
@@ -1304,6 +1310,19 @@ void PspSceneMenu_DrawHud(void) {
          * the console looking exactly as broken. rsv counts failed SRC channel
          * reservations, which is what silent audio after a resume looks like
          * from inside the backend. */
+        {
+            /* noAlphaOpt blames use_alpha upstream; noTexelRow blames the
+             * combine decode; ok is the denominator. Predicted for the fairy
+             * (G_CC_MODULATEI_PRIM, alpha row 0,0,0,PRIMITIVE): noTexelRow
+             * climbs, noAlphaOpt stays put. Anything else falsifies that. */
+            extern uint32_t gPspTccRgbNoAlphaOpt, gPspTccRgbNoTexelRow, gPspTccRgbaOk;
+
+            snprintf(lineAlpha, sizeof(lineAlpha),
+                     "TCC noAlphaOpt %u  noTexelRow %u  ok %u",
+                     (unsigned int)gPspTccRgbNoAlphaOpt,
+                     (unsigned int)gPspTccRgbNoTexelRow,
+                     (unsigned int)gPspTccRgbaOk);
+        }
         if (!sGfxProbeBad) {
             snprintf(lineGfx, sizeof(lineGfx),
                      "GFX clean res %u/%u/%u bg %u/%u r%u cam %u shot %u/%u f%u b%d",
@@ -1409,8 +1428,10 @@ void PspSceneMenu_DrawHud(void) {
      * switched on mid-scene shows real values immediately rather than stale
      * ones. */
     {
-        const char* text[HUD_SEC_COUNT + 4];
-        u32 colour[HUD_SEC_COUNT + 4];
+        /* +5, not +4: the GFX section now contributes two lines (see
+         * lineAlpha). Both arrays are indexed by the same running n. */
+        const char* text[HUD_SEC_COUNT + 5];
+        u32 colour[HUD_SEC_COUNT + 5];
         s32 n = 0;
         s32 k;
         char buildLine[40];
@@ -1463,6 +1484,10 @@ void PspSceneMenu_DrawHud(void) {
              * leaves zero, so it can be read at a glance from a photograph. */
             text[n] = lineGfx;
             colour[n++] = sGfxProbeBad ? 0xFF4040FF : 0xFF80FF80;
+            /* Yellow: this is a live investigation's readout, not a health
+             * indicator -- neither value is "good" or "bad" on its own. */
+            text[n] = lineAlpha;
+            colour[n++] = 0xFF40FFFF;
         }
 
         /* Biggest horizontal textured triangle this frame -- the ground,
