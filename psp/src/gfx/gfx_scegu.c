@@ -379,6 +379,8 @@ static bool gfx_scegu_z_is_from_0_to_1(void) {
  *     in the combine decode.
  * gPspTccRgbaOk counts the shaders that do get the texture's alpha, as a
  * denominator -- "0 of 40" and "38 of 40" are very different pictures. */
+uint32_t gPspFlatBinds;
+uint32_t gPspFlatRgbBinds;
 uint32_t gPspTccRgbNoAlphaOpt;
 uint32_t gPspTccRgbNoTexelRow;
 uint32_t gPspTccRgbaOk;
@@ -759,7 +761,24 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
         if (prg->shader_id == 0x01A00045) {
             mode = GU_TFX_REPLACE;
         }
-        sceGuTexFunc(mode, tcc_for_alpha(prg));
+        const int tcc = tcc_for_alpha(prg);
+
+        /* Narrow probe for the fairy. The summed TCC counters said the alpha
+         * channel arrives for most shaders, which ruled the alpha row out as
+         * the cause of the BLACK box -- that was the colour row, now fixed.
+         * What is left is a pale rectangle, i.e. flat colour with alpha that
+         * is still uniform. So count this one shader shape alone: how often
+         * it is bound, and how often it is bound WITHOUT the texture's alpha.
+         * flatRgb above zero is the remaining defect, and it is a different
+         * question from the one the summed counters answered. */
+        if (is_flat_colour_alpha_textured(prg)) {
+            gPspFlatBinds++;
+            if (tcc == GU_TCC_RGB) {
+                gPspFlatRgbBinds++;
+            }
+        }
+
+        sceGuTexFunc(mode, tcc);
         mode_override = -1;
     }
 }

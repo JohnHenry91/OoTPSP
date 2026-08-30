@@ -1316,12 +1316,20 @@ void PspSceneMenu_DrawHud(void) {
              * (G_CC_MODULATEI_PRIM, alpha row 0,0,0,PRIMITIVE): noTexelRow
              * climbs, noAlphaOpt stays put. Anything else falsifies that. */
             extern uint32_t gPspTccRgbNoAlphaOpt, gPspTccRgbNoTexelRow, gPspTccRgbaOk;
+            extern uint32_t gPspFlatBinds, gPspFlatRgbBinds;
 
+            /* flat = binds of the glow-sprite combine (flat colour, textured
+             * alpha -- the fairy's wings). flatRgb = how many of those were
+             * bound WITHOUT the texture's alpha channel, which is exactly the
+             * pale rectangle still left around the fairy. Any value above zero
+             * there is the remaining defect. */
             snprintf(lineAlpha, sizeof(lineAlpha),
-                     "TCC noAlphaOpt %u  noTexelRow %u  ok %u",
+                     "TCC nAO %u nTR %u ok %u | flat %u rgb %u",
                      (unsigned int)gPspTccRgbNoAlphaOpt,
                      (unsigned int)gPspTccRgbNoTexelRow,
-                     (unsigned int)gPspTccRgbaOk);
+                     (unsigned int)gPspTccRgbaOk,
+                     (unsigned int)gPspFlatBinds,
+                     (unsigned int)gPspFlatRgbBinds);
         }
         if (!sGfxProbeBad) {
             snprintf(lineGfx, sizeof(lineGfx),
