@@ -363,6 +363,10 @@ void gfx_scegu_set_two_texture_tint(int has_tint);
 /* The (PRIM - ENV) * TEXEL0 + ENV LERP -- see is_prim_env_lerp_combine in
  * gfx_scegu.c. PRIM rides in the tex-env colour and changes per draw. */
 int gfx_scegu_shader_is_prim_env_lerp(void);
+/* Flat colour + textured alpha (glow sprites, e.g. the fairy's wings). Wants
+ * the tex-env colour set to the SAME colour the vertex carries, so BLEND's
+ * LERP collapses to that colour and the texture is confined to alpha. */
+int gfx_scegu_shader_is_flat_colour(void);
 void gfx_scegu_set_lerp_prim_color(uint32_t packed);
 /* Defined further down this file, at G_SETPRIMCOLOR. */
 extern uint32_t gRdpPrimColorPacked;
@@ -3137,7 +3141,7 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
      * per draw (each dust mote sets its own). Same shape as the tint above:
      * only when it actually changed, and behind a flush, since the buffered
      * triangles were built against the previous value. */
-    if (gfx_scegu_shader_is_prim_env_lerp() &&
+    if ((gfx_scegu_shader_is_prim_env_lerp() || gfx_scegu_shader_is_flat_colour()) &&
         gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
         gfx_flush();
         gfx_scegu_set_lerp_prim_color(gRdpPrimColorPacked);
@@ -3840,7 +3844,7 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
      * per draw (each dust mote sets its own). Same shape as the tint above:
      * only when it actually changed, and behind a flush, since the buffered
      * triangles were built against the previous value. */
-    if (gfx_scegu_shader_is_prim_env_lerp() &&
+    if ((gfx_scegu_shader_is_prim_env_lerp() || gfx_scegu_shader_is_flat_colour()) &&
         gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
         gfx_flush();
         gfx_scegu_set_lerp_prim_color(gRdpPrimColorPacked);

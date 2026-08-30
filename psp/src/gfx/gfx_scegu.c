@@ -497,6 +497,50 @@ void gfx_scegu_set_lerp_prim_color(uint32_t packed) {
     sceGuTexEnvColor(packed);
 }
 
+/* Colour row is a bare constant, alpha row is textured:
+ *     RGB   = (0 - 0) * 0 + INPUT      -- the texture does not appear at all
+ *     ALPHA = (TEXEL0 - 0) * INPUT + 0
+ *
+ * The N64 idiom for a glow sprite: one flat colour, with the texture supplying
+ * only the silhouette through alpha. gFairyWing1DL..4DL are exactly this
+ * (PRIM = 210,210,255), and so is anything else drawn as a soft light.
+ *
+ * GU_TFX_MODULATE gets this wrong in a way that is very visible: it computes
+ * RGB = Cvertex * Ct, so where the texture fades to black the sprite's colour
+ * is dragged to black with it -- and since the quad's alpha no longer masks
+ * those texels away, the fade becomes a solid dark RECTANGLE around the
+ * sprite. That is the box around the fairy.
+ *
+ * GU_TFX_BLEND with the tex-env colour set to the SAME colour as the vertex
+ * reproduces the combine exactly:
+ *     Cv * (1 - Ct) + Ctev * Ct  ==  Cv  when Ctev == Cv
+ * and BLEND takes alpha as Avertex * Atexture, which is the alpha row. So the
+ * colour comes out flat and the texture is confined to the alpha channel,
+ * which is precisely what the combine asks for.
+ *
+ * Matched on the operand shape, not on a shader id -- the identity holds
+ * wherever the shape holds. */
+static inline bool is_flat_colour_alpha_textured(struct ShaderProgram *prg) {
+    const bool colour_row_is_constant =
+        prg->cc.c[0][0] == SHADER_0 && prg->cc.c[0][1] == SHADER_0 &&
+        prg->cc.c[0][2] == SHADER_0 && prg->cc.c[0][3] == SHADER_INPUT_1;
+
+    if (!colour_row_is_constant) {
+        return false;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        if (prg->cc.c[1][i] == SHADER_TEXEL0 || prg->cc.c[1][i] == SHADER_TEXEL0A) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int gfx_scegu_shader_is_flat_colour(void) {
+    return (cur_shader != NULL && is_flat_colour_alpha_textured(cur_shader)) ? 1 : 0;
+}
+
 static inline int texenv_set_texture_color(struct ShaderProgram *prg) {
     int mode;
     /*@Hack: lord forgive me for this, but this is easier */
@@ -510,7 +554,8 @@ static inline int texenv_set_texture_color(struct ShaderProgram *prg) {
             mode = GU_TFX_BLEND;
             break;
         default:
-            if (is_n64_logo_cube_combine(prg) || is_prim_env_lerp_combine(prg)) {
+            if (is_n64_logo_cube_combine(prg) || is_prim_env_lerp_combine(prg) ||
+                is_flat_colour_alpha_textured(prg)) {
                 mode = GU_TFX_BLEND;
             } else {
                 mode = GU_TFX_MODULATE;
