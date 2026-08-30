@@ -335,12 +335,14 @@ static void PspScreenshotWriteCounters(void) {
                        "skySeg0 %08x\nskySeg0Native %u\nskyPal %08x\nskyPalNative %u\n"
                        "bindDesync %u\nbindDesyncFrame %u\nbindDesync2nd %u\nlerp2Draws %u\n"
                        "texOffDraws %u\ntexSc0Draws %u\n"
-                       "fogDraws %u\nfogBadRange %u\n",
+                       "fogDraws %u\nfogBadRange %u\n"
+                       "lightsMax %u\nlightsOverOld %u\nambColor %06x\nlitColor %06x\n",
                        g.tex_unswap_yes, g.tex_unswap_no,
                        g.sky_tex_imports, g.sky_tex_unswap, g.sky_tex_hits,
                        g.sky_seg0, g.sky_seg0_native, g.sky_pal, g.sky_pal_native,
                        g.bind_desyncs, g.bind_desyncs_frame, g.bind_desyncs_2nd, g.lerp2_draws,
-                       g.tex_off_draws, g.tex_sc0_draws, g.fog_draws, g.fog_bad_range);
+                       g.tex_off_draws, g.tex_sc0_draws, g.fog_draws, g.fog_bad_range,
+                       g.lights_max, g.lights_over_old, g.amb_color, g.lit_color);
         if (len > 0) {
             sceIoWrite(fd, text, (SceSize)len);
         }

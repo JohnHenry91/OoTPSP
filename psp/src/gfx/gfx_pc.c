@@ -54,7 +54,23 @@
 #define RATIO_Y (gfx_current_dimensions.height / (2.0f * HALF_SCREEN_HEIGHT))
 
 #define MAX_BUFFERED (1024)
-#define MAX_LIGHTS 2
+/* OoT binds up to SEVEN lights plus ambient (z_lights.c's Lights_FindSlot
+ * refuses the 8th: `if (lights->numLights >= 7) return NULL`). This was 2,
+ * inherited unchanged from sm64-port, where two is genuinely the maximum.
+ *
+ * Two was not merely a cap -- nothing clamped against it. G_MW_NUMLIGHT
+ * assigns current_num_lights straight from the command word, so a scene
+ * binding three lights set it to 4 while current_lights[] held 3 entries and
+ * current_lights_coeffs[] held 2. The per-vertex lighting path then
+ *   - READ current_lights[current_num_lights - 1] as the ambient colour, one
+ *     past the end, and
+ *   - WROTE current_lights_coeffs[i] for i up to current_num_lights - 2, past
+ *     the end of that array and into current_lookat_coeffs behind it.
+ * The "ambient" colour was therefore float bit patterns read as u8 RGB, which
+ * is why any scene with a third light -- every fairy, torch or glowing actor
+ * binds a point light through Lights_BindPoint -- washed the nearby figures
+ * out. See auftraege/FEHLERLISTE2.md N36. */
+#define MAX_LIGHTS 7
 #define MAX_VERTICES 64
 
 /* Pixel Formats */
@@ -156,6 +172,14 @@ struct ColorCombiner {
 #define COLOR_COMBINER_POOL_SIZE 512
 static struct ColorCombiner color_combiner_pool[COLOR_COMBINER_POOL_SIZE];
 static uint16_t color_combiner_pool_size;
+
+/* N36: how many lights OoT actually binds, and how often that exceeded the
+ * THREE slots this renderer used to have (MAX_LIGHTS 2 + ambient). Anything
+ * above zero in `lightsOverOld` is a frame that read past the end of
+ * current_lights[] for its ambient colour. Reset per frame with the rest of
+ * the draw stats. */
+uint32_t gPspLightsMax;
+uint32_t gPspLightsOverOld;
 
 static struct RSP {
     float modelview_matrix_stack[11][4][4]__attribute__((aligned(16)));
@@ -3971,6 +3995,22 @@ static void gfx_sp_moveword(uint8_t index, uint16_t offset, uint32_t data) {
         case G_MW_NUMLIGHT:
 #ifdef F3DEX_GBI_2
             rsp.current_num_lights = data / 24 + 1; // add ambient light
+            /* Measure BEFORE the clamp -- afterwards every frame reads 8 and
+             * the question "did OoT ever ask for more than three?" is gone. */
+            if (rsp.current_num_lights > gPspLightsMax) {
+                gPspLightsMax = rsp.current_num_lights;
+            }
+            if (rsp.current_num_lights > 3) {
+                gPspLightsOverOld++;
+            }
+            /* Clamp: the count comes straight off the command stream and
+             * indexes current_lights[] / current_lights_coeffs[] unchecked.
+             * See MAX_LIGHTS. */
+            if (rsp.current_num_lights > MAX_LIGHTS + 1) {
+                rsp.current_num_lights = MAX_LIGHTS + 1;
+            } else if (rsp.current_num_lights < 1) {
+                rsp.current_num_lights = 1;
+            }
 #else
             // Ambient light is included
             // The 31th bit is a flag that lights should be recalculated
@@ -5394,6 +5434,9 @@ void gfx_run(Gfx *commands) {
     rendering_state.fog_enabled = -1;
     gPspFogDraws = 0;
     gPspFogBadRange = 0;
+    /* N36 lighting probe -- per frame, like the fog counters above. */
+    gPspLightsMax = 0;
+    gPspLightsOverOld = 0;
 #endif
 #if TARGET_PSP
     /* Rotate the stat generations *before* building this frame, so prev/prev2
@@ -5555,6 +5598,10 @@ void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out) {
     out->sky_tex_hits    = gPspGfxStats.sky_tex_hits;
     out->tex_off_draws   = gPspGfxStats.tex_off_draws;
     out->tex_sc0_draws   = gPspGfxStats.tex_sc0_draws;
+    out->lights_max      = gPspLightsMax;
+    out->lights_over_old = gPspLightsOverOld;
+    out->amb_color       = gPspGfxStats.amb_color;
+    out->lit_color       = gPspGfxStats.lit_color;
     out->fog_draws       = gPspFogDraws;
     out->fog_bad_range   = gPspFogBadRange;
     out->sky_seg0        = gPspSkyCall[8];

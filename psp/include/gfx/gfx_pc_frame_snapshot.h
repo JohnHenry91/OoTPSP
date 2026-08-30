@@ -54,6 +54,15 @@ struct GfxPcFrameSnapshot {
      * being non-zero points at psp_fog_apply's maths, not at the GE. */
     unsigned int fog_draws;
     unsigned int fog_bad_range;
+    /* Lighting (N36). lights_max is the largest light count OoT bound this
+     * frame INCLUDING ambient; lights_over_old counts how often that exceeded
+     * the three slots the renderer had before MAX_LIGHTS went from 2 to 7.
+     * amb_color / lit_color are the last lit vertex's ambient input and its
+     * computed result, as 0xRRGGBB. */
+    unsigned int lights_max;
+    unsigned int lights_over_old;
+    unsigned int amb_color;
+    unsigned int lit_color;
 };
 
 /* Fills `out` from the frame currently being built -- see the definition for
