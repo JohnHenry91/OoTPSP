@@ -5637,6 +5637,12 @@ void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out) {
     out->sky_tex_hits    = gPspGfxStats.sky_tex_hits;
     out->tex_off_draws   = gPspGfxStats.tex_off_draws;
     out->tex_sc0_draws   = gPspGfxStats.tex_sc0_draws;
+    {
+        extern uint32_t gPspTccRgbNoAlphaOpt, gPspTccRgbNoTexelRow, gPspTccRgbaOk;
+        out->tcc_rgb_no_alpha_opt = gPspTccRgbNoAlphaOpt;
+        out->tcc_rgb_no_texel_row = gPspTccRgbNoTexelRow;
+        out->tcc_rgba_ok          = gPspTccRgbaOk;
+    }
     out->lights_max      = gPspLightsMax;
     out->lights_over_old = gPspLightsOverOld;
     out->amb_color       = gPspGfxStats.amb_color;

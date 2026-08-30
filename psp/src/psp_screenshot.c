@@ -344,7 +344,8 @@ static void PspScreenshotWriteCounters(void) {
                        "texOffDraws %u\ntexSc0Draws %u\n"
                        "fogDraws %u\nfogBadRange %u\n"
                        "lightsMax %u\nlightsOverOld %u\nambColor %06x\nlitColor %06x\n"
-                       "skyboxId %u\nfogColor %06x\nfogNear %u\nzFar %u\nenvFilterDrawn %u\n",
+                       "skyboxId %u\nfogColor %06x\nfogNear %u\nzFar %u\nenvFilterDrawn %u\n"
+                       "tccRgbNoAlphaOpt %u\ntccRgbNoTexelRow %u\ntccRgbaOk %u\n",
                        g.tex_unswap_yes, g.tex_unswap_no,
                        g.sky_tex_imports, g.sky_tex_unswap, g.sky_tex_hits,
                        g.sky_seg0, g.sky_seg0_native, g.sky_pal, g.sky_pal_native,
@@ -354,7 +355,8 @@ static void PspScreenshotWriteCounters(void) {
                        gPspEnvSkyboxId, gPspEnvFogColor,
                        (unsigned)(gPspEnvFogNearFar >> 16),
                        (unsigned)(gPspEnvFogNearFar & 0xFFFFu),
-                       gPspEnvFilterDrawn);
+                       gPspEnvFilterDrawn,
+                       g.tcc_rgb_no_alpha_opt, g.tcc_rgb_no_texel_row, g.tcc_rgba_ok);
         if (len > 0) {
             sceIoWrite(fd, text, (SceSize)len);
         }

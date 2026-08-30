@@ -363,15 +363,39 @@ static bool gfx_scegu_z_is_from_0_to_1(void) {
  *
  * GU_TCC_RGB takes RGB from the texture and alpha from the vertex alone, which
  * is what a constant alpha row means. */
+/* N34 probe. The fairy's glow quad shows as a rectangle that is uniformly
+ * ~20% darker than the background -- not opaque black. Its prim alpha is 50
+ * (z_lights.c:385), i.e. ~20%, so the alpha reaching the blender is the
+ * CONSTANT 50 rather than TEXEL0_a * 50. At the quad's corners the I8 texture
+ * is 0, so a correct result is invisible there. A constant alpha is exactly
+ * what GU_TCC_RGB produces: RGB from the texture, alpha from the vertex alone.
+ *
+ * So the question is which of the two guards below sends this shader down the
+ * RGB path. Counted separately, because they mean different things:
+ *   gPspTccRgbNoAlphaOpt -- opt_alpha was false, i.e. the render mode was read
+ *     as opaque. Then the bug is in use_alpha, upstream of here.
+ *   gPspTccRgbNoTexelRow -- opt_alpha was true but the alpha row carried no
+ *     texel, i.e. the combine was decoded without its TEXEL0. Then the bug is
+ *     in the combine decode.
+ * gPspTccRgbaOk counts the shaders that do get the texture's alpha, as a
+ * denominator -- "0 of 40" and "38 of 40" are very different pictures. */
+uint32_t gPspTccRgbNoAlphaOpt;
+uint32_t gPspTccRgbNoTexelRow;
+uint32_t gPspTccRgbaOk;
+
 static inline int tcc_for_alpha(const struct ShaderProgram *prg) {
     if (prg->cc.opt_alpha) {
         for (int i = 0; i < 4; i++) {
             uint8_t v = prg->cc.c[1][i];
 
             if (v == SHADER_TEXEL0 || v == SHADER_TEXEL0A || v == SHADER_TEXEL1) {
+                gPspTccRgbaOk++;
                 return GU_TCC_RGBA;
             }
         }
+        gPspTccRgbNoTexelRow++;
+    } else {
+        gPspTccRgbNoAlphaOpt++;
     }
     return GU_TCC_RGB;
 }

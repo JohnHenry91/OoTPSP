@@ -59,6 +59,15 @@ struct GfxPcFrameSnapshot {
      * the three slots the renderer had before MAX_LIGHTS went from 2 to 7.
      * amb_color / lit_color are the last lit vertex's ambient input and its
      * computed result, as 0xRRGGBB. */
+    /* N34/N35 alpha probe (tcc_for_alpha in gfx_scegu.c). A shader bound with
+     * GU_TCC_RGB takes alpha from the vertex ALONE -- the texture's alpha
+     * channel never reaches the blender, so a soft sprite shows as its whole
+     * quad instead of its bright core. tccRgbNoAlphaOpt blames use_alpha
+     * upstream, tccRgbNoTexelRow blames the combine decode, tccRgbaOk is the
+     * denominator. Cumulative since boot. */
+    unsigned int tcc_rgb_no_alpha_opt;
+    unsigned int tcc_rgb_no_texel_row;
+    unsigned int tcc_rgba_ok;
     unsigned int lights_max;
     unsigned int lights_over_old;
     unsigned int amb_color;
