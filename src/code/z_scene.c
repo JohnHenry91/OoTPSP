@@ -290,11 +290,36 @@ void* func_800982FC(ObjectContext* objectCtx, s32 slot, s16 objectId) {
     return nextPtr;
 }
 
+#if TARGET_PSP
+/* Set by Scene_CommandAlternateHeaderList instead of the vanilla trick of
+ * writing SCENE_CMD_ID_END into the NEXT command in place
+ * ((cmd + 1)->base.code = SCENE_CMD_ID_END). That self-modification is safe
+ * on N64, where the scene command stream is a fresh, per-load, writable copy
+ * in RAM; this port's native-blob pipeline keeps scene data in memory that is
+ * not necessarily re-populated the same way between loads, and other actors
+ * (En_Holl, Door_Shutter) read the room's OWN alternate-header list on later
+ * room transitions -- the same list a stray leftover END from THIS scene's
+ * headers could still be sitting in. A flag checked right after the handler
+ * returns has the identical effect (stop dispatching further commands in
+ * THIS list) without touching the list's own bytes. Ported from
+ * reference/oot-psp-z2442 commit f1ba596b9 ("fix room changes").
+ *
+ * Saved/restored around the loop, not just set/cleared, because
+ * Scene_ExecuteCommands calls itself recursively -- Scene_CommandAlternateHeaderList
+ * IS one of the handlers this loop dispatches, and its own inner
+ * Scene_ExecuteCommands call must not leave the flag set for the OUTER
+ * loop that is still walking the room's alternate-header list itself. */
+static s32 sStopSceneCommandsAfterAlternateHeader;
+#endif
+
 s32 Scene_ExecuteCommands(PlayState* play, SceneCmd* sceneCmd) {
 #if TARGET_PSP
     extern void PspDebugLogSceneCmd(void* addr, unsigned int code, unsigned int data1, unsigned int data2);
     int dbgIter = 0;
     int pspIter = 0; /* always increments, unlike dbgIter which stops at 41 */
+    s32 prevStopSceneCommands = sStopSceneCommandsAfterAlternateHeader;
+
+    sStopSceneCommandsAfterAlternateHeader = 0;
 #endif
     while (true) {
         u32 cmdCode = sceneCmd->base.code;
@@ -342,6 +367,11 @@ s32 Scene_ExecuteCommands(PlayState* play, SceneCmd* sceneCmd) {
 
         if (cmdCode < ARRAY_COUNT(sSceneCmdHandlers)) {
             sSceneCmdHandlers[cmdCode](play, sceneCmd);
+#if TARGET_PSP
+            if (sStopSceneCommandsAfterAlternateHeader) {
+                break;
+            }
+#endif
         } else {
             PRINTF_COLOR_RED();
             PRINTF(T("code の値が異常です\n", "code variable is abnormal\n"));
@@ -351,6 +381,9 @@ s32 Scene_ExecuteCommands(PlayState* play, SceneCmd* sceneCmd) {
         sceneCmd++;
     }
 
+#if TARGET_PSP
+    sStopSceneCommandsAfterAlternateHeader = prevStopSceneCommands;
+#endif
     return 0;
 }
 
@@ -723,7 +756,11 @@ BAD_RETURN(s32) Scene_CommandAlternateHeaderList(PlayState* play, SceneCmd* cmd)
 
         if (altHeader != NULL) {
             Scene_ExecuteCommands(play, SEGMENTED_TO_VIRTUAL(altHeader));
+#if TARGET_PSP
+            sStopSceneCommandsAfterAlternateHeader = true;
+#else
             (cmd + 1)->base.code = SCENE_CMD_ID_END;
+#endif
         } else {
             PRINTF(T("\nげぼはっ！ 指定されたデータがないでええっす！", "\nCoughh! There is no specified dataaaaa!"));
 
@@ -737,7 +774,11 @@ BAD_RETURN(s32) Scene_CommandAlternateHeaderList(PlayState* play, SceneCmd* cmd)
 
                 if (altHeader != NULL) {
                     Scene_ExecuteCommands(play, SEGMENTED_TO_VIRTUAL(altHeader));
+#if TARGET_PSP
+                    sStopSceneCommandsAfterAlternateHeader = true;
+#else
                     (cmd + 1)->base.code = SCENE_CMD_ID_END;
+#endif
                 }
             }
         }
