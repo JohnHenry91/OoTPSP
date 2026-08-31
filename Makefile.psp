@@ -987,7 +987,9 @@ LDFLAGS += -Wl,--defsym,D_01000000=0x01000000
 LDFLAGS += -Wl,--defsym,D_06000000=0x06000000
 
 BUILD_PRX = 1
-PSP_EBOOT_TITLE = OoT PSP (bring-up)
+# Selbstironisch: "AI slop" ist der Begriff, mit dem KI-Erzeugnisse gerade
+# abgetan werden. Der Name nimmt den Vorwurf vorweg, statt ihn zu verschweigen.
+PSP_EBOOT_TITLE = Slopcarina of Time
 EXTRA_TARGETS = EBOOT.PBP blobs/.stamp
 
 PSPSDK = $(shell psp-config --pspsdk-path)
