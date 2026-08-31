@@ -674,6 +674,46 @@ void Environment_UpdateStorm(EnvironmentContext* envCtx, u8 unused) {
     }
 }
 
+#if TARGET_PSP
+#include "gfx/gfx_pc.h"
+
+/* Der Texturcache ist ueber die QUELLADRESSE geschluesselt, und die Funktion
+ * unten schreibt bei jedem Wechsel der Tageszeit neue Himmelsdaten in
+ * IMMER DIESELBEN Puffer (staticSegments[0]/[1] und palettes). Ohne diesen
+ * Aufruf bemerkt der Cache die Inhaltsaenderung nie und liefert bis in alle
+ * Ewigkeit den zuerst dekodierten Himmel.
+ *
+ * Sichtbar wurde das als drei verschiedene, jeweils SAUBERE Himmelstexturen
+ * nebeneinander -- Nacht neben Abendrot neben Tag -- mit den Naehten exakt auf
+ * den Flaechenkanten. Jede Flaeche liest einen eigenen Offset in den Puffer
+ * (sSkybox128TexOffsets in z_vr_box.c), ist also ein eigener Cache-Eintrag und
+ * wurde zu einem anderen Zeitpunkt angelegt.
+ *
+ * Auf der N64 stellt sich die Frage nicht: dort gibt es keinen Texturcache,
+ * die RDP liest bei jedem G_LOADTILE frisch aus dem RDRAM.
+ *
+ * Beide Segmente werden nach JEDEM der sechs DMAs entwertet, nicht nur nach
+ * dem, der gerade geschrieben hat. Grund ist die Reihenfolge der
+ * Zustandsmaschine: die TLUT-DMAs landen ein bis zwei Frames NACH den
+ * Textur-DMAs, und dazwischen wird der Himmel schon wieder gezeichnet und
+ * damit mit der noch alten Palette neu in den Cache gelegt. Nur nach dem
+ * Textur-DMA zu entwerten wuerde den Fehler also lediglich verschieben. */
+static void Environment_PspDropCachedSkyboxTextures(EnvironmentContext* envCtx, SkyboxContext* skyboxCtx) {
+    size_t size;
+
+    if (skyboxCtx->staticSegments[0] != NULL && envCtx->skybox1Index < ARRAY_COUNT(gNormalSkyFiles)) {
+        size = gNormalSkyFiles[envCtx->skybox1Index].file.vromEnd -
+               gNormalSkyFiles[envCtx->skybox1Index].file.vromStart;
+        gfx_texture_cache_invalidate_range(skyboxCtx->staticSegments[0], (unsigned int)size);
+    }
+    if (skyboxCtx->staticSegments[1] != NULL && envCtx->skybox2Index < ARRAY_COUNT(gNormalSkyFiles)) {
+        size = gNormalSkyFiles[envCtx->skybox2Index].file.vromEnd -
+               gNormalSkyFiles[envCtx->skybox2Index].file.vromStart;
+        gfx_texture_cache_invalidate_range(skyboxCtx->staticSegments[1], (unsigned int)size);
+    }
+}
+#endif
+
 void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxContext* skyboxCtx) {
     u32 size;
     u8 i;
@@ -769,6 +809,7 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
             DMA_REQUEST_SYNC(skyboxCtx->staticSegments[0], gNormalSkyFiles[newSkybox1Index].file.vromStart, size,
                              "../z_kankyo.c", 1264);
             osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+            Environment_PspDropCachedSkyboxTextures(envCtx, skyboxCtx);
 #else
             DMA_REQUEST_ASYNC(&envCtx->dmaRequest, skyboxCtx->staticSegments[0],
                               gNormalSkyFiles[newSkybox1Index].file.vromStart, size, 0, &envCtx->loadQueue, NULL,
@@ -786,6 +827,7 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
             DMA_REQUEST_SYNC(skyboxCtx->staticSegments[1], gNormalSkyFiles[newSkybox2Index].file.vromStart, size,
                              "../z_kankyo.c", 1281);
             osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+            Environment_PspDropCachedSkyboxTextures(envCtx, skyboxCtx);
 #else
             DMA_REQUEST_ASYNC(&envCtx->dmaRequest, skyboxCtx->staticSegments[1],
                               gNormalSkyFiles[newSkybox2Index].file.vromStart, size, 0, &envCtx->loadQueue, NULL,
@@ -806,6 +848,7 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
                 DMA_REQUEST_SYNC(skyboxCtx->palettes, gNormalSkyFiles[newSkybox1Index].palette.vromStart, size,
                                  "../z_kankyo.c", 1307);
                 osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+                Environment_PspDropCachedSkyboxTextures(envCtx, skyboxCtx);
 #else
                 DMA_REQUEST_ASYNC(&envCtx->dmaRequest, skyboxCtx->palettes,
                                   gNormalSkyFiles[newSkybox1Index].palette.vromStart, size, 0, &envCtx->loadQueue, NULL,
@@ -819,6 +862,7 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
                 DMA_REQUEST_SYNC((u8*)skyboxCtx->palettes + size, gNormalSkyFiles[newSkybox1Index].palette.vromStart,
                                  size, "../z_kankyo.c", 1320);
                 osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+                Environment_PspDropCachedSkyboxTextures(envCtx, skyboxCtx);
 #else
                 DMA_REQUEST_ASYNC(&envCtx->dmaRequest, (u8*)skyboxCtx->palettes + size,
                                   gNormalSkyFiles[newSkybox1Index].palette.vromStart, size, 0, &envCtx->loadQueue, NULL,
@@ -839,6 +883,7 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
                 DMA_REQUEST_SYNC(skyboxCtx->palettes, gNormalSkyFiles[newSkybox2Index].palette.vromStart, size,
                                  "../z_kankyo.c", 1342);
                 osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+                Environment_PspDropCachedSkyboxTextures(envCtx, skyboxCtx);
 #else
                 DMA_REQUEST_ASYNC(&envCtx->dmaRequest, skyboxCtx->palettes,
                                   gNormalSkyFiles[newSkybox2Index].palette.vromStart, size, 0, &envCtx->loadQueue, NULL,
@@ -852,6 +897,7 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
                 DMA_REQUEST_SYNC((u8*)skyboxCtx->palettes + size, gNormalSkyFiles[newSkybox2Index].palette.vromStart,
                                  size, "../z_kankyo.c", 1355);
                 osSendMesg(&envCtx->loadQueue, NULL, OS_MESG_NOBLOCK);
+                Environment_PspDropCachedSkyboxTextures(envCtx, skyboxCtx);
 #else
                 DMA_REQUEST_ASYNC(&envCtx->dmaRequest, (u8*)skyboxCtx->palettes + size,
                                   gNormalSkyFiles[newSkybox2Index].palette.vromStart, size, 0, &envCtx->loadQueue, NULL,

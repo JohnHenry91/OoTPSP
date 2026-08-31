@@ -47,6 +47,7 @@
 #include "psp_scene_menu.h"
 #include "psp_frame_pace.h"
 #include "gfx_pc.h"
+#include "gfx/gfx_pc_frame_snapshot.h"
 #include <pspiofilemgr.h>
 
 #include "psp_audio.h"
@@ -189,6 +190,14 @@ extern int gPspFogMode;
  * See the long comment in gfx_draw_rectangle. */
 extern int gPspRect2dPillarbox;
 extern int gPspGfxHackPointFilter;
+/* Bisect ueber Commit 34ab82e0b ("Sky, sun and moon"): die vier Aenderungen
+ * jenes Commits, die den Renderpfad des Himmels anfassen, jede einzeln
+ * abschaltbar. Alle stehen auf 1 == Verhalten nach dem Commit. Definiert in
+ * psp/src/gfx/gfx_scegu.c, wo der Kommentar steht. */
+extern int gPspTileNomaskClamp;
+extern int gPspRebindAfterUpload;
+extern int gPspSkyDecalNoBlend;
+extern int gPspSkyForceNonNative;
 extern int gPspGfxHackPreferTexel1;
 extern int gPspGfxLerp2Enable;
 extern int gPspLerp2Force;
@@ -230,6 +239,17 @@ typedef struct {
 } PspRenderHack;
 
 static const PspRenderHack sHacks[] = {
+    /* --- Bisect ueber 34ab82e0b, nach Verdacht sortiert ---------------------
+     * Ganz oben, weil das die laufende Untersuchung ist und jede Zeile hier
+     * eine Messung ist, die genau einen Rebuild spart. Jede schaltet EINE
+     * Aenderung jenes Commits auf das Verhalten davor zurueck; die uebrigen
+     * drei bleiben stehen. Wenn die verwuerfelte Flaeche bei genau einer
+     * verschwindet, ist die Ursache benannt -- und diese vier Zeilen
+     * verschwinden zusammen mit ihr. */
+    { "BISECT 1: NOMASK->CLAMP aus (Verdacht hoch)", &gPspTileNomaskClamp, 0 },
+    { "BISECT 2: Re-Bind nach Upload aus", &gPspRebindAfterUpload, 0 },
+    { "BISECT 3: Himmel-DECALRGBA bei blend==0 aus", &gPspSkyDecalNoBlend, 0 },
+    { "BISECT 4: Himmel-Byteordnung erzwingen aus", &gPspSkyForceNonNative, 0 },
     { "No textures (vertex colour only)", &gPspGfxHackNoTexture, 1 },
     { "Point filter (show texel size)", &gPspGfxHackPointFilter, 1 },
     { "Prefer TEXEL1 (detail layer, diagnostic)", &gPspGfxHackPreferTexel1, 1 },
@@ -980,6 +1000,11 @@ void PspSceneMenu_DrawHud(void) {
      * this gets a line of its own rather than being appended to LOAD, and it
      * is kept under 60 characters on purpose. */
     char lineGfx[96];
+    /* Der Himmels-Bisect braucht seine Zahlen AUF DEM SCHIRM, nicht nur in
+     * shotNNN.txt. Die Uebergabe behauptete, skyUnswap stehe im GFX-Block --
+     * das stimmte nicht, der Zaehler existierte nur im Screenshot-Textfile.
+     * Genau der Fehler, vor dem AUFTRAG_SONNET.md Regel 3 warnt. */
+    char lineSky[112];
     /* N34: which guard sent a shader down the GU_TCC_RGB path, i.e. bound it
      * so the texture's alpha channel never reaches the blender. On the HUD and
      * not only in shotNNN.txt, because L+R+Triangle does not reach the game
@@ -1348,6 +1373,41 @@ void PspSceneMenu_DrawHud(void) {
                      (unsigned int)gPspFlatBinds,
                      (unsigned int)gPspFlatRgbBinds);
         }
+        /* SKY: die Messung, die der Himmels-Bisect braucht.
+         *
+         * imp/hit  Skybox-Texturen, die diesen Frame importiert bzw. aus dem
+         *          Cache bedient wurden -- imp == 0 nimmt den Texturpfad ganz
+         *          aus dem Fall heraus.
+         * unsw     wie oft das Adress-Orakel (PspBlob_IsNative) eine
+         *          Skybox-Textur faelschlich fuer "native" gehalten HAETTE.
+         *          Ueber 0 heisst: die Byteordnungs-Diagnose trifft zu.
+         *          Genau 0 heisst: die Byteordnung ist unschuldig.
+         * clmp/sky wie oft Aenderung 1 (G_TX_NOMASK -> CLAMP) eine Kachel
+         *          umgeschrieben hat, und wie viel davon auf den Himmel
+         *          entfiel. sky == 0 spricht Aenderung 1 frei, ohne dass der
+         *          Schalter ueberhaupt angefasst werden muss.
+         * b        der Stand der vier Bisect-Schalter als Bitmuster, damit ein
+         *          Screenshot fuer sich allein sagt, welcher Zustand darauf zu
+         *          sehen ist. 1111 == alle vier an == Verhalten von 34ab82e0b. */
+        {
+            struct GfxPcFrameSnapshot g;
+            /* inv/drp: Aufrufe von gfx_texture_cache_invalidate_range und wie
+             * viele Eintraege dabei wirklich entwertet wurden. KUMULATIV, im
+             * Gegensatz zu den Frame-Zaehlern davor. drp muss bei jedem
+             * Wechsel der Tageszeit um rund fuenf steigen -- bleibt es auf 0,
+             * ueberschreibt das Spiel die Puffer nicht so, wie die Diagnose
+             * behauptet, und die Erklaerung ist falsch. */
+            extern uint32_t gPspTexInvalCalls, gPspTexInvalDropped;
+
+            gfx_pc_stat_snapshot_current(&g);
+            snprintf(lineSky, sizeof(lineSky),
+                     "SKY imp %u hit %u unsw %u | clmp %u/%u | inv %u drp %u | b %d%d%d%d",
+                     g.sky_tex_imports, g.sky_tex_hits, g.sky_tex_unswap,
+                     g.nomask_clamps, g.nomask_clamps_sky,
+                     (unsigned int)gPspTexInvalCalls, (unsigned int)gPspTexInvalDropped,
+                     gPspTileNomaskClamp ? 1 : 0, gPspRebindAfterUpload ? 1 : 0,
+                     gPspSkyDecalNoBlend ? 1 : 0, gPspSkyForceNonNative ? 1 : 0);
+        }
         if (!sGfxProbeBad) {
             snprintf(lineGfx, sizeof(lineGfx),
                      "GFX clean res %u/%u/%u bg %u/%u r%u cam %u shot %u/%u f%u b%d",
@@ -1453,10 +1513,10 @@ void PspSceneMenu_DrawHud(void) {
      * switched on mid-scene shows real values immediately rather than stale
      * ones. */
     {
-        /* +5, not +4: the GFX section now contributes two lines (see
-         * lineAlpha). Both arrays are indexed by the same running n. */
-        const char* text[HUD_SEC_COUNT + 5];
-        u32 colour[HUD_SEC_COUNT + 5];
+        /* +6, not +5: the GFX section contributes THREE lines (lineGfx,
+         * lineAlpha, lineSky). Both arrays are indexed by the same running n. */
+        const char* text[HUD_SEC_COUNT + 6];
+        u32 colour[HUD_SEC_COUNT + 6];
         s32 n = 0;
         s32 k;
         char buildLine[40];
@@ -1512,6 +1572,9 @@ void PspSceneMenu_DrawHud(void) {
             /* Yellow: this is a live investigation's readout, not a health
              * indicator -- neither value is "good" or "bad" on its own. */
             text[n] = lineAlpha;
+            colour[n++] = 0xFF40FFFF;
+            /* Gelb wie lineAlpha: laufende Untersuchung, kein Gesundheitswert. */
+            text[n] = lineSky;
             colour[n++] = 0xFF40FFFF;
         }
 

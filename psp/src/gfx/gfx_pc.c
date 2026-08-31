@@ -155,6 +155,10 @@ struct TextureHashmapNode {
      * uploaded pixels (hence part of the key) and the UV scale (hence read
      * back in gfx_sp_tri1). */
     uint8_t mirror_s, mirror_t;
+    /* Der Eintrag beschreibt Speicher, den das SPIEL seither ueberschrieben
+     * hat -- der dekodierte Inhalt ist damit veraltet, obwohl jedes Feld des
+     * Schluessels noch passt. Siehe gfx_texture_cache_invalidate_range(). */
+    uint8_t stale;
 } __attribute__((packed, aligned(4)));
 static struct {
     struct TextureHashmapNode *hashmap[1024];
@@ -589,6 +593,12 @@ typedef struct {
     uint32_t sky_tex_imports;  /* imports between the skybox markers          */
     uint32_t sky_tex_unswap;   /* ...of which reversed                        */
     uint32_t sky_tex_hits;     /* skybox tiles served from the cache instead  */
+
+    /* --- Bisect ueber 34ab82e0b, Aenderung 1 (G_TX_NOMASK -> CLAMP) ---------
+     * Wie oft die Regel eine Wrap-Angabe wirklich umgeschrieben hat, und wie
+     * viel davon auf den Himmel entfiel. Siehe gfx_dp_set_tile. */
+    uint32_t nomask_clamps;     /* tiles whose wrap mode the rule changed     */
+    uint32_t nomask_clamps_sky; /* ...of them between the skybox markers      */
 
     /* --- gsSPTexture(..., G_OFF) probe (Auftrag 09) ---------------------------
      * gfx_sp_texture threw the `on` flag away, and the same command that
@@ -1392,6 +1402,88 @@ void gfx_texture_cache_reset(void) {
     rdp.textures_changed[1] = true;
 }
 
+/* Zaehler fuer die Invalidierung unten: wie oft sie gerufen wurde und wie
+ * viele Eintraege dabei wirklich entwertet wurden. Der zweite ist der
+ * interessante -- er sagt, ob der Fall ueberhaupt auftritt. */
+uint32_t gPspTexInvalCalls;
+uint32_t gPspTexInvalDropped;
+
+/* Vergiss jede zwischengespeicherte Textur, die aus [addr, addr+size) dekodiert
+ * wurde, weil das Spiel diesen Speicher gerade ueberschrieben hat.
+ *
+ * WARUM DAS NOETIG IST. Der Texturcache ist ueber die QUELLADRESSE
+ * geschluesselt (siehe gfx_texture_cache_lookup). Auf der N64 ist das gratis
+ * richtig, weil es dort gar keinen Cache gibt: die RDP liest die Texel bei
+ * jedem G_LOADTILE frisch aus dem RDRAM. Hier bleibt der einmal dekodierte
+ * Inhalt liegen -- und wenn das Spiel denselben Puffer mit ANDEREN Daten neu
+ * fuellt, liefert der Cache bis in alle Ewigkeit das alte Bild.
+ *
+ * DER GEMESSENE FALL. Environment_UpdateSkybox (z_kankyo.c:769) schreibt bei
+ * jedem Wechsel der Tageszeit die neuen Himmelstexturen per DMA in
+ * skyboxCtx->staticSegments[0]/[1] -- dieselben Adressen wie zuvor. Jede
+ * Himmelsflaeche liest einen eigenen Offset in diesem Puffer
+ * (sSkybox128TexOffsets), also ist jede Flaeche ein eigener Cache-Eintrag, und
+ * jeder wurde zu einem anderen Zeitpunkt angelegt. Ergebnis: Nachthimmel neben
+ * Abendrot neben Taghimmel, jede Textur fuer sich sauber dekodiert, die Naehte
+ * exakt auf den Flaechenkanten.
+ *
+ * Die Messung, die das entschieden hat: die HUD-Zeile zeigte "SKY imp 0 hit 24"
+ * -- der Himmel importierte NICHTS und wurde vollstaendig aus dem Cache
+ * bedient. Damit konnte kein Fehler im Import- oder Kombiniererpfad die
+ * Ursache sein, und vier vorher verdaechtigte Aenderungen waren auf einen
+ * Schlag entlastet.
+ *
+ * Ship of Harkinian hat fuer genau diese Fehlerklasse eine eigene
+ * GBI-Erweiterung gebaut, gSPInvalidateTexCache / G_INVALTEXCACHE, siehe
+ * reference/shipwright-vita/libultraship/src/graphic/Fast3D/gfx_pc.cpp:595
+ * (gfx_texture_cache_delete) und ihre Aufrufer, z.B. z_boss_ganon.c:3855
+ * "Shadow texture will change every frame, no use keeping it around". Ihren
+ * Himmel haben sie zusaetzlich ganz umgebaut (z_vr_box.c, LoadSkyboxTex haelt
+ * nur noch einen ZEIGER auf das unveraenderliche Asset), womit das Problem
+ * dort gar nicht erst entsteht.
+ *
+ * WARUM ENTWERTEN UND NICHT LOESCHEN. texman kennt kein Einzel-Free -- es ist
+ * ein Bump-Allocator mit nur texman_clear(). Ein entwerteter Eintrag bleibt
+ * deshalb in seiner Kette stehen, trifft nie wieder, und der naechste Import
+ * legt einen frischen Slot an. Die alten Slots verfallen erst beim ohnehin
+ * vorhandenen, auf gfx_start_frame() verschobenen Gesamt-Wipe. Das kostet
+ * Slots (rund fuenf je Tageszeitwechsel), aber der Wipe ist der bereits
+ * abgesicherte Pfad -- und Korrektheit vor Sparsamkeit.
+ *
+ * Bewusst NICHT in DMA_REQUEST_SYNC selbst gehaengt: das wuerde jeden Raum-,
+ * Objekt- und Animations-DMA einen Durchlauf ueber den Pool kosten, fuer einen
+ * Fall, der bisher nur beim Himmel gemessen ist. Wer den naechsten
+ * ueberschriebenen Puffer findet, ruft hier zusaetzlich auf. */
+void gfx_texture_cache_invalidate_range(const void *addr, unsigned int size) {
+    const uint8_t *lo = (const uint8_t *)addr;
+    const uint8_t *hi = lo + size;
+    uint32_t i;
+
+    ++gPspTexInvalCalls;
+
+    if (addr == NULL || size == 0) {
+        return;
+    }
+
+    /* Ueber den Pool laufen, nicht ueber die 1024 Hash-Eimer: die Eintraege
+     * liegen dort dicht, und ein Bereich verteilt sich ohnehin ueber viele
+     * Eimer -- eine Adresse pro Kachel-Offset. */
+    for (i = 0; i < gfx_texture_cache.pool_pos; i++) {
+        struct TextureHashmapNode *n = &gfx_texture_cache.pool[i];
+
+        if (n->texture_addr >= lo && n->texture_addr < hi && !n->stale) {
+            n->stale = 1;
+            ++gPspTexInvalDropped;
+        }
+    }
+
+    /* rendering_state.textures[] kann auf einen gerade entwerteten Eintrag
+     * zeigen, und gfx_sp_tri1 importiert nur neu, wenn textures_changed[] das
+     * sagt -- dasselbe Argument wie in gfx_texture_cache_reset(). */
+    rdp.textures_changed[0] = true;
+    rdp.textures_changed[1] = true;
+}
+
 /* How often the whole texture cache had to be thrown away, split by which
  * limit hit first, plus how full the pool was when it happened. Must be read
  * per-scene: these are cumulative. Non-zero while standing still means the
@@ -1453,7 +1545,8 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
          * Same reasoning as the palette field above, and the same fix
          * libultraship applies there: distinct decode inputs get distinct
          * entries. */
-        if ((*node)->texture_addr == orig_addr && (*node)->fmt == fmt && (*node)->siz == siz &&
+        if (!(*node)->stale &&
+            (*node)->texture_addr == orig_addr && (*node)->fmt == fmt && (*node)->siz == siz &&
             (*node)->line_size_bytes == rdp.texture_tile[tile].line_size_bytes &&
             (*node)->size_bytes == LOADED_TEX(tile).size_bytes &&
             (*node)->mirror_s == tile_wants_mirror(rdp.texture_tile[tile].cms) &&
@@ -1564,6 +1657,7 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
     (*node)->cmt = 0;
     (*node)->linear_filter = false;
     (*node)->next = NULL;
+    (*node)->stale = 0;
     (*node)->texture_addr = orig_addr;
     (*node)->fmt = fmt;
     (*node)->siz = siz;
@@ -1618,6 +1712,12 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
  * keeping a second copy of the rule here: session 9 already lost time to two
  * copies of the segment discriminator drifting apart, and this is the same
  * trap. */
+/* Bisect-Schalter ueber Commit 34ab82e0b; definiert in gfx_scegu.c neben den
+ * uebrigen Render-Hacks, damit das HACKS-Menue sie an einer Stelle findet. */
+extern int gPspTileNomaskClamp;
+extern int gPspRebindAfterUpload;
+extern int gPspSkyForceNonNative;
+
 static inline bool tex_needs_u64_unswap(const void *addr) {
     bool native = PspStaticAssetIsStatic(addr) != 0;
 
@@ -1647,7 +1747,9 @@ static inline bool tex_needs_u64_unswap(const void *addr) {
      * danebengelegen haette, also ob dieser Fall ueberhaupt noch auftritt. */
     if (native && gPspSkyTriMark) {
         GFXSTAT_INC(sky_tex_unswap);
-        native = false;
+        if (gPspSkyForceNonNative) {
+            native = false;
+        }
     }
 
     /* Counted here rather than at the call sites: there are eight importers and
@@ -3355,7 +3457,8 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         const bool two_tex = used_textures[0] && used_textures[1];
         const int win = (two_tex && (gPspGfxHackPreferTexel1 || gPspLerp2SecondPass)) ? 1 : 0;
 
-        if (psp_imported_any && used_textures[win] && rendering_state.textures[win] != NULL) {
+        if (gPspRebindAfterUpload && psp_imported_any && used_textures[win] &&
+            rendering_state.textures[win] != NULL) {
             gfx_flush();
             gfx_scegu_invalidate_texture_binding();
             gfx_rapi->select_texture(win, rendering_state.textures[win]->texture_id);
@@ -4453,11 +4556,29 @@ static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t t
      * src/graphic/Fast3D/gfx_pc.cpp:1813, first thing gfx_dp_set_tile does.
      * z2442 encodes the same rule differently (gfx_fast3d.c:1177, mirroring is
      * likewise suppressed at G_TX_NOMASK). */
-    if (cms == G_TX_WRAP && masks == G_TX_NOMASK) {
-        cms = G_TX_CLAMP;
-    }
-    if (cmt == G_TX_WRAP && maskt == G_TX_NOMASK) {
-        cmt = G_TX_CLAMP;
+    /* Auf einem Schalter, weil dies der erste Verdaechtige im Bisect ueber
+     * 34ab82e0b ist -- siehe gPspTileNomaskClamp in gfx_scegu.c. Und gezaehlt,
+     * weil "greift die Regel beim Himmel ueberhaupt?" eine eigene Frage ist:
+     * nomaskClamp zaehlt alle Umwandlungen, nomaskClampSky nur die zwischen
+     * den Skybox-Markern. Steht der zweite auf 0, kann diese Aenderung den
+     * Himmel gar nicht angefasst haben, egal was der Schalter zeigt. */
+    if (gPspTileNomaskClamp) {
+        bool clamped = false;
+
+        if (cms == G_TX_WRAP && masks == G_TX_NOMASK) {
+            cms = G_TX_CLAMP;
+            clamped = true;
+        }
+        if (cmt == G_TX_WRAP && maskt == G_TX_NOMASK) {
+            cmt = G_TX_CLAMP;
+            clamped = true;
+        }
+        if (clamped) {
+            GFXSTAT_INC(nomask_clamps);
+            if (gPspSkyTriMark) {
+                GFXSTAT_INC(nomask_clamps_sky);
+            }
+        }
     }
 
     GFXSTAT_INC(settile);
@@ -6013,6 +6134,8 @@ void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out) {
     out->tex_unswap_no   = gPspGfxStats.tex_unswap_no;
     out->sky_tex_imports = gPspGfxStats.sky_tex_imports;
     out->sky_tex_unswap  = gPspGfxStats.sky_tex_unswap;
+    out->nomask_clamps     = gPspGfxStats.nomask_clamps;
+    out->nomask_clamps_sky = gPspGfxStats.nomask_clamps_sky;
     out->sky_tex_hits    = gPspGfxStats.sky_tex_hits;
     out->tex_off_draws   = gPspGfxStats.tex_off_draws;
     out->tex_sc0_draws   = gPspGfxStats.tex_sc0_draws;

@@ -36,6 +36,10 @@ struct GfxPcFrameSnapshot {
     unsigned int sky_tex_imports;
     unsigned int sky_tex_unswap;
     unsigned int sky_tex_hits;
+    /* Bisect ueber 34ab82e0b, Aenderung 1: wie oft G_TX_NOMASK zu CLAMP
+     * umgeschrieben wurde, und wie viel davon auf den Himmel entfiel. */
+    unsigned int nomask_clamps;
+    unsigned int nomask_clamps_sky;
     unsigned int sky_seg0;
     unsigned int sky_seg0_native;
     unsigned int sky_pal;

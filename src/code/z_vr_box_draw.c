@@ -25,6 +25,8 @@ Mtx* sSkyboxDrawMatrix;
  * port's most expensive recurring mistake, and the reason the range is now
  * spelt out rather than left at "all the bits I happened to think of". */
 int gDebugSkyFaceMask = 0xFFF;
+/* Bisect-Schalter, definiert in psp/src/gfx/gfx_scegu.c. */
+extern int gPspSkyDecalNoBlend;
 #define SKY_DL(k)                                             \
     do {                                                      \
         if (gDebugSkyFaceMask & (1 << (k))) {                 \
@@ -144,7 +146,10 @@ void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId
      *
      * Uebernommen aus reference/oot-psp-z2442, z_vr_box_draw.c (Commit
      * 3f7c9cf3c "Improve skybox!") -- dort exakt dieselben zwei Zeilen. */
-    if (blend == 0) {
+    /* Auf einem Schalter, solange der Bisect ueber 34ab82e0b laeuft -- diese
+     * Zeilen sind Aenderung 3 der vier, die den Renderpfad des Himmels in
+     * jenem Commit angefasst haben. Siehe gPspSkyDecalNoBlend in gfx_scegu.c. */
+    if (blend == 0 && gPspSkyDecalNoBlend) {
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_DECALRGBA, G_CC_DECALRGBA);
         gDPSetCycleType(POLY_OPA_DISP++, G_CYC_1CYCLE);
     }

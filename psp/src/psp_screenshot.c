@@ -339,6 +339,7 @@ static void PspScreenshotWriteCounters(void) {
         len = snprintf(text, sizeof(text),
                        "unswapYes %u\nunswapNo %u\n"
                        "skyTexImports %u\nskyTexUnswap %u\nskyTexHits %u\n"
+                       "nomaskClamp %u\nnomaskClampSky %u\n"
                        "skySeg0 %08x\nskySeg0Native %u\nskyPal %08x\nskyPalNative %u\n"
                        "bindDesync %u\nbindDesyncFrame %u\nbindDesync2nd %u\nlerp2Draws %u\n"
                        "texOffDraws %u\ntexSc0Draws %u\n"
@@ -348,6 +349,7 @@ static void PspScreenshotWriteCounters(void) {
                        "tccRgbNoAlphaOpt %u\ntccRgbNoTexelRow %u\ntccRgbaOk %u\n",
                        g.tex_unswap_yes, g.tex_unswap_no,
                        g.sky_tex_imports, g.sky_tex_unswap, g.sky_tex_hits,
+                       g.nomask_clamps, g.nomask_clamps_sky,
                        g.sky_seg0, g.sky_seg0_native, g.sky_pal, g.sky_pal_native,
                        g.bind_desyncs, g.bind_desyncs_frame, g.bind_desyncs_2nd, g.lerp2_draws,
                        g.tex_off_draws, g.tex_sc0_draws, g.fog_draws, g.fog_bad_range,

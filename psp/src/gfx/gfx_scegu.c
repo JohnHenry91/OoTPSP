@@ -683,6 +683,54 @@ extern int gPspLerp2SecondPass;
  * it does not, the pass is not drawing what it is supposed to. */
 int gPspLerp2Force;
 
+/* ---------------------------------------------------------------------------
+ * Bisect-Schalter fuer Commit 34ab82e0b ("Sky, sun and moon").
+ *
+ * Der User meldet, dass die verwuerfelte Himmelsflaeche VOR diesem Commit noch
+ * nicht da war. Vier Aenderungen darin fassen den Renderpfad des Himmels an,
+ * und statt sie einzeln herauszubauen und viermal neu zu uebersetzen, liegt
+ * jede hier auf einem Schalter: im HACKS-Menue laesst sich damit in EINEM Lauf
+ * A/B testen, welche von ihnen die Flaeche einschleppt. Alle vier stehen auf
+ * "an" (== dem Verhalten nach dem Commit); jede Menue-Zeile schaltet sie auf
+ * das Verhalten davor zurueck.
+ *
+ * Sie sind bewusst getrennt und nicht ein einzelner "alles zurueck"-Schalter:
+ * die vier greifen an vier verschiedenen Stellen an, und nur die einzelne
+ * Zuordnung ist eine Messung.
+ *
+ * ERGEBNIS DES BISECTS (2026-08-31): KEINER der vier war die Ursache, und
+ * keiner konnte es sein. Die HUD-Zeile zeigte "SKY imp 0 hit 24" -- der Himmel
+ * importierte gar nichts und wurde vollstaendig aus dem Texturcache bedient.
+ * Aenderung 2 und 4 sitzen im Importpfad und liefen damit nie. Die echte
+ * Ursache war der ueber die Quelladresse geschluesselte Cache gegen Puffer,
+ * die das Spiel an derselben Adresse neu befuellt; siehe
+ * gfx_texture_cache_invalidate_range() in gfx_pc.c.
+ *
+ * Die Schalter bleiben trotzdem stehen, und zwar aus einem konkreten Grund:
+ * seit der Cache die Himmelstexturen wieder freigibt, FINDEN Importe statt.
+ * Die Messung "imp 0", die Aenderung 2 und 4 entlastet hat, gilt also nicht
+ * mehr -- beide koennen ab jetzt zum ersten Mal ueberhaupt wirken, im Guten
+ * wie im Schlechten. Sie sind damit weniger erledigt als vorher, nicht mehr. */
+
+/* 1) gfx_dp_set_tile: G_TX_WRAP + G_TX_NOMASK als CLAMP behandeln. Hoechster
+ *    Verdacht -- wirkt global, und die Skybox laedt JEDE ihrer 31x31-Kacheln
+ *    mit genau dieser Kombination (z_vr_box.c:347). Der Mond-Fix haengt daran
+ *    und ist bestaetigt, also ist "aus" hier kein Rueckschritt, sondern der
+ *    Gegentest. */
+int gPspTileNomaskClamp = 1;
+
+/* 2) gfx_sp_tri1: nach jedem Textur-Upload die Bindung ausdruecklich
+ *    wiederherstellen. */
+int gPspRebindAfterUpload = 1;
+
+/* 3) z_vr_box_draw.c: bei blend == 0 auf G_CC_DECALRGBA/G_CYC_1CYCLE
+ *    umschalten (aus z2442 3f7c9cf3c). */
+int gPspSkyDecalNoBlend = 1;
+
+/* 4) tex_needs_u64_unswap: die Skybox als "nicht native" aussprechen, statt
+ *    ihre Byteordnung aus der Adresse zu erschliessen. */
+int gPspSkyForceNonNative = 1;
+
 /* Last texenv mode forced by gfx_scegu_set_two_texture_tint(); -1 == none. */
 static int mode_override = -1;
 
