@@ -31,6 +31,11 @@ void PspScreenshot_Tick(const void *fb565, int width, int height, int stride);
  * its file looks exactly like a hotkey that never fired. */
 unsigned int PspScreenshot_StatCount(void);
 unsigned int PspScreenshot_StatFails(void);
+/* sceIoOpen-Rueckgabewert des letzten fehlgeschlagenen Versuchs, und ob der
+ * Ausweichpfad ms0:/ benutzt wurde. Damit "es passiert nichts" diagnostizierbar
+ * wird statt ratbar. */
+int PspScreenshot_StatLastErr(void);
+unsigned int PspScreenshot_StatFallback(void);
 /* Automatic grabs still allowed this session; 0 means the budget is spent and
  * only the manual hotkey will produce anything. */
 int PspScreenshot_StatAutoBudget(void);

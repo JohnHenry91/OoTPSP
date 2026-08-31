@@ -380,6 +380,7 @@ static bool gfx_scegu_z_is_from_0_to_1(void) {
  * gPspTccRgbaOk counts the shaders that do get the texture's alpha, as a
  * denominator -- "0 of 40" and "38 of 40" are very different pictures. */
 uint32_t gPspFlatBinds;
+uint32_t gPspFlatTfx, gPspFlatTcc;
 uint32_t gPspFlatRgbBinds;
 uint32_t gPspTccRgbNoAlphaOpt;
 uint32_t gPspTccRgbNoTexelRow;
@@ -824,6 +825,14 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
             if (tcc == GU_TCC_RGB) {
                 gPspFlatRgbBinds++;
             }
+            /* Der Zustand, mit dem die GE das Leuchtsprite tatsaechlich
+             * zeichnet. Der Zweitdurchgang setzt fuer sein eigenes Material
+             * eine andere Texturumgebung, und wenn die stehen bleibt, wird der
+             * naechste Draw damit gezeichnet: RGB stimmt weiter (deshalb
+             * dunkelt der Kasten mit), der Alphakanal faellt weg. Genau das
+             * waere hier abzulesen -- erwartet ist BLEND(3)/RGBA(1). */
+            gPspFlatTfx = (uint32_t)mode;
+            gPspFlatTcc = (uint32_t)tcc;
         }
 
         sceGuTexFunc(mode, tcc);
@@ -1628,6 +1637,12 @@ static void gfx_scegu_draw_triangles(float buf_vbo[], UNUSED size_t buf_vbo_len,
  *
  * Depth writes stay ON with the default LEQUAL test: the geometry is bitwise
  * the same as the first pass, so it compares equal and passes. */
+/* Der zuletzt von gfx_scegu_lerp2_blend_begin gesetzte Mischfaktor, 0..255.
+ * gfx_sp_tri1 rechnet ihn im Zweitdurchgang ins Vertexalpha ein. */
+unsigned int gPspLerp2MixApplied;
+
+#define _UNUSED_FIX(x) ((void)(x))
+
 void gfx_scegu_lerp2_blend_begin(uint8_t mix) {
     /* One scalar, not three channels. The RDP multiplies the (TEXEL1 - TEXEL0)
      * term by a single value here -- ENV_ALPHA or the LOD fraction -- so the
@@ -1640,8 +1655,61 @@ void gfx_scegu_lerp2_blend_begin(uint8_t mix) {
     const unsigned int src_fix = m | (m << 8) | (m << 16);
     const unsigned int dst_fix = inv | (inv << 8) | (inv << 16);
 
+    /* Der Mischfaktor, den gfx_sp_tri1 im Zweitdurchgang ins Vertexalpha
+     * einrechnet -- siehe unten, warum das die festen Faktoren ersetzt. */
+    gPspLerp2MixApplied = m;
+
     sceGuEnable(GU_BLEND);
-    sceGuBlendFunc(GU_ADD, GU_FIX, GU_FIX, src_fix, dst_fix);
+    /* ALPHA-MISCHUNG STATT FESTER FAKTOREN.
+     *
+     * Vorher stand hier GU_FIX/GU_FIX mit mix und (1-mix). Das bildet
+     * (TEXEL1-TEXEL0)*mix + TEXEL0 exakt nach -- aber nur, solange das
+     * Material DECKEND ist. Beim Boden, wofuer dieser Pfad gebaut wurde, ist
+     * es das, und dort aendert sich durch die Umstellung rechnerisch nichts:
+     * bei Alpha 255 ist src_alpha == mix, also genau der alte Faktor.
+     *
+     * Bei der Sonne ist es das nicht. Ihre Alphazeile laeuft von 0 am Rand
+     * der Scheibe bis 255 in der Mitte, und ein FESTER Faktor traegt diesen
+     * Verlauf nicht: der zweite Durchgang malte innerhalb der Maske ueberall
+     * gleich stark. Sichtbar war das erst als Rechteck und, nachdem der
+     * Alpha-Test die voellig durchsichtigen Stellen entfernt hatte, als
+     * flache Scheibe mit harter Kante.
+     *
+     * gfx_sp_tri1 multipliziert das Vertexalpha im Zweitdurchgang mit
+     * gPspLerp2MixApplied, sodass der Mischfaktor erhalten bleibt und
+     * zusaetzlich mit dem Alphaverlauf der Textur gewichtet wird. */
+    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    _UNUSED_FIX(src_fix); _UNUSED_FIX(dst_fix);
+
+    /* DIE MASKE, DIE DIESEM DURCHGANG SONST FEHLT -- der Kasten um Sonne und
+     * Mond.
+     *
+     * Die festen Faktoren oben sind der ganze Witz des Zweitdurchgangs: sie
+     * bilden (TEXEL1-TEXEL0)*mix + TEXEL0 exakt nach. Sie benutzen aber
+     * KEIN Alpha, also malt dieser Durchgang ueber das ganze Viereck --
+     * auch dort, wo die N64 gar nichts gezeichnet haette.
+     *
+     * Auf der RDP ist das ein EINZIGER Draw mit einer Alphazeile, die beide
+     * Zyklen gemeinsam maskiert. Bei der Sonne (SETUPDL_54) lautet sie
+     * (TEXEL1-TEXEL0)*ENVIRONMENT + TEXEL0: ausserhalb der Scheibe sind beide
+     * Texel 0, also Alpha 0, also nichts. Zyklus 2 ist dort
+     * (PRIM-ENV)*COMBINED + ENV == ENV -- die Umgebungsfarbe steht also sehr
+     * wohl im Farbwert, sie wird auf der N64 nur vollstaendig wegmaskiert.
+     * Genau diese Maske geht verloren, wenn der Draw in zwei zerfaellt, und
+     * uebrig bleibt ein Rechteck in der Umgebungsfarbe, das mit ihr
+     * mitdunkelt.
+     *
+     * Deshalb: waehrend des Zweitdurchgangs alles verwerfen, was vollstaendig
+     * durchsichtig ist. GU_GREATER gegen 0 ist die schwaechstmoegliche Form
+     * davon -- sie trifft ausschliesslich Alpha == 0 und kann keinen Verlauf
+     * abschneiden, anders als der pauschale 0x55-Test, den dieser Port
+     * frueher hatte (siehe gDebugAlphaTest).
+     *
+     * Fuer den eigentlichen Zweck des Zweitdurchgangs, den zweischichtigen
+     * Boden, aendert das nichts: dessen Texturen sind deckend, ihr Alpha ist
+     * 255, der Test laesst sie unveraendert durch. */
+    sceGuEnable(GU_ALPHA_TEST);
+    sceGuAlphaFunc(GU_GREATER, 0, 0xff);
 }
 
 /* Hand the pipeline back exactly as gfx_pc.c's own cache (gl_blend, mirroring
@@ -1657,6 +1725,11 @@ void gfx_scegu_lerp2_blend_end(void) {
     if (!gl_blend) {
         sceGuDisable(GU_BLEND);
     }
+    /* Den Alpha-Test wieder abschalten. Er ist per-Draw-Zustand, den
+     * gfx_scegu_apply_shader beim naechsten Bind ohnehin neu setzt (dort
+     * gesteuert ueber SHADER_OPT_TEXTURE_EDGE) -- ihn hier stehen zu lassen
+     * hiesse, dass der naechste Draw ohne eigenen Bind ihn erbt. */
+    sceGuDisable(GU_ALPHA_TEST);
 }
 
 /* Fog mode 2's second pass -- see gPspFogSecondPass in gfx_pc.c. Ported from

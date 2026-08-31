@@ -409,6 +409,8 @@ void gfx_scegu_set_fog(int enable, float start, float end, unsigned int color);
 void gfx_scegu_invalidate_texture_binding(void);
 /* Last texture id gfx_scegu_select_texture actually handed to the GE. */
 extern uint32_t gPspCurBoundTex;
+/* Mischfaktor des laufenden Zweitdurchgangs; gesetzt in gfx_scegu.c. */
+extern unsigned int gPspLerp2MixApplied;
 
 /* Exposed to gfx_scegu.c's N64-logo-cube 2-pass hack: it needs to toggle
  * GU_BLEND directly for one extra pass, and must restore it to whatever
@@ -3142,6 +3144,20 @@ static void gfx_lerp2_assert_texture_state(void) {
 }
 #endif
 
+#if TARGET_PSP
+/* Messwerte der GLOW-Sonde; ausgegeben in der GLOW-Zeile des HUD. Der
+ * UV-Bereich ist NORMIERT, also gegen die gebackene (gespiegelte) Textur. */
+uint32_t gPspGlowDraws;
+uint32_t gPspGlowTexW, gPspGlowTexH;
+uint32_t gPspGlowCms, gPspGlowCmt, gPspGlowCcId;
+uint32_t gPspGlowSiz, gPspGlowMirror, gPspGlowPrimA, gPspGlowVtxA, gPspGlowUseAlpha;
+uint32_t gPspGlowVtxAMax, gPspGlowAlphaSrc;
+uint32_t gPspGlowWantTex, gPspGlowBoundTex, gPspGlowFmt;
+uint32_t gPspGlowCapture;
+float gPspGlowArea2;
+float gPspGlowUMin, gPspGlowUMax, gPspGlowVMin, gPspGlowVMax;
+#endif
+
 static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
 #if TARGET_PSP
     if (gPspSkyTriMark) {
@@ -3376,6 +3392,9 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
 
     /* Did an upload happen in the loop below? See the re-bind after it. */
     bool psp_imported_any = false;
+    /* Gehoert dieser Draw zum Leuchtkreis? Gesetzt weiter unten, sobald die
+     * Spiegelflags der gebundenen Textur bekannt sind. */
+    bool psp_glow_probe = false;
 
     for (int i = 0; i < 2; i++) {
         if (used_textures[i]) {
@@ -3630,6 +3649,79 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     }
 
 #if TARGET_PSP
+    /* --- GLOW-Sonde: der Kasten um Sonne und Feen -------------------------
+     *
+     * Beide zeichnen denselben Leuchtkreis (gGlowCircleDL aus Lights_DrawGlow,
+     * gLensFlareCircleDL aus Environment_DrawLensFlare) mit demselben
+     * Combine: RGB ist die flache Konstante PRIM, die FORM kommt
+     * ausschliesslich aus dem Alphakanal (TEXEL0 * PRIM). Faellt der
+     * Texturalphakanal aus, bleibt genau ein einfarbiges Rechteck in der
+     * PRIM-Farbe uebrig -- das mit ihr mitdunkelt. Genau die Meldung.
+     *
+     * gCircleGlowLTex ist NACHGEMESSEN die LINKE HAELFTE einer Leuchtscheibe:
+     * linke Spalte, obere und untere Zeile durchgehend 0, aber die RECHTE
+     * Spalte erreicht 255 -- das ist die Nahtkante, die Mitte des vollen
+     * Kreises. Die Spiegelung in S ergaenzt sie zum Kreis. Damit ist jeder
+     * Fehler, der ueber die gebackene Textur hinaus abtastet und klemmt,
+     * sofort eine vollflaechig HELLE Flaeche statt eines Verlaufs.
+     *
+     * Diese Sonde misst deshalb genau das: den tatsaechlich benutzten
+     * UV-Bereich gegen die gebackene Textur. Erwartet ist u in [0,1] und
+     * v in [0,0.5] -- gGlowCircleVtx spannt in S das Doppelte der
+     * Texturbreite (0x800 = 64 Texel bei 32 breit) und in T das Einfache,
+     * waehrend BEIDE Achsen gespiegelt hochgeladen werden. Alles ausserhalb
+     * davon tastet in die 255er-Naht und erklaert den Kasten; liegt der
+     * Bereich im Soll, ist die UV-Kette entlastet und der Fehler sitzt in der
+     * Mischstufe.
+     *
+     * Ausgeloest ueber "in BEIDEN Achsen gespiegelt", weil der Leuchtkreis in
+     * diesem Port praktisch der einzige solche Fall ist -- das braucht keinen
+     * Symbolbezug, der bei schwachen Blob-Symbolen ohnehin unzuverlaessig
+     * waere. */
+    /* Ausgeloest ueber das TEXTURFORMAT, nicht mehr ueber die Spiegelung.
+     * Der erste Versuch nahm "in beiden Achsen gespiegelt" und griff damit
+     * eine fremde 16x16-Textur, 92 Draws pro Frame -- der Leuchtkreis war gar
+     * nicht dabei. Nachgesehen: die beiden Leuchttexturen sind VERSCHIEDEN
+     * gebaut, und nur eine davon ist gespiegelt.
+     *
+     *   Fee:   gCircleGlowLTex,      I8, 32x64, G_TX_MIRROR in BEIDEN Achsen
+     *   Sonne: gLensFlareCircleTex,  I4, 64x64, G_TX_NOMIRROR
+     *
+     * Gemeinsam ist ihnen das I-Format -- eine Intensitaetstextur, bei der
+     * A = I ist und die Form deshalb ausschliesslich im Alphakanal steckt.
+     * Das ist der richtige Auslöser fuer beide.
+     *
+     * Und es gewinnt der FLAECHENGROESSTE solche Draw, nicht der letzte: der
+     * Leuchtkreis ist auf dem Schirm gross, die uebrigen I-Texturen sind
+     * Kleinkram. Der letzte Draw zu nehmen war der zweite Fehler der ersten
+     * Fassung. */
+    /* I UND IA, und keine Winzlinge.
+     *
+     * Zwei Nachbesserungen aus dem Betrieb. Erstens war "nur I-Format" zu eng:
+     * der MOND ist IA8 (gMoonDL laedt gMoonTex als G_IM_FMT_IA/G_IM_SIZ_8b),
+     * die Sonde konnte ihn also nie sehen -- und er ist eines der beiden
+     * Objekte mit dem Kasten.
+     *
+     * Zweitens gewann ueber die reine Flaeche verlaesslich eine fremde
+     * 16x16-Textur, die in beiden Achsen gespiegelt auf 32x32 aufgeht und
+     * gross gezogen wird. Alle drei Verdaechtigen sind mindestens 32 Texel
+     * breit (Sonne 64x31 I4, Flare 64x64 I4, Mond 64x64 IA8, Feenkreis 32x64
+     * I8), also faellt der Stoerer ueber die Breite heraus -- gemessen an der
+     * QUELLtextur, nicht an der gebackenen, sonst zaehlt die Spiegelung
+     * doppelt. */
+    {
+        const uint8_t pfmt = rdp.texture_tile[uv_tile].fmt;
+        uint32_t src_w = tex_width;
+
+        if (rendering_state.textures[0] != NULL && rendering_state.textures[0]->mirror_s) {
+            src_w /= 2;
+        }
+        psp_glow_probe = use_texture && rendering_state.textures[0] != NULL &&
+                         (pfmt == G_IM_FMT_I || pfmt == G_IM_FMT_IA) && src_w >= 32;
+    }
+#endif
+
+#if TARGET_PSP
     /* Biggest-triangle probe. The outdoor ground is reliably the largest
      * textured surface in a scene by a wide margin, so "the triangle with the
      * greatest area this frame" is a dependable handle on it without needing
@@ -3700,6 +3792,53 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
                 gPspL2Addr1 = LOADED_TEX(1).addr;
                 gPspL2SameAddr = (LOADED_TEX(0).addr == LOADED_TEX(1).addr);
                 gPspL2CcId = cc_id;
+            }
+        }
+
+        if (psp_glow_probe) {
+            ++gPspGlowDraws;
+            if (area2 > gPspGlowArea2) {
+                gPspGlowArea2 = area2;
+                gPspGlowTexW = tex_width;
+                gPspGlowTexH = tex_height;
+                gPspGlowCms = rdp.texture_tile[uv_tile].cms;
+                gPspGlowCmt = rdp.texture_tile[uv_tile].cmt;
+                gPspGlowCcId = cc_id;
+                gPspGlowSiz = rdp.texture_tile[uv_tile].siz;
+                gPspGlowFmt = rdp.texture_tile[uv_tile].fmt;
+                gPspGlowMirror = (rendering_state.textures[0]->mirror_s ? 1 : 0) |
+                                 (rendering_state.textures[0]->mirror_t ? 2 : 0);
+                /* Die eigentliche Frage: welches Alpha geht in den Vertex?
+                 * Soll ist PRIM-Alpha (die Alphazeile lautet TEXEL0*PRIMITIVE,
+                 * der Texel kommt von der GE, PRIM von hier). Steht hier 255,
+                 * waehrend primA klein ist, ist der Kasten erklaert: dann wird
+                 * der Verlauf der Textur mit voller Deckung gezeichnet. */
+                gPspGlowPrimA = rdp.prim_color.a;
+                gPspGlowUseAlpha = use_alpha ? 1 : 0;
+                gPspGlowAlphaSrc = 0;
+                /* Zeichnet die GE ueberhaupt die Textur, die dieser Draw
+                 * gemeint hat?
+                 *
+                 * gSun1Tex ist nachgemessen sauber (Raender 0), TFX/TCC sind
+                 * korrekt (BLEND/RGBA) -- und trotzdem steht ein Kasten da,
+                 * dessen Inhalt nach WOLKEN aussieht und nicht nach Sonne.
+                 * Damit bleibt nur, dass physisch eine andere Textur gebunden
+                 * ist als die, deren Cache-Eintrag dieser Draw benutzt.
+                 *
+                 * want ist die ID aus dem Cache-Eintrag, bound die, die
+                 * gfx_scegu zuletzt wirklich an die GE gegeben hat. Weichen
+                 * sie ab, ist der Kasten erklaert -- und es waere derselbe
+                 * Desync, den dieser Port schon mehrfach hatte ("both caches
+                 * say the right thing while the GE holds the wrong texture"). */
+                gPspGlowWantTex = rendering_state.textures[uv_tile] != NULL
+                                      ? rendering_state.textures[uv_tile]->texture_id
+                                      : 0xFFFFFFFFu;
+                gPspGlowBoundTex = gPspCurBoundTex;
+                gPspGlowCapture = 1;
+                gPspGlowUMin = gPspGlowVMin = 1.0e9f;
+                gPspGlowUMax = gPspGlowVMax = -1.0e9f;
+            } else {
+                gPspGlowCapture = 0;
             }
         }
 
@@ -3774,6 +3913,15 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             buf_vbo[buf_num_vert].u = u / tex_width;
             buf_vbo[buf_num_vert].v = v / tex_height;
 #if TARGET_PSP
+            if (psp_glow_probe && gPspGlowCapture) {
+                const float nu = u / tex_width;
+                const float nv = v / tex_height;
+
+                if (nu < gPspGlowUMin) { gPspGlowUMin = nu; }
+                if (nu > gPspGlowUMax) { gPspGlowUMax = nu; }
+                if (nv < gPspGlowVMin) { gPspGlowVMin = nv; }
+                if (nv > gPspGlowVMax) { gPspGlowVMax = nv; }
+            }
             if (psp_l2_capture && i == 0) {
                 const int pass = gPspLerp2SecondPass ? 1 : 0;
                 gPspL2UvU[pass] = u / tex_width;
@@ -3831,6 +3979,16 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
                 if (k == 0) {
                     probe_cc_input = (uint32_t)comb->shader_input_mapping[k][j] + 1;
                 }
+#if TARGET_PSP
+                /* Woher stammt das Alpha wirklich? primA 255 bei vtxA 0 sagt,
+                 * dass die Alphazeile NICHT bei PRIM gelandet ist -- aber nicht,
+                 * wo stattdessen. Diese Zahl sagt es: +1, damit 0 ehrlich
+                 * "die Schleife hat nichts zugewiesen" heisst und nicht mit
+                 * CC_PRIM == 0 verwechselt wird. */
+                if (k == 1 && psp_glow_probe && gPspGlowCapture) {
+                    gPspGlowAlphaSrc = (uint32_t)comb->shader_input_mapping[k][j] + 1;
+                }
+#endif
                 switch (comb->shader_input_mapping[k][j]) {
                     case CC_PRIM:
                         *dst = &rdp.prim_color;
@@ -3990,6 +4148,35 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         } else {
             buf_vbo[buf_num_vert].color.a = alpha_src->a;
         }
+#if TARGET_PSP
+        /* Im Zweitdurchgang den Mischfaktor ins Alpha einrechnen. Die
+         * Mischstufe steht dort auf SRC_ALPHA/1-SRC_ALPHA (siehe
+         * gfx_scegu_lerp2_blend_begin), also traegt das Alpha jetzt BEIDES:
+         * wie stark die zweite Textur beigemischt wird UND wie deckend das
+         * Material an dieser Stelle ueberhaupt ist. Bei deckenden Boeden ist
+         * das Ergebnis identisch zum alten festen Faktor. */
+        if (gPspLerp2SecondPass) {
+            buf_vbo[buf_num_vert].color.a =
+                (uint8_t)((buf_vbo[buf_num_vert].color.a * gPspLerp2MixApplied) / 255u);
+        }
+#endif
+#if TARGET_PSP
+        /* Min UND Max ueber die Vertices: ein Quad, dessen Ecken verschiedene
+         * Alphawerte tragen, ist eine ganz andere Aussage als eines mit
+         * durchgehend demselben -- und "der letzte Vertex" verwischt genau
+         * diesen Unterschied. */
+        if (psp_glow_probe && gPspGlowCapture) {
+            const uint32_t a = buf_vbo[buf_num_vert].color.a;
+
+            if (i == 0) {
+                gPspGlowVtxA = a;
+                gPspGlowVtxAMax = a;
+            } else {
+                if (a < gPspGlowVtxA) { gPspGlowVtxA = a; }
+                if (a > gPspGlowVtxAMax) { gPspGlowVtxAMax = a; }
+            }
+        }
+#endif
 
         /* Shade probe -- the other half of the cut, see PspGfxFrameStats.
          * Only textured, lit draws: that is the walls and the floor. */
@@ -5909,6 +6096,7 @@ unsigned int gPspGfxResumes;
 
 /* Bumped by whoever loads a room; see gfx_scegu_draw_background. */
 extern unsigned int gPspBgCacheGeneration;
+extern float gPspGlowArea2;
 void gfx_texture_cache_reset(void);
 
 void PspGfx_NotifyResume(void) {
@@ -5920,6 +6108,13 @@ void gfx_start_frame(void) {
     //sceIoWrite(1, "----START FRAME!\n", 18);
     total_t0 = sceKernelLibcClock();
 #if TARGET_PSP
+    /* Der Flaechen-Hoechststand der GLOW-Sonde gehoert an den Frameanfang,
+     * nicht in die HUD-Zeichenroutine. Dort stand er, und weil das HUD
+     * abschaltbar ist, blieb der erste grosse Draw der Sitzung sonst fuer
+     * immer Sieger -- die Sonde klebte an einer fremden Textur fest und
+     * meldete drei Messungen lang denselben falschen Draw. Eine Sonde, deren
+     * Gueltigkeit davon abhaengt, ob man sie gerade anschaut, ist keine. */
+    gPspGlowArea2 = 0.0f;
     if (sGfxResumePending) {
         sGfxResumePending = 0;
         ++gPspGfxResumes;

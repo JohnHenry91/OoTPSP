@@ -49,6 +49,15 @@ static const void *sLastBgImg;
  * the Memory Stick: the trigger never fired, it fired and the budget was
  * spent, or it fired and every open failed. */
 static unsigned int sStatAutoFired;
+/* Warum ein Dump NICHT zustande kam. "Nichts passiert" ist der einzige
+ * Zustand, den ein Messwerkzeug nie haben darf: dann ist unklar, ob der
+ * Ausloeser nicht ankam oder das Schreiben scheiterte. sStatLastErr haelt den
+ * sceIoOpen-Rueckgabewert, sStatUsedFallback sagt, ob der Ausweichpfad griff. */
+static int sStatLastErr;
+static unsigned int sStatUsedFallback;
+
+int PspScreenshot_StatLastErr(void) { return sStatLastErr; }
+unsigned int PspScreenshot_StatFallback(void) { return sStatUsedFallback; }
 
 static void PspScreenshotRequestAuto(int frames) {
     ++sStatAutoFired;
@@ -171,8 +180,18 @@ void PspScreenshot_Tick(const void *fb565, int width, int height, int stride) {
 
     fd = sceIoOpen(path, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
     if (fd < 0) {
-        ++sStatFails;
-        return;
+        /* Das Spielverzeichnis ist unter PPSSPP ein Symlink, und der Basispfad
+         * stammt aus argv0 -- beides kann schiefgehen, ohne dass irgendetwas
+         * davon sichtbar waere. Statt hier stumm aufzugeben: Fehlercode
+         * festhalten und die Memstick-Wurzel versuchen, die es immer gibt. */
+        sStatLastErr = fd;
+        snprintf(path, sizeof(path), "ms0:/shot%03u.bmp", sSeq);
+        fd = sceIoOpen(path, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
+        if (fd < 0) {
+            ++sStatFails;
+            return;
+        }
+        sStatUsedFallback = 1;
     }
     ++sSeq;
 
@@ -262,13 +281,25 @@ static void PspScreenshotWriteCounters(void) {
     extern unsigned int gPspBlobRoomEvictions;
     extern unsigned int gPspBlobKeepEvictions;
     extern unsigned int gPspBlobObjEvictions;
+    /* Invalidierung des Texturcaches (gfx_pc.c) und die GLOW-Sonde. */
+    extern unsigned int gPspTexInvalCalls, gPspTexInvalDropped;
+    extern unsigned int gPspGlowDraws, gPspGlowTexW, gPspGlowTexH, gPspGlowSiz;
+    extern unsigned int gPspGlowMirror, gPspGlowUseAlpha, gPspGlowPrimA;
+    extern unsigned int gPspGlowVtxA, gPspGlowVtxAMax, gPspGlowAlphaSrc;
+    extern unsigned int gPspGlowWantTex, gPspGlowBoundTex;
+    extern unsigned int gPspFlatTfx, gPspFlatTcc;
+    extern float gPspGlowUMin, gPspGlowUMax, gPspGlowVMin, gPspGlowVMax;
 
     char path[128];
-    char text[512];
+    char text[1024];
     int len;
     SceUID fd;
 
-    snprintf(path, sizeof(path), "%sshot%03u.txt", PspBlob_GetBaseDir(), sSeq - 1u);
+    if (sStatUsedFallback) {
+        snprintf(path, sizeof(path), "ms0:/shot%03u.txt", sSeq - 1u);
+    } else {
+        snprintf(path, sizeof(path), "%sshot%03u.txt", PspBlob_GetBaseDir(), sSeq - 1u);
+    }
     fd = sceIoOpen(path, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
     if (fd < 0) {
         return;
@@ -340,6 +371,19 @@ static void PspScreenshotWriteCounters(void) {
                        "unswapYes %u\nunswapNo %u\n"
                        "skyTexImports %u\nskyTexUnswap %u\nskyTexHits %u\n"
                        "nomaskClamp %u\nnomaskClampSky %u\n"
+                   "texInvalCalls %u\ntexInvalDropped %u\n"
+                   /* GLOW-Sonde: der flaechengroesste I-Format-Draw des
+                    * Frames -- der Leuchtkreis der Fee bzw. die Sonne. Hier
+                    * ungekuerzt, waehrend die HUD-Zeile auf 54 Spalten passen
+                    * muss. glowAlphaSrc ist +1 gegen die CC_*-Aufzaehlung in
+                    * gfx_cc.h, damit 0 ehrlich "nichts zugewiesen" heisst.
+                    * glowWantTex gegen glowBoundTex ist die offene Frage:
+                    * zeichnet die GE die Textur, die der Draw gemeint hat? */
+                   "glowDraws %u\nglowTexW %u\nglowTexH %u\nglowSiz %u\n"
+                   "glowMirror %u\nglowUseAlpha %u\nglowPrimA %u\n"
+                   "glowVtxAMin %u\nglowVtxAMax %u\nglowAlphaSrc %u\n"
+                   "glowWantTex %u\nglowBoundTex %u\nflatTfx %u\nflatTcc %u\n"
+                   "glowU0 %d\nglowU1 %d\nglowV0 %d\nglowV1 %d\n"
                        "skySeg0 %08x\nskySeg0Native %u\nskyPal %08x\nskyPalNative %u\n"
                        "bindDesync %u\nbindDesyncFrame %u\nbindDesync2nd %u\nlerp2Draws %u\n"
                        "texOffDraws %u\ntexSc0Draws %u\n"
@@ -350,6 +394,13 @@ static void PspScreenshotWriteCounters(void) {
                        g.tex_unswap_yes, g.tex_unswap_no,
                        g.sky_tex_imports, g.sky_tex_unswap, g.sky_tex_hits,
                        g.nomask_clamps, g.nomask_clamps_sky,
+                       gPspTexInvalCalls, gPspTexInvalDropped,
+                       gPspGlowDraws, gPspGlowTexW, gPspGlowTexH, gPspGlowSiz,
+                       gPspGlowMirror, gPspGlowUseAlpha, gPspGlowPrimA,
+                       gPspGlowVtxA, gPspGlowVtxAMax, gPspGlowAlphaSrc,
+                       gPspGlowWantTex, gPspGlowBoundTex, gPspFlatTfx, gPspFlatTcc,
+                       (int)(gPspGlowUMin * 1000.0f), (int)(gPspGlowUMax * 1000.0f),
+                       (int)(gPspGlowVMin * 1000.0f), (int)(gPspGlowVMax * 1000.0f),
                        g.sky_seg0, g.sky_seg0_native, g.sky_pal, g.sky_pal_native,
                        g.bind_desyncs, g.bind_desyncs_frame, g.bind_desyncs_2nd, g.lerp2_draws,
                        g.tex_off_draws, g.tex_sc0_draws, g.fog_draws, g.fog_bad_range,

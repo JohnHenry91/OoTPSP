@@ -516,6 +516,11 @@ static PlayerAgeProperties sAgeProperties[] = {
 };
 
 static u32 sNoclipEnabled = false;
+#if TARGET_PSP
+/* HACKS-Menue: frei durch Waende, Boeden und verschlossene Tueren bewegen.
+ * Definiert in psp/src/psp_scene_menu.c. */
+extern int gPspNoclip;
+#endif
 static f32 sControlStickMagnitude = 0.0f;
 static s16 sControlStickAngle = 0;
 static s16 sControlStickWorldYaw = 0;
@@ -12147,7 +12152,7 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
     Collider_ResetQuadAT(play, &this->shieldQuad.base);
 }
 
-#if DEBUG_FEATURES
+#if DEBUG_FEATURES || TARGET_PSP
 s32 Player_UpdateNoclip(Player* this, PlayState* play);
 #endif
 
@@ -12157,7 +12162,9 @@ void Player_Update(Actor* thisx, PlayState* play) {
     s32 pad;
     Input input;
 
-#if DEBUG_FEATURES
+#if DEBUG_FEATURES || TARGET_PSP
+    /* Auf der PSP ueber den HACKS-Schalter gPspNoclip erreichbar, nicht ueber
+     * die Tastenkombination des Decomp -- siehe Player_UpdateNoclip. */
     if (!Player_UpdateNoclip(this, play)) {
         goto skip_update;
     }
@@ -12207,7 +12214,7 @@ void Player_Update(Actor* thisx, PlayState* play) {
 
     Player_UpdateCommon(this, play, &input);
 
-#if DEBUG_FEATURES
+#if DEBUG_FEATURES || TARGET_PSP
 skip_update:;
 #endif
     {
@@ -14539,7 +14546,7 @@ void Player_Action_8084FBF4(Player* this, PlayState* play) {
     Actor_PlaySfx_Flagged2(&this->actor, NA_SE_VO_LI_TAKEN_AWAY - SFX_FLAG + this->ageProperties->unk_92);
 }
 
-#if DEBUG_FEATURES
+#if DEBUG_FEATURES || TARGET_PSP
 /**
  * Updates the "Noclip" debug feature, which allows the player to fly around anywhere
  * in the world and clip through any collision.
@@ -14563,6 +14570,21 @@ void Player_Action_8084FBF4(Player* this, PlayState* play) {
 s32 Player_UpdateNoclip(Player* this, PlayState* play) {
     sControlInput = &play->state.input[0];
 
+#if TARGET_PSP
+    /* Umgeschaltet wird im HACKS-Menue, nicht ueber die Tastenkombination des
+     * Decomp: die verlangt BTN_L, und BTN_L existiert auf dieser Tastatur gar
+     * nicht -- os_cont.c legt LTRIGGER auf BTN_Z und RTRIGGER auf BTN_R, ein
+     * BTN_L wird nie gesetzt. Die Kombination waere also unerreichbar. */
+    {
+        static u32 sNoclipWasOn = false;
+
+        sNoclipEnabled = (gPspNoclip != 0);
+        if (sNoclipEnabled && !sNoclipWasOn) {
+            Camera_RequestMode(Play_GetCamera(play, CAM_ID_MAIN), CAM_MODE_Z_AIM);
+        }
+        sNoclipWasOn = sNoclipEnabled;
+    }
+#else
     if ((CHECK_BTN_ALL(sControlInput->cur.button, BTN_A | BTN_L | BTN_R) &&
          CHECK_BTN_ALL(sControlInput->press.button, BTN_B)) ||
         (CHECK_BTN_ALL(sControlInput->cur.button, BTN_L) && CHECK_BTN_ALL(sControlInput->press.button, BTN_DRIGHT))) {
@@ -14573,6 +14595,7 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
             Camera_RequestMode(Play_GetCamera(play, CAM_ID_MAIN), CAM_MODE_Z_AIM);
         }
     }
+#endif
 
     if (sNoclipEnabled) {
         f32 speed;
@@ -14583,7 +14606,9 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
             speed = 20.0f;
         }
 
+#if !TARGET_PSP
         DebugCamera_ScreenText(3, 2, "DEBUG MODE");
+#endif
 
         if (!CHECK_BTN_ALL(sControlInput->cur.button, BTN_L)) {
             if (CHECK_BTN_ALL(sControlInput->cur.button, BTN_B)) {
@@ -14592,17 +14617,34 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
                 this->actor.world.pos.y -= speed;
             }
 
-            if (CHECK_BTN_ANY(sControlInput->cur.button, BTN_DUP | BTN_DDOWN | BTN_DLEFT | BTN_DRIGHT)) {
+            /* Das PSP-Steuerkreuz liegt auf den C-TASTEN, nicht auf dem
+             * N64-Steuerkreuz: os_cont.c bildet UP/DOWN/LEFT/RIGHT auf
+             * BTN_CUP/CDOWN/CLEFT/CRIGHT ab, und BTN_D* wird nie gesetzt. Mit
+             * den Originaltasten waere die Bewegung hier tot. Die Winkelmathe
+             * bleibt unveraendert, nur die Tasten wechseln. */
+#if TARGET_PSP
+#define NOCLIP_BTN_UP    BTN_CUP
+#define NOCLIP_BTN_DOWN  BTN_CDOWN
+#define NOCLIP_BTN_LEFT  BTN_CLEFT
+#define NOCLIP_BTN_RIGHT BTN_CRIGHT
+#else
+#define NOCLIP_BTN_UP    BTN_DUP
+#define NOCLIP_BTN_DOWN  BTN_DDOWN
+#define NOCLIP_BTN_LEFT  BTN_DLEFT
+#define NOCLIP_BTN_RIGHT BTN_DRIGHT
+#endif
+            if (CHECK_BTN_ANY(sControlInput->cur.button,
+                              NOCLIP_BTN_UP | NOCLIP_BTN_DOWN | NOCLIP_BTN_LEFT | NOCLIP_BTN_RIGHT)) {
                 s16 angle;
                 s16 temp;
 
                 angle = temp = Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
 
-                if (CHECK_BTN_ALL(sControlInput->cur.button, BTN_DDOWN)) {
+                if (CHECK_BTN_ALL(sControlInput->cur.button, NOCLIP_BTN_DOWN)) {
                     angle = temp + 0x8000;
-                } else if (CHECK_BTN_ALL(sControlInput->cur.button, BTN_DLEFT)) {
+                } else if (CHECK_BTN_ALL(sControlInput->cur.button, NOCLIP_BTN_LEFT)) {
                     angle = temp + 0x4000;
-                } else if (CHECK_BTN_ALL(sControlInput->cur.button, BTN_DRIGHT)) {
+                } else if (CHECK_BTN_ALL(sControlInput->cur.button, NOCLIP_BTN_RIGHT)) {
                     angle = temp - 0x4000;
                 }
 
