@@ -1,4 +1,4 @@
-# OoT PSP Port
+# Slopcarina of Time PSP Port
 
 A homebrew port of *The Legend of Zelda: Ocarina of Time* to the PlayStation Portable,
 built on top of the [zeldaret/oot](https://github.com/zeldaret/oot) decompilation. The
