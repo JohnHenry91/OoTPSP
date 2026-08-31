@@ -243,6 +243,11 @@ static const PspRenderHack sHacks[] = {
      * to the compiler, so one cast is needed to keep the table homogeneous. */
     { "Disable room culling", (int*)&gPspRoomCullDisable, 1 },
     { "Skybox: side faces only", &gDebugSkyFaceMask, 0x0F },
+    /* Der Gegentest zur Zeile darueber: NUR die Deckflaeche (Flaeche 8,
+     * also Bit 0x100). Beantwortet in einem Schritt, ob eine andersfarbige
+     * Flaeche im Zenit wirklich die Deckflaeche ist oder eine schlecht
+     * projizierte Seitenflaeche, die darueber malt. */
+    { "Skybox: top face only", &gDebugSkyFaceMask, 0x100 },
     { "Highlight probed triangle (magenta)", &gPspGfxHackHighlightBigTri, 1 },
     /* Not really a toggle -- flipping it on performs the dump and it is turned
      * straight back off. Living in the same list keeps one place to look. */

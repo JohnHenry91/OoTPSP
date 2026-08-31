@@ -125,6 +125,30 @@ void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId
 
     gDPSetPrimColor(POLY_OPA_DISP++, 0x00, 0x00, 0, 0, 0, blend);
     gSPTexture(POLY_OPA_DISP++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
+#if TARGET_PSP
+    /* Wenn nicht ueberblendet wird, den Himmel gar nicht erst als
+     * Zwei-Textur-Material zeichnen.
+     *
+     * SETUPDL_40 ist (TEXEL1 - TEXEL0) * PRIM_ALPHA + TEXEL0 in zwei Zyklen.
+     * Bei blend == 0 ist das Ergebnis exakt TEXEL0 -- die zweite Textur traegt
+     * NICHTS bei, kostet aber alles: einen zweiten Kachel-Ladevorgang je Quad
+     * (32 pro Flaeche), den Kampf um die eine Textureinheit der GE, und den
+     * LERP-Zweitdurchgang samt Flush pro Dreieck. Jeder dieser Schritte kann
+     * einzeln schiefgehen, und wenn er schiefgeht, sieht man eine Flaeche des
+     * Himmels in der falschen Textur oder als Muell.
+     *
+     * gTimeBasedSkyboxConfigs setzt skyboxBlend fuer jeden Eintrag mit
+     * changeSkybox == false auf 0, also fuer alle stabilen Tagesabschnitte;
+     * nur waehrend der Uebergaenge ist er ungleich 0. Damit faellt der
+     * schwierige Pfad die meiste Zeit komplett weg statt repariert zu werden.
+     *
+     * Uebernommen aus reference/oot-psp-z2442, z_vr_box_draw.c (Commit
+     * 3f7c9cf3c "Improve skybox!") -- dort exakt dieselben zwei Zeilen. */
+    if (blend == 0) {
+        gDPSetCombineMode(POLY_OPA_DISP++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+        gDPSetCycleType(POLY_OPA_DISP++, G_CYC_1CYCLE);
+    }
+#endif
 
     // Prepare matrix
     sSkyboxDrawMatrix = GRAPH_ALLOC(gfxCtx, sizeof(Mtx));

@@ -1619,16 +1619,42 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
  * copies of the segment discriminator drifting apart, and this is the same
  * trap. */
 static inline bool tex_needs_u64_unswap(const void *addr) {
-    const bool native = PspStaticAssetIsStatic(addr) != 0;
+    bool native = PspStaticAssetIsStatic(addr) != 0;
+
+    /* Die Skybox weiss ihre eigene Byteordnung -- sie muss nicht geraten werden.
+     *
+     * PspStaticAssetIsStatic() ist ein ADRESSBEREICHS-Test (PspBlob_IsNative).
+     * psp_blob_assets.c beschreibt seit Langem, wie er ausgerechnet hier falsch
+     * antwortet: die Skybox ist das letzte Asset, das noch roh aus der .z64 in
+     * die gemeinsame Arena gelesen wird, und ein Blob-Bereich, der diesen
+     * Puffer noch beansprucht, laesst rohe Big-Endian-Daten als "native"
+     * erscheinen. Der CI8-Dekoder dreht dann jede Achtergruppe um, die gar
+     * nicht gedreht werden wollte.
+     *
+     * Genau das war der kaputte Himmel: eine Flaeche in dunkelblauem
+     * Streifenrauschen -- gleiche Palette, gleiche Farbfamilie, nur innerhalb
+     * jeder Achtergruppe verwuerfelt -- direkt neben einer voellig korrekten
+     * Flaeche. Der Bereich deckt den 49-KB-Puffer nur teilweise ab, also faellt
+     * die Grenze mitten hinein und trennt die Flaechen voneinander.
+     *
+     * JEDER Zweig von Skybox_Setup (z_vr_box.c) fuellt staticSegments[] und
+     * palettes per DMA_REQUEST_SYNC aus der rohen .z64; es gibt dort keinen
+     * Blob-Pfad. "Nicht native" ist damit keine Vermutung, sondern eine
+     * Eigenschaft der Daten -- und sie wird hier ausgesprochen, statt aus einer
+     * Adresse erschlossen zu werden.
+     *
+     * Der Zaehler bleibt: sky_tex_unswap zaehlt weiterhin, wie oft das Orakel
+     * danebengelegen haette, also ob dieser Fall ueberhaupt noch auftritt. */
+    if (native && gPspSkyTriMark) {
+        GFXSTAT_INC(sky_tex_unswap);
+        native = false;
+    }
 
     /* Counted here rather than at the call sites: there are eight importers and
      * each asks exactly once, so this is the one place that cannot be missed
      * when a ninth is added. See the probe comment on PspGfxFrameStats. */
     if (native) {
         GFXSTAT_INC(tex_unswap_yes);
-        if (gPspSkyTriMark) {
-            GFXSTAT_INC(sky_tex_unswap);
-        }
     } else {
         GFXSTAT_INC(tex_unswap_no);
     }
@@ -3246,12 +3272,16 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         rendering_state.lerp_prim_color = gRdpPrimColorPacked;
     }
 
+    /* Did an upload happen in the loop below? See the re-bind after it. */
+    bool psp_imported_any = false;
+
     for (int i = 0; i < 2; i++) {
         if (used_textures[i]) {
             if (rdp.textures_changed[i]) {
                 gfx_flush();
                 import_texture(i);
                 rdp.textures_changed[i] = false;
+                psp_imported_any = true;
                 /* A cache MISS uploads, and the upload binds whatever it just
                  * decoded -- for tile 1 that means tile 1's texture wins the
                  * single GE texture unit, the opposite of the TEXEL0-wins rule
@@ -3274,7 +3304,65 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             }
         }
     }
-    
+
+#if TARGET_PSP
+    /* Restore the binding a two-texture material actually wants, after an
+     * upload has taken it away.
+     *
+     * import_texture() on a cache MISS calls texman_bind_tex() itself, behind
+     * gfx_scegu_select_texture's back: whichever tile was uploaded LAST is what
+     * the single GE texture unit physically holds. Tile 1 is processed second,
+     * so a miss on tile 1 leaves TEXEL1 bound -- and the first pass then draws
+     * TEXEL1's texels while believing it drew TEXEL0's.
+     *
+     * The per-tile select_texture() call inside the loop was meant to fix this
+     * and cannot: for a two-texture shader, select_texture(1, ...) returns
+     * immediately by design ("TEXEL0 wins"), and a later select_texture(0, ...)
+     * short-circuits on `tmu_state[0].tex == id` because tmu_state still claims
+     * tile 0 is bound. Both caches say the right thing while the GE holds the
+     * wrong texture. Hence: invalidate, then bind explicitly.
+     *
+     * THIS IS THE BROKEN SKY. OoT's skybox (SETUPDL_40) is
+     * (TEXEL1 - TEXEL0) * PRIM_ALPHA + TEXEL0 over the two times of day, and it
+     * reloads a fresh tile pair for every one of its 32 quads per face, so it
+     * misses the texture cache constantly. Faces whose tiles hit rendered the
+     * day sky correctly; faces whose tiles missed rendered the DUSK texture at
+     * full strength in the first pass -- the hard-edged orange wedge next to
+     * blue sky, with the seams exactly on face and tile boundaries.
+     *
+     * It also matches the measurement already recorded above
+     * gfx_lerp2_assert_texture_state: "second pass on, 79 imports, 60 of them
+     * the skybox's -> broken / frame after, 0 imports, second pass still
+     * running -> clean". The fault needed an UPLOAD, not the second pass. */
+    /* NICHT auf Zwei-Textur-Materialien einschraenken. Das war die erste
+     * Fassung dieses Blocks, und sie hat den Himmel nur halb geheilt: sobald
+     * der Himmel bei blend == 0 auf G_CC_DECALRGBA umschaltet (siehe
+     * z_vr_box_draw.c), ist er ein EIN-Textur-Material -- und genau dann lief
+     * dieser Block nicht mehr, obwohl die Bindung genauso verloren gehen kann.
+     *
+     * Der Verlust braucht kein zweites TEXEL: es genuegt, dass irgendein
+     * frueherer Upload texman_bind_tex() hinter tmu_state[] vorbei aufgerufen
+     * hat. Danach behauptet tmu_state[0] weiter, Kachel 0 sei gebunden, der
+     * naechste select_texture(0, ...) kurzschliesst auf "gleiche id, nichts zu
+     * tun", und die GE zeichnet mit der Textur, die zuletzt physisch gebunden
+     * wurde. Beim Himmel ist das die Nacht-Textur mit der Tag-Palette --
+     * dunkelblaues Streifenrauschen neben korrektem Himmel, mit der Naht
+     * exakt auf einer Flaechenkante.
+     *
+     * Die Regel lautet deshalb: nach JEDEM Upload die Bindung ausdruecklich
+     * wiederherstellen, nicht nur dort, wo zwei Kacheln im Spiel sind. */
+    {
+        const bool two_tex = used_textures[0] && used_textures[1];
+        const int win = (two_tex && (gPspGfxHackPreferTexel1 || gPspLerp2SecondPass)) ? 1 : 0;
+
+        if (psp_imported_any && used_textures[win] && rendering_state.textures[win] != NULL) {
+            gfx_flush();
+            gfx_scegu_invalidate_texture_binding();
+            gfx_rapi->select_texture(win, rendering_state.textures[win]->texture_id);
+        }
+    }
+#endif
+
     bool use_texture = used_textures[0] || used_textures[1];
     if (use_texture) { GFXSTAT_INC(tex_used); } else { GFXSTAT_INC(tex_unused); }
     if (use_texture && !rsp.texture_on) { GFXSTAT_INC(tex_off_draws); }
@@ -4348,8 +4436,29 @@ static void gfx_dp_set_texture_image(uint32_t format, uint32_t size, uint32_t wi
 }
 
 static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t tmem, uint8_t tile, UNUSED uint32_t palette, uint32_t cmt, uint32_t maskt, uint32_t shiftt, uint32_t cms, uint32_t masks, uint32_t shifts) {
-    _UNUSED(maskt);
-    _UNUSED(masks);
+    /* A tile with NO MASK does not wrap on the RDP: the mask is the number of
+     * coordinate bits the hardware keeps, and zero bits means the coordinate is
+     * simply held at the tile's edge -- so G_TX_WRAP + G_TX_NOMASK behaves as
+     * CLAMP, not as REPEAT. This port threw both masks away (`_UNUSED`) and
+     * handed cms/cmt straight to sceGuTexWrap, which turned exactly that
+     * combination into a genuine hardware repeat.
+     *
+     * THE FOUR MOONS. gMoonDL (assets/objects/gameplay_keep/moon.c) loads its
+     * texture with `G_TX_NOMIRROR | G_TX_WRAP` and `G_TX_NOMASK` on BOTH axes,
+     * and gMoonVtx's texture coordinates run past the texture -- on the N64
+     * that is clamped away, here it tiled the moon 2x2 across its own
+     * billboard.
+     *
+     * Verbatim from Ship of Harkinian: reference/shipwright-vita/libultraship/
+     * src/graphic/Fast3D/gfx_pc.cpp:1813, first thing gfx_dp_set_tile does.
+     * z2442 encodes the same rule differently (gfx_fast3d.c:1177, mirroring is
+     * likewise suppressed at G_TX_NOMASK). */
+    if (cms == G_TX_WRAP && masks == G_TX_NOMASK) {
+        cms = G_TX_CLAMP;
+    }
+    if (cmt == G_TX_WRAP && maskt == G_TX_NOMASK) {
+        cmt = G_TX_CLAMP;
+    }
 
     GFXSTAT_INC(settile);
     if (tile < 2) {
