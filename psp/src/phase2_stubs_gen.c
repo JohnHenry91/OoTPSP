@@ -47,8 +47,6 @@
  * to do. The scene change happens without a fade until the real transitions
  * are ported. Init returns the instance pointer it was handed, same as the
  * real ones. */
-void* TransitionFade_Init(void* thisx) { return thisx; }
-int TransitionFade_IsDone(void* thisx) { (void)thisx; return 1; }
 void* TransitionCircle_Init(void* thisx) { return thisx; }
 int TransitionCircle_IsDone(void* thisx) { (void)thisx; return 1; }
 void* TransitionWipe_Init(void* thisx) { return thisx; }
@@ -189,12 +187,6 @@ void TransitionCircle_SetType(void) {}
 void TransitionCircle_SetUnkColor(void) {}
 void TransitionCircle_Start(void) {}
 void TransitionCircle_Update(void) {}
-void TransitionFade_Destroy(void) {}
-void TransitionFade_Draw(void) {}
-void TransitionFade_SetColor(void) {}
-void TransitionFade_SetType(void) {}
-void TransitionFade_Start(void) {}
-void TransitionFade_Update(void) {}
 void TransitionTile_Destroy(void) {}
 void TransitionTile_Draw(void) {}
 void TransitionTile_Update(void) {}

@@ -81,6 +81,14 @@ PSP_C_FILES += src/code/padmgr.c
 PSP_C_FILES += src/code/game.c
 PSP_C_FILES += src/code/sys_cfb.c
 PSP_C_FILES += src/code/TwoHeadGfxArena.c
+# Bildschirmuebergaenge. Die echten Implementierungen lagen die ganze Zeit im
+# Baum (src/code/z_fbdemo*.c) und wurden nur nicht gebaut -- statt ihrer liefen
+# No-op-Stubs aus phase2_stubs_gen.c, weshalb jeder Szenenwechsel hart
+# umschaltete. Nacheinander eingeschaltet, weil sie sich in ihren Anforderungen
+# stark unterscheiden: Fade braucht nur ein Vollbild-Rechteck, waehrend Tile,
+# Circle, Wipe und Triforce ueber PreRender am Framebuffer arbeiten und der
+# PreRender-Block noch gestubbt ist.
+PSP_C_FILES += src/code/z_fbdemo_fade.c
 PSP_C_FILES += src/libc64/malloc.c
 PSP_C_FILES += src/boot/viconfig.c
 PSP_C_FILES += src/code/title_setup.c
