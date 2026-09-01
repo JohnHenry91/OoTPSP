@@ -47,12 +47,6 @@
  * to do. The scene change happens without a fade until the real transitions
  * are ported. Init returns the instance pointer it was handed, same as the
  * real ones. */
-void* TransitionCircle_Init(void* thisx) { return thisx; }
-int TransitionCircle_IsDone(void* thisx) { (void)thisx; return 1; }
-void* TransitionWipe_Init(void* thisx) { return thisx; }
-int TransitionWipe_IsDone(void* thisx) { (void)thisx; return 1; }
-void* TransitionTriforce_Init(void* thisx) { return thisx; }
-int TransitionTriforce_IsDone(void* thisx) { (void)thisx; return 1; }
 void* TransitionTile_Init(void* thisx) { return thisx; }
 
 void Cutscene_HandleConditionalTriggers(void) {}
@@ -180,28 +174,9 @@ void SfxSource_PlaySfxAtFixedWorldPos(void) {}
 void SfxSource_UpdateAll(void) {}
 void SysUcode_GetUCode(void) {}
 void SysUcode_GetUCodeData(void) {}
-void TransitionCircle_Destroy(void) {}
-void TransitionCircle_Draw(void) {}
-void TransitionCircle_SetColor(void) {}
-void TransitionCircle_SetType(void) {}
-void TransitionCircle_SetUnkColor(void) {}
-void TransitionCircle_Start(void) {}
-void TransitionCircle_Update(void) {}
 void TransitionTile_Destroy(void) {}
 void TransitionTile_Draw(void) {}
 void TransitionTile_Update(void) {}
-void TransitionTriforce_Destroy(void) {}
-void TransitionTriforce_Draw(void) {}
-void TransitionTriforce_SetColor(void) {}
-void TransitionTriforce_SetType(void) {}
-void TransitionTriforce_Start(void) {}
-void TransitionTriforce_Update(void) {}
-void TransitionWipe_Destroy(void) {}
-void TransitionWipe_Draw(void) {}
-void TransitionWipe_SetColor(void) {}
-void TransitionWipe_SetType(void) {}
-void TransitionWipe_Start(void) {}
-void TransitionWipe_Update(void) {}
 /* func_80026400/80026608/80026860/80026A6C PROMOTED to the real
  * src/code/z_eff_ss_dead.c (Phase 3). Stubs removed. */
 void func_80043334(void) {}

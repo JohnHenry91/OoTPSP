@@ -82,10 +82,13 @@ void TransitionCircle_Start(void* thisx) {
     } else if (this->colorType == TCC_WHITE) {
         this->color.rgba = RGBA8(160, 160, 160, 255);
     } else if (this->colorType == TCC_GRAY) {
-        this->color.r = 100;
-        this->color.g = 100;
-        this->color.b = 100;
-        this->color.a = 255;
+        /* Als u32 setzen, nicht feldweise: _Draw liest diese Farbe ueber
+         * this->color.rgba. Feldweise geschrieben und als u32 gelesen ist
+         * genau die Byteordnungsfalle -- auf little-endian kaeme (100,100,100)
+         * mit Alpha 255 als r=255, g=100, b=100 wieder heraus. Die uebrigen
+         * drei Zuweisungen in dieser Funktion setzen bereits .rgba; diese eine
+         * scherte aus. */
+        this->color.rgba = RGBA8(100, 100, 100, 255);
     } else {
         this->speed = 40;
         this->color.rgba = (this->appearanceType == TCA_WAVE) ? RGBA8(0, 0, 0, 255) : RGBA8(160, 160, 160, 255);
@@ -216,6 +219,13 @@ void TransitionCircle_SetType(void* thisx, s32 type) {
 void TransitionCircle_SetColor(void* thisx, u32 color) {
     TransitionCircle* this = (TransitionCircle*)thisx;
 
+    /* Hier ABSICHTLICH ueber die Union: diese Datei schreibt die Farbe als
+     * u32 und liest sie in _Draw ebenfalls als u32 (gDPSetColor mit
+     * this->color.rgba). Ein solcher Rundlauf ist auf jeder Byteordnung in
+     * sich stimmig -- das Wort geht RGBA8-gepackt hinein und genauso wieder
+     * heraus. Eine Umrechnung waere hier nicht die Behebung eines Fehlers,
+     * sondern seine Einfuehrung. Anders im Fade, der die EINZELFELDER liest;
+     * dort ist COLOR_RGBA8_U32_SET noetig. */
     this->color.rgba = color;
 }
 

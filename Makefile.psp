@@ -89,6 +89,15 @@ PSP_C_FILES += src/code/TwoHeadGfxArena.c
 # Circle, Wipe und Triforce ueber PreRender am Framebuffer arbeiten und der
 # PreRender-Block noch gestubbt ist.
 PSP_C_FILES += src/code/z_fbdemo_fade.c
+# Circle, Triforce und Wipe kommen mit: nachgesehen, sie haben KEINE
+# Abhaengigkeit auf PreRender, gDPSetColorImage oder sonst einen
+# Framebuffer-Zugriff -- sie zeichnen texturierte Ueberlagerungen und sind damit
+# genauso eigenstaendig wie die Blende. Einzig z_fbdemo.c (TransitionTile,
+# das verzerrte Gitternetz) liest den Framebuffer als Textur und bleibt
+# deshalb draussen, bis Render-to-Texture existiert.
+PSP_C_FILES += src/code/z_fbdemo_circle.c
+PSP_C_FILES += src/code/z_fbdemo_triforce.c
+PSP_C_FILES += src/code/z_fbdemo_wipe1.c
 PSP_C_FILES += src/libc64/malloc.c
 PSP_C_FILES += src/boot/viconfig.c
 PSP_C_FILES += src/code/title_setup.c
@@ -450,6 +459,12 @@ PSP_C_FILES += src/libultra/gu/lookathil.c
 PSP_C_FILES += src/libultra/gu/perspective.c
 PSP_C_FILES += src/libultra/gu/translate.c
 PSP_C_FILES += src/libultra/gu/mtxutil.c
+# Von den Uebergaengen gebraucht (guScale/guRotate in z_fbdemo_circle,
+# _triforce und _wipe1). Wie die Uebergaenge selbst lagen auch diese beiden
+# Dateien fertig im Baum und standen nur nicht im Makefile.
+PSP_C_FILES += src/libultra/gu/scale.c
+PSP_C_FILES += src/libultra/gu/rotate.c
+PSP_C_FILES += src/libultra/gu/normalize.c
 PSP_C_FILES += src/code/z_lib.c
 PSP_C_FILES += src/libc64/aprintf.c
 PSP_C_FILES += psp/src/libultra/trig_stub.c

@@ -133,29 +133,8 @@ s32 TransitionFade_IsDone(void* thisx) {
 void TransitionFade_SetColor(void* thisx, u32 color) {
     TransitionFade* this = (TransitionFade*)thisx;
 
-#if TARGET_PSP
-    /* NICHT ueber die Union zuweisen -- sie ist byteordnungsabhaengig.
-     *
-     * RGBA8(r,g,b,a) packt Rot ins HOECHSTE Byte. Color_RGBA8_u32 legt darueber
-     * ein struct { u8 r, g, b, a; }, und auf der big-endian N64 liegt das erste
-     * Feld an der hoechstwertigen Stelle -- die Zuordnung stimmt also dort von
-     * selbst. Auf der little-endian PSP liest `r` das NIEDRIGSTE Byte, also das
-     * Alpha, und die ganze Farbe steht rueckwaerts.
-     *
-     * Sichtbar wurde das an der weissen Blende: RGBA8(160,160,160,255) ist
-     * 0xA0A0A0FF und kam hier als r=255, g=160, b=160 an -- ein rosa
-     * Bildschirm statt eines weissen. Der schwarze Uebergang blieb unauffaellig,
-     * weil RGBA8(0,0,0,0) in jeder Byteordnung null ist.
-     *
-     * Dieselbe Falle wie beim AudioCmd-Union; wer hier eine u32 auf Farbfelder
-     * legt, muss sie ausdruecklich auspacken. */
-    this->color.r = (color >> 24) & 0xFF;
-    this->color.g = (color >> 16) & 0xFF;
-    this->color.b = (color >> 8) & 0xFF;
-    this->color.a = (color >> 0) & 0xFF;
-#else
-    this->color.rgba = color;
-#endif
+    /* Nicht ueber die Union -- siehe COLOR_RGBA8_U32_SET in color.h. */
+    COLOR_RGBA8_U32_SET(this->color, color);
 }
 
 void TransitionFade_SetType(void* thisx, s32 type) {
