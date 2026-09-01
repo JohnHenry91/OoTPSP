@@ -150,6 +150,45 @@ void TransitionCircle_Update(void* thisx, s32 updateRate) {
     }
 }
 
+/* 15,6 statt der 14,8 aus der Dekompilierung -- sonst bleiben an allen vier
+ * Bildecken dreieckige Schlitze offen, durch die man waehrend der Blende die
+ * Szene sieht.
+ *
+ * DAS SEITENVERHAELTNIS IST NICHT DIE URSACHE, so naheliegend das aussieht.
+ * Die Projektion in _Start ist auf 4:3 verdrahtet, der PSP-Schirm ist 480x272.
+ * Aber die NDC-Grenze +-1 dieser Projektion landet auf dem Bildrand, egal wie
+ * breit der Viewport ist -- das Verhaeltnis "Bildecke zu Kranzradius" ist auf
+ * 4:3 und auf 16:9 dasselbe. Die Luecken gibt es auf einem echten N64 genauso.
+ *
+ * Die Rechnung, gegen die laufende Portierung nachgemessen:
+ *
+ *   Kranz    16-Eck, Nennradius 25 (sTransCircleVtx), mal scale
+ *            -> 370,0 Welteinheiten bei 14,8; in ECKRICHTUNG reicht das
+ *               Vieleck wegen der Sehne aber nur bis 368,4
+ *   Bildecke tan(30 Grad) * 400 * sqrt((4/3)^2 + 1) = 384,9
+ *            (60 Grad Oeffnung, Auge bei z = 400 aus guLookAt)
+ *   Fehlbetrag 4,47 % -> noetig sind 15,462; 15,6 gibt knapp 1 Prozent
+ *            Reserve gegen die Rundung in den Festkommamatrizen.
+ *
+ * Nachgemessen wurde die Projektionskette selbst ueber gPspCircleNdcX/Y in
+ * gfx_pc.c (groesstes |x/w| bzw. |y/w| der Randvertices, in Tausendsteln):
+ * vorhergesagt 1202 / 1602, gemessen 1201 / 1602. An guPerspective, guLookAt
+ * und den Matrizen ist also nichts kaputt -- 14,8 ist schlicht zu klein, und
+ * in der Dekompilierung steht ueber tPos/rot/scale nicht umsonst ausdruecklich
+ * "best guess": die Zeile ist geraten, nicht aus dem ROM belegt.
+ *
+ * Auf dem N64 hat das niemand gesehen, weil der Fernseher-Overscan genau die
+ * Ecken verschluckt hat -- derselbe Grund, aus dem die normale Blende rechts
+ * einen Streifen frei liess (siehe gfx_rectangle_covers_width in gfx_pc.c).
+ * Ship of Harkinian ist der einzige Referenzport, der hier ueberhaupt etwas
+ * tut, und multipliziert mit dem vollen Seitenverhaeltnis; das waere fuer uns
+ * 26,1 und wuerde die Blende sichtbar aufblasen, weil die Texturrampe mit der
+ * Geometrie mitwaechst.
+ *
+ * Zur Laufzeit setzbar (Debugger), damit der Wert ohne Neubau nachgezogen
+ * werden kann. */
+f32 gPspTransCircleScale = 15.6f;
+
 void TransitionCircle_Draw(void* thisx, Gfx** gfxP) {
     Gfx* gfx = *gfxP;
     Mtx* modelView;
@@ -158,7 +197,7 @@ void TransitionCircle_Draw(void* thisx, Gfx** gfxP) {
     // These variables are a best guess based on the other transition types.
     f32 tPos = 0.0f;
     f32 rot = 0.0f;
-    f32 scale = 14.8f;
+    f32 scale = gPspTransCircleScale;
 
     modelView = this->modelView[this->frame];
 

@@ -2495,11 +2495,34 @@ struct ShaderProgram {
     int num_inputs;
 };
 
+/* Messsonde fuer die Kreisblende (TransitionCircle).
+ *
+ * sTransCircleDL laedt ihre 32 Vertices in EINEM gsSPVertex, und der erste
+ * davon ist objektraeumlich exakt (-25, 0, 0). Das ist eine Signatur, die im
+ * ganzen Spiel sonst nicht vorkommt -- damit laesst sich genau diese
+ * Displayliste erkennen, ohne den Uebergang von aussen markieren zu muessen.
+ *
+ * Aufgezeichnet wird das GROESSTE |x/w| und |y/w| ueber die Randvertices
+ * (die Mitte liegt bei z = -10 und wird ausgelassen), in Tausendsteln. Der
+ * Schirmrand liegt bei 1000. Damit ist direkt ablesbar, wie weit der Kranz
+ * ueber den Rand hinausreicht -- und ob die Projektionskette ueberhaupt das
+ * tut, was die Rechnung annimmt. */
+int gPspCircleNdcX = 0;   /* max |x/w| * 1000 ueber die Randvertices */
+int gPspCircleNdcY = 0;   /* max |y/w| * 1000 */
+int gPspCircleVtxLoads = 0;
+
 static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *vertices) {
     float temp_vec[4] __attribute__((aligned(16)));
     float world_vec[4] __attribute__((aligned(16)));
     float proj_vec[4] __attribute__((aligned(16)));
     GFXSTAT_ADD(verts_loaded, n_vertices);
+    const bool probe_circle = (n_vertices == 32 && vertices[0].v.ob[0] == -25 &&
+                               vertices[0].v.ob[1] == 0 && vertices[0].v.ob[2] == 0);
+    if (probe_circle) {
+        gPspCircleNdcX = 0;
+        gPspCircleNdcY = 0;
+        gPspCircleVtxLoads++;
+    }
     for (size_t i = 0; i < n_vertices; i++, dest_index++) {
         const Vtx_t *v = &vertices[i].v;
         const Vtx_tn *vn = &vertices[i].n;
@@ -2577,6 +2600,18 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
         const float y = proj_vec[1];
         const float z = proj_vec[2];
         float w = proj_vec[3];
+
+        /* Siehe gPspCircleNdcX. Nur die Randvertices (ob[2] == 0). */
+        if (probe_circle && v->ob[2] == 0 && proj_vec[3] > 0.0f) {
+            int nx = (int)(fabsf(proj_vec[0] / proj_vec[3]) * 1000.0f);
+            int ny = (int)(fabsf(proj_vec[1] / proj_vec[3]) * 1000.0f);
+            if (nx > gPspCircleNdcX) {
+                gPspCircleNdcX = nx;
+            }
+            if (ny > gPspCircleNdcY) {
+                gPspCircleNdcY = ny;
+            }
+        }
 
         short U = v->tc[0] * rsp.texture_scaling_factor.s >> 16;
         short V = v->tc[1] * rsp.texture_scaling_factor.t >> 16;
@@ -5134,7 +5169,50 @@ static void gfx_dp_set_fill_color(uint32_t packed_color) {
  * the HUD and the screen fades, so the two can be compared in place. */
 int gPspRect2dPillarbox = 0;
 
-static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
+/* Messsonden fuer den 2D-Rechteckpfad. Latchen das BREITESTE Rechteck seit dem
+ * letzten Nullen von gPspRectMaxW -- ein Vollbild-Rechteck (Blende, Pillarbox)
+ * ist das breiteste, das der Pfad ueberhaupt sehen kann, also faengt der Latch
+ * genau den Prueffall. Ueber den Debugger nullen, dann den Uebergang ausloesen. */
+int gPspRectMaxW = -1;      /* groesste bisher gesehene Eingangsbreite (U10.2) */
+int gPspRectCalls = 0;      /* Aufrufe insgesamt */
+int gPspRectInUlx = 0, gPspRectInUly = 0, gPspRectInLrx = 0, gPspRectInLry = 0;
+int gPspRectOutX0 = 0, gPspRectOutY0 = 0, gPspRectOutX1 = 0, gPspRectOutY1 = 0;
+int gPspRectScisX = 0, gPspRectScisY = 0, gPspRectScisW = 0, gPspRectScisH = 0;
+int gPspRectDimW = 0, gPspRectDimH = 0;
+int gPspRectCycle = 0;      /* other_mode_h Zyklustyp beim Latch */
+
+/* Ein Rechteck, das der SPIELCODE als bildfuellend meint.
+ *
+ * gDPFillRectangle nimmt EINSCHLIESSENDE Pixelkoordinaten, und OoT schreibt
+ * ueberall `gScreenWidth - 1` -- also 319, nicht 320. In FILL/COPY addiert die
+ * RDP dafuer einen Pixel; in 1-/2-Cycle NICHT, dort ist lrx ausschliessend. Auf
+ * dem N64 fehlt damit die Spalte 319, was hinter dem Overscan eines Fernsehers
+ * nie jemand gesehen hat.
+ *
+ * Der PSP-Schirm zeigt den Puffer vollstaendig, und der Massstab macht aus dem
+ * einen fehlenden N64-Pixel derer 1,5: 319 * (480/320) = 478,5, abgeschnitten
+ * 478. Uebrig bleiben zwei undurchsichtige Spalten ganz rechts (und genauso
+ * zwei Zeilen unten) -- der senkrechte Streifen, den die Szenenblende frei
+ * laesst, weil TransitionFade_Draw in G_CYC_1CYCLE zeichnet.
+ *
+ * Deshalb wird ein Rechteck, das die volle Breite (bzw. das ganze Bild)
+ * ANFORDERT, auf den Puffer geschnappt statt skaliert. Bewusst eng: nur wenn
+ * der Spielcode selbst 0..gScreenWidth-1 gesagt hat. Jedes andere 2D-Rechteck
+ * -- HUD-Kacheln, Textboxrahmen -- behaelt seine exakte Skalierung.
+ *
+ * oot-psp-z2442 hat an derselben Stelle dieselbe Sonderbehandlung
+ * (gfx_rectangle_covers_width/_covers_screen in gfx_fast3d.c). */
+static bool gfx_rectangle_covers_width(int32_t ulx, int32_t lrx) {
+    return (ulx <= 0) && (lrx >= ((SCREEN_WIDTH - 1) << 2));
+}
+
+static bool gfx_rectangle_covers_screen(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
+    return gfx_rectangle_covers_width(ulx, lrx) && (uly <= 0) &&
+           (lry >= ((SCREEN_HEIGHT - 1) << 2));
+}
+
+static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry,
+                               bool snap_full_screen, bool snap_full_width) {
     uint32_t saved_other_mode_h = rdp.other_mode_h;
     uint32_t cycle_type = (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE));
     
@@ -5194,6 +5272,16 @@ static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lr
 
     ulyf = (ulyf*136)+136;
     lryf = (lryf*136)+136;
+
+    /* Siehe den Kommentar an gfx_rectangle_covers_width. */
+    if (snap_full_width || snap_full_screen) {
+        ulxf = 0.0f;
+        lrxf = (float)gfx_current_dimensions.width;
+    }
+    if (snap_full_screen) {
+        ulyf = 0.0f;
+        lryf = (float)gfx_current_dimensions.height;
+    }
     
     struct VertexColor* ul = &rsp.loaded_vertices_2D[0];
     struct VertexColor* lr = &rsp.loaded_vertices_2D[1];
@@ -5203,6 +5291,23 @@ static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lr
 
     lr->x = (unsigned short)lrxf;
     lr->y = (unsigned short)lryf;
+
+    gPspRectCalls++;
+    /* Nur 1-/2-Cycle-Rechtecke: der FILL-Pfad ist bereits gemessen und exakt
+     * (0..1280 -> 0..480). Die Blende ist G_CYC_1CYCLE. */
+    if (cycle_type != G_CYC_FILL && cycle_type != G_CYC_COPY &&
+        (int)(lrx - ulx) > gPspRectMaxW) {
+        gPspRectMaxW = (int)(lrx - ulx);
+        gPspRectInUlx = ulx; gPspRectInUly = uly;
+        gPspRectInLrx = lrx; gPspRectInLry = lry;
+        gPspRectOutX0 = ul->x; gPspRectOutY0 = ul->y;
+        gPspRectOutX1 = lr->x; gPspRectOutY1 = lr->y;
+        gPspRectScisX = (int)rdp.scissor.x; gPspRectScisY = (int)rdp.scissor.y;
+        gPspRectScisW = (int)rdp.scissor.width; gPspRectScisH = (int)rdp.scissor.height;
+        gPspRectDimW = (int)gfx_current_dimensions.width;
+        gPspRectDimH = (int)gfx_current_dimensions.height;
+        gPspRectCycle = (int)(cycle_type >> G_MDSFT_CYCLETYPE);
+    }
 
     // The coordinates for texture rectangle shall bypass the viewport setting
     struct XYWidthHeight default_viewport = {0, 0, gfx_current_dimensions.width, gfx_current_dimensions.height};
@@ -5275,7 +5380,9 @@ static void gfx_dp_texture_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int3
     }
     #endif
     
-    gfx_draw_rectangle(ulx, uly, lrx, lry);
+    /* Texturrechtecke nie schnappen: sie tragen HUD-Kacheln und Sprites, deren
+     * Kanten an ihre Nachbarn anschliessen muessen. */
+    gfx_draw_rectangle(ulx, uly, lrx, lry, false, false);
     rdp.combine_mode = saved_combine_mode;
 }
 
@@ -5322,7 +5429,9 @@ static void gfx_dp_fill_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t
         }
     }
 
-    gfx_draw_rectangle(ulx, uly, lrx, lry);
+    gfx_draw_rectangle(ulx, uly, lrx, lry,
+                       gfx_rectangle_covers_screen(ulx, uly, lrx, lry),
+                       gfx_rectangle_covers_width(ulx, lrx));
     rdp.combine_mode = saved_combine_mode;
 }
 
