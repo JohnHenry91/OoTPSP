@@ -3176,7 +3176,40 @@ void func_8008A994(InterfaceContext* interfaceCtx) {
     View_ApplyOrthoToOverlay(&interfaceCtx->view);
 }
 
+/* Laufzeitschalter, um den neu aufgenommenen HUD-Block einzeln abzuschalten.
+ * Ohne sie laesst sich nicht trennen, WELCHER Teil das Bild schwarz macht --
+ * der Block bringt sieben Dateien und 33 zuvor gestubbte Funktionen auf einmal
+ * ins Spiel. Ueber den Debugger umlegbar, kein Neubau noetig. */
+int gPspHudDraw = 1;
+int gPspHudUpdate = 1;
+int gPspHudSegments = 1;
+/* Abschnittsgrenze fuer die Eingrenzung: Interface_Draw bricht ab, sobald der
+ * naechste Abschnitt eine hoehere Nummer als dieser Wert traegt. 999 = alles
+ * zeichnen. Ueber den Debugger setzbar, damit sich per Halbierung finden
+ * laesst, welcher Abschnitt das Bild stehen laesst -- die Funktion ist 800
+ * Zeilen lang, und jeder Einzelverdacht war falsch. Das Aufraeumen am Ende
+ * (Segmentrueckgabe) laeuft in jedem Fall, sonst misst man den Abbruch statt
+ * des Abschnitts.
+ *
+ * VORGABE 6, NICHT 999, weil Abschnitt 7 -- der A-Knopf -- das Bild dauerhaft
+ * schwarz macht. Zweimal unabhaengig gemessen: Stufe 6 zeichnet sauber, Stufe
+ * 7 nicht, und der Schaden ueberlebt das Abschalten von Interface_Draw; nur
+ * ein Szenenwechsel heilt ihn. Abschnitt 7 ist der einzige Teil der Funktion,
+ * der ueber func_8008A8B8 einen eigenen Viewport aufspannt (45x45,
+ * perspektivisch statt orthogonal).
+ *
+ * Mit 6 laeuft das ganze uebrige Interface. Ein Standardwert, der ein
+ * schwarzes Bild liefert, waere schlimmer als ein fehlender A-Knopf --
+ * dasselbe Argument wie beim TransitionTile-Stub, der Erfolg meldet, ohne
+ * etwas getan zu haben. Auf 999 stellen, sobald Abschnitt 7 geklaert ist. */
+int gPspHudStage = 6;
+unsigned int gPspHudSegAddr[4];
+
 void Interface_Draw(PlayState* play) {
+    if (!gPspHudDraw) {
+        return;
+    }
+
     static s16 magicArrowEffectsR[] = { 255, 100, 255 };
     static s16 magicArrowEffectsG[] = { 0, 100, 255 };
     static s16 magicArrowEffectsB[] = { 0, 255, 100 };
@@ -3209,18 +3242,33 @@ void Interface_Draw(PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx, "../z_parameter.c", 3405);
 
-    gSPSegment(OVERLAY_DISP++, 0x02, interfaceCtx->parameterSegment);
-    gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->doActionSegment);
-    gSPSegment(OVERLAY_DISP++, 0x08, interfaceCtx->iconItemSegment);
-    gSPSegment(OVERLAY_DISP++, 0x0B, interfaceCtx->mapSegment);
+    /* Einzeln abschaltbar, um die Segmentumschaltung von allem anderen zu
+     * trennen, was diese Funktion tut. Ohne die Segmente sehen die Symbole
+     * falsch aus -- das ist erwuenscht, die Frage ist allein, ob DANN das Bild
+     * stehen bleibt. Siehe die Rueckgabe am Ende der Funktion. */
+    if (gPspHudSegments) {
+        gSPSegment(OVERLAY_DISP++, 0x02, interfaceCtx->parameterSegment);
+        gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->doActionSegment);
+        gSPSegment(OVERLAY_DISP++, 0x08, interfaceCtx->iconItemSegment);
+        gSPSegment(OVERLAY_DISP++, 0x0B, interfaceCtx->mapSegment);
+    }
+
+    /* Die Adressen, gegen die sich das pruefen laesst: sind sie NULL oder
+     * Muell, ist gSegments[] danach Muell. */
+    gPspHudSegAddr[0] = (unsigned int)(uintptr_t)interfaceCtx->parameterSegment;
+    gPspHudSegAddr[1] = (unsigned int)(uintptr_t)interfaceCtx->doActionSegment;
+    gPspHudSegAddr[2] = (unsigned int)(uintptr_t)interfaceCtx->iconItemSegment;
+    gPspHudSegAddr[3] = (unsigned int)(uintptr_t)interfaceCtx->mapSegment;
 
     if (pauseCtx->debugState == PAUSE_DEBUG_STATE_CLOSED) {
+        if (gPspHudStage < 1) { goto hudEnd; }   /* Vertices, Health_DrawMeter */
         Interface_InitVertices(play);
         func_8008A994(interfaceCtx);
         Health_DrawMeter(play);
 
         Gfx_SetupDL_39Overlay(play->state.gfxCtx);
 
+        if (gPspHudStage < 2) { goto hudEnd; }   /* Rupee-Symbol */
         // Rupee Icon
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 255, 100, interfaceCtx->magicAlpha);
         gDPSetEnvColor(OVERLAY_DISP++, 0, 80, 0, 255);
@@ -3282,6 +3330,7 @@ void Interface_Draw(PlayState* play) {
                 break;
         }
 
+        if (gPspHudStage < 3) { goto hudEnd; }   /* Rupee-Zaehler */
         // Rupee Counter
         gDPPipeSync(OVERLAY_DISP++);
 
@@ -3322,6 +3371,7 @@ void Interface_Draw(PlayState* play) {
                               16, svar3, 206, 8, 16, 1 << 10, 1 << 10);
         }
 
+        if (gPspHudStage < 4) { goto hudEnd; }   /* Magieleiste + Minikarte */
         Magic_DrawMeter(play);
         Minimap_Draw(play);
 
@@ -3332,6 +3382,7 @@ void Interface_Draw(PlayState* play) {
 
         Gfx_SetupDL_39Overlay(play->state.gfxCtx);
 
+        if (gPspHudStage < 5) { goto hudEnd; }   /* Gegenstandstasten */
         Interface_DrawItemButtons(play);
 
         gDPPipeSync(OVERLAY_DISP++);
@@ -3372,6 +3423,7 @@ void Interface_Draw(PlayState* play) {
 
         gDPPipeSync(OVERLAY_DISP++);
 
+        if (gPspHudStage < 6) { goto hudEnd; }   /* C-Tasten */
         // C-Left Button Icon & Ammo Count
         if (gSaveContext.save.info.equips.buttonItems[1] < 0xF0) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->cLeftAlpha);
@@ -3409,6 +3461,7 @@ void Interface_Draw(PlayState* play) {
             Interface_DrawAmmoCount(play, 3, interfaceCtx->cRightAlpha);
         }
 
+        if (gPspHudStage < 7) { goto hudEnd; }   /* A-Knopf (eigener Viewport!) */
         // A Button
         Gfx_SetupDL_42Overlay(play->state.gfxCtx);
         func_8008A8B8(play, R_A_BTN_Y, R_A_BTN_Y + 45, R_A_BTN_X, R_A_BTN_X + 45);
@@ -3438,6 +3491,7 @@ void Interface_Draw(PlayState* play) {
 
         gDPPipeSync(OVERLAY_DISP++);
 
+        if (gPspHudStage < 8) { goto hudEnd; }   /* Rest */
         func_8008A994(interfaceCtx);
 
         if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_3)) {
@@ -4015,10 +4069,59 @@ void Interface_Draw(PlayState* play) {
         gDPFillRectangle(OVERLAY_DISP++, 0, 0, gScreenWidth - 1, gScreenHeight - 1);
     }
 
+hudEnd:
+#if TARGET_PSP
+    /* SEGMENT 0x02 IST DAS SZENENSEGMENT, und diese Funktion biegt es oben auf
+     * interfaceCtx->parameterSegment um. Ohne die Rueckgabe hier bleibt das
+     * dauerhaft stehen, und das Bild wird schwarz.
+     *
+     * Der Grund liegt in der Reihenfolge, nicht im Interface. gSegments[] ist
+     * EIN Feld, das sich die C-Seite und der Displaylisten-Interpreter teilen,
+     * aber sie greifen zu verschiedenen Zeitpunkten darauf zu:
+     *
+     *   Bild N   C-Seite:      Play_Update (liest gSegments), dann Play_Draw,
+     *                          das ganz vorn gSPSegment(0x02, sceneSegment)
+     *                          in POLY_OPA schreibt; Interface_Draw haengt
+     *                          seine gSPSegment-Befehle ans OVERLAY.
+     *   Bild N   Interpreter:  OPA (Segment 2 = Szene) ... zuletzt OVERLAY,
+     *                          und dort setzt das Interface Segment 2 auf sein
+     *                          Parametersegment. Dabei BLEIBT es.
+     *   Bild N+1 C-Seite:      Play_Update laeuft ZUERST -- mit Segment 2, das
+     *                          noch ins Parametersegment zeigt.
+     *
+     * Ab da loest jeder szenensegmentierte Zeiger in Aktoren, Kollision und
+     * Raumdaten in fremden Speicher auf. Gemessen: die Dreieckszahl bleibt
+     * hoch (1882 pro Bild), der Bildspeicher ist trotzdem vollstaendig null --
+     * es wird also fleissig Unsinn gezeichnet. Und es heilt NICHT, wenn man
+     * Interface_Draw wieder abschaltet; nur ein Szenenwechsel setzt gSegments
+     * neu. Genau dieses Verhalten hat den Fehler von einem "der HUD malt
+     * darueber" zu einem Zustandsschaden entlarvt.
+     *
+     * oot-psp-z2442 hat dieselbe Sicherung (z_parameter.c: savedSegment2/7/8/B
+     * um Interface_Draw herum). Dort wird die C-Seite gerettet, weil dort auch
+     * die C-Seite umgebogen wird (Interface_SetPspSegmentBase); hier tut das
+     * niemand, deshalb genuegt und noetig ist die Rueckgabe im DISPLAYLISTEN-
+     * Strom -- der ist der Einzige, der gSegments[] in diesem Port ueberhaupt
+     * veraendert.
+     *
+     * Segment 2 geht auf die Szene zurueck statt auf NULL, weil genau das der
+     * Wert ist, den Play_Draw jedes Bild setzt. 7/8/0x0B waren vorher
+     * unbesetzt; 8 ist zusaetzlich dasjenige, das auf dieser Plattform mit
+     * echten Zeigern kollidiert (siehe seg_addr in gfx_pc.c). */
+    gSPSegment(OVERLAY_DISP++, 0x02, play->sceneSegment);
+    gSPSegment(OVERLAY_DISP++, 0x07, NULL);
+    gSPSegment(OVERLAY_DISP++, 0x08, NULL);
+    gSPSegment(OVERLAY_DISP++, 0x0B, NULL);
+#endif
+
     CLOSE_DISPS(play->state.gfxCtx, "../z_parameter.c", 4269);
 }
 
 void Interface_Update(PlayState* play) {
+    if (!gPspHudUpdate) {
+        return;
+    }
+
     static u8 D_80125B60 = false;
     static s16 sPrevTimeSpeed = 0;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;

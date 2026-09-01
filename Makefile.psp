@@ -124,6 +124,22 @@ PSP_C_FILES += src/code/z_scene.c
 PSP_C_FILES += src/code/z_scene_table.c
 PSP_C_FILES += src/code/z_room.c
 PSP_C_FILES += src/code/z_construct.c
+# --- HUD / Interface -------------------------------------------------------
+# Beide lagen fertig im Baum und wurden nur nicht gebaut, waehrend sechs
+# Funktionen daraus in phase2_stubs_gen.c als leere Ruempfe standen -- derselbe
+# Fall wie bei z_fbdemo*.c und gu/*.c. z_parameter.c ist mit 4415 Zeilen das
+# ganze Interface (Herzen, Magie, C-Tasten, Rupien, Minikarte, Textfenster-
+# Rahmen), z_lifemeter.c die Herzleiste.
+PSP_C_FILES += src/code/z_parameter.c
+PSP_C_FILES += src/code/z_lifemeter.c
+# Minikarte -- z_parameter.c ruft Minimap_Draw/Map_Update, und auch die lagen
+# schon fertig im Baum.
+PSP_C_FILES += src/code/z_map_exp.c
+PSP_C_FILES += src/code/z_map_mark.c
+PSP_C_FILES += src/code/z_map_data.c
+# Die Markierungsdaten der Dungeon-Karten. Auf dem N64 ein nachgeladenes
+# Overlay, hier fest mitgelinkt -- siehe den TARGET_PSP-Zweig in z_map_mark.c.
+PSP_C_FILES += src/overlays/misc/ovl_map_mark_data/z_map_mark_data.c
 PSP_C_FILES += src/code/z_lights.c
 PSP_C_FILES += src/code/z_vr_box.c
 PSP_C_FILES += src/code/z_vr_box_draw.c
@@ -484,6 +500,10 @@ PSP_C_FILES += extracted/pal-1.0/assets/textures/nintendo_rogo_static/nintendo_r
 PSP_C_FILES += extracted/pal-1.0/assets/textures/icon_item_static/icon_item_static.c
 PSP_C_FILES += assets/textures/icon_item_24_static/icon_item_24_static.c
 PSP_C_FILES += extracted/pal-1.0/assets/textures/parameter_static/parameter_static.c
+# Die "Do Action"-Beschriftungen der A-Taste (Angriff/Pruefen/...). Die
+# .inc.c-Dateien erzeugt die Asset-Pipeline laengst nach build/pal-1.0, nur die
+# uebersetzende .c fehlte im Build.
+PSP_C_FILES += assets/textures/do_action_static/do_action_static.c
 
 PSP_C_FILES += psp/src/psp_blob_assets.c
 PSP_C_FILES += psp/src/psp_hw_diag.c

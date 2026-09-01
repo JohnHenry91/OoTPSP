@@ -43,14 +43,8 @@ void Cutscene_SetScript(struct PlayState* play, void* script) {
  * Interface / HUD (src/code/z_parameter.c is not ported)
  * ------------------------------------------------------------------------- */
 
-void Interface_SetTimer(s16 seconds) {
-}
 
-void Interface_SetSubTimer(s16 seconds) {
-}
 
-void Interface_InitHorsebackArchery(struct PlayState* play) {
-}
 
 /* Both bottle queries answer "no bottle".
  *
@@ -60,13 +54,7 @@ void Interface_InitHorsebackArchery(struct PlayState* play) {
  * inventory code cannot complete, leaving the actor waiting. Answering "no"
  * simply means the interaction is not offered. Revisit when z_parameter.c is
  * ported -- the real function reads gSaveContext.save.info.inventory.items. */
-s32 Inventory_HasEmptyBottle(void) {
-    return 0;
-}
 
-s32 Inventory_HasSpecificBottle(u8 bottleItem) {
-    return 0;
-}
 
 /* -------------------------------------------------------------------------
  * Message system (src/code/z_message.c is not ported)
@@ -122,3 +110,5 @@ u32 gCICBootMagic0 = 0;
 s32 func_801C70FC(void) {
     return 0;
 }
+/* PROMOTED to the real src/code/z_parameter.c / z_lifemeter.c / z_map_exp.c (siehe Makefile.psp):
+ *   Interface_InitHorsebackArchery, Interface_SetSubTimer, Interface_SetTimer, Inventory_HasEmptyBottle, Inventory_HasSpecificBottle */

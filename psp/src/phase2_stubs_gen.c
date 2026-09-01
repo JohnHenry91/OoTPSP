@@ -101,16 +101,8 @@ void FrameAdvance_Update(void) {}
 void GameOver_FadeInLights(void) {}
 void GameOver_Init(void) {}
 void GameOver_Update(void) {}
-void Health_InitMeter(void) {}
 /* Horse_InitPlayerHorse PROMOTED to the real src/code/z_horse.c
  * (Phase 3). Stub removed. */
-void Interface_ChangeHudVisibilityMode(void) {}
-void Interface_Draw(void) {}
-void Interface_SetSceneRestrictions(void) {}
-void Interface_Update(void) {}
-void Inventory_ReplaceItem(void) {}
-void Inventory_SwapAgeEquipment(void) {}
-void Item_Give(void) {}
 void Jpeg_Decode(void) {}
 void KaleidoManager_Destroy(void) {}
 void KaleidoManager_Init(void) {}
@@ -119,11 +111,6 @@ void KaleidoScopeCall_Draw(void) {}
 void KaleidoScopeCall_Init(void) {}
 void KaleidoScopeCall_Update(void) {}
 void KaleidoSetup_Update(void) {}
-void Magic_Reset(void) {}
-void Map_Destroy(void) {}
-void Map_Init(void) {}
-void Map_InitRoomData(void) {}
-void Map_SavePlayerInitialInfo(void) {}
 void Message_ContinueTextbox(void) {}
 void Message_Draw(void) {}
 void Message_GetState(void) {}
@@ -168,7 +155,6 @@ void PreRender_SetValuesSave(void) {}
  * runtime for any function that returns a value or fills an out-parameter.
  * A no-op stub is only safe for a function that returns void AND writes
  * nothing through its arguments. */
-void Rupees_ChangeBy(void) {}
 void SfxSource_InitAll(void) {}
 void SfxSource_PlaySfxAtFixedWorldPos(void) {}
 void SfxSource_UpdateAll(void) {}
@@ -264,3 +250,5 @@ void guS2DInitBg(void) {}
  * The rule this establishes: when a placeholder's real data becomes reachable,
  * the placeholder is not neutral any more. It outranks it. */
 char gspS2DEX2d_fifoDataStart[64];
+/* PROMOTED to the real src/code/z_parameter.c / z_lifemeter.c / z_map_exp.c (siehe Makefile.psp):
+ *   Health_InitMeter, Interface_ChangeHudVisibilityMode, Interface_Draw, Interface_SetSceneRestrictions, Interface_Update, Inventory_ReplaceItem, Inventory_SwapAgeEquipment, Item_Give, Magic_Reset, Map_Destroy, Map_Init, Map_InitRoomData, Map_SavePlayerInitialInfo, Rupees_ChangeBy */

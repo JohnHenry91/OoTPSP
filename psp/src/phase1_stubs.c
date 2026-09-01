@@ -85,8 +85,11 @@ void SsSram_ReadWrite(s32 addr, void* dramAddr, size_t size, s32 direction) {
  * item-select logic) -- these two tiny tables are only referenced by
  * src/code/z_sram.c's Sram_OpenSave (see above, unreached), not worth
  * pulling in the whole file for. */
-s16 gSpoilingItems[] = { 0 };
-s16 gSpoilingItemReverts[] = { 0 };
+/* gSpoilingItems / gSpoilingItemReverts: PROMOTED to the real
+ * src/code/z_parameter.c (siehe Makefile.psp). Die Platzhalter waren
+ * einelementige Nullfelder -- z_parameter.c liest sie ueber den Index der
+ * verderblichen Flaschenware, was auf einem solchen Feld daneben gegriffen
+ * haette, sobald das Interface wirklich laeuft. */
 
 /* Real impls (src/code/z_vismono.c, z_viszbuf.c) hardcode real N64 KSEG1
  * physical addresses (D_0E000000/D_0F000000) with no PSP equivalent --

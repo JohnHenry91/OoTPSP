@@ -44,13 +44,33 @@ MapMarkInfo sMapMarkInfoTable[] = {
     { gMapBossIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 8, 32, 32, 1 << 10, 1 << 10 },     // Boss Skull Icon
 };
 
+#if TARGET_PSP
+/* ovl_map_mark_data ist auf dem PSP fest mitgelinkt (z_map_mark_data.c steht in
+ * Makefile.psp), nicht als Overlay nachgeladen. Damit gibt es die
+ * Linkersymbole _ovl_map_mark_dataSegmentStart/End gar nicht -- es gibt kein
+ * Segment, das irgendwohin relokiert wuerde. vramStart/vramEnd auf NULL ist
+ * dieselbe "schon resident"-Kennzeichnung, die dieser Port bereits fuer alle
+ * Aktor-Overlays und alle Spielzustaende benutzt (siehe
+ * psp/src/z_actor_dlftbls_psp.c). oot-psp-z2442 loest es an derselben Stelle
+ * genauso. */
+static MapMarkDataOverlay sMapMarkDataOvl = {
+    NULL, ROM_FILE(ovl_map_mark_data), NULL, NULL, gMapMarkDataTable,
+};
+#else
 static MapMarkDataOverlay sMapMarkDataOvl = {
     NULL, ROM_FILE(ovl_map_mark_data), _ovl_map_mark_dataSegmentStart, _ovl_map_mark_dataSegmentEnd, gMapMarkDataTable,
 };
+#endif
 
 static MapMarkData** sLoadedMarkDataTable;
 
 void MapMark_Init(PlayState* play) {
+#if TARGET_PSP
+    /* Kein DMA, keine Relokation -- die Tabelle liegt bereits an ihrer
+     * endgueltigen Adresse. Siehe den Kommentar an sMapMarkDataOvl. */
+    sMapMarkDataOvl.loadedRamAddr = NULL;
+    sLoadedMarkDataTable = gMapMarkDataTable;
+#else
     MapMarkDataOverlay* overlay = &sMapMarkDataOvl;
     u32 overlaySize = (uintptr_t)overlay->vramEnd - (uintptr_t)overlay->vramStart;
 
@@ -66,6 +86,7 @@ void MapMark_Init(PlayState* play) {
                                ? (void*)((uintptr_t)overlay->vramTable -
                                          (intptr_t)((uintptr_t)overlay->vramStart - (uintptr_t)overlay->loadedRamAddr))
                                : NULL);
+#endif
 
 #if PLATFORM_N64
     if ((B_80121220 != NULL) && (B_80121220->unk_2C != NULL)) {
