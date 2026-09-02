@@ -5,6 +5,7 @@
 #include "ultra64.h"
 #include "play_state.h"
 #include "message.h"
+#include "camera.h"
 
 /* Real def: src/code/z_demo.c (the cutscene system, not ported). Referenced by
  * the real src/code/z_kankyo.c, which sets it in Environment_Init. Nothing
@@ -131,4 +132,134 @@ u8 Message_GetState(MessageContext* msgCtx) {
  * cost this port the bridge glitch (hardware session 3). */
 void Message_CloseTextbox(struct PlayState* play) {
     (void)play;
+}
+
+/* ===================================================================== *
+ * Stubs, die einen WERT zurueckgeben muessen
+ *
+ * Alle folgenden standen in phase2_stubs_gen.c als `void X(void) {}`. Ein
+ * void-Stub schreibt v0 nicht -- der Aufrufer liest damit den Restwert des
+ * vorigen Aufrufs. Das ist keine Theorie: bei Message_GetState war es -1 und
+ * hat Player_UpdateInterface jedes Frame stillgelegt (siehe oben).
+ *
+ * Jede Funktion hier hat deshalb die echte Signatur und gibt den Wert zurueck,
+ * der ohne das jeweilige Subsystem die WAHRHEIT ist -- nicht den bequemsten.
+ * Die Begruendung steht jeweils dabei, weil sie pro Fall verschieden ist.
+ * ===================================================================== */
+
+/* Real def: src/code/z_frame_advance.c. Der kritischste der Gruppe:
+ *
+ *     if (FrameAdvance_Update(&this->frameAdvCtx, &input[1])) { ... }
+ *
+ * in z_play.c umschliesst das GESAMTE Spiel-Update. Mit Muell in v0 lief das
+ * Update bisher nur zufaellig jedes Frame. Ohne Frame-Advance-Debugmodus ist
+ * die Antwort immer "ja, weiterlaufen". */
+s32 FrameAdvance_Update(FrameAdvanceContext* frameAdvCtx, struct Input* input) {
+    (void)frameAdvCtx;
+    (void)input;
+    return 1;
+}
+
+/* Real def: src/code/z_message.c (Nachrichtensystem nicht im Build). Fragt, ob
+ * der Spieler die Textbox weiterblaettern will. Ohne Textboxen: nein. */
+u8 Message_ShouldAdvance(struct PlayState* play) {
+    (void)play;
+    return 0;
+}
+
+/* Real def: src/code/z_onepointdemo.c (Cutscene-Kameras nicht im Build).
+ * Der Rueckgabewert wird von den Aufrufern in `this->subCamId` gelegt und
+ * spaeter als Index in play->cameraPtrs[] benutzt -- Muell dort ist ein
+ * Zugriff ausserhalb des Arrays. SUB_CAM_ID_DONE ist 0, zeigt auf die
+ * Hauptkamera und bedeutet den Aufrufern "die Subkamera ist fertig". */
+s16 OnePointCutscene_Init(struct PlayState* play, s16 csId, s16 timer, struct Actor* actor, s16 parentCamId) {
+    (void)play;
+    (void)csId;
+    (void)timer;
+    (void)actor;
+    (void)parentCamId;
+    return SUB_CAM_ID_DONE;
+}
+
+/* Real def: src/code/z_camera.c-Umfeld (Cutscene-Kamerapfade). z_camera.c sagt
+ * im Kommentar an der Aufrufstelle: "function returns 1 if at the end". Ohne
+ * Cutscene-Pfade ist der Pfad sofort zu Ende -- 0 hiesse "laeuft noch" und
+ * wuerde die Aufrufer endlos interpolieren lassen. */
+s32 func_800BB2B4(void* pos, f32* roll, f32* fov, void* point, s16* keyFrame, f32* curFrame) {
+    (void)pos;
+    (void)roll;
+    (void)fov;
+    (void)point;
+    (void)keyFrame;
+    (void)curFrame;
+    return 1;
+}
+
+/* Real def: src/code/z_jpeg.c. Aufgerufen aus Room_DecodeJpeg:
+ *
+ *     if (!Jpeg_Decode(data, gZBuffer, ...)) { bcopy(gZBuffer, data, ...); }
+ *
+ * 0 heisst ERFOLG und loest ein bcopy des Z-Buffers ueber die Raumdaten aus.
+ * Mit Muell in v0 passierte das bisher zufaellig -- ein Ueberschreiber der
+ * Raumdaten mit Tiefenpuffer-Inhalt. Hier ist die ehrliche Antwort "nein":
+ * dieser Port dekodiert kein JPEG, die Praerender-Raeume laufen ueber die
+ * Blob-Pipeline. */
+s32 Jpeg_Decode(void* data, void* zbuffer, void* work, u32 workSize) {
+    (void)data;
+    (void)zbuffer;
+    (void)work;
+    (void)workSize;
+    return 1;
+}
+
+/* Real def: src/code/z_bgcheck.c-Umfeld. Meldet, ob ein getragener Aktor mit
+ * der Plattform mitbewegt wurde. Ohne die Transformation: nein. */
+s32 DynaPolyActor_TransformCarriedActor(CollisionContext* colCtx, s32 bgId, struct Actor* carriedActor) {
+    (void)colCtx;
+    (void)bgId;
+    (void)carriedActor;
+    return 0;
+}
+
+/* Real def: src/libu64/overlay.c. Beide Aufrufer (z_effect_soft_sprite.c,
+ * z_map_mark.c) verwerfen den Rueckgabewert, die Groesse ist also folgenlos --
+ * die echte Signatur steht trotzdem hier, damit der naechste Leser nicht
+ * denselben Weg noch einmal geht. */
+size_t Overlay_Load(uintptr_t vromStart, uintptr_t vromEnd, void* vramStart, void* vramEnd, void* allocatedRamAddr) {
+    (void)vromStart;
+    (void)vromEnd;
+    (void)vramStart;
+    (void)vramEnd;
+    (void)allocatedRamAddr;
+    return 0;
+}
+
+/* Real def: src/libultra/gu/... bzw. der Fault-Bildschirm. Gibt die Zahl der
+ * ausgegebenen Zeichen zurueck; ohne Fault-Bildschirm sind es null. */
+s32 Fault_Printf(const char* fmt, ...) {
+    (void)fmt;
+    return 0;
+}
+
+/* Beide werden im aktuellen Build von NIEMANDEM aufgerufen (0 Sprungziele im
+ * Disassembly). Sie stehen hier trotzdem mit echter Signatur, damit sie nicht
+ * beim naechsten aufgenommenen Effekt-Overlay stillschweigend zur Falle
+ * werden. 0 heisst bei beiden "nicht fertig, nicht loeschen". */
+s32 EffectShieldParticle_Update(void* thisx) {
+    (void)thisx;
+    return 0;
+}
+s32 EffectSpark_Update(void* thisx) {
+    (void)thisx;
+    return 0;
+}
+
+/* Real def: src/libultra. Liefern die Microcode-Bloecke der RSP -- auf dieser
+ * Hardware gibt es keine, und niemand ruft sie derzeit auf. NULL ist die
+ * ehrliche Antwort und faellt sofort auf, falls es doch jemand tut. */
+u64* SysUcode_GetUCode(void) {
+    return NULL;
+}
+u64* SysUcode_GetUCodeData(void) {
+    return NULL;
 }

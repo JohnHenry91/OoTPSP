@@ -144,6 +144,11 @@ PSP_C_FILES += src/code/z_lights.c
 PSP_C_FILES += src/code/z_vr_box.c
 PSP_C_FILES += src/code/z_vr_box_draw.c
 PSP_C_FILES += src/code/z_bgcheck.c
+# Promoted out of phase2_stubs_gen.c: DamageTable_Get stand dort als
+# `void DamageTable_Get(void) {}` und gab damit den Restwert aus v0 zurueck --
+# einen ZEIGER aus Muell, an 15 Aufrufstellen. Die Datei ist reine Tabellendaten
+# plus zwei kurze Funktionen und haengt nur an vier harmlosen Headern.
+PSP_C_FILES += src/code/z_collision_btltbls.c
 PSP_C_FILES += src/code/z_collision_check.c
 PSP_C_FILES += src/code/z_camera.c
 PSP_C_FILES += src/code/z_actor.c
