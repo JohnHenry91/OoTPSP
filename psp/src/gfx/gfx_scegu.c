@@ -1370,18 +1370,47 @@ static void gfx_scegu_set_zmode_decal(bool zmode_decal) {
 int gPspVpNoScissor = 0;
 int gPspVpForceFull = 0;
 
-static void gfx_scegu_set_viewport(int x, int y, int width, int height) {
-    if (gPspVpForceFull) {
-        x = 0; y = 0; width = SCR_WIDTH; height = SCR_HEIGHT;
-    }
-    sceGuViewport(2048 - (SCR_WIDTH / 2) + x + (width / 2), 2048 + (SCR_HEIGHT / 2) - y - (height / 2), width, height);
-    if (!gPspVpNoScissor) {
+/* 1 = Y wird wie X gerechnet (der Fix). 0 = die geerbte Formel.
+ *
+ * `rdp.viewport.y` zaehlt von OBEN. X wurde als `2048 - SCR_WIDTH/2 + x + w/2`
+ * gerechnet, also von links -- Y aber als `2048 + SCR_HEIGHT/2 - y - h/2`, also
+ * von UNTEN. Fuer Vollbild sind beide Rechnungen zahlengleich
+ * (272 - 0 - 136 == 0 + 136), deshalb war der Fehler bisher unfalsifizierbar:
+ * dieser Port hat bis zum A-Knopf ueberhaupt nie einen Teil-Viewport benutzt.
+ *
+ * Gemessen fuer den A-Knopf (rdp.viewport = 279,210,67,51): die alte Formel
+ * setzt die Mitte auf Bildschirm (312, 37) statt (312, 235). Der Scissor hat
+ * denselben Dreher, weshalb beide zusammenpassend daneben lagen -- also muessen
+ * auch beide zusammen umgestellt werden, sonst schneidet der eine weg, was der
+ * andere zeichnet. */
+int gPspVpYFix = 1;
+
+static void gfx_scegu_scissor_rect(int x, int y, int width, int height) {
+    if (gPspVpYFix) {
+        sceGuScissor(x, y, x + width, y + height);
+    } else {
         sceGuScissor(x, SCR_HEIGHT - y - height, x + width, SCR_HEIGHT - y);
     }
 }
 
+static void gfx_scegu_set_viewport(int x, int y, int width, int height) {
+    if (gPspVpForceFull) {
+        x = 0; y = 0; width = SCR_WIDTH; height = SCR_HEIGHT;
+    }
+    if (gPspVpYFix) {
+        sceGuViewport(2048 - (SCR_WIDTH / 2) + x + (width / 2),
+                      2048 - (SCR_HEIGHT / 2) + y + (height / 2), width, height);
+    } else {
+        sceGuViewport(2048 - (SCR_WIDTH / 2) + x + (width / 2),
+                      2048 + (SCR_HEIGHT / 2) - y - (height / 2), width, height);
+    }
+    if (!gPspVpNoScissor) {
+        gfx_scegu_scissor_rect(x, y, width, height);
+    }
+}
+
 static void gfx_scegu_set_scissor(int x, int y, int width, int height) {
-    sceGuScissor(x, SCR_HEIGHT - y - height, x + width, SCR_HEIGHT - y);
+    gfx_scegu_scissor_rect(x, y, width, height);
 }
 
 static void gfx_scegu_set_use_alpha(bool use_alpha) {
