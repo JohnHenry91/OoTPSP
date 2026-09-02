@@ -40,6 +40,7 @@ void gfx_end_frame(void);
  * selbst. Die lange Begruendung samt Messung steht an der Definition in
  * psp/src/gfx/gfx_pc.c. */
 void gfx_texture_cache_invalidate_range(const void *addr, unsigned int size);
+void gfx_invalidate_scissor_state(void);
 
 unsigned int gfx_pc_stat_tris_drawn(void);
 unsigned int gfx_pc_stat_tex_imports(void);

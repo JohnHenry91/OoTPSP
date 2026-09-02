@@ -6302,6 +6302,23 @@ void PspGfx_NotifyResume(void) {
 }
 #endif
 
+/* Der Overlay-Zeichner (gfx_scegu_end_frame) setzt Scissor und Zeichenregion
+ * hinter dem Ruecken dieser Datei auf Vollbild zurueck, weil das Menue in die
+ * noch offene GE-Liste zeichnet und sonst den zuletzt gesetzten Ausschnitt
+ * erbt -- nach dem A-Knopf ist das ein 67x51-Rechteck, und vom Menue ist dann
+ * nur dieser Ausschnitt zu sehen (user-beobachtet).
+ *
+ * Danach muss der Zwischenspeicher entwertet werden: er wird pro Frame NICHT
+ * zurueckgesetzt, haelt sonst den A-Knopf-Ausschnitt fuer bare Muenze und
+ * setzt im naechsten Frame nichts neu -- die Hardware stuende dann auf
+ * Vollbild, waehrend die Pipeline glaubt, sie beschneide noch. */
+void gfx_invalidate_scissor_state(void) {
+    rendering_state.scissor.x = 0xFFFF;
+    rendering_state.scissor.y = 0xFFFF;
+    rendering_state.scissor.width = 0xFFFF;
+    rendering_state.scissor.height = 0xFFFF;
+}
+
 void gfx_start_frame(void) {
     //sceIoWrite(1, "----START FRAME!\n", 18);
     total_t0 = sceKernelLibcClock();

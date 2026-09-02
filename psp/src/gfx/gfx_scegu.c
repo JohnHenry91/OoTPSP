@@ -1370,26 +1370,83 @@ static void gfx_scegu_set_zmode_decal(bool zmode_decal) {
 int gPspVpNoScissor = 0;
 int gPspVpForceFull = 0;
 
-/* 1 = Y wird wie X gerechnet (der Fix). 0 = die geerbte Formel.
+/* 1 = Y wird wie X gerechnet. 0 = die geerbte Formel -- und die ist RICHTIG.
  *
- * `rdp.viewport.y` zaehlt von OBEN. X wurde als `2048 - SCR_WIDTH/2 + x + w/2`
- * gerechnet, also von links -- Y aber als `2048 + SCR_HEIGHT/2 - y - h/2`, also
- * von UNTEN. Fuer Vollbild sind beide Rechnungen zahlengleich
- * (272 - 0 - 136 == 0 + 136), deshalb war der Fehler bisher unfalsifizierbar:
- * dieser Port hat bis zum A-Knopf ueberhaupt nie einen Teil-Viewport benutzt.
+ * GEMESSEN UND WIDERLEGT (der Y-Fix aus 066350460 war ein Fehlschluss):
+ * `rdp.viewport.y` zaehlt NICHT von oben. gfx_pc.c rechnet in
+ * gfx_calc_and_set_viewport
  *
- * Gemessen fuer den A-Knopf (rdp.viewport = 279,210,67,51): die alte Formel
- * setzt die Mitte auf Bildschirm (312, 37) statt (312, 235). Der Scissor hat
- * denselben Dreher, weshalb beide zusammenpassend daneben lagen -- also muessen
- * auch beide zusammen umgestellt werden, sonst schneidet der eine weg, was der
- * andere zeichnet. */
-int gPspVpYFix = 1;
+ *     y = SCREEN_HEIGHT - ((vtrans[1] / 4.0f) + height / 2.0f);
+ *
+ * also von UNTEN -- die OpenGL-Konvention, fuer die gfx_opengl geschrieben
+ * wurde und die dieser Port geerbt hat. Die alte Formel
+ * `2048 + SCR_HEIGHT/2 - y - h/2` ist damit korrekt. Mit gPspVpYFix = 1 landet
+ * der A-Knopf unten rechts statt oben rechts -- user-bestaetigt am Bild, nicht
+ * nur nachgerechnet. Der Schalter bleibt als Gegentest stehen.
+ *
+ * Die Ausgangsbeobachtung ("fuer Vollbild sind beide Formeln zahlengleich")
+ * stimmt; nur der Schluss daraus war falsch herum. */
+int gPspVpYFix = 0;
+
+/* 1 = sceGuScissor bekommt BREITE und HOEHE (richtig fuer die installierte
+ * libpspgu). 0 = die geerbte Fassung, die dort x2/y2 uebergibt.
+ *
+ * Nachgesehen in ~/pspdev/psp/sdk/lib/libpspgu.a (disassembliert, nicht geraten):
+ *
+ *     scissor_end[0] = x + w - 1;      a2 = a0 + a2 - 1
+ *     scissor_end[1] = y + h - 1;      a3 = a1 + a3 - 1
+ *
+ * Das dritte und vierte Argument sind also Breite und Hoehe. Dieser Port hat
+ * von sm64-port-psp `sceGuScissor(x, y, x + width, y + height)` geerbt, was
+ * gegen eine aeltere SDK-Fassung (`end = w - 1`) richtig war. Fuer den
+ * Vollbild-Scissor (0, 0, 480, 272) sind beide Lesarten zahlengleich, weil
+ * x und y null sind -- deshalb ist es nie aufgefallen.
+ *
+ * Fuer den A-Knopf (279, 210, 67, 51) wird daraus:
+ *     end = (279 + 346 - 1, 210 + 261 - 1) = (624, 470)
+ * also ein Scissor von 279..624 x 210..470 statt 279..345 x 210..260 -- und da
+ * sceGuScissor auch REGION1/REGION2 mitsetzt, eine Zeichenregion von 625x471
+ * statt 480x272. Der A-Knopf ist der einzige Teil-Scissor im ganzen Spiel.
+ *
+ * Achtung bei der Beurteilung von gPspVpForceFull: das ueberschreibt
+ * x/y/width/height VOR beiden Aufrufen und repariert damit auch den Scissor --
+ * es trennt Viewport und Scissor also NICHT. */
+int gPspScisWH = 1;
+
+/* 1 = die Zeichenregion (REGION1/REGION2) bleibt immer der volle Bildschirm.
+ *
+ * sceGuScissor setzt REGION1/REGION2 MIT -- nachgesehen in der installierten
+ * libpspgu.a, nicht in der Doku. Die Region ist aber die Zeichenflaeche des
+ * Framebuffers, kein Ausschnitt: sie darf mit einem Teil-Scissor nicht
+ * mitwandern. PPSSPP leitet aus ihr die Framebuffergroesse ab und ordnet bei
+ * einer abweichenden Region einen anderen Framebuffer zu -- dann ist das ganze
+ * Bild leer, auch alles, was vorher in DERSELBEN GE-Liste schon gezeichnet
+ * wurde. Genau der Befund "ein Befehl am Ende loescht, was vorher da war".
+ *
+ * Vier user-bestaetigte Blicke auf den A-Knopf, nach Regionsgroesse sortiert:
+ *
+ *     625x471  schwarz       (YFix 1, ScisWH 0 -- der Auslieferungszustand)
+ *     625x73   schwarz       (YFix 0, ScisWH 0)
+ *     346x62   schwarz       (YFix 0, ScisWH 1)
+ *     346x261  BILD DA       (YFix 1, ScisWH 1)
+ *
+ * Nur die Region, die dem Vollbild nahekommt, ueberlebt -- der Scissor selbst
+ * war in beiden 346er-Faellen gleich gross. Deshalb ist die Region der
+ * Ausloeser, nicht der Scissor und nicht der Viewport. */
+int gPspScisKeepRegion = 1;
 
 static void gfx_scegu_scissor_rect(int x, int y, int width, int height) {
-    if (gPspVpYFix) {
-        sceGuScissor(x, y, x + width, y + height);
+    int top = gPspVpYFix ? y : (SCR_HEIGHT - y - height);
+    if (gPspScisWH) {
+        sceGuScissor(x, top, width, height);
     } else {
-        sceGuScissor(x, SCR_HEIGHT - y - height, x + width, SCR_HEIGHT - y);
+        sceGuScissor(x, top, x + width, top + height);
+    }
+    if (gPspScisKeepRegion) {
+        /* REGION1 = 0x15, REGION2 = 0x16 (guInternal.h; im Disassembly der
+         * installierten libpspgu als lui 0x1500 / 0x1600 wiedererkennbar). */
+        sceGuSendCommandi(0x15, 0);
+        sceGuSendCommandi(0x16, ((SCR_HEIGHT - 1) << 10) | (SCR_WIDTH - 1));
     }
 }
 
@@ -2264,6 +2321,16 @@ static void gfx_scegu_end_frame(void) {
      * menu overlay (drawn into the still-open list) from the engine's own
      * geometry. First 24 frames only, same window as the rest. */
     PSP_DIAG_GFX("ge-menu-begin");
+    /* Das Overlay zeichnet in die noch offene GE-Liste und erbt damit den
+     * zuletzt gesetzten Ausschnitt. Nach dem A-Knopf ist das sein 67x51-
+     * Rechteck, und vom Menue bleibt genau dieser Fleck sichtbar. Erst seit
+     * der A-Knopf ueberhaupt gezeichnet wird, faellt das auf: vorher war der
+     * letzte Scissor des Frames immer der Vollbild-Scissor. */
+    {
+        extern void gfx_invalidate_scissor_state(void); /* gfx_pc.h ist hier nicht eingebunden */
+        gfx_scegu_scissor_rect(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        gfx_invalidate_scissor_state();
+    }
     PspSceneMenu_DrawBackdrop();
     PspSceneMenu_DrawHud();
     PSP_DIAG_GFX("ge-menu-done");
