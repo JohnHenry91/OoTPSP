@@ -235,11 +235,31 @@ static unsigned short PspReadU16(unsigned char* p) {
  * Note bgCamFuncData still needs segment resolution in BOTH cases: a blob is
  * linked at the segment base (0x02xxxxxx), so its pointers are genuine segment
  * addresses too -- native byte order does not mean already-resolved. */
+/* Diagnose/Gegentest fuer die BgCam-Leser (Impas Haus, 2026-09-02).
+ *
+ * Gemessen: die bgCamList von impa liegt BIG-ENDIAN im Speicher (00 19 00 03 =
+ * setting 25 CAM_SET_PREREND_FIXED, count 3) und stammt aus dem ROH-ROM
+ * (Fundstelle 0x25b10e4), NICHT aus impa_scene.bin -- das Muster ist in keinem
+ * der beiden Blobs. Trotzdem stuft PspStaticAssetIsStatic() sie als "schon
+ * nativ" ein und schaltet damit genau die Umrechnung ab, die hier gebraucht
+ * wird. Folge: die Kamera liest pos/fov byteverdreht, steht bei
+ * eye = (0, 13312, 0) statt (0, 52, 0) und schaut 89 Grad an Link vorbei --
+ * was wie "Link wird in Impas Haus nicht gerendert" aussieht.
+ *
+ *   gPspBgCamForceSwap  1 = Guard ignorieren, immer aus Big-Endian lesen
+ *   gPspBgCamStaticHits / gPspBgCamSwapHits  wie oft welcher Zweig lief
+ *
+ * Schalter statt Sofortfix, weil der Guard fuer ECHTE Blob-Szenen richtig ist:
+ * erst messen, welcher Zweig hier zutrifft, dann die Bedingung reparieren. */
+int gPspBgCamForceSwap = 0;
+unsigned int gPspBgCamStaticHits = 0;
+unsigned int gPspBgCamSwapHits = 0;
+
 unsigned short PspReadBgCamSettingRaw(void* bgCamInfoEntry) {
     if (bgCamInfoEntry == 0) {
         return 0;
     }
-    if (PspStaticAssetIsStatic(bgCamInfoEntry)) {
+    if (!gPspBgCamForceSwap && PspStaticAssetIsStatic(bgCamInfoEntry)) {
         return *(unsigned short*)((unsigned char*)bgCamInfoEntry + 0x0);
     }
     return PspReadU16((unsigned char*)bgCamInfoEntry + 0x0);
@@ -249,7 +269,7 @@ void* PspReadBgCamFuncDataRaw(void* bgCamInfoEntry) {
     if (bgCamInfoEntry == 0) {
         return 0;
     }
-    if (PspStaticAssetIsStatic(bgCamInfoEntry)) {
+    if (!gPspBgCamForceSwap && PspStaticAssetIsStatic(bgCamInfoEntry)) {
         return PspSegmentedToVirtual(*(unsigned int*)((unsigned char*)bgCamInfoEntry + 0x4));
     }
     return PspSegmentedToVirtual(PspReadU32((unsigned char*)bgCamInfoEntry + 0x4));
@@ -259,7 +279,7 @@ short PspReadBgCamCountRaw(void* bgCamInfoEntry) {
     if (bgCamInfoEntry == 0) {
         return 0;
     }
-    if (PspStaticAssetIsStatic(bgCamInfoEntry)) {
+    if (!gPspBgCamForceSwap && PspStaticAssetIsStatic(bgCamInfoEntry)) {
         return *(short*)((unsigned char*)bgCamInfoEntry + 0x2);
     }
     return (short)PspReadU16((unsigned char*)bgCamInfoEntry + 0x2);
@@ -290,12 +310,14 @@ void PspReadBgCamFuncDataStruct(void* raw, void* out) {
      * unchanged. This one carries the fixed camera's actual position, rotation
      * and fov, so getting it wrong points the camera somewhere arbitrary --
      * which is a much quieter failure than not drawing at all. */
-    if (PspStaticAssetIsStatic(raw)) {
+    if (!gPspBgCamForceSwap && PspStaticAssetIsStatic(raw)) {
+        ++gPspBgCamStaticHits;
         for (i = 0; i < 0x12; i++) {
             o[i] = p[i];
         }
         return;
     }
+    ++gPspBgCamSwapHits;
     for (i = 0; i < 0x12; i += 2) {
         unsigned short v = PspReadU16(p + i);
         o[i] = (unsigned char)(v >> 8);

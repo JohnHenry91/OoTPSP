@@ -813,3 +813,33 @@ Native-8/9-Fall (`gPspSegVirtNative8/9`) und den mehrdeutigen Bereich
 (`gPspSegVirtAmbiguous8/9`), aber der Zweig `segBase == 0` gibt **ungezählt**
 durch — und genau der hat hier zugeschlagen. Ein Zähler dort würde jede weitere
 Stelle dieser Art sofort sichtbar machen.
+
+## Der Asset-Dateiname sagt NICHT, welche Szene es ist
+
+`scene_table.h` bindet Nintendos originale Entwicklungs-Dateinamen an die
+lesbaren Szenen-IDs, und bei **89 von 101** Szenen haben die beiden nichts
+miteinander zu tun (`HIDAN` = Feuertempel, `MIZUsin` = Wassertempel, `ydan` =
+Deku-Baum, `Bmori1` = Waldtempel).
+
+Ein Fall ist sogar über Kreuz vertauscht:
+
+```
+/* 0x35 */  impa_scene        ->  SCENE_DOG_LADY_HOUSE       (Haus der Hundedame)
+/* 0x37 */  labo_scene        ->  SCENE_IMPAS_HOUSE          (Impas Haus)
+/* 0x38 */  hylia_labo_scene  ->  SCENE_LAKESIDE_LABORATORY  (das echte Labor)
+```
+
+**Wer beim Debuggen von Impas Haus nach `impa_scene.bin` greift, analysiert das
+Haus der Hundedame** -- und weil dessen Kollisionsdaten genauso plausibel
+aussehen (gültiger Header, `setting` 25/26, `count` 3), fällt der Irrtum nicht
+auf. Das hat 2026-09-02 eine ganze Messrunde gekostet: der Blob wurde für
+korrekt erklärt, obwohl es der Blob einer anderen Szene war.
+
+**Regel:** die Zuordnung immer über `scene_table.h` auflösen, nie über den
+Namen raten. Der Gegencheck, der es sofort entscheidet, ist der Vergleich der
+`minBounds/maxBounds` aus dem Blob mit denen im RAM -- sie sind pro Szene
+praktisch eindeutig.
+
+Der Port selbst macht das überall richtig (Warp-Menü über die `SCENE_*`-ID,
+Texturen über den Asset-Pfad, Blobs über die vrom-Adresse); die Falle trifft
+nur den Menschen davor.
