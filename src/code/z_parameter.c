@@ -3318,6 +3318,26 @@ int gPspHudStage = 6;
  *   7  Matrix + Vertices + Interface_DrawActionLabel
  */
 int gPspHudAStage = 7;
+
+/* Bitmaske ueber gPspHudAStage: Bit (N-1) haelt Teilschritt N an.
+ *
+ * Notwendig, weil die Schwelle allein die Frage nicht beantworten kann. Die
+ * Teilschritte 1 bis 4 sind AUSSCHLIESSLICH Zustand -- Setup-Displayliste,
+ * Viewport, Geometriemodus, Combine. Keiner davon erreicht die GE, solange
+ * nichts gezeichnet wird. "Stufe 4 sauber, Stufe 5 schwarz" trennt deshalb
+ * nicht Ursache von Ausloeser: Schritt 5 ist nur der erste Draw, der den
+ * vorher gesetzten Zustand ueberhaupt wirksam macht.
+ *
+ * Mit der Maske laesst sich das Zeichnen ANLASSEN und jeder Zustandsschritt
+ * einzeln weglassen -- also genau andersherum bisektieren. */
+int gPspHudAMask = 0xFF;
+
+/* Bit 7 (0x80) trennt die beiden Dinge, die func_8008A8B8 in EINEM Schritt
+ * tut: den kleinen 45x45-Viewport und die perspektivische Projektion.
+ * Gesetzt = wie im Original. Geloescht = derselbe kleine Viewport, aber
+ * ORTHOGONAL wie der Rest des HUD. Gemessen ist bisher nur, dass Zeichnen
+ * MIT dieser Funktion das Bild schwaerzt und ohne sie nicht -- welche ihrer
+ * beiden Haelften es ist, sagt erst dieser Schnitt. */
 unsigned int gPspHudSegAddr[4];
 
 void Interface_Draw(PlayState* play) {
@@ -3578,24 +3598,33 @@ void Interface_Draw(PlayState* play) {
 
         // A Button
         if (gPspHudStage >= 7) {
-            if (gPspHudAStage >= 1) {
+            if (gPspHudAStage >= 1 && (gPspHudAMask & (1 << 0))) {
                 Gfx_SetupDL_42Overlay(play->state.gfxCtx);
             }
-            if (gPspHudAStage >= 2) {
-                func_8008A8B8(play, R_A_BTN_Y, R_A_BTN_Y + 45, R_A_BTN_X, R_A_BTN_X + 45);
+            if (gPspHudAStage >= 2 && (gPspHudAMask & (1 << 1))) {
+                if (gPspHudAMask & 0x80) {
+                    func_8008A8B8(play, R_A_BTN_Y, R_A_BTN_Y + 45, R_A_BTN_X, R_A_BTN_X + 45);
+                } else {
+                    interfaceCtx->viewport.topY = R_A_BTN_Y;
+                    interfaceCtx->viewport.bottomY = R_A_BTN_Y + 45;
+                    interfaceCtx->viewport.leftX = R_A_BTN_X;
+                    interfaceCtx->viewport.rightX = R_A_BTN_X + 45;
+                    View_SetViewport(&interfaceCtx->view, &interfaceCtx->viewport);
+                    View_ApplyOrthoToOverlay(&interfaceCtx->view);
+                }
             }
-            if (gPspHudAStage >= 3) {
+            if (gPspHudAStage >= 3 && (gPspHudAMask & (1 << 2))) {
                 gSPClearGeometryMode(OVERLAY_DISP++, G_CULL_BOTH);
             }
-            if (gPspHudAStage >= 4) {
+            if (gPspHudAStage >= 4 && (gPspHudAMask & (1 << 3))) {
                 gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, R_A_BTN_COLOR(0), R_A_BTN_COLOR(1), R_A_BTN_COLOR(2),
                                 interfaceCtx->aAlpha);
             }
-            if (gPspHudAStage >= 5) {
+            if (gPspHudAStage >= 5 && (gPspHudAMask & (1 << 4))) {
                 Interface_DrawActionButton(play);
             }
-            if (gPspHudAStage >= 6) {
+            if (gPspHudAStage >= 6 && (gPspHudAMask & (1 << 5))) {
                 gDPPipeSync(OVERLAY_DISP++);
                 func_8008A8B8(play, R_A_ICON_Y, R_A_ICON_Y + 45, R_A_ICON_X, R_A_ICON_X + 45);
                 gSPSetGeometryMode(OVERLAY_DISP++, G_CULL_BACK);
@@ -3604,7 +3633,7 @@ void Interface_Draw(PlayState* play) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
                 gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
             }
-            if (gPspHudAStage >= 7) {
+            if (gPspHudAStage >= 7 && (gPspHudAMask & (1 << 6))) {
                 Matrix_Translate(0.0f, 0.0f, R_A_LABEL_Z(gSaveContext.language) / 10.0f, MTXMODE_NEW);
                 Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                 Matrix_RotateX(interfaceCtx->unk_1F4 / 10000.0f, MTXMODE_APPLY);

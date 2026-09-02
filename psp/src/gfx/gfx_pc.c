@@ -391,6 +391,27 @@ static struct RenderingState {
     unsigned int fog_color;
 } rendering_state __attribute__((aligned(16)));
 
+#if TARGET_PSP
+/* Wird der A-Knopf-Kasten am ERSTEN Draw eines Bildes noch angewandt?
+ *
+ * `rendering_state` allein kann das nicht beantworten: es haelt den ZULETZT
+ * gesetzten Zustand, und das Bild endet immer mit dem A-Knopf, weil danach
+ * nichts mehr zeichnet. Jede Lesung ueber den Debugger sah deshalb den Kasten
+ * -- unabhaengig davon, ob die Welt damit gezeichnet wurde oder nicht.
+ *
+ * Diese Sonde latcht stattdessen beim ersten Draw NACH Bildbeginn. Zeigt sie
+ * Vollbild, wird die Welt korrekt beschnitten und das schwarze Bild hat eine
+ * andere Ursache; zeigt sie den Kasten, ist genau das die Ursache. */
+uint16_t gPspVpFirst[4];    /* Viewport am ersten Draw: x,y,w,h  */
+uint16_t gPspScisFirst[4];  /* Scissor  am ersten Draw: x,y,w,h  */
+uint16_t gPspVpLast[4];     /* ...und am letzten, zum Vergleich  */
+uint16_t gPspScisLast[4];
+uint32_t gPspVpApplies;     /* Viewport-Wechsel, die die GE sah  */
+uint32_t gPspScisApplies;   /* Scissor-Wechsel,  die die GE sah  */
+static int sVpFirstLatched;
+#endif
+
+
 /* gfx_scegu.c -- per-draw texenv override; see the call sites in gfx_sp_tri1. */
 void gfx_scegu_set_two_texture_tint(int has_tint);
 /* The (PRIM - ENV) * TEXEL0 + ENV LERP -- see is_prim_env_lerp_combine in
@@ -3334,16 +3355,31 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         rendering_state.decal_mode = zmode_decal;
     }
     
+#if TARGET_PSP
+    if (!sVpFirstLatched) {
+        sVpFirstLatched = 1;
+        gPspVpFirst[0] = rendering_state.viewport.x;   gPspVpFirst[1] = rendering_state.viewport.y;
+        gPspVpFirst[2] = rendering_state.viewport.width; gPspVpFirst[3] = rendering_state.viewport.height;
+        gPspScisFirst[0] = rendering_state.scissor.x;  gPspScisFirst[1] = rendering_state.scissor.y;
+        gPspScisFirst[2] = rendering_state.scissor.width; gPspScisFirst[3] = rendering_state.scissor.height;
+    }
+    gPspVpLast[0] = rdp.viewport.x;   gPspVpLast[1] = rdp.viewport.y;
+    gPspVpLast[2] = rdp.viewport.width; gPspVpLast[3] = rdp.viewport.height;
+    gPspScisLast[0] = rdp.scissor.x;  gPspScisLast[1] = rdp.scissor.y;
+    gPspScisLast[2] = rdp.scissor.width; gPspScisLast[3] = rdp.scissor.height;
+#endif
     if (rdp.viewport_or_scissor_changed) {
         if (memcmp(&rdp.viewport, &rendering_state.viewport, sizeof(rdp.viewport)) != 0) {
             gfx_flush();
             gfx_rapi->set_viewport(rdp.viewport.x, rdp.viewport.y, rdp.viewport.width, rdp.viewport.height);
             rendering_state.viewport = rdp.viewport;
+            ++gPspVpApplies;
         }
         if (memcmp(&rdp.scissor, &rendering_state.scissor, sizeof(rdp.scissor)) != 0) {
             gfx_flush();
             gfx_rapi->set_scissor(rdp.scissor.x, rdp.scissor.y, rdp.scissor.width, rdp.scissor.height);
             rendering_state.scissor = rdp.scissor;
+            ++gPspScisApplies;
         }
         rdp.viewport_or_scissor_changed = false;
     }
@@ -4356,16 +4392,31 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
         rendering_state.decal_mode = zmode_decal;
     }
     
+#if TARGET_PSP
+    if (!sVpFirstLatched) {
+        sVpFirstLatched = 1;
+        gPspVpFirst[0] = rendering_state.viewport.x;   gPspVpFirst[1] = rendering_state.viewport.y;
+        gPspVpFirst[2] = rendering_state.viewport.width; gPspVpFirst[3] = rendering_state.viewport.height;
+        gPspScisFirst[0] = rendering_state.scissor.x;  gPspScisFirst[1] = rendering_state.scissor.y;
+        gPspScisFirst[2] = rendering_state.scissor.width; gPspScisFirst[3] = rendering_state.scissor.height;
+    }
+    gPspVpLast[0] = rdp.viewport.x;   gPspVpLast[1] = rdp.viewport.y;
+    gPspVpLast[2] = rdp.viewport.width; gPspVpLast[3] = rdp.viewport.height;
+    gPspScisLast[0] = rdp.scissor.x;  gPspScisLast[1] = rdp.scissor.y;
+    gPspScisLast[2] = rdp.scissor.width; gPspScisLast[3] = rdp.scissor.height;
+#endif
     if (rdp.viewport_or_scissor_changed) {
         if (memcmp(&rdp.viewport, &rendering_state.viewport, sizeof(rdp.viewport)) != 0) {
             gfx_flush();
             gfx_rapi->set_viewport(rdp.viewport.x, rdp.viewport.y, rdp.viewport.width, rdp.viewport.height);
             rendering_state.viewport = rdp.viewport;
+            ++gPspVpApplies;
         }
         if (memcmp(&rdp.scissor, &rendering_state.scissor, sizeof(rdp.scissor)) != 0) {
             gfx_flush();
             gfx_rapi->set_scissor(rdp.scissor.x, rdp.scissor.y, rdp.scissor.width, rdp.scissor.height);
             rendering_state.scissor = rdp.scissor;
+            ++gPspScisApplies;
         }
         rdp.viewport_or_scissor_changed = false;
     }
@@ -6262,6 +6313,7 @@ void gfx_start_frame(void) {
      * meldete drei Messungen lang denselben falschen Draw. Eine Sonde, deren
      * Gueltigkeit davon abhaengt, ob man sie gerade anschaut, ist keine. */
     gPspGlowArea2 = 0.0f;
+    sVpFirstLatched = 0;
     if (sGfxResumePending) {
         sGfxResumePending = 0;
         ++gPspGfxResumes;

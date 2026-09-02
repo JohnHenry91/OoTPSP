@@ -1353,9 +1353,31 @@ static void gfx_scegu_set_zmode_decal(bool zmode_decal) {
     }
 }
 
+/* Zwei Laufzeitschalter, um die beiden Dinge zu trennen, die diese Funktion in
+ * einem Atemzug tut. Gemessen ist bislang nur: ein Draw MIT einem kleinen
+ * Viewport schwaerzt das ganze Bild, derselbe Draw ohne ihn nicht -- und zwar
+ * unabhaengig von der Projektion. Welche der beiden GE-Anweisungen das tut,
+ * sagt erst dieser Schnitt.
+ *
+ *   gPspVpNoScissor  1 = sceGuScissor hier NICHT mitsetzen (die Kopplung, die
+ *                        am rendering_state.scissor-Zwischenspeicher vorbeigeht)
+ *   gPspVpForceFull  1 = sceGuViewport immer auf Vollbild, egal was ankommt
+ *
+ * Y-Verdacht, der bei Vollbild prinzipiell unsichtbar bleibt: die Mitte wird
+ * als `2048 + SCR_HEIGHT/2 - y - height/2` gerechnet, also von UNTEN gemessen,
+ * waehrend rdp.viewport.y von OBEN zaehlt. Fuer 0/272 ist das symmetrisch und
+ * faellt nie auf -- der A-Knopf ist der erste Teil-Viewport im ganzen Spiel. */
+int gPspVpNoScissor = 0;
+int gPspVpForceFull = 0;
+
 static void gfx_scegu_set_viewport(int x, int y, int width, int height) {
+    if (gPspVpForceFull) {
+        x = 0; y = 0; width = SCR_WIDTH; height = SCR_HEIGHT;
+    }
     sceGuViewport(2048 - (SCR_WIDTH / 2) + x + (width / 2), 2048 + (SCR_HEIGHT / 2) - y - (height / 2), width, height);
-    sceGuScissor(x, SCR_HEIGHT - y - height, x + width, SCR_HEIGHT - y);
+    if (!gPspVpNoScissor) {
+        sceGuScissor(x, SCR_HEIGHT - y - height, x + width, SCR_HEIGHT - y);
+    }
 }
 
 static void gfx_scegu_set_scissor(int x, int y, int width, int height) {
