@@ -4559,20 +4559,54 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
         }
         */
         struct RGBA white = (struct RGBA){0xff, 0xff, 0xff, 0xff};
-        struct RGBA *color = &white;
+        /* Derselbe Fix wie in gfx_sp_tri1 (siehe den langen Kommentar dort),
+         * der hier nie nachgezogen wurde: shader_input_mapping[0] ist die
+         * RGB-, [1] die ALPHA-Zeile, und mit EINER gemeinsamen Variablen
+         * entscheidet die Alphazeile still die Farbe.
+         *
+         * Was das im HUD anrichtet, am Munitionszaehler durchgerechnet. Sein
+         * Combine ist
+         *     RGB   (PRIM - ENV) * TEXEL0 + ENV
+         *     ALPHA (TEXEL0 - 0) * PRIM   + 0
+         * also mapping[0] = {PRIM, ENV} und mapping[1] = {PRIM}. num_inputs
+         * ist 2, weil die RGB-Zeile zwei Register nennt. Die Schleife lief
+         * damit bis j == 1, k == 1 -- und dort steht in der Alphazeile kein
+         * zweites Register mehr, der Eintrag ist die Null aus der
+         * Initialisierung. Der `default`-Zweig hat daraufhin WEISS
+         * geschrieben und die eben korrekt gewaehlte ENV-Farbe verworfen.
+         *
+         * GU_TFX_BLEND rechnet Cv*(1-Ct) + Ctev*Ct mit Ctev = PRIM. Mit
+         * Cv = weiss und PRIM = weiss kommt ueberall Weiss heraus: die
+         * Ziffern verschwinden in einem weissen Kasten, statt weiss auf dem
+         * dunklen ENV-Kaestchen zu stehen. Genau so sah der Zaehler aus.
+         *
+         * Zwei Aenderungen, beide notwendig:
+         *  - getrennte Ziele fuer RGB und Alpha (wie im 3D-Pfad),
+         *  - `default` laesst die bisherige Wahl STEHEN, statt sie auf Weiss
+         *    zurueckzusetzen. Ein Eintrag, der kein Farbregister nennt, ist
+         *    keine Aussage ueber die Farbe; "letzter Treffer gewinnt" bleibt
+         *    fuer echte Treffer unveraendert.
+         *
+         * Combines mit nur einem Register -- die Mehrheit des HUD, etwa
+         * G_CC_MODULATEIA_PRIM oder der Rupienzaehler -- ergeben in beiden
+         * Zeilen dieselbe Quelle und aendern sich dadurch nicht. */
+        struct RGBA *color = &white;       /* RGB   -Kanal, k == 0 */
+        struct RGBA *alpha_src = &white;   /* ALPHA -Kanal, k == 1 */
         
         //const int hack = (num_inputs > 1) * ((int)used_textures[0]);
         for (int j = 0; j < num_inputs; j++) {
             for (int k = 0; k < 1 + (use_alpha ? 1 : 0); k++) {
+                struct RGBA **dst = (k == 0) ? &color : &alpha_src;
+
                 switch (comb->shader_input_mapping[k][j]) {
                     case CC_PRIM:
-                        color = &rdp.prim_color;
+                        *dst = &rdp.prim_color;
                         break;
                     case CC_SHADE:
-                        color = &v_arr[i]->color;
+                        *dst = &v_arr[i]->color;
                         break;
                     case CC_ENV:
-                        color = &rdp.env_color;
+                        *dst = &rdp.env_color;
                         break;
                     /*
                     case CC_LOD:
@@ -4585,7 +4619,7 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
                         break;
                     }*/
                     default:
-                        color = &white;
+                        /* Kein Farbregister -- bisherige Wahl behalten. */
                         break;
                 }
                 /*@Note: should this be here ? */
@@ -4607,7 +4641,11 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
                 }*/
             }
         }
-        memcpy(&tri_buf[tri_num_vert].color, color, sizeof(struct RGBA));
+        tri_buf[tri_num_vert].color.r = color->r;
+        tri_buf[tri_num_vert].color.g = color->g;
+        tri_buf[tri_num_vert].color.b = color->b;
+        /* Alpha aus der ALPHA-Zeile, nicht aus der Quelle des RGB. */
+        tri_buf[tri_num_vert].color.a = alpha_src->a;
         tri_num_vert++;
     }
     gfx_scegu_draw_triangles_2d((float*)&tri_buf[0],0,1);

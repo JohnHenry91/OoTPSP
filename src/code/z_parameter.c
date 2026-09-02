@@ -32,6 +32,53 @@
 #pragma increment_block_number "gc-jp:128 gc-jp-ce:128 gc-jp-mq:128 gc-us:128 gc-us-mq:128 ntsc-1.0:128 ntsc-1.1:128" \
                                "ntsc-1.2:128"
 
+#if TARGET_PSP
+/* EINZELTEXTUR-FELDER STATT ZEIGERARITHMETIK IN parameter_static.
+ *
+ * Die Dekompilierung indiziert Ziffern als Versatz vom ersten Symbol:
+ * `(u8*)gCounterDigit0Tex + 8 * 16 * digit`. Auf dem N64 ist das exakt, weil
+ * alle elf Ziffern (0..9 und der Doppelpunkt) hintereinander im ROM-Segment
+ * 0x02 liegen und das Symbol nur ein Versatz IN dieses Segment ist.
+ *
+ * Hier ist parameter_static einkompiliert (Makefile.psp:502 haengt
+ * extracted/pal-1.0/assets/textures/parameter_static/parameter_static.c in den
+ * Build), also sind es einzelne C-Felder, und ihre Reihenfolge im Speicher
+ * bestimmt der Binder. GEMESSEN am gebauten ootpsp.elf mit psp-nm -- er legt
+ * sie in UMGEKEHRTER Deklarationsreihenfolge ab:
+ *
+ *     0x00733630  gCounterColonTex      <- im Quelltext ZULETZT deklariert
+ *     0x007336b0  gCounterDigit9Tex
+ *     ...
+ *     0x00733b30  gCounterDigit0Tex     <- im Quelltext ZUERST
+ *
+ * Der Versatz zeigt damit nicht auf Ziffer N, sondern um N*128 Byte NACH OBEN
+ * aus dem Ziffernblock heraus -- in die Navi-Beschriftungen. Dasselbe gilt fuer
+ * gAmmoDigit0Tex (Schrittweite 64) und fuer die leeren C-Tasten-Pfeile, die
+ * vanilla als `gButtonBackgroundTex + 32*32*(temp+1)` adressiert werden.
+ *
+ * Warum das bisher niemandem auffiel: Ziffer 0 ist der einzige Index, bei dem
+ * der Versatz null ist, und ein frischer Spielstand zeigt ueberall Nullen.
+ *
+ * oot-psp-z2442 loest es genauso (z_parameter.c, Zeilen 40, 59 und 2953): ein
+ * Feld mit den echten Symbolen, indiziert statt gerechnet. Das ist gegen jede
+ * Binderreihenfolge robust, nicht nur gegen die aktuelle. */
+static void* sCounterDigitTextures[] = {
+    gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
+    gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
+    gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex,
+};
+#define COUNTER_DIGIT_TEXTURE(digit) sCounterDigitTextures[(digit)]
+
+void* gAmmoDigitTextures[] = {
+    gAmmoDigit0Tex, gAmmoDigit1Tex, gAmmoDigit2Tex, gAmmoDigit3Tex, gAmmoDigit4Tex,
+    gAmmoDigit5Tex, gAmmoDigit6Tex, gAmmoDigit7Tex, gAmmoDigit8Tex, gAmmoDigit9Tex,
+};
+#define AMMO_DIGIT_TEXTURE(digit) gAmmoDigitTextures[(digit)]
+#else
+#define COUNTER_DIGIT_TEXTURE(digit) ((u8*)gCounterDigit0Tex + (8 * 16 * (digit)))
+#define AMMO_DIGIT_TEXTURE(digit) ((u8*)gAmmoDigit0Tex + (8 * 8 * (digit)))
+#endif
+
 typedef struct RestrictionFlags {
     /* 0x00 */ u8 sceneId;
     /* 0x01 */ u8 flags1;
@@ -2692,8 +2739,42 @@ void Magic_DrawMeter(PlayState* play) {
         OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gMagicMeterEndTex, 8, 16, R_MAGIC_METER_X, magicMeterY, 8, 16,
                                       1 << 10, 1 << 10);
 
+#if TARGET_PSP
+        /* Die Mitte der Magieleiste in Kacheln der Texturbreite zeichnen,
+         * statt eine 24 Pixel breite Textur auf magicCapacity (48 bzw. 96)
+         * Pixel zu wiederholen.
+         *
+         * Vanilla verlaesst sich auf G_TX_WRAP: die RDP laesst s ueber die
+         * Texturbreite hinauslaufen und faengt von vorn an. Die GE kann nur
+         * Zweierpotenzen abtasten, und gfx_scegu_upload_texture (gfx_scegu.c)
+         * STRECKT alles andere per Nachbarschaftsabtastung auf die naechste
+         * Zweierpotenz -- hier also 24 auf 32. Danach wiederholt GU_REPEAT im
+         * 32er-Raster ein Bild, dessen Inhalt auf 32 gedehnt ist; die Naht
+         * sitzt an der falschen Stelle und die Kachel ist verzerrt. Der
+         * Kommentar an gPspNonPow2Uploads sagt genau das voraus: "padding only
+         * works where the texture does not REPEAT".
+         *
+         * Jede Kachel ist hoechstens so breit wie die Textur, damit kommt der
+         * Pfad ohne Wiederholung aus. oot-psp-z2442 macht es genauso
+         * (z_parameter.c Zeile 2824). */
+        {
+            s16 midX = R_MAGIC_METER_X + 8;
+            s16 remainingWidth = gSaveContext.magicCapacity;
+
+            while (remainingWidth > 0) {
+                s16 chunkWidth = (remainingWidth < gMagicMeterMidTex_WIDTH) ? remainingWidth : gMagicMeterMidTex_WIDTH;
+
+                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gMagicMeterMidTex, gMagicMeterMidTex_WIDTH,
+                                              gMagicMeterMidTex_HEIGHT, midX, magicMeterY, chunkWidth,
+                                              gMagicMeterMidTex_HEIGHT, 1 << 10, 1 << 10);
+                midX += chunkWidth;
+                remainingWidth -= chunkWidth;
+            }
+        }
+#else
         OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gMagicMeterMidTex, 24, 16, R_MAGIC_METER_X + 8, magicMeterY,
                                       gSaveContext.magicCapacity, 16, 1 << 10, 1 << 10);
+#endif
 
         gDPLoadTextureBlock(OVERLAY_DISP++, gMagicMeterEndTex, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 16, 0,
                             G_TX_MIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 3, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -2803,6 +2884,17 @@ void Interface_DrawActionLabel(GraphicsContext* gfxCtx, void* texture) {
 
 void Interface_DrawItemButtons(PlayState* play) {
     static void* cUpLabelTextures[] = LANGUAGE_ARRAY(gNaviCUpJPNTex, gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpENGTex);
+#if TARGET_PSP
+    /* Siehe COUNTER_DIGIT_TEXTURE oben: `gButtonBackgroundTex + 32*32*(temp+1)`
+     * setzt die ROM-Reihenfolge voraus. Slot 0 bleibt leer, weil die Schleife
+     * unten bei temp == 1 anfaengt. */
+    static void* emptyCButtonTextures[] = {
+        NULL,
+        gEmptyCLeftArrowTex,
+        gEmptyCDownArrowTex,
+        gEmptyCRightArrowTex,
+    };
+#endif
 #if OOT_VERSION >= PAL_1_0
     static s16 startButtonLeftPos[] = { 132, 130, 130 };
 #endif
@@ -2968,7 +3060,13 @@ void Interface_DrawItemButtons(PlayState* play) {
                                 interfaceCtx->cRightAlpha);
             }
 
-            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gButtonBackgroundTex + ((32 * 32) * (temp + 1))), 32, 32,
+            OVERLAY_DISP = Gfx_TextureIA8(
+#if TARGET_PSP
+                OVERLAY_DISP, emptyCButtonTextures[temp],
+#else
+                OVERLAY_DISP, ((u8*)gButtonBackgroundTex + ((32 * 32) * (temp + 1))),
+#endif
+                32, 32,
                                           R_ITEM_BTN_X(temp), R_ITEM_BTN_Y(temp), R_ITEM_BTN_WIDTH(temp),
                                           R_ITEM_BTN_WIDTH(temp), R_ITEM_BTN_DD(temp) << 1, R_ITEM_BTN_DD(temp) << 1);
         }
@@ -3040,11 +3138,11 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         }
 
         if (i != 0) {
-            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * i)), 8, 8,
+            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, AMMO_DIGIT_TEXTURE(i), 8, 8,
                                           R_ITEM_AMMO_X(button), R_ITEM_AMMO_Y(button), 8, 8, 1 << 10, 1 << 10);
         }
 
-        OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * ammo)), 8, 8,
+        OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, AMMO_DIGIT_TEXTURE(ammo), 8, 8,
                                       R_ITEM_AMMO_X(button) + 6, R_ITEM_AMMO_Y(button), 8, 8, 1 << 10, 1 << 10);
     }
 
@@ -3203,6 +3301,23 @@ int gPspHudSegments = 1;
  * dasselbe Argument wie beim TransitionTile-Stub, der Erfolg meldet, ohne
  * etwas getan zu haben. Auf 999 stellen, sobald Abschnitt 7 geklaert ist. */
 int gPspHudStage = 6;
+
+/* Feineingrenzung INNERHALB von Abschnitt 7 (dem A-Knopf). Zaehlt, wie viele
+ * der sieben Teilschritte ausgefuehrt werden; der Rest des Abschnitts wird
+ * uebersprungen, ohne die Funktion zu verlassen -- anders als gPspHudStage,
+ * das per goto abbricht. Das ist Absicht: die Wiederherstellung des Vollbild-
+ * Viewports (func_8008A994) muss in JEDER Stufe laufen, sonst misst man sie
+ * mit statt den Teilschritt.
+ *
+ *   1  Gfx_SetupDL_42Overlay
+ *   2  func_8008A8B8  -- eigener 45x45-Viewport, perspektivisch
+ *   3  gSPClearGeometryMode(G_CULL_BOTH)
+ *   4  Combine + PrimColor (reiner Zustand)
+ *   5  Interface_DrawActionButton  -- zeichnet das Knopf-Viereck
+ *   6  zweiter func_8008A8B8 (Symbol) + Geometry/Combine/Prim/Env
+ *   7  Matrix + Vertices + Interface_DrawActionLabel
+ */
+int gPspHudAStage = 7;
 unsigned int gPspHudSegAddr[4];
 
 void Interface_Draw(PlayState* play) {
@@ -3316,13 +3431,13 @@ void Interface_Draw(PlayState* play) {
 
                     if (interfaceCtx->counterDigits[2] != 0) {
                         OVERLAY_DISP = Gfx_TextureI8(
-                            OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * interfaceCtx->counterDigits[2])), 8, 16,
+                            OVERLAY_DISP, COUNTER_DIGIT_TEXTURE(interfaceCtx->counterDigits[2]), 8, 16,
                             svar3, 190, 8, 16, 1 << 10, 1 << 10);
                         svar3 += 8;
                     }
 
                     OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP,
-                                                 ((u8*)gCounterDigit0Tex + (8 * 16 * interfaceCtx->counterDigits[3])),
+                                                 COUNTER_DIGIT_TEXTURE(interfaceCtx->counterDigits[3]),
                                                  8, 16, svar3, 190, 8, 16, 1 << 10, 1 << 10);
                 }
                 break;
@@ -3367,7 +3482,7 @@ void Interface_Draw(PlayState* play) {
 
         for (svar1 = 0, svar3 = 42; svar1 < svar4; svar1++, svar2++, svar3 += 8) {
             OVERLAY_DISP =
-                Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * interfaceCtx->counterDigits[svar2])), 8,
+                Gfx_TextureI8(OVERLAY_DISP, COUNTER_DIGIT_TEXTURE(interfaceCtx->counterDigits[svar2]), 8,
                               16, svar3, 206, 8, 16, 1 << 10, 1 << 10);
         }
 
@@ -3461,38 +3576,65 @@ void Interface_Draw(PlayState* play) {
             Interface_DrawAmmoCount(play, 3, interfaceCtx->cRightAlpha);
         }
 
-        if (gPspHudStage < 7) { goto hudEnd; }   /* A-Knopf (eigener Viewport!) */
         // A Button
-        Gfx_SetupDL_42Overlay(play->state.gfxCtx);
-        func_8008A8B8(play, R_A_BTN_Y, R_A_BTN_Y + 45, R_A_BTN_X, R_A_BTN_X + 45);
-        gSPClearGeometryMode(OVERLAY_DISP++, G_CULL_BOTH);
-        gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, R_A_BTN_COLOR(0), R_A_BTN_COLOR(1), R_A_BTN_COLOR(2),
-                        interfaceCtx->aAlpha);
-        Interface_DrawActionButton(play);
-        gDPPipeSync(OVERLAY_DISP++);
-        func_8008A8B8(play, R_A_ICON_Y, R_A_ICON_Y + 45, R_A_ICON_X, R_A_ICON_X + 45);
-        gSPSetGeometryMode(OVERLAY_DISP++, G_CULL_BACK);
-        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
-                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
-        gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
-        Matrix_Translate(0.0f, 0.0f, R_A_LABEL_Z(gSaveContext.language) / 10.0f, MTXMODE_NEW);
-        Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
-        Matrix_RotateX(interfaceCtx->unk_1F4 / 10000.0f, MTXMODE_APPLY);
-        MATRIX_FINALIZE_AND_LOAD(OVERLAY_DISP++, play->state.gfxCtx, "../z_parameter.c", 3701);
-        gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
+        if (gPspHudStage >= 7) {
+            if (gPspHudAStage >= 1) {
+                Gfx_SetupDL_42Overlay(play->state.gfxCtx);
+            }
+            if (gPspHudAStage >= 2) {
+                func_8008A8B8(play, R_A_BTN_Y, R_A_BTN_Y + 45, R_A_BTN_X, R_A_BTN_X + 45);
+            }
+            if (gPspHudAStage >= 3) {
+                gSPClearGeometryMode(OVERLAY_DISP++, G_CULL_BOTH);
+            }
+            if (gPspHudAStage >= 4) {
+                gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, R_A_BTN_COLOR(0), R_A_BTN_COLOR(1), R_A_BTN_COLOR(2),
+                                interfaceCtx->aAlpha);
+            }
+            if (gPspHudAStage >= 5) {
+                Interface_DrawActionButton(play);
+            }
+            if (gPspHudAStage >= 6) {
+                gDPPipeSync(OVERLAY_DISP++);
+                func_8008A8B8(play, R_A_ICON_Y, R_A_ICON_Y + 45, R_A_ICON_X, R_A_ICON_X + 45);
+                gSPSetGeometryMode(OVERLAY_DISP++, G_CULL_BACK);
+                gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                                  PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
+                gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
+            }
+            if (gPspHudAStage >= 7) {
+                Matrix_Translate(0.0f, 0.0f, R_A_LABEL_Z(gSaveContext.language) / 10.0f, MTXMODE_NEW);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+                Matrix_RotateX(interfaceCtx->unk_1F4 / 10000.0f, MTXMODE_APPLY);
+                MATRIX_FINALIZE_AND_LOAD(OVERLAY_DISP++, play->state.gfxCtx, "../z_parameter.c", 3701);
+                gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
 
-        if ((interfaceCtx->unk_1EC < 2) || (interfaceCtx->unk_1EC == 3)) {
-            Interface_DrawActionLabel(play->state.gfxCtx, interfaceCtx->doActionSegment);
-        } else {
-            Interface_DrawActionLabel(play->state.gfxCtx, interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE);
+                if ((interfaceCtx->unk_1EC < 2) || (interfaceCtx->unk_1EC == 3)) {
+                    Interface_DrawActionLabel(play->state.gfxCtx, interfaceCtx->doActionSegment);
+                } else {
+                    Interface_DrawActionLabel(play->state.gfxCtx, interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE);
+                }
+
+                gDPPipeSync(OVERLAY_DISP++);
+            }
         }
 
-        gDPPipeSync(OVERLAY_DISP++);
+        /* AUSSERHALB jeder Stufenschranke, und das ist der Punkt.
+         *
+         * func_8008A8B8 (oben, Stufe 7.2/7.6) ist die einzige Stelle der ganzen
+         * Funktion, die einen eigenen Viewport aufspannt -- 45x45 Pixel,
+         * perspektivisch. func_8008A994 ist die einzige, die den Vollbild-
+         * Viewport zurueckgibt. Solange die Rueckgabe hinter `gPspHudStage < 8`
+         * lag, hat Stufe 7 den kleinen Viewport gesetzt und NIE
+         * zurueckgenommen: die Messung "Stufe 7 macht das Bild schwarz" konnte
+         * gar nicht zwischen "der A-Knopf zeichnet falsch" und "der Viewport
+         * bleibt auf 45x45 stehen" unterscheiden. Genau der Unterschied wird
+         * hier gesucht, also darf er nicht in der Messvorrichtung stecken. */
+        func_8008A994(interfaceCtx);
 
         if (gPspHudStage < 8) { goto hudEnd; }   /* Rest */
-        func_8008A994(interfaceCtx);
 
         if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_3)) {
             // Inventory Equip Effects
@@ -3593,7 +3735,7 @@ void Interface_Draw(PlayState* play) {
                 for (svar1 = svar2 = 0; svar1 < 4; svar1++) {
                     if (sHBAScoreDigits[svar1] != 0 || (svar2 != 0) || (svar1 >= 3)) {
                         OVERLAY_DISP = Gfx_TextureI8(
-                            OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sHBAScoreDigits[svar1])), 8, 16, svar5,
+                            OVERLAY_DISP, COUNTER_DIGIT_TEXTURE(sHBAScoreDigits[svar1]), 8, 16, svar5,
                             (ZREG(15) - 2), sDigitWidths[0], VREG(42), VREG(43) << 1, VREG(43) << 1);
                         svar5 += 9;
                         svar2++;
@@ -4047,7 +4189,7 @@ void Interface_Draw(PlayState* play) {
 
                 for (svar1 = 0; svar1 < ARRAY_COUNT(sTimerDigits); svar1++) {
                     OVERLAY_DISP =
-                        Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sTimerDigits[svar1])), 8, 16,
+                        Gfx_TextureI8(OVERLAY_DISP, COUNTER_DIGIT_TEXTURE(sTimerDigits[svar1]), 8, 16,
                                       ((void)0, gSaveContext.timerX[timerId]) + timerDigitLeftPos[svar1],
                                       ((void)0, gSaveContext.timerY[timerId]), sDigitWidths[svar1], VREG(42),
                                       VREG(43) << 1, VREG(43) << 1);
