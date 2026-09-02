@@ -113,7 +113,8 @@ void KaleidoScopeCall_Update(void) {}
 void KaleidoSetup_Update(void) {}
 void Message_ContinueTextbox(void) {}
 void Message_Draw(void) {}
-void Message_GetState(void) {}
+/* Message_GetState: nach phase2_stubs.c hochgezogen -- ein void-Stub laesst v0
+ * stehen, und der Aufrufer liest das als Textzustand. Siehe dort. */
 void Message_SetTables(void) {}
 void Message_ShouldAdvance(void) {}
 void Message_StartTextbox(void) {}

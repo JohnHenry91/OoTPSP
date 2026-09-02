@@ -628,3 +628,188 @@ Standardmässig protokolliert PPSSPP `Bad memory access detected and ignored`
 und läuft weiter. Diese Zeilen im Log lesen, bevor irgendetwas anderes
 versucht wird; mit `IgnoreBadMemAccess = False` nennt der Emulator PC und
 Aufrufkette. Details in der Memory-Notiz `reference-ppsspp-bad-memory-access`.
+
+## SDK-Aufrufe mit geerbter Argumentbedeutung: gegen die INSTALLIERTE Bibliothek prüfen
+
+Der Port hat von sm64-port-psp geerbt:
+
+```c
+sceGuScissor(x, SCR_HEIGHT - y - height, x + width, SCR_HEIGHT - y);
+```
+
+Das war gegen eine ältere pspsdk-Fassung richtig, die `scissor_end = w - 1`
+rechnete — dort waren die letzten beiden Argumente faktisch `x2+1, y2+1`. Die
+**installierte** `libpspgu.a` rechnet aber:
+
+```
+a2 = a0 + a2 - 1     ->  scissor_end[0] = x + w - 1
+a3 = a1 + a3 - 1     ->  scissor_end[1] = y + h - 1
+```
+
+Die letzten beiden Argumente sind **Breite und Höhe**. Der geerbte Aufruf ist
+damit falsch — aber nur, wenn `x` oder `y` ungleich null sind. Für den
+Vollbild-Scissor `(0, 0, 480, 272)` sind beide Lesarten zahlengleich, deshalb
+fällt es jahrelang nicht auf. In OoT gibt es genau **einen** Teil-Scissor im
+ganzen Spiel: den A-Knopf (`func_8008A8B8`, 45×45 über `View_SetViewport`).
+
+**Methode:** nicht die Doku lesen, nicht den geklonten SDK-Quelltext lesen —
+die Bibliothek disassemblieren, gegen die tatsächlich gelinkt wird:
+
+```sh
+psp-ar x ~/pspdev/psp/sdk/lib/libpspgu.a sceGuScissor.o && psp-objdump -d sceGuScissor.o
+```
+
+Der geklonte `reference/pspsdk` kann eine andere Fassung sein als die
+installierte, und `pspgu.h` dokumentiert nur die Absicht, nicht das Verhalten.
+
+### Und der eigentliche Schaden: `sceGuScissor` setzt REGION1/REGION2 mit
+
+```c
+sendCommandi(SCISSOR1, orig);  sendCommandi(SCISSOR2, end);
+sendCommandi(REGION1, 0);      sendCommandi(REGION2, end);
+```
+
+Die **Region** ist die Zeichenfläche des Framebuffers, kein Ausschnitt. Sie darf
+mit einem Teil-Scissor nicht mitwandern: PPSSPP leitet aus ihr die
+Framebuffergröße ab (`EstimateDrawingSize`) und ordnet bei abweichender Region
+einen anderen Framebuffer zu. Das Bild ist dann **komplett leer — auch alles,
+was vorher in derselben GE-Liste schon gezeichnet wurde.** Das sieht aus wie
+„ein Befehl am Ende löscht rückwirkend das Bild" oder „die GE-Liste stirbt",
+ist aber nur die Framebuffer-Zuordnung des Emulators.
+
+Vier gemessene Blicke auf dieselbe Szene, nach Regionsgröße sortiert:
+
+| Region | Bild |
+|---|---|
+| 625×471 | schwarz |
+| 625×73 | schwarz |
+| 346×62 | schwarz |
+| 346×261 | **da** |
+
+Der Scissor war in den beiden 346er-Fällen gleich groß — nur die Region
+unterschied sie. **Fix:** nach jedem Scissor die Region wieder auf den vollen
+Bildschirm setzen (`sceGuSendCommandi(0x15, 0)` / `(0x16, ((h-1)<<10)|(w-1))`).
+
+### Methodische Lehre: ein Schalter, der zwei Dinge zugleich repariert
+
+`gPspVpForceFull` sollte den Viewport isolieren, überschrieb aber
+`x/y/width/height` **vor beiden** Aufrufen — also auch vor dem Scissor. „Bild da
+mit ForceFull, schwarz ohne" wurde deshalb als „der Viewport-Befehl ist schuld"
+gelesen, obwohl der Schalter Viewport *und* Scissor/Region zugleich reparierte.
+Dieselbe Falle wie die Stufenschaltung, die `func_8008A994` mit einschloss.
+**Vor dem Glauben an eine Messung prüfen, was der Schalter sonst noch anfasst.**
+
+### `rdp.viewport.y` zählt von UNTEN
+
+Naheliegender Fehlschluss beim Aufräumen: X wird als `2048 - w/2 + x + width/2`
+gerechnet (von links), Y als `2048 + h/2 - y - height/2` (von unten) — das sieht
+nach einem Dreher aus und ist bei Vollbild unfalsifizierbar (`272-0-136 ==
+0+136`). Es ist aber richtig: `gfx_pc.c` rechnet in
+`gfx_calc_and_set_viewport` bereits
+
+```c
+float y = SCREEN_HEIGHT - ((viewport->vtrans[1] / 4.0f) + height / 2.0f);
+```
+
+also die OpenGL-Konvention, für die `gfx_opengl` geschrieben wurde. Mit
+„korrigiertem" Y landet der A-Knopf unten statt oben rechts.
+
+## `void X(void) {}` als Stub für eine Funktion, die einen Wert zurückgibt
+
+Die dritte Ausprägung der Stub-Falle (nach „NULL-Argument" und „Aufrufer
+übergibt Argumente"): der Stub schreibt `v0` nicht, also liest der Aufrufer den
+**Restwert des vorherigen Aufrufs**. Kein Absturz, keine Warnung — nur ein
+Vergleich, der jedes Frame das Falsche sagt.
+
+Gefunden an `Message_GetState`. `phase2_stubs_gen.c` hatte:
+
+```c
+void Message_GetState(void) {}
+```
+
+Gemessen gab es **−1** zurück. Damit war in `Player_UpdateInterface`
+
+```c
+if ((Message_GetState(&play->msgCtx) == TEXT_STATE_NONE) && (this->actor.category == ACTORCAT_PLAYER))
+```
+
+immer falsch, der gesamte Block wurde übersprungen, `Interface_SetDoAction` nie
+gerufen — auf dem A-Knopf stand für immer die Beschriftung aus
+`Interface_Init`. **386 Aufrufstellen** im Spiel lesen diesen Wert.
+
+**Regel:** ein `void`-Stub ist nur dann sicher, wenn der Aufrufer *weder*
+Argumente übergibt *noch* einen Rückgabewert liest. Sonst die echte Signatur
+schreiben und einen Wert zurückgeben, der die Wahrheit sagt — hier
+`TEXT_STATE_NONE`, denn ohne Nachrichtensystem ist nie eine Textbox offen.
+
+**So findet man die übrigen** (es waren 13 weitere, u.a. `Message_ShouldAdvance`
+mit 288 Aufrufen und `DamageTable_Get`, das einen *Zeiger* zurückgibt):
+
+```sh
+# Namen der void-Stubs holen, echte Signatur in include/ und src/ nachschlagen,
+# Aufrufhäufigkeit im Disassembly zählen:
+psp-objdump -d ootpsp.elf | grep -c "jal.*<NAME>"
+```
+
+### Zwei Sonden, die in diesem Fall gelogen haben
+
+* **Ein Symbolname ist bei -O2 keine verlässliche Breakpoint-Sonde.** Der
+  Breakpoint auf `Player_UpdateInterface` traf nie, obwohl der Code lief: GCC
+  hatte per *partial inlining* aufgespalten, der echte Rumpf lag in
+  `Player_UpdateInterface.part.0`. Bei „Funktion wird nicht erreicht" erst
+  `psp-nm | grep '\.part\.'` und `psp-objdump -d | grep 'jal.*<name>'` fragen —
+  **null `jal` auf ein existierendes Symbol heißt „inline", nicht „tot".**
+* **Ein plausibler Pufferinhalt ist kein Beweis, dass er geladen wurde.** Slot 1
+  von `doActionSegment` enthielt „Check", was wie erfolgreiches Nachladen aussah.
+  In Wirklichkeit lädt `z_construct.c` beim Start `2 * DO_ACTION_TEX_SIZE` am
+  Stück — Slot 1 bekommt die im ROM folgende Textur geschenkt.
+
+## `SEGMENTED_TO_VIRTUAL` auf ein EINKOMPILIERTES Symbol: stiller Überschreiber
+
+Auf N64 sind Asset-Symbole Segment-Adressen. `gAttackDoActionENGTex` liegt in
+`do_action_static`, also in Segment 7, mit Offset 0. Das Original nutzt das:
+
+```c
+gSegments[7] = OS_K0_TO_PHYSICAL(interfaceCtx->doActionSegment);
+func_80086D5C(SEGMENTED_TO_VIRTUAL(sDoActionTextures[loadOffset]), DO_ACTION_TEX_SIZE / 4);
+```
+
+`SEGMENTED_TO_VIRTUAL` löst gegen `gSegments[7]` auf und trifft damit genau
+Slot 0 bzw. Slot 1 des Puffers — die Funktion **nullt den Puffer**. Elegant,
+und auf N64 richtig.
+
+In diesem Port sind dieselben Symbole **einkompilierte echte Adressen**
+(`0x08C3A910`). Dann gilt:
+
+```
+SEGMENT_NUMBER(0x08C3A910) = 8        gSegments[8] = 0
+```
+
+und `PspSegmentedToVirtualDefensive` reicht bei `segBase == 0` die Adresse
+**unverändert** durch. `func_80086D5C` nullt also nicht den Puffer, sondern
+**die einkompilierte Textur selbst**, mitten im `.data`-Segment.
+
+Am laufenden Spiel nachgemessen — das ist der Beweis, nicht die Herleitung:
+
+```
+gAttackDoActionENGTex     0 / 384 Bytes ungleich null   <-- GENULLT
+gCheckDoActionENGTex      0 / 384                       <-- GENULLT
+gSpeakDoActionENGTex    148 / 384   intakt
+gReturnDoActionENGTex   171 / 384   intakt
+```
+
+Genau die zwei Einträge aus `sDoActionTextures[]`, kein anderer. Sichtbare
+Folge war nur, dass `DO_ACTION_NONE` die Beschriftung nie leerte (der A-Knopf
+blendete von „Attack" auf „Attack") — der Schaden am `.data`-Segment war
+unsichtbar.
+
+**Regel:** wo das Original ein Asset-Symbol durch `SEGMENTED_TO_VIRTUAL` schickt,
+ist der Aufruf in diesem Port nur dann noch richtig, wenn das Symbol wirklich
+segmentiert ist. Bei einkompilierten Assets die Zieladresse **direkt** ausrechnen
+(hier: `doActionSegment + loadOffset * DO_ACTION_TEX_SIZE`).
+
+**Blinder Fleck der Diagnose:** `PspSegmentedToVirtualDefensive` zählt den
+Native-8/9-Fall (`gPspSegVirtNative8/9`) und den mehrdeutigen Bereich
+(`gPspSegVirtAmbiguous8/9`), aber der Zweig `segBase == 0` gibt **ungezählt**
+durch — und genau der hat hier zugeschlagen. Ein Zähler dort würde jede weitere
+Stelle dieser Art sofort sichtbar machen.

@@ -4,6 +4,7 @@
  * as the linker reports what is actually referenced. */
 #include "ultra64.h"
 #include "play_state.h"
+#include "message.h"
 
 /* Real def: src/code/z_demo.c (the cutscene system, not ported). Referenced by
  * the real src/code/z_kankyo.c, which sets it in Environment_Init. Nothing
@@ -88,6 +89,35 @@ void Cutscene_StartManual(struct PlayState* play, CutsceneContext* csCtx) {
 void Cutscene_StopManual(struct PlayState* play, CutsceneContext* csCtx) {
     (void)play;
     (void)csCtx;
+}
+
+/* Real def: src/code/z_message.c (das Nachrichtensystem ist nicht im Build).
+ *
+ * Stand vorher als `void Message_GetState(void) {}` in phase2_stubs_gen.c --
+ * und DAS war ein echter Fehler, kein harmloser Platzhalter: ein void-Stub
+ * schreibt v0 nicht, der Aufrufer liest also den Restwert des vorigen Aufrufs.
+ * Gemessen wurde -1. Die Folge:
+ *
+ *     if ((Message_GetState(&play->msgCtx) == TEXT_STATE_NONE) && ...)
+ *
+ * in Player_UpdateInterface war JEDES Frame falsch, der ganze Block wurde
+ * uebersprungen, Interface_SetDoAction nie gerufen -- und auf dem A-Knopf stand
+ * fuer immer die Beschriftung aus Interface_Init ("Attack").
+ *
+ * TEXT_STATE_NONE ist die ehrliche Antwort, solange es kein Nachrichtensystem
+ * gibt: es ist nie eine Textbox offen. 386 Aufrufstellen im Spiel lesen diesen
+ * Wert; sie alle bekamen bisher Muell.
+ *
+ * Die eigentliche Loesung waere z_message.c im Build. Bis dahin ist das hier
+ * die richtige Antwort und nicht nur die bequeme.
+ *
+ * Dieselbe Falle wie Message_CloseTextbox weiter unten und wie der
+ * Bruecken-Glitch aus Hardware-Sitzung 3 -- dort waren es Argumente, hier ist
+ * es der Rueckgabewert. Ein `void`-Stub ist nur dann sicher, wenn der Aufrufer
+ * WEDER Argumente uebergibt NOCH einen Rueckgabewert liest. */
+u8 Message_GetState(MessageContext* msgCtx) {
+    (void)msgCtx;
+    return TEXT_STATE_NONE;
 }
 
 /* Real def: src/code/z_message.c (the message system is not in the build; the

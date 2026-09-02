@@ -1,3 +1,8 @@
+#if TARGET_PSP
+/* gfx_pc.h laesst sich hier nicht einbinden (Typreihenfolge), und mehr als
+ * diese eine Funktion wird nicht gebraucht. */
+extern void gfx_texture_cache_invalidate_range(const void* addr, unsigned int size);
+#endif
 #include "map.h"
 #include "printf.h"
 #include "regs.h"
@@ -90,6 +95,9 @@ void Interface_Init(PlayState* play) {
     DMA_REQUEST_SYNC(interfaceCtx->doActionSegment, (uintptr_t)_do_action_staticSegmentRomStart + doActionOffset,
                      2 * DO_ACTION_TEX_SIZE, "../z_construct.c", 174);
 #if TARGET_PSP
+    gfx_texture_cache_invalidate_range(interfaceCtx->doActionSegment, 2 * DO_ACTION_TEX_SIZE);
+#endif
+#if TARGET_PSP
     { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 31); }
 #endif
 
@@ -112,6 +120,9 @@ void Interface_Init(PlayState* play) {
     DMA_REQUEST_SYNC(interfaceCtx->doActionSegment + 2 * DO_ACTION_TEX_SIZE,
                      (uintptr_t)_do_action_staticSegmentRomStart + doActionOffset, DO_ACTION_TEX_SIZE,
                      "../z_construct.c", 178);
+#if TARGET_PSP
+    gfx_texture_cache_invalidate_range(interfaceCtx->doActionSegment + 2 * DO_ACTION_TEX_SIZE, DO_ACTION_TEX_SIZE);
+#endif
 #if TARGET_PSP
     { extern void PspDebugLogPlaySpawn(s32, s32, void*, u32); PspDebugLogPlaySpawn(0, 0, NULL, 32); }
 #endif

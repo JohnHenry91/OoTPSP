@@ -1,4 +1,10 @@
 #include "array_count.h"
+#if TARGET_PSP
+/* gfx_pc.h laesst sich hier nicht einbinden (Typreihenfolge), und mehr als
+ * diese eine Funktion wird nicht gebraucht. */
+extern void gfx_texture_cache_invalidate_range(const void* addr, unsigned int size);
+extern int gPspDoActDiag[8];
+#endif
 #include "attributes.h"
 #include "controller.h"
 #include "flag_set.h"
@@ -2179,10 +2185,17 @@ void func_80086D5C(s32* buf, u16 size) {
 }
 
 void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 loadOffset) {
+    gPspDoActDiag[3]++;
+    gPspDoActDiag[4] = loadOffset;
+#if !TARGET_PSP
+    /* Nur der N64-Pfad braucht diese Tabelle: sie liefert die Segment-7-Adresse,
+     * ueber die das Original den Puffer leert. Der PSP-Zweig weiter unten nullt
+     * den Slot direkt -- siehe die Begruendung dort. */
 #if OOT_NTSC
     static void* sDoActionTextures[] = { gAttackDoActionJPNTex, gCheckDoActionJPNTex };
 #else
     static void* sDoActionTextures[] = { gAttackDoActionENGTex, gCheckDoActionENGTex };
+#endif
 #endif
 
     if (action >= DO_ACTION_MAX) {
@@ -2212,9 +2225,44 @@ void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 l
                           (uintptr_t)_do_action_staticSegmentRomStart + (action * DO_ACTION_TEX_SIZE),
                           DO_ACTION_TEX_SIZE, 0, &interfaceCtx->loadQueue, NULL, "../z_parameter.c", 2145);
         osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+#if TARGET_PSP
+        /* Derselbe Puffer, neuer Inhalt -- der Texturcache ist ueber die
+         * QUELLADRESSE geschluesselt und wuerde die alte Beschriftung
+         * weiterliefern. Ohne das steht auf dem A-Knopf fuer immer die
+         * Beschriftung aus Interface_Init ("Attack"). Gleiche Ursache wie beim
+         * Himmel, siehe gfx_texture_cache_invalidate_range(). */
+        gfx_texture_cache_invalidate_range(interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE),
+                                           DO_ACTION_TEX_SIZE);
+#endif
     } else {
+#if TARGET_PSP
+        /* DO_ACTION_NONE: die Beschriftung wird geleert, nicht geladen.
+         *
+         * Das Original tut das ueber einen Umweg, der hier bricht:
+         * sDoActionTextures[] sind auf N64 SEGMENT-7-Adressen (Offset 0 bzw.
+         * 384 in do_action_static), und mit gSegments[7] = doActionSegment
+         * zeigt SEGMENTED_TO_VIRTUAL genau auf Slot 0 bzw. Slot 1 -- es nullt
+         * also den Puffer. In diesem Port sind es EINKOMPILIERTE echte
+         * Adressen. SEGMENT_NUMBER liefert dafuer 8, gSegments[8] ist 0, und
+         * PspSegmentedToVirtualDefensive reicht die Adresse dann unveraendert
+         * durch. func_80086D5C nullt damit die einkompilierte Textur SELBST.
+         *
+         * Am laufenden Spiel gemessen: gAttackDoActionENGTex und
+         * gCheckDoActionENGTex standen beide auf 0 von 384 Bytes, waehrend
+         * gSpeak/gReturn intakt waren. Ein stiller Ueberschreiber im
+         * .data-Segment -- und weil der Puffer unangetastet bleibt, leert
+         * DO_ACTION_NONE die Beschriftung nie: der A-Knopf blendet von
+         * "Attack" auf "Attack" um (user-beobachtet).
+         *
+         * Hier also direkt den Slot nullen, was die Absicht des Originals ist. */
+        func_80086D5C((s32*)(interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE)),
+                      DO_ACTION_TEX_SIZE / 4);
+        gfx_texture_cache_invalidate_range(interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE),
+                                           DO_ACTION_TEX_SIZE);
+#else
         gSegments[7] = OS_K0_TO_PHYSICAL(interfaceCtx->doActionSegment);
         func_80086D5C(SEGMENTED_TO_VIRTUAL(sDoActionTextures[loadOffset]), DO_ACTION_TEX_SIZE / 4);
+#endif
     }
 }
 
@@ -2222,7 +2270,11 @@ void Interface_SetDoAction(PlayState* play, u16 action) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     PauseContext* pauseCtx = &play->pauseCtx;
 
+    gPspDoActDiag[0]++;
+    gPspDoActDiag[1] = action;
+
     if (interfaceCtx->unk_1F0 != action) {
+        gPspDoActDiag[2]++;
         interfaceCtx->unk_1F0 = action;
         interfaceCtx->unk_1EC = 1;
         interfaceCtx->unk_1F4 = 0.0f;
@@ -2275,6 +2327,9 @@ void Interface_LoadActionLabelB(PlayState* play, u16 action) {
                       (uintptr_t)_do_action_staticSegmentRomStart + (action * DO_ACTION_TEX_SIZE), DO_ACTION_TEX_SIZE,
                       0, &interfaceCtx->loadQueue, NULL, "../z_parameter.c", 2228);
     osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+#if TARGET_PSP
+    gfx_texture_cache_invalidate_range(interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE, DO_ACTION_TEX_SIZE);
+#endif
 
     interfaceCtx->unk_1FA = true;
 }
@@ -3300,7 +3355,15 @@ int gPspHudSegments = 1;
  * schwarzes Bild liefert, waere schlimmer als ein fehlender A-Knopf --
  * dasselbe Argument wie beim TransitionTile-Stub, der Erfolg meldet, ohne
  * etwas getan zu haben. Auf 999 stellen, sobald Abschnitt 7 geklaert ist. */
-int gPspHudStage = 6;
+int gPspHudStage = 999;
+
+/* Diagnose fuer die A-Knopf-Beschriftung ("steht immer Attack").
+ * [0] Aufrufe Interface_SetDoAction   [1] zuletzt uebergebene action
+ * [2] davon mit NEUEM Wert (also die, die wirklich laden)
+ * [3] Aufrufe Interface_LoadActionLabel  [4] letzter loadOffset
+ * [5] unk_1EC beim Zeichnen  [6] unk_1F0 beim Zeichnen
+ * [7] wie oft der switch(unk_1EC) case 2 erreicht hat (Slot 0 wird nachgeladen) */
+int gPspDoActDiag[8] = { 0 };
 
 /* Feineingrenzung INNERHALB von Abschnitt 7 (dem A-Knopf). Zaehlt, wie viele
  * der sieben Teilschritte ausgefuehrt werden; der Rest des Abschnitts wird
@@ -3640,6 +3703,8 @@ void Interface_Draw(PlayState* play) {
                 MATRIX_FINALIZE_AND_LOAD(OVERLAY_DISP++, play->state.gfxCtx, "../z_parameter.c", 3701);
                 gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
 
+                gPspDoActDiag[5] = interfaceCtx->unk_1EC;
+                gPspDoActDiag[6] = interfaceCtx->unk_1F0;
                 if ((interfaceCtx->unk_1EC < 2) || (interfaceCtx->unk_1EC == 3)) {
                     Interface_DrawActionLabel(play->state.gfxCtx, interfaceCtx->doActionSegment);
                 } else {
@@ -4520,6 +4585,7 @@ void Interface_Update(PlayState* play) {
             if (interfaceCtx->unk_1F4 >= 0.0f) {
                 interfaceCtx->unk_1F4 = 0.0f;
                 interfaceCtx->unk_1EC = 0;
+                gPspDoActDiag[7]++;
                 interfaceCtx->unk_1EE = interfaceCtx->unk_1F0;
                 action = interfaceCtx->unk_1EE;
                 if ((action == DO_ACTION_MAX) || (action == DO_ACTION_MAX + 1)) {
