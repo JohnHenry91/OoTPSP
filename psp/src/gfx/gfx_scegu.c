@@ -382,6 +382,15 @@ static bool gfx_scegu_z_is_from_0_to_1(void) {
 uint32_t gPspFlatBinds;
 uint32_t gPspFlatTfx, gPspFlatTcc;
 uint32_t gPspFlatRgbBinds;
+
+/* Sonde fuer die PRIM/ENV-LERP-Form (Herzen, Kokiri-Staubkoerner, ...): siehe
+ * gfx_scegu_apply_shader. Cumulative binds + the last shader_id/mode/tcc/mix
+ * seen, so one debugger read says whether the shape is recognised at all and
+ * what it renders as. */
+uint32_t gPspPrimEnvLerpBinds;
+uint32_t gPspPrimEnvLerpShaderId;
+uint32_t gPspPrimEnvLerpTfx, gPspPrimEnvLerpTcc;
+uint32_t gPspPrimEnvLerpMix;
 uint32_t gPspTccRgbNoAlphaOpt;
 uint32_t gPspTccRgbNoTexelRow;
 uint32_t gPspTccRgbaOk;
@@ -835,6 +844,20 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
             gPspFlatTcc = (uint32_t)tcc;
         }
 
+        /* Sonde fuer die "weiss statt Farbe"-Serie (Herzen, Triforce,
+         * Warp-Glut, ...): faengt JEDEN Bind ab, dessen Operanden die
+         * PRIM/ENV-LERP-Form is_prim_env_lerp_combine() erfuellen, egal aus
+         * welcher Szene. Haelt shader_id, gewaehlten TFX-Modus und tcc fest,
+         * damit ein einziger Debugger-Read sagt, ob die Form ueberhaupt
+         * erkannt wird und was die GE daraus macht. */
+        if (is_prim_env_lerp_combine(prg)) {
+            gPspPrimEnvLerpBinds++;
+            gPspPrimEnvLerpShaderId = prg->shader_id;
+            gPspPrimEnvLerpTfx = (uint32_t)mode;
+            gPspPrimEnvLerpTcc = (uint32_t)tcc;
+            gPspPrimEnvLerpMix = (uint32_t)prg->mix;
+        }
+
         sceGuTexFunc(mode, tcc);
         mode_override = -1;
     }
@@ -853,7 +876,15 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
  * `mode_override` is reset whenever a shader is (re)applied, since that path
  * issues its own sceGuTexFunc and would otherwise leave this cache stale. */
 void gfx_scegu_set_two_texture_tint(int has_tint) {
-    if (cur_shader == NULL || cur_shader->mix != SH_MT_TEXTURE_TEXTURE) {
+    if (cur_shader == NULL) {
+        return;
+    }
+    /* has_tint == 2 is the cycle-2 two-register LERP (gfx_pc.c's cyc2_lerp).
+     * Unlike the REPLACE/MODULATE question it is not confined to two-texture
+     * combines -- gGiHeartPieceDL carries the shape over a single-texture
+     * cycle 1 in its second half -- so only the 0/1 answers keep the mix
+     * guard. */
+    if (has_tint != 2 && cur_shader->mix != SH_MT_TEXTURE_TEXTURE) {
         return;
     }
     /* The boot logo has its own approximation, don't disturb it. */
@@ -861,7 +892,8 @@ void gfx_scegu_set_two_texture_tint(int has_tint) {
         return;
     }
 
-    const int mode = has_tint ? GU_TFX_MODULATE : GU_TFX_REPLACE;
+    const int mode = (has_tint == 2) ? GU_TFX_BLEND
+                   : (has_tint ? GU_TFX_MODULATE : GU_TFX_REPLACE);
 
     if (mode != mode_override) {
         mode_override = mode;

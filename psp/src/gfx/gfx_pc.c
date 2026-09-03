@@ -358,6 +358,33 @@ static struct RDP {
      * 2-cycle mode (see its use next to alpha_src in gfx_sp_tri1). */
     bool combine_cyc2_alpha_is_prim;
 
+    /* Cycle 2's RGB row read as a genuine LERP BETWEEN TWO COLOUR REGISTERS,
+     * (HI - LO) * COMBINED + LO -- not the plain multiply combine_cyc2_tint
+     * above recovers. CC_PRIM / CC_ENV, or CC_0 in _hi for "not this shape".
+     *
+     * The N64 idiom for "the texture is a one-dimensional ramp between two
+     * colours": cycle 1 produces a grey value out of the texture(s) and cycle 2
+     * uses it as the interpolation fraction. gGiHeartPieceDL is exactly this --
+     * PRIM (255,0,100) and ENV (100,0,50), two shades of the same red -- so
+     * dropping cycle 2 leaves the bare intensity texture behind, which is the
+     * grey/white centre that was reported. combine_cycle2_tint cannot cover it:
+     * its `d` operand must be a genuine zero, and here it is ENVIRONMENT.
+     *
+     * The GE reproduces this exactly, no approximation: GU_TFX_BLEND computes
+     *     out = Cvertex * (1 - Ct) + Ctexenv * Ct
+     * so LO in the vertex colour and HI in the tex-env colour IS the formula.
+     * That is the same identity is_prim_env_lerp_combine already exploits for
+     * the Kokiri dust motes, which carry the shape in cycle 1 instead. */
+    uint8_t combine_cyc2_lerp_hi, combine_cyc2_lerp_lo;
+    /* Cycle 2's ALPHA row is (COMBINED - 0) * PRIMITIVE + 0, with cycle 1's
+     * alpha coming from the texture (as opposed to the constant-1 cycle 1 that
+     * combine_cyc2_alpha_is_prim insists on). The finished alpha is then
+     * texelAlpha * PRIM.a, which is precisely what BLEND's own alpha rule
+     * (Avertex * Atexture) gives once PRIM's alpha sits in the vertex. Only
+     * consulted alongside combine_cyc2_lerp_hi, so it cannot disturb the
+     * materials the older flag governs. */
+    bool combine_cyc2_alpha_mul_prim;
+
     struct RGBA env_color, prim_color, fog_color, fill_color;
     struct XYWidthHeight viewport, scissor;
     bool viewport_or_scissor_changed;
@@ -1221,6 +1248,13 @@ float gPspBigTriArea2Prev;
  * Cumulative rather than per-frame so one debugger read answers the question. */
 uint32_t gPspLerp2Detected;
 uint32_t gPspLerp2Draws;
+#if TARGET_PSP
+/* Zwei feste Slots (Kern/Rand), gefiltert auf gGiHeartPieceDL's PRIM-Farben --
+ * siehe die Sonde in gfx_sp_tri1. [0]=cyc2_lerp [1]=tint [2]=hi [3]=lo
+ * [4]=combine_c0_raw [5]=prim_color packed [6]=used_textures[0]|[1]<<1
+ * [7]=LOADED_TEX(0).addr low 32 bit. */
+uint32_t gPspHeartProbe[2][8];
+#endif
 /* The mix factor most recently used, and which RDP operand it came from --
  * the pair that says whether the right source is being read. */
 uint32_t gPspLerp2LastMix;
@@ -3439,23 +3473,82 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
      * which under MODULATE blacks out the entire market. The Chamber of the
      * Sages waterfalls (cycle 2 = COMBINED * SHADE) need MODULATE or they lose
      * the blue and render as white pillars. */
-    if (used_textures[0] && used_textures[1]) {
-        const int tint = (rdp.combine_cyc2_tint != CC_0 &&
-                          (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ? 1 : 0;
+    /* Cycle 2 as a LERP between two colour registers (see combine_cyc2_lerp_hi).
+     * A THIRD texenv answer next to REPLACE/MODULATE, and it outranks both:
+     * where it matches, the material's whole colour comes out of cycle 2, so
+     * neither passing the texel through nor tinting it can produce it. Gated on
+     * 2-cycle mode for the same reason combine_cyc2_tint is -- in 1-cycle the
+     * second operand set is unused and the SetCombineMode macros merely repeat
+     * cycle 1 there. */
+    const bool cyc2_lerp = (rdp.combine_cyc2_lerp_hi != CC_0 &&
+                            (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE);
+
+    if (cyc2_lerp || (used_textures[0] && used_textures[1])) {
+        const int tint = cyc2_lerp ? 2
+                       : ((rdp.combine_cyc2_tint != CC_0 &&
+                           (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ? 1 : 0);
 
         if (tint != rendering_state.two_texture_tint) {
             gfx_flush();
             gfx_scegu_set_two_texture_tint(tint);
             rendering_state.two_texture_tint = tint;
         }
+#if TARGET_PSP
+        /* Sonde fuer gGiHeartPieceDL, gezielt: der Ringpuffer-Vorlaeufer lief
+         * in 166003 Treffern voll (Skybox nutzt dieselbe Zwei-Textur-Form
+         * jeden Frame etliche Male), acht Slots waren also immer die
+         * Skybox, nie das Herzteil. Stattdessen zwei FESTE Slots, gefiltert
+         * auf genau die zwei PRIM-Farben aus gGiHeartPieceDL.inc.c (Kern
+         * 255,0,100 / Rand 170,255,255) -- die werden von nichts anderem in
+         * dieser Szene getroffen, damit ueberschreiben nur die zwei echten
+         * Aufrufe ihren jeweiligen Slot, egal wie oft die Skybox dazwischen
+         * feuert. */
+        {
+            extern uint32_t gPspHeartProbe[2][8];
+            int idx = -1;
+            if (rdp.prim_color.r > 240 && rdp.prim_color.g < 15 && rdp.prim_color.b > 80 && rdp.prim_color.b < 120) {
+                idx = 0; /* core */
+            } else if (rdp.prim_color.r > 150 && rdp.prim_color.r < 190 &&
+                       rdp.prim_color.g > 240 && rdp.prim_color.b > 240) {
+                idx = 1; /* border */
+            }
+            if (idx >= 0) {
+                uint32_t *slot = gPspHeartProbe[idx];
+                slot[0] = cyc2_lerp ? 1 : 0;
+                slot[1] = (uint32_t)tint;
+                slot[2] = rdp.combine_cyc2_lerp_hi;
+                slot[3] = rdp.combine_cyc2_lerp_lo;
+                slot[4] = (uint32_t)rdp.combine_c0_raw;
+                slot[5] = (uint32_t)rdp.prim_color.a << 24 | (uint32_t)rdp.prim_color.b << 16 |
+                          (uint32_t)rdp.prim_color.g << 8 | (uint32_t)rdp.prim_color.r;
+                slot[6] = (used_textures[0] ? 1u : 0u) | (used_textures[1] ? 2u : 0u);
+                slot[7] = (uint32_t)(uintptr_t)LOADED_TEX(0).addr;
+            }
+        }
+#endif
     }
 
     /* The PRIM/ENV LERP carries PRIM in the tex-env colour, and PRIM changes
      * per draw (each dust mote sets its own). Same shape as the tint above:
      * only when it actually changed, and behind a flush, since the buffered
-     * triangles were built against the previous value. */
-    if ((gfx_scegu_shader_is_prim_env_lerp() || gfx_scegu_shader_is_flat_colour()) &&
-        gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
+     * triangles were built against the previous value.
+     *
+     * The cycle-2 LERP wants the same register in the same place, except that
+     * WHICH register is the far end is read off the combine rather than assumed
+     * to be PRIM -- gGiHeartPieceDL's two draws disagree about it. */
+    if (cyc2_lerp) {
+        const struct RGBA *hi = cc_operand_color(rdp.combine_cyc2_lerp_hi, NULL);
+        const uint32_t packed = hi == NULL ? 0xFFFFFFFFu
+                              : ((uint32_t)hi->a << 24 | (uint32_t)hi->b << 16 |
+                                 (uint32_t)hi->g << 8 | (uint32_t)hi->r);
+
+        if (packed != rendering_state.lerp_prim_color) {
+            gfx_flush();
+            gfx_scegu_set_lerp_prim_color(packed);
+            rendering_state.lerp_prim_color = packed;
+        }
+    } else if ((gfx_scegu_shader_is_prim_env_lerp() || gfx_scegu_shader_is_flat_colour()) &&
+               gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
         gfx_flush();
         gfx_scegu_set_lerp_prim_color(gRdpPrimColorPacked);
         rendering_state.lerp_prim_color = gRdpPrimColorPacked;
@@ -4187,6 +4280,21 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             }
         }
 
+        /* Cycle 2 as a two-register LERP: the vertex carries the NEAR end (LO)
+         * and gfx_scegu_set_lerp_prim_color above put the far end (HI) in the
+         * tex-env colour, so GU_TFX_BLEND's Cv*(1-Ct) + Ctev*Ct is the combine
+         * itself. Written last, over whatever the input loop and the two blocks
+         * above decided: for this shape cycle 1 contributes only the fraction,
+         * and anything of it that reached the vertex colour would tint a result
+         * that the N64 leaves untinted. */
+        if (cyc2_lerp) {
+            const struct RGBA *lo = cc_operand_color(rdp.combine_cyc2_lerp_lo, clipped_vertices[i]);
+
+            if (lo != NULL) {
+                color = lo;
+            }
+        }
+
 #if TARGET_PSP
         if (psp_is_probe_tri) {
             /* Magenta: nothing in OoT's palette is near it, so the highlighted
@@ -4213,8 +4321,13 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
          * flag is computed unconditionally at G_SETCOMBINE time from
          * whatever bits happen to be there, and only means anything once
          * G_SETOTHERMODE_H has actually turned 2-cycle mode on. */
-        if (rdp.combine_cyc2_alpha_is_prim &&
-            (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) {
+        if ((rdp.combine_cyc2_alpha_is_prim &&
+             (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ||
+            (cyc2_lerp && rdp.combine_cyc2_alpha_mul_prim)) {
+            /* Second condition: cycle 2's alpha is COMBINED * PRIM over a
+             * TEXTURED cycle 1, so the finished alpha is texelAlpha * PRIM.a.
+             * GU_TFX_BLEND multiplies vertex alpha by texture alpha on its own,
+             * which leaves exactly PRIM's alpha to be supplied here. */
             buf_vbo[buf_num_vert].color.a = rdp.prim_color.a;
         } else {
             buf_vbo[buf_num_vert].color.a = alpha_src->a;
@@ -5101,6 +5214,36 @@ static uint8_t color_comb_component(uint32_t v) {
             return CC_TEXEL0A;
         case G_CCMUX_LOD_FRACTION:
             return CC_LOD;
+        /* PRIM_LOD_FRAC is a manually-set constant (gDPSetPrimColor's lodfrac
+         * argument, tracked in rdp.prim_lod_frac), not the per-triangle
+         * distance fraction CC_LOD's own per-vertex case computes -- reusing
+         * CC_LOD here is a deliberate approximation, not a correct decode.
+         * What matters is only that it is NOT CC_0: falling through to the
+         * default below (return CC_0) made the collapse rule in
+         * gfx_generate_cc ("c[i][2] == CC_0" -> zero the whole (A-B)*C term)
+         * fire on ANY combine using PRIM_LOD_FRAC as its 'c' operand, which
+         * silently threw away the second texture and the whole two-texture
+         * shape with it. gGiHeartPieceDL's core (the get-item shine, e.g. the
+         * heart piece in Impa's House) is exactly this:
+         *   (TEXEL1 - TEXEL0) * PRIM_LOD_FRAC + TEXEL0
+         * collapsing to bare TEXEL0 lost the second texture and, with it,
+         * used_textures[1] -- so the whole PRIM/ENV cycle-2 LERP this port
+         * already builds for gGiHeartPieceDL (see combine_cyc2_lerp_hi) never
+         * got a two-texture shader to attach to, and the material fell back
+         * to a plain textured MODULATE against a near-white glow texture:
+         * the white heart. Once the term survives the collapse, the existing
+         * two-texture LERP-factor switch a few hundred lines down (the one
+         * this same PRIM_LOD_FRAC value already has a correct case in) picks
+         * the real rdp.prim_lod_frac up instead of whatever CC_LOD's
+         * per-vertex case would have synthesised for this slot.
+         *
+         * Risk: a single-texture material that also uses PRIM_LOD_FRAC as a
+         * genuine SHADE/PRIM/ENV-style multiplier (not neutralised or
+         * overridden downstream the way the two-texture shapes are) would
+         * now get CC_LOD's distance-based value instead of the constant --
+         * no such case is known in OoT's content today. */
+        case G_CCMUX_PRIM_LOD_FRAC:
+            return CC_LOD;
         /* PRIMITIVE_ALPHA/SHADE_ALPHA/ENV_ALPHA select the alpha channel of
          * these colors as an RGB multiplier -- CC_* has no "alpha-as-scalar"
          * concept, so approximate by using the parent color's RGB instead of
@@ -5184,6 +5327,68 @@ static bool combine_cycle2_alpha_is_prim(uint32_t a0, uint32_t b0, uint32_t c0, 
         return false;
     }
     return (a1 == G_ACMUX_COMBINED) && (b1 == G_ACMUX_0) && (c1 == G_ACMUX_PRIMITIVE) && (d1 == G_ACMUX_0);
+}
+
+/* Cycle 2 == (HI - LO) * COMBINED + LO with HI/LO two different constant
+ * colour registers -- see combine_cyc2_lerp_hi in the rdp struct for what this
+ * buys and why GU_TFX_BLEND reproduces it exactly rather than approximately.
+ *
+ * Cycle 1 is checked too, and deliberately narrowly: BLEND feeds the TEXEL
+ * straight in as the fraction, so the identity only holds while cycle 1's
+ * result IS the texture. Requiring the `d` operand to be a texel and refusing
+ * any SHADE keeps out the far more common "texture * shade, then tint"
+ * materials, whose cycle 1 is not a bare texel and which combine_cycle2_tint
+ * already handles correctly by folding the register into the vertex colour.
+ *
+ * Slot widths differ (a is 4 bits, b 4, c 5, d 3), and raw 0 means COMBINED in
+ * every one of them -- the one operand color_comb_component cannot express, so
+ * it is tested directly, exactly as combine_cycle2_tint does. */
+static bool combine_cycle2_prim_env_lerp(uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1,
+                                         uint32_t a0, uint32_t b0, uint32_t c0, uint32_t d0,
+                                         uint8_t *hi, uint8_t *lo) {
+    if (c1 != G_CCMUX_COMBINED) {
+        return false; /* something other than cycle 1 steers the mix */
+    }
+    if (a1 == G_CCMUX_COMBINED || b1 == G_CCMUX_COMBINED || d1 == G_CCMUX_COMBINED) {
+        return false;
+    }
+
+    const uint8_t ra = color_comb_component(a1);
+    const uint8_t rb = color_comb_component(b1);
+    const uint8_t rd = color_comb_component(d1);
+
+    if (rb != rd) {
+        return false; /* not (A - B) * C + B */
+    }
+    if (ra != CC_PRIM && ra != CC_ENV) {
+        return false;
+    }
+    if (rb != CC_PRIM && rb != CC_ENV) {
+        return false;
+    }
+    if (ra == rb) {
+        return false; /* degenerate: both ends the same colour */
+    }
+
+    /* Cycle 1 must resolve to the texture alone. */
+    if (d0 != G_CCMUX_TEXEL0 && d0 != G_CCMUX_TEXEL1) {
+        return false;
+    }
+    if (color_comb_component(a0) == CC_SHADE || color_comb_component(b0) == CC_SHADE ||
+        color_comb_component(c0) == CC_SHADE) {
+        return false;
+    }
+
+    *hi = ra;
+    *lo = rb;
+    return true;
+}
+
+/* Just cycle 2's half of combine_cycle2_alpha_is_prim: (COMBINED - 0) * PRIM + 0,
+ * with no claim about cycle 1. See combine_cyc2_alpha_mul_prim. */
+static bool combine_cycle2_alpha_mul_prim(uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1) {
+    return (a1 == G_ACMUX_COMBINED) && (b1 == G_ACMUX_0) && (c1 == G_ACMUX_PRIMITIVE) &&
+           (d1 == G_ACMUX_0);
 }
 
 static void gfx_dp_set_combine_mode(uint32_t rgb, uint32_t alpha) {
@@ -6128,6 +6333,19 @@ static void gfx_run_dl(Gfx* cmd) {
                 rdp.combine_cyc2_alpha_is_prim = combine_cycle2_alpha_is_prim(
                     C0(12, 3), C1(12, 3), C0(9, 3), C1(9, 3),
                     C1(21, 3), C1(3, 3), C1(18, 3), C1(0, 3));
+                /* Cycle 2 as a two-register LERP, the shape combine_cycle2_tint
+                 * has to reject. Cycle 1's operands are handed over too so the
+                 * match can insist the fraction really is the texture. */
+                rdp.combine_cyc2_lerp_hi = CC_0;
+                rdp.combine_cyc2_lerp_lo = CC_0;
+                if (combine_cycle2_prim_env_lerp(C0(5, 4), C1(24, 4), C0(0, 5), C1(6, 3),
+                                                 C0(20, 4), C1(28, 4), C0(15, 5), C1(15, 3),
+                                                 &rdp.combine_cyc2_lerp_hi,
+                                                 &rdp.combine_cyc2_lerp_lo) == false) {
+                    rdp.combine_cyc2_lerp_hi = CC_0;
+                }
+                rdp.combine_cyc2_alpha_mul_prim =
+                    combine_cycle2_alpha_mul_prim(C1(21, 3), C1(3, 3), C1(18, 3), C1(0, 3));
                 break;
             // G_SETPRIMCOLOR, G_CCMUX_PRIMITIVE, G_ACMUX_PRIMITIVE, is used by Goddard
             // G_CCMUX_TEXEL1, LOD_FRACTION is used in Bowser room 1
