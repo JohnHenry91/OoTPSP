@@ -54,6 +54,12 @@ const char* PspBlob_GetBaseDir(void);
 
 int PspBlob_Read(uint32_t romOffset, void* dst, size_t size);
 
+/* Tell the blob layer the console just came back from standby, which
+ * invalidates every Memory Stick descriptor held open across it. Safe to call
+ * from the power callback: it only raises a flag, and the next PspBlob_Read
+ * does the closing. */
+void PspBlob_NotifyResume(void);
+
 /* True if `p` points into memory most recently filled from a blob, i.e. data
  * that is ALREADY native-endian and must NOT be run through any
  * PspFixup*Endian pass -- doing so would byte-reverse correct data. */
@@ -65,6 +71,12 @@ void PspBlob_InvalidateRange(const void* dst, size_t size);
 
 /* Retire every range. Call at scene load. */
 void PspBlob_ResetRanges(void);
+
+/* Descriptors currently held open by the ranged LRU (capped at
+ * PSP_BLOB_MAX_OPEN). For the once-per-scene memory trace in
+ * PspDiag_Scene -- if this were ever found climbing across scene changes it
+ * would mean the cap itself is broken, not just under pressure. */
+unsigned int PspBlob_OpenFdCount(void);
 
 /* Diagnostics, read with the WebSocket debugger like every other counter here
  * (never file I/O -- that was itself a crash cause once). gPspBlobMagic is a

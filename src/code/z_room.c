@@ -375,6 +375,8 @@ s32 Room_DecodeJpeg(void* data) {
 }
 
 #if TARGET_PSP
+#include "psp_screenshot.h"
+
 u32 gPspBgProbeCalls = 0;
 u32 gPspBgProbeCamSetting = 0;
 u32 gPspBgProbeFlags = 0;
@@ -527,6 +529,7 @@ void Room_DrawImageSingle(PlayState* play, Room* room, u32 flags) {
      * be read off directly instead of guessed at. */
     ++gPspBgProbeCalls;
     gPspBgProbeCamSetting = activeCam->setting;
+    PspScreenshot_NoteCamSetting((unsigned int)activeCam->setting);
     gPspBgProbeFlags = ((flags & ROOM_DRAW_OPA) ? 1 : 0) | (isFixedCamera ? 2 : 0) |
                        ((roomShape->source != NULL) ? 4 : 0) |
                        (!(R_ROOM_IMAGE_NODRAW_FLAGS & ROOM_IMAGE_NODRAW_BACKGROUND) ? 8 : 0);
@@ -725,6 +728,19 @@ void Room_DrawImageMulti(PlayState* play, Room* room, u32 flags) {
 
     activeCam = GET_ACTIVE_CAM(play);
     isFixedCamera = (activeCam->setting == CAM_SET_PREREND_FIXED);
+#if TARGET_PSP
+    /* Multi-background rooms are the ones with several camera angles, and the
+     * probe was only ever wired up in Room_DrawImageSingle -- so for exactly
+     * the rooms under investigation the HUD reported the last SINGLE room's
+     * camera instead. The setting is the question here: a background is only
+     * blitted for CAM_SET_PREREND_FIXED, so an angle with any other setting
+     * draws no background at all, by design, and whatever is on screen then
+     * came from somewhere else. */
+    gPspBgProbeCamSetting = activeCam->setting;
+    /* Arm a capture on the switch between the room's two views -- the first
+     * frame after it is the one that still glitches. */
+    PspScreenshot_NoteCamSetting((unsigned int)activeCam->setting);
+#endif
     roomShape = &room->roomShape->image.multi;
     dListsEntry = SEGMENTED_TO_VIRTUAL(roomShape->base.entry);
 
@@ -1021,6 +1037,15 @@ s32 Room_ProcessRoomRequest(PlayState* play, RoomContext* roomCtx) {
                 extern unsigned int gPspBgCacheGeneration;
                 gPspBgCacheGeneration++;
             }
+
+            /* This is every room boundary within a scene, e.g. walking through
+             * a door inside one dungeon or house -- the case
+             * PspScreenshot_NoteSceneLoad cannot see, since Play_Init only runs
+             * once per SCENE and most rooms are never its first. */
+            {
+                extern void PspScreenshot_NoteRoomChange(void);
+                PspScreenshot_NoteRoomChange();
+            }
 #endif
 
             Scene_ExecuteCommands(play, roomCtx->curRoom.segment);
@@ -1034,6 +1059,18 @@ s32 Room_ProcessRoomRequest(PlayState* play, RoomContext* roomCtx) {
     return true;
 }
 
+#if TARGET_PSP
+/* Rooms whose draw was refused by the guard below -- a NULL roomShape or an
+ * out-of-range shape type. This is the counter that makes the guard honest:
+ * z_play.c used to force roomCtx.prevRoom.segment to NULL right before drawing
+ * it, which silenced the same danger by never drawing the previous room at all.
+ * That was fine while nothing ever populated prevRoom and wrong the moment
+ * En_Holl and Door_Shutter brought real room transitions into the build. If
+ * this ever climbs, the pointer really is being corrupted and the old blanket
+ * approach was hiding it. */
+u32 gPspRoomDrawRejected;
+#endif
+
 void Room_Draw(PlayState* play, Room* room, u32 flags) {
     if (room->segment != NULL) {
         gSegments[3] = OS_K0_TO_PHYSICAL(room->segment);
@@ -1046,7 +1083,8 @@ void Room_Draw(PlayState* play, Room* room, u32 flags) {
          * sRoomDrawHandlers[] out of bounds and jalr through whatever garbage
          * sits there -- this is the exact "CPU Jump to 00000040" crash observed
          * a few dozen frames into gameplay. Actually check the bound here. */
-        if (room->roomShape->base.type >= ARRAY_COUNTU(sRoomDrawHandlers)) {
+        if (room->roomShape == NULL || room->roomShape->base.type >= ARRAY_COUNTU(sRoomDrawHandlers)) {
+            ++gPspRoomDrawRejected;
             return;
         }
 #endif

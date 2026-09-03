@@ -307,18 +307,17 @@ void PspDiag_Step(const char* step) {
 
         SystemArena_GetSizes(&sysMaxFree, &sysArenaFree, &sysArenaAlloc);
         snprintf(line, sizeof(line),
-                 "%-26s sp=%08X stk=%uK aud=%u/%u pad=%u blob=%u/%u zfail=%u tex=%u/%u rst=%u/%u dl=%u ge=%uK tri=%u pool=%u hr=%d zfree=%uK zalloc=%uK\n",
+                 "%-26s sp=%08X stk=%uK aud=%u/%u pad=%u blob=%u/%u zfail=%u tex=%u/%u rst=%u/%u dl=%u ge=%uK tri=%u pool=%u hr=%d zfree=%uK zmax=%uK zalloc=%uK sfree=%uK smax=%uK salloc=%uK\n",
                  step, sp, stackLeft / 1024, gPspDiagBeats[PSP_DIAG_BEAT_AUDIO],
                  gPspDiagBeats[PSP_DIAG_BEAT_AUDIO_STAGE], gPspDiagBeats[PSP_DIAG_BEAT_PADMGR],
                  gPspBlobMisses, gPspBlobOpenFails, gPspZeldaAllocFails, psp_tex_overflows, psp_tex_spills,
                  gPspTexCacheResetVram, gPspTexCacheResetPool, gPspGfxBadDlCursors,
                  gPspGeListPeak / 1024, gfx_pc_stat_tris_drawn(), gPspPoolOverflows,
                  gPspPoolOpaHeadroomMin, (unsigned int)zFree / 1024,
-                 (unsigned int)zAlloc / 1024);
+                 (unsigned int)zMaxFree / 1024, (unsigned int)zAlloc / 1024,
+                 (unsigned int)sysArenaFree / 1024, (unsigned int)sysMaxFree / 1024,
+                 (unsigned int)sysArenaAlloc / 1024);
         (void)sysFree;
-        (void)sysMaxFree;
-        (void)sysArenaFree;
-        (void)sysArenaAlloc;
     }
     DiagAppend(line);
 }
@@ -393,6 +392,24 @@ void PspDiag_Note(const char* fmt, unsigned int a, unsigned int b) {
 
     snprintf(line, sizeof(line), fmt, a, b);
     DiagAppend(line);
+}
+
+void PspDiag_Scene(unsigned int changeCount, unsigned int entranceIndex, unsigned int objEntries,
+                    unsigned int objBytesUsed, unsigned int objBytesTotal, unsigned int actorTotal,
+                    unsigned int blobOpenFds) {
+    char line[200];
+    u32 zMaxFree = 0, zFree = 0, zAlloc = 0;
+    u32 sysMaxFree = 0, sysArenaFree = 0, sysArenaAlloc = 0;
+
+    ZeldaArena_GetSizes(&zMaxFree, &zFree, &zAlloc);
+    SystemArena_GetSizes(&sysMaxFree, &sysArenaFree, &sysArenaAlloc);
+    snprintf(line, sizeof(line),
+             "scene#%-4u entr=%03u obj=%u/%uK.%uK actors=%u blobfd=%u zfree=%uK zmax=%uK zalloc=%uK sfree=%uK smax=%uK salloc=%uK\n",
+             changeCount, entranceIndex, objEntries, objBytesUsed / 1024, objBytesTotal / 1024, actorTotal,
+             blobOpenFds, (unsigned int)zFree / 1024, (unsigned int)zMaxFree / 1024, (unsigned int)zAlloc / 1024,
+             (unsigned int)sysArenaFree / 1024, (unsigned int)sysMaxFree / 1024, (unsigned int)sysArenaAlloc / 1024);
+    DiagAppend(line);
+    PspDiag_Flush();
 }
 
 /* NOTE: no exception handler.

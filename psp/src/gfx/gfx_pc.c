@@ -1,4 +1,5 @@
 #include <math.h>
+#include "psp_screenshot.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -53,7 +54,23 @@
 #define RATIO_Y (gfx_current_dimensions.height / (2.0f * HALF_SCREEN_HEIGHT))
 
 #define MAX_BUFFERED (1024)
-#define MAX_LIGHTS 2
+/* OoT binds up to SEVEN lights plus ambient (z_lights.c's Lights_FindSlot
+ * refuses the 8th: `if (lights->numLights >= 7) return NULL`). This was 2,
+ * inherited unchanged from sm64-port, where two is genuinely the maximum.
+ *
+ * Two was not merely a cap -- nothing clamped against it. G_MW_NUMLIGHT
+ * assigns current_num_lights straight from the command word, so a scene
+ * binding three lights set it to 4 while current_lights[] held 3 entries and
+ * current_lights_coeffs[] held 2. The per-vertex lighting path then
+ *   - READ current_lights[current_num_lights - 1] as the ambient colour, one
+ *     past the end, and
+ *   - WROTE current_lights_coeffs[i] for i up to current_num_lights - 2, past
+ *     the end of that array and into current_lookat_coeffs behind it.
+ * The "ambient" colour was therefore float bit patterns read as u8 RGB, which
+ * is why any scene with a third light -- every fairy, torch or glowing actor
+ * binds a point light through Lights_BindPoint -- washed the nearby figures
+ * out. See auftraege/FEHLERLISTE2.md N36. */
+#define MAX_LIGHTS 7
 #define MAX_VERTICES 64
 
 /* Pixel Formats */
@@ -71,6 +88,12 @@ extern void gfx_scegu_draw_triangles_2d(float buf_vbo[], size_t buf_vbo_len, siz
  * terrain LERP's second pass (see gPspLerp2SecondPass in gfx_sp_tri1). */
 extern void gfx_scegu_lerp2_blend_begin(uint8_t mix);
 extern void gfx_scegu_lerp2_blend_end(void);
+/* gfx_scegu.c -- untextured GU_BLEND overlay used to draw fog mode 2's
+ * second pass (see gPspFogSecondPass in gfx_sp_tri1). `textured` tells
+ * blend_end whether GU_TEXTURE_2D has to come back on, since the GE only
+ * re-applies that on a shader change and this pass deliberately makes none. */
+extern void gfx_scegu_fog2_blend_begin(void);
+extern void gfx_scegu_fog2_blend_end(bool textured);
 extern float identity_matrix[4][4];
 
 struct RGBA {
@@ -132,6 +155,10 @@ struct TextureHashmapNode {
      * uploaded pixels (hence part of the key) and the UV scale (hence read
      * back in gfx_sp_tri1). */
     uint8_t mirror_s, mirror_t;
+    /* Der Eintrag beschreibt Speicher, den das SPIEL seither ueberschrieben
+     * hat -- der dekodierte Inhalt ist damit veraltet, obwohl jedes Feld des
+     * Schluessels noch passt. Siehe gfx_texture_cache_invalidate_range(). */
+    uint8_t stale;
 } __attribute__((packed, aligned(4)));
 static struct {
     struct TextureHashmapNode *hashmap[1024];
@@ -156,6 +183,55 @@ struct ColorCombiner {
 static struct ColorCombiner color_combiner_pool[COLOR_COMBINER_POOL_SIZE];
 static uint16_t color_combiner_pool_size;
 
+/* N36: how many lights OoT actually binds, and how often that exceeded the
+ * THREE slots this renderer used to have (MAX_LIGHTS 2 + ambient). Anything
+ * above zero in `lightsOverOld` is a frame that read past the end of
+ * current_lights[] for its ambient colour. Reset per frame with the rest of
+ * the draw stats. */
+uint32_t gPspLightsMax;
+uint32_t gPspLightsOverOld;
+
+/* How the two reference ports decide whether a draw's alpha matters.
+ *
+ * Ours was `(other_mode_l & (G_BL_A_MEM << 18)) == 0` -- a single bit, taken
+ * unchanged from sm64-port, and it feeds tcc_for_alpha's opt_alpha guard:
+ * false there means the shader is bound GU_TCC_RGB, i.e. alpha comes from the
+ * vertex ALONE and the texture's alpha channel never reaches the blender.
+ *
+ * reference/oot-psp-z2442 (gfx_fast3d.c:3239-3250) asks three questions
+ * instead, and reference/daedalus -- an N64 emulator on this same GE --
+ * doesn't gate on blending at all (RenderSettings.cpp:155-166: the alpha row
+ * using a texel is the whole test). The N64's alpha channel is used for the
+ * alpha COMPARE as well as for blending, so "is the blender reading the
+ * framebuffer" is the wrong question to hang it on: SETUPDL_65 (Navi's glow)
+ * and SETUPDL_20 (the forest motes) both ask for G_AC_THRESHOLD.
+ *
+ * Switchable so the two can be held against each other in one build --
+ * gPspUseAlphaLegacy = 1 restores the single-bit test. */
+static inline bool gfx_blend_cycle_uses_framebuffer(uint32_t other_mode_l, uint32_t m2a_shift,
+                                                    uint32_t m2b_shift) {
+    uint32_t m2a = (other_mode_l >> m2a_shift) & 3;
+    uint32_t m2b = (other_mode_l >> m2b_shift) & 3;
+
+    return (m2a == G_BL_CLR_MEM) && ((m2b == G_BL_1MA) || (m2b == G_BL_1));
+}
+
+int gPspUseAlphaLegacy;
+
+static inline bool gfx_use_alpha_for(uint32_t other_mode_l) {
+    if (gPspUseAlphaLegacy) {
+        return (other_mode_l & (G_BL_A_MEM << 18)) == 0;
+    }
+
+    const uint32_t alpha_compare = other_mode_l & (3U << G_MDSFT_ALPHACOMPARE);
+    const bool alpha_blend = (other_mode_l & FORCE_BL) &&
+                             (gfx_blend_cycle_uses_framebuffer(other_mode_l, 22, 18) ||
+                              gfx_blend_cycle_uses_framebuffer(other_mode_l, 20, 16));
+    const bool texture_edge = (other_mode_l & CVG_X_ALPHA) == CVG_X_ALPHA;
+
+    return alpha_blend || texture_edge || (alpha_compare != G_AC_NONE);
+}
+
 static struct RSP {
     float modelview_matrix_stack[11][4][4]__attribute__((aligned(16)));
 
@@ -171,11 +247,25 @@ static struct RSP {
     
     uint32_t geometry_mode;
     int16_t fog_mul, fog_offset;
+    /* G_RDPHALF_1's payload, consumed by G_BRANCH_Z (see gfx_run_dl). OoT's
+     * scene-chunk / detail-level display lists use this pair to jump to a
+     * different display list depending on distance -- Death Mountain Trail
+     * and other outdoor scenes with far detail chunks rely on it. Ported
+     * from reference/oot-psp-z2442 commit f234ee7f2 ("fix daeth mountain
+     * trail"): this port never implemented the pair at all, so every such
+     * branch silently fell through the switch and the far chunk's geometry
+     * never rendered -- "half the floor/walls missing" is exactly that. */
+    uint32_t rdp_half_1;
     
     struct {
         // U0.16
         uint16_t s, t;
     } texture_scaling_factor;
+
+    /* gsSPTexture's `on` field (G_ON/G_OFF). Recorded rather than discarded so
+     * the two counters below can measure what honouring it would change; the
+     * draw path does NOT act on it yet -- see tex_off_draws. */
+    bool texture_on;
     
     struct VertexColor loaded_vertices_2D[4];
     struct LoadedVertex loaded_vertices[MAX_VERTICES];
@@ -253,7 +343,21 @@ static struct RDP {
     uint8_t combine_c0_raw;
     /* Low byte of G_SETPRIMCOLOR: the other legal mix source for that LERP. */
     uint8_t prim_lod_frac;
-    
+    /* True when cycle 2's ALPHA row is (COMBINED - 0) * PRIMITIVE + 0 and
+     * cycle 1's alpha is the constant 1 -- i.e. the finished alpha is meant
+     * to be PRIM's alpha, unmodified. Unlike combine_cyc2_tint above, this
+     * port's G_SETCOMBINE handler never captured cycle 2's alpha row AT ALL
+     * (see the dead comment next to where combine_cyc2_tint is set --
+     * "alpha cycle 2 would be color_comb(...)", never actually read); every
+     * material shaped this way rendered fully opaque instead of respecting
+     * PRIM's alpha, since cycle 1 alone reduces to "always 1". OoT's water
+     * materials use exactly this shape for their fade. Ported from
+     * reference/oot-psp-z2442 commit 9a3b2926c ("fix water blending"),
+     * adapted the same way combine_cyc2_tint is: computed once at
+     * G_SETCOMBINE time from the raw operands, applied at draw time only in
+     * 2-cycle mode (see its use next to alpha_src in gfx_sp_tri1). */
+    bool combine_cyc2_alpha_is_prim;
+
     struct RGBA env_color, prim_color, fog_color, fill_color;
     struct XYWidthHeight viewport, scissor;
     bool viewport_or_scissor_changed;
@@ -272,17 +376,41 @@ static struct RenderingState {
     /* Texenv mode last forced for two-texture combines: 1 == MODULATE,
      * 0 == REPLACE, -1 == unknown / not forced yet. */
     int two_texture_tint;
+    /* Last PRIM handed to the GE as the tex-env colour for the PRIM/ENV LERP.
+     * Starts at an impossible value so the first draw always issues it. */
+    uint32_t lerp_prim_color;
     /* Set by upload_texture_mirrored for the import in progress, then copied
      * onto the cache node so a later cache HIT still knows the UV scale. */
     uint8_t mirror_s, mirror_t;
+    /* Distance fog, see psp_fog_apply. -1 == not decided yet. The parameters
+     * are cached beside the flag because a CHANGE of range or colour matters
+     * exactly as much as a change of the flag: triangles already sitting in
+     * buf_vbo would otherwise be drawn under the new fog. */
+    int fog_enabled;
+    float fog_start, fog_end;
+    unsigned int fog_color;
 } rendering_state __attribute__((aligned(16)));
 
 /* gfx_scegu.c -- per-draw texenv override; see the call sites in gfx_sp_tri1. */
 void gfx_scegu_set_two_texture_tint(int has_tint);
+/* The (PRIM - ENV) * TEXEL0 + ENV LERP -- see is_prim_env_lerp_combine in
+ * gfx_scegu.c. PRIM rides in the tex-env colour and changes per draw. */
+int gfx_scegu_shader_is_prim_env_lerp(void);
+/* Flat colour + textured alpha (glow sprites, e.g. the fairy's wings). Wants
+ * the tex-env colour set to the SAME colour the vertex carries, so BLEND's
+ * LERP collapses to that colour and the texture is confined to alpha. */
+int gfx_scegu_shader_is_flat_colour(void);
+void gfx_scegu_set_lerp_prim_color(uint32_t packed);
+/* Defined further down this file, at G_SETPRIMCOLOR. */
+extern uint32_t gRdpPrimColorPacked;
+/* gfx_scegu.c -- the GE's fog unit; see psp_fog_apply below. */
+void gfx_scegu_set_fog(int enable, float start, float end, unsigned int color);
 /* gfx_scegu.c -- forget which texture each tile has bound. */
 void gfx_scegu_invalidate_texture_binding(void);
 /* Last texture id gfx_scegu_select_texture actually handed to the GE. */
 extern uint32_t gPspCurBoundTex;
+/* Mischfaktor des laufenden Zweitdurchgangs; gesetzt in gfx_scegu.c. */
+extern unsigned int gPspLerp2MixApplied;
 
 /* Exposed to gfx_scegu.c's N64-logo-cube 2-pass hack: it needs to toggle
  * GU_BLEND directly for one extra pass, and must restore it to whatever
@@ -444,6 +572,55 @@ typedef struct {
     uint32_t tri_stale_mtx;
     uint32_t vtx_stale_examples;
     uint32_t vtx_stale_slot[8];
+
+    /* --- endian-classification probe (session: PREREND-PIVOT first frame) ----
+     * Every texture importer asks tex_needs_u64_unswap() whether its source
+     * bytes are already native, and reverses each group of eight if they are
+     * not. That predicate is an ADDRESS-RANGE test (PspStaticAssetIsStatic ->
+     * PspBlob_IsNative), and psp_blob_assets.c already documents it answering
+     * wrongly for exactly one asset: the skybox, the last thing in the game
+     * still read raw from the .z64 into the shared arena, where an abandoned
+     * blob range can still cover the buffer. The recorded symptom of that
+     * misclassification is "the speckled skybox, with the room's own textures
+     * still perfectly sharp beside it" -- which is the open bug, in a room type
+     * where the skybox IS the visible surroundings.
+     *
+     * So: split every import by its verdict, and again by whether it happened
+     * inside the skybox's BEGIN/END markers. On the corrupted frame,
+     * sky_tex_unswap > 0 convicts the predicate; sky_tex_imports > 0 with
+     * sky_tex_unswap == 0 clears it and points at the DATA instead; and
+     * sky_tex_imports == 0 takes the skybox out of the case entirely. */
+    uint32_t tex_unswap_yes;   /* imports that reversed byte octets           */
+    uint32_t tex_unswap_no;    /* imports that took the source as-is          */
+    uint32_t sky_tex_imports;  /* imports between the skybox markers          */
+    uint32_t sky_tex_unswap;   /* ...of which reversed                        */
+    uint32_t sky_tex_hits;     /* skybox tiles served from the cache instead  */
+
+    /* --- Bisect ueber 34ab82e0b, Aenderung 1 (G_TX_NOMASK -> CLAMP) ---------
+     * Wie oft die Regel eine Wrap-Angabe wirklich umgeschrieben hat, und wie
+     * viel davon auf den Himmel entfiel. Siehe gfx_dp_set_tile. */
+    uint32_t nomask_clamps;     /* tiles whose wrap mode the rule changed     */
+    uint32_t nomask_clamps_sky; /* ...of them between the skybox markers      */
+
+    /* --- gsSPTexture(..., G_OFF) probe (Auftrag 09) ---------------------------
+     * gfx_sp_texture threw the `on` flag away, and the same command that
+     * carries G_OFF also sets the scaling factors to 0. Two separate questions
+     * follow, and neither had ever been counted:
+     *
+     *   tex_off_draws  draws whose COMBINER asked for a texture while the RSP's
+     *                  texture unit was switched off. On the N64 those draw
+     *                  untextured. Zero means honouring the flag would change
+     *                  nothing and the port's behaviour is accidentally right;
+     *                  non-zero names the draws that are wrong today.
+     *   tex_sc0_draws  draws that used a texture while texture_scaling_factor.s
+     *                  was 0, i.e. every texture coordinate collapses to 0 and
+     *                  the surface samples a single texel -- a flat coloured
+     *                  quad. That is the shape of the reported "yellow box",
+     *                  so it is worth knowing whether it ever happens.
+     *
+     * Measurement only. Do not add behaviour here without a number first. */
+    uint32_t tex_off_draws;
+    uint32_t tex_sc0_draws;
 } PspGfxFrameStats;
 
 PspGfxFrameStats gPspGfxStats;      /* live, currently being built */
@@ -990,6 +1167,10 @@ int gDebugFogCombinerBit = 1;
  * The skybox is the Market's buildings and Link's House's interior walls, and
  * neither shows up -- these say whether its geometry even survives to a draw. */
 uint32_t gPspSkyTri[4];
+/* Defined in src/code/z_vr_box_draw.c: [0] call count, [1] skyboxId,
+ * [2] drawType. Declared here rather than in a header because the skybox probe
+ * is diagnostic scaffolding, not an interface. */
+extern uint32_t gPspSkyCall[12];
 float gPspSkyMtx[4][4];
 uint32_t gPspSkyTriMark;
 
@@ -1223,6 +1404,88 @@ void gfx_texture_cache_reset(void) {
     rdp.textures_changed[1] = true;
 }
 
+/* Zaehler fuer die Invalidierung unten: wie oft sie gerufen wurde und wie
+ * viele Eintraege dabei wirklich entwertet wurden. Der zweite ist der
+ * interessante -- er sagt, ob der Fall ueberhaupt auftritt. */
+uint32_t gPspTexInvalCalls;
+uint32_t gPspTexInvalDropped;
+
+/* Vergiss jede zwischengespeicherte Textur, die aus [addr, addr+size) dekodiert
+ * wurde, weil das Spiel diesen Speicher gerade ueberschrieben hat.
+ *
+ * WARUM DAS NOETIG IST. Der Texturcache ist ueber die QUELLADRESSE
+ * geschluesselt (siehe gfx_texture_cache_lookup). Auf der N64 ist das gratis
+ * richtig, weil es dort gar keinen Cache gibt: die RDP liest die Texel bei
+ * jedem G_LOADTILE frisch aus dem RDRAM. Hier bleibt der einmal dekodierte
+ * Inhalt liegen -- und wenn das Spiel denselben Puffer mit ANDEREN Daten neu
+ * fuellt, liefert der Cache bis in alle Ewigkeit das alte Bild.
+ *
+ * DER GEMESSENE FALL. Environment_UpdateSkybox (z_kankyo.c:769) schreibt bei
+ * jedem Wechsel der Tageszeit die neuen Himmelstexturen per DMA in
+ * skyboxCtx->staticSegments[0]/[1] -- dieselben Adressen wie zuvor. Jede
+ * Himmelsflaeche liest einen eigenen Offset in diesem Puffer
+ * (sSkybox128TexOffsets), also ist jede Flaeche ein eigener Cache-Eintrag, und
+ * jeder wurde zu einem anderen Zeitpunkt angelegt. Ergebnis: Nachthimmel neben
+ * Abendrot neben Taghimmel, jede Textur fuer sich sauber dekodiert, die Naehte
+ * exakt auf den Flaechenkanten.
+ *
+ * Die Messung, die das entschieden hat: die HUD-Zeile zeigte "SKY imp 0 hit 24"
+ * -- der Himmel importierte NICHTS und wurde vollstaendig aus dem Cache
+ * bedient. Damit konnte kein Fehler im Import- oder Kombiniererpfad die
+ * Ursache sein, und vier vorher verdaechtigte Aenderungen waren auf einen
+ * Schlag entlastet.
+ *
+ * Ship of Harkinian hat fuer genau diese Fehlerklasse eine eigene
+ * GBI-Erweiterung gebaut, gSPInvalidateTexCache / G_INVALTEXCACHE, siehe
+ * reference/shipwright-vita/libultraship/src/graphic/Fast3D/gfx_pc.cpp:595
+ * (gfx_texture_cache_delete) und ihre Aufrufer, z.B. z_boss_ganon.c:3855
+ * "Shadow texture will change every frame, no use keeping it around". Ihren
+ * Himmel haben sie zusaetzlich ganz umgebaut (z_vr_box.c, LoadSkyboxTex haelt
+ * nur noch einen ZEIGER auf das unveraenderliche Asset), womit das Problem
+ * dort gar nicht erst entsteht.
+ *
+ * WARUM ENTWERTEN UND NICHT LOESCHEN. texman kennt kein Einzel-Free -- es ist
+ * ein Bump-Allocator mit nur texman_clear(). Ein entwerteter Eintrag bleibt
+ * deshalb in seiner Kette stehen, trifft nie wieder, und der naechste Import
+ * legt einen frischen Slot an. Die alten Slots verfallen erst beim ohnehin
+ * vorhandenen, auf gfx_start_frame() verschobenen Gesamt-Wipe. Das kostet
+ * Slots (rund fuenf je Tageszeitwechsel), aber der Wipe ist der bereits
+ * abgesicherte Pfad -- und Korrektheit vor Sparsamkeit.
+ *
+ * Bewusst NICHT in DMA_REQUEST_SYNC selbst gehaengt: das wuerde jeden Raum-,
+ * Objekt- und Animations-DMA einen Durchlauf ueber den Pool kosten, fuer einen
+ * Fall, der bisher nur beim Himmel gemessen ist. Wer den naechsten
+ * ueberschriebenen Puffer findet, ruft hier zusaetzlich auf. */
+void gfx_texture_cache_invalidate_range(const void *addr, unsigned int size) {
+    const uint8_t *lo = (const uint8_t *)addr;
+    const uint8_t *hi = lo + size;
+    uint32_t i;
+
+    ++gPspTexInvalCalls;
+
+    if (addr == NULL || size == 0) {
+        return;
+    }
+
+    /* Ueber den Pool laufen, nicht ueber die 1024 Hash-Eimer: die Eintraege
+     * liegen dort dicht, und ein Bereich verteilt sich ohnehin ueber viele
+     * Eimer -- eine Adresse pro Kachel-Offset. */
+    for (i = 0; i < gfx_texture_cache.pool_pos; i++) {
+        struct TextureHashmapNode *n = &gfx_texture_cache.pool[i];
+
+        if (n->texture_addr >= lo && n->texture_addr < hi && !n->stale) {
+            n->stale = 1;
+            ++gPspTexInvalDropped;
+        }
+    }
+
+    /* rendering_state.textures[] kann auf einen gerade entwerteten Eintrag
+     * zeigen, und gfx_sp_tri1 importiert nur neu, wenn textures_changed[] das
+     * sagt -- dasselbe Argument wie in gfx_texture_cache_reset(). */
+    rdp.textures_changed[0] = true;
+    rdp.textures_changed[1] = true;
+}
+
 /* How often the whole texture cache had to be thrown away, split by which
  * limit hit first, plus how full the pool was when it happened. Must be read
  * per-scene: these are cumulative. Non-zero while standing still means the
@@ -1230,6 +1493,12 @@ void gfx_texture_cache_reset(void) {
 uint32_t gPspTexCacheResetVram;
 uint32_t gPspTexCacheResetPool;
 uint32_t gPspTexCacheHighWater;
+
+/* Set by gfx_texture_cache_lookup below when the cache needs wiping, acted on
+ * in gfx_start_frame(). Same variable, same reasoning as sGfxResumePending
+ * further down this file -- see the comment there and at the two call sites
+ * below for the hardware evidence that made this necessary. */
+static int sTexWipePending;
 
 
 /* How often the size-aware cache key created a SECOND entry for an address
@@ -1278,7 +1547,8 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
          * Same reasoning as the palette field above, and the same fix
          * libultraship applies there: distinct decode inputs get distinct
          * entries. */
-        if ((*node)->texture_addr == orig_addr && (*node)->fmt == fmt && (*node)->siz == siz &&
+        if (!(*node)->stale &&
+            (*node)->texture_addr == orig_addr && (*node)->fmt == fmt && (*node)->siz == siz &&
             (*node)->line_size_bytes == rdp.texture_tile[tile].line_size_bytes &&
             (*node)->size_bytes == LOADED_TEX(tile).size_bytes &&
             (*node)->mirror_s == tile_wants_mirror(rdp.texture_tile[tile].cms) &&
@@ -1328,13 +1598,19 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
         }
         gPspTexCacheHighWater = gfx_texture_cache.pool_pos;
 #endif
-        texman_clear();
-
-        // Pool is full. We just invalidate everything and start over.
-        gfx_texture_cache.pool_pos = 0;
-        memset(gfx_texture_cache.pool, 0, sizeof(gfx_texture_cache.pool));
-        node = &gfx_texture_cache.hashmap[hash];
-        //puts("Clearing texture cache");
+        /* Used to wipe right here with texman_clear() + a pool reset. Two
+         * consecutive hardware frames captured on room entry (2026-08-28)
+         * showed why that was wrong: the glitch frame has correctly-textured
+         * geometry sitting next to rectangular blocks of texel-rate
+         * green/white noise, at exactly the polygon boundaries where the
+         * NEXT frame's (correct) wall/curtain textures land. That is a wipe
+         * reassigning VRAM the GE was still reading draws from, mid-list --
+         * not a geometry, matrix, or combiner bug. Only note the wipe is due
+         * and let the current, overfull frame finish drawing; the actual
+         * reset now happens in gfx_start_frame(), the one point where
+         * gfx_end_frame's sceGuFinish/sceGuSync already guarantee the GE has
+         * gone idle (same guarantee sGfxResumePending relies on there). */
+        sTexWipePending = 1;
     }
 #if TARGET_PSP
     /* Walk the chain again to see whether this address is already present at
@@ -1356,7 +1632,23 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
         }
     }
 #endif
-    *node = &gfx_texture_cache.pool[gfx_texture_cache.pool_pos++];
+    if (gfx_texture_cache.pool_pos < sizeof(gfx_texture_cache.pool) / sizeof(struct TextureHashmapNode)) {
+        *node = &gfx_texture_cache.pool[gfx_texture_cache.pool_pos++];
+    } else {
+        /* The one real trap in deferring the wipe above: pool_pos used to be
+         * guaranteed < 512 because the wipe above reset it to 0 the instant
+         * it reached the cap. Now that the wipe waits for gfx_start_frame(),
+         * a scene that references more than 512 distinct textures in one
+         * frame would walk pool_pos past the end of a fixed 512-entry array
+         * -- real memory corruption, the same class this port has already
+         * produced once (see the "Both conditions below" comment above on
+         * pool[512] vs textures[512] going out of sync). Pin pool_pos at the
+         * cap and reuse the last slot for the rest of the frame instead:
+         * that one texture thrashes (repeatedly re-decoded into the same
+         * VRAM slot), but every other cached entry stays valid until
+         * gfx_start_frame() actually clears everything. */
+        *node = &gfx_texture_cache.pool[sizeof(gfx_texture_cache.pool) / sizeof(struct TextureHashmapNode) - 1];
+    }
     if ((*node)->texture_addr == NULL) {
         (*node)->texture_id = gfx_rapi->new_texture();
     }
@@ -1367,6 +1659,7 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
     (*node)->cmt = 0;
     (*node)->linear_filter = false;
     (*node)->next = NULL;
+    (*node)->stale = 0;
     (*node)->texture_addr = orig_addr;
     (*node)->fmt = fmt;
     (*node)->siz = siz;
@@ -1421,8 +1714,55 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
  * keeping a second copy of the rule here: session 9 already lost time to two
  * copies of the segment discriminator drifting apart, and this is the same
  * trap. */
+/* Bisect-Schalter ueber Commit 34ab82e0b; definiert in gfx_scegu.c neben den
+ * uebrigen Render-Hacks, damit das HACKS-Menue sie an einer Stelle findet. */
+extern int gPspTileNomaskClamp;
+extern int gPspRebindAfterUpload;
+extern int gPspSkyForceNonNative;
+
 static inline bool tex_needs_u64_unswap(const void *addr) {
-    return PspStaticAssetIsStatic(addr) != 0;
+    bool native = PspStaticAssetIsStatic(addr) != 0;
+
+    /* Die Skybox weiss ihre eigene Byteordnung -- sie muss nicht geraten werden.
+     *
+     * PspStaticAssetIsStatic() ist ein ADRESSBEREICHS-Test (PspBlob_IsNative).
+     * psp_blob_assets.c beschreibt seit Langem, wie er ausgerechnet hier falsch
+     * antwortet: die Skybox ist das letzte Asset, das noch roh aus der .z64 in
+     * die gemeinsame Arena gelesen wird, und ein Blob-Bereich, der diesen
+     * Puffer noch beansprucht, laesst rohe Big-Endian-Daten als "native"
+     * erscheinen. Der CI8-Dekoder dreht dann jede Achtergruppe um, die gar
+     * nicht gedreht werden wollte.
+     *
+     * Genau das war der kaputte Himmel: eine Flaeche in dunkelblauem
+     * Streifenrauschen -- gleiche Palette, gleiche Farbfamilie, nur innerhalb
+     * jeder Achtergruppe verwuerfelt -- direkt neben einer voellig korrekten
+     * Flaeche. Der Bereich deckt den 49-KB-Puffer nur teilweise ab, also faellt
+     * die Grenze mitten hinein und trennt die Flaechen voneinander.
+     *
+     * JEDER Zweig von Skybox_Setup (z_vr_box.c) fuellt staticSegments[] und
+     * palettes per DMA_REQUEST_SYNC aus der rohen .z64; es gibt dort keinen
+     * Blob-Pfad. "Nicht native" ist damit keine Vermutung, sondern eine
+     * Eigenschaft der Daten -- und sie wird hier ausgesprochen, statt aus einer
+     * Adresse erschlossen zu werden.
+     *
+     * Der Zaehler bleibt: sky_tex_unswap zaehlt weiterhin, wie oft das Orakel
+     * danebengelegen haette, also ob dieser Fall ueberhaupt noch auftritt. */
+    if (native && gPspSkyTriMark) {
+        GFXSTAT_INC(sky_tex_unswap);
+        if (gPspSkyForceNonNative) {
+            native = false;
+        }
+    }
+
+    /* Counted here rather than at the call sites: there are eight importers and
+     * each asks exactly once, so this is the one place that cannot be missed
+     * when a ninth is added. See the probe comment on PspGfxFrameStats. */
+    if (native) {
+        GFXSTAT_INC(tex_unswap_yes);
+    } else {
+        GFXSTAT_INC(tex_unswap_no);
+    }
+    return native;
 }
 
 /* Undo the compiler's little-endian storage of a u64 literal: byte i of the
@@ -1826,9 +2166,15 @@ static void import_texture(int tile) {
 
     if (gfx_texture_cache_lookup(tile, &rendering_state.textures[tile], LOADED_TEX(tile).addr, fmt, siz)) {
         GFXSTAT_INC(tex_hits);
+        if (gPspSkyTriMark) {
+            GFXSTAT_INC(sky_tex_hits);
+        }
         return;
     }
     GFXSTAT_INC(tex_imports);
+    if (gPspSkyTriMark) {
+        GFXSTAT_INC(sky_tex_imports);
+    }
 
     //int t0 = get_time();
     if (fmt == G_IM_FMT_RGBA) {
@@ -2428,6 +2774,251 @@ static inline bool psp_depth_test_enabled(void) {
     return gDebugZCmpMode ? (zbuf && zcmp) : zbuf;
 }
 
+/* --- Distance fog ---------------------------------------------------------
+ *
+ * This was dead code for the whole life of the port: the G_FOG block in
+ * gfx_sp_vertex is commented out and gfx_scegu.c's sceGuFog call with it. The
+ * consequence is not subtle, and it is not a fog-only consequence -- in OoT the
+ * scene's ATMOSPHERE is fog. Measured in the scene data (Auftrag 04):
+ *
+ *   Zora's Domain   fogColor (25,100,100), fogNear 990  -- reported as
+ *                   "the bluish cast is missing entirely, the scene looks neutral"
+ *   Skulltula House fogColor (10,0,10),   fogNear 930, zFar 2000 -- reported
+ *                   as "too bright"
+ *
+ * Both reports are this one gap, not a lighting bug.
+ *
+ * WHAT THE N64 DOES. G_MOVEWORD/G_MW_FOG carries (fog_mul, fog_offset), and the
+ * RSP computes per vertex
+ *     fog = clamp(z_ndc * fog_mul + fog_offset, 0, 255)
+ * which the blender then uses to lerp the finished pixel towards fog_color.
+ * gSPFogPosition(near, far) generates fog_mul = 128000/(far-near) and
+ * fog_offset = (500-near)*256/(far-near), with near/far on a 0..1000 scale.
+ * Substituting shows what that scale IS: the fog factor is 0 exactly where
+ * 500*(z_ndc+1) == near and 255 where it == far. So "N64 fog depth" is simply
+ * the normalised device depth mapped onto 0..1000. That identity is what makes
+ * the conversion below possible, and it is worth stating because it is not
+ * written down anywhere in the GBI headers.
+ *
+ * WHAT THE GE DOES. sceGuFog(start, end, colour) fogs linearly in EYE-SPACE
+ * DISTANCE, and applies it after texturing -- the same place in the pipeline as
+ * the N64's blender. Since session 13 this port hands the GE eye-space vertices
+ * with GU_MODEL/GU_VIEW at identity, so the GE has exactly the z it needs.
+ *
+ * THE CONVERSION. Undo the gSPFogPosition arithmetic to recover near/far, then
+ * ask the current projection which eye distance produces a given z_ndc:
+ *   z_ndc(e) = (a2*(-e) + b2) / (a3*(-e) + b3)   for eye distance e > 0
+ * taken straight from P_matrix, so it holds for whatever projection is loaded
+ * rather than assuming a particular guPerspective form.
+ *
+ * THE APPROXIMATION, stated plainly because it is the one thing here that is
+ * not a faithful port: the N64 ramps linearly in z_ndc, i.e. in 1/e, while the
+ * GE ramps linearly in e. Matching both endpoints would put the GE ramp far
+ * below the N64's across the whole middle of the range -- with OoT's typical
+ * fogNear of 990 the visible result would be almost no fog at all, which is the
+ * bug this is meant to fix. So the ramp is fitted at the 0% and 50% points
+ * instead: start is the exact distance where the N64 fog begins, and end is
+ * placed so the GE reaches 50% where the N64 does. Perceptually the half-way
+ * point is what reads as "how foggy is it", and the endpoints clamp anyway.
+ *
+ * A second pass per fogged triangle would be exact (that is what Daedalus does
+ * on this hardware, reference/daedalus RendererPSP::RenderFog, because its
+ * vertices reach the GE already projected). It also doubles the triangle count
+ * on exactly the geometry that is already the heaviest. Start with the free
+ * one; gPspFogMode makes the comparison possible without a rebuild.
+ */
+
+/* 0 = off, 1 = GE hardware fog (the approximation described above), 2 = the
+ * two-pass blend (see gPspFogSecondPass below). Runtime-switchable from the
+ * hack menu, because this changes the look of every outdoor scene.
+ *
+ * Default 2, not 1: mode 2 is a faithful port of the RDP's own per-pixel lerp
+ * rather than a two-point fit to a differently-shaped ramp, so it is right
+ * across the whole distance range instead of only at the endpoints and the
+ * halfway point. Mode 1 stays reachable from the hack menu as the cheaper
+ * fallback and as the A/B partner for judging mode 2. */
+int gPspFogMode = 2;
+
+/* Draws that asked for fog, and draws where the conversion could not produce a
+ * usable range (a degenerate projection, or fog_mul == 0). The second being
+ * non-zero means the maths below, not the GE, is what to look at. */
+uint32_t gPspFogDraws;
+uint32_t gPspFogBadRange;
+
+/* --- Fog mode 2: two-pass blend --------------------------------------------
+ *
+ * Mode 1 above fits sceGuFog's EYE-SPACE-linear ramp to the N64's
+ * 1/eye-space-linear one at two points and accepts the mismatch in between
+ * (see THE APPROXIMATION above) -- cheap (one extra GE register write per
+ * fog-colour change), but wrong in the middle of the range, which is exactly
+ * what "too strong in some scenes, absent in others" (FEHLERLISTE2) looks
+ * like for a ramp that is fitted at the wrong two points for a given
+ * near/far.
+ *
+ * The exact fix, ported from reference/oot-psp-z2442 (commit 471a7eae7,
+ * "FOG!"): resubmit the SAME triangle through gfx_sp_tri1 a second time,
+ * this time with a flat fog-coloured, untextured vertex colour whose ALPHA
+ * is the true per-vertex N64 fog factor (the identity this port's own
+ * comment above already derives: fog = clamp(z_ndc*fog_mul+fog_offset,
+ * 0, 255)), blended over the first pass with ordinary SRC_ALPHA. That is
+ * the RDP's own per-pixel lerp towards fog_color, done in a second pass
+ * because the GE has no equivalent blend stage of its own.
+ *
+ * z2442 keeps a second, parallel vertex buffer and a dedicated
+ * draw_fog_triangles call in its rendering API for this. This port already
+ * tried that shape once for a different feature (the terrain LERP's second
+ * pass) and it silently drew the wrong thing -- see the LERP comment on
+ * gPspLerp2SecondPass below for why two buffers in lockstep is the wrong
+ * shape here. So mode 2 reuses that same recursive-resubmission technique
+ * instead: gPspFogSecondPass, read at the vertex-colour site in gfx_sp_tri1
+ * and at the trigger just below the LERP block, forces exactly the colour
+ * and blend state the second pass needs while going through the ordinary
+ * clip/transform/UV code path -- it cannot disagree with the first pass
+ * about where the triangle is. */
+int gPspFogSecondPass;
+uint32_t gPspFog2Draws;
+
+/* The N64 fog factor for one already-clipped vertex: clamp(z_ndc*fog_mul +
+ * fog_offset, 0, 255). Same derivation as psp_fog_apply's WHAT THE N64 DOES
+ * above and the dead code in gfx_sp_vertex this replaces, but evaluated per
+ * vertex AFTER clipping (v->_z/_w, not the pre-transform x/y/z/w) since that
+ * is what is available at the vertex-buffering site in gfx_sp_tri1. */
+static inline uint8_t psp_fog_vertex_alpha(const struct LoadedVertex *v) {
+    if (rsp.fog_mul == 0) {
+        /* Gfx_SetFog's specials (see psp_fog_apply): offset >= 255 is
+         * "everything fully fogged", anything else is "no fog at all". */
+        return (rsp.fog_offset >= 255) ? 255 : 0;
+    }
+
+    float w = v->_w;
+    if (fabsf(w) < 0.001f) {
+        w = 0.001f;
+    }
+    float winv = 1.0f / w;
+    if (winv < 0.0f) {
+        winv = 32767.0f;
+    }
+
+    float fog_z = v->_z * winv * (float)rsp.fog_mul + (float)rsp.fog_offset;
+    if (fog_z < 0.0f) fog_z = 0.0f;
+    if (fog_z > 255.0f) fog_z = 255.0f;
+    return (uint8_t)fog_z;
+}
+
+static void psp_fog_disable(void) {
+    if (rendering_state.fog_enabled != 0) {
+        gfx_flush();
+        gfx_scegu_set_fog(0, 0.0f, 0.0f, 0);
+        rendering_state.fog_enabled = 0;
+    }
+}
+
+static void psp_fog_set(float start, float end, unsigned int color) {
+    if (rendering_state.fog_enabled != 1 || start != rendering_state.fog_start ||
+        end != rendering_state.fog_end || color != rendering_state.fog_color) {
+        gfx_flush();
+        gfx_scegu_set_fog(1, start, end, color);
+        rendering_state.fog_enabled = 1;
+        rendering_state.fog_start = start;
+        rendering_state.fog_end = end;
+        rendering_state.fog_color = color;
+    }
+}
+
+static void psp_fog_apply(void) {
+    /* Mode 2 leaves the GE's hardware fog unit off entirely -- the two-pass
+     * trigger near the end of gfx_sp_tri1 does the work instead. */
+    if (gPspFogMode != 1 || (rsp.geometry_mode & G_FOG) != G_FOG) {
+        psp_fog_disable();
+        return;
+    }
+
+    /* The GE takes 0x00BBGGRR and ignores alpha. */
+    const unsigned int color = ((unsigned int)rdp.fog_color.b << 16) |
+                               ((unsigned int)rdp.fog_color.g << 8) |
+                               ((unsigned int)rdp.fog_color.r);
+
+    /* Gfx_SetFog's three special cases never go through gSPFogPosition, so they
+     * arrive here with a zero multiplier and have to be read from the offset:
+     * (0, 0) is "no fog at all" and (0, 255) is "everything fully fogged" (see
+     * src/code/z_rcp.c). Treating both as "no fog" -- which a bare
+     * `fog_mul == 0` test does -- would silently drop the whiteout case. */
+    if (rsp.fog_mul == 0) {
+        if (rsp.fog_offset >= 255) {
+            ++gPspFogDraws;
+            /* Everything at or beyond `end` is fully fogged, so a range that
+             * closes immediately in front of the camera fogs the whole scene.
+             * Not 0/0: sceGuFog divides by (far - near). */
+            psp_fog_set(0.0f, 0.001f, color);
+        } else {
+            psp_fog_disable();
+        }
+        return;
+    }
+
+    /* The four projection terms the conversion needs. P_matrix is stored the
+     * way sceGuSetMatrix and the VFPU transform above both read it, so P[i][j]
+     * is row i of the N64's row-vector matrix and column i of the GE's: with
+     * v = (0,0,z,1), clip_z = z*P[2][2] + P[3][2] and clip_w = z*P[2][3] +
+     * P[3][3]. No particular guPerspective form is assumed. */
+    const float a2 = rsp.P_matrix[2][2], b2 = rsp.P_matrix[3][2];
+    const float a3 = rsp.P_matrix[2][3], b3 = rsp.P_matrix[3][3];
+
+    /* This runs per TRIANGLE, and the answer changes per material at most --
+     * the fog factors come from a display-list command and the projection from
+     * a matrix load. Two divisions per triangle is real money in a frame budget
+     * measured at 7.2 ms, so memoise on the six inputs. */
+    static int16_t memo_mul, memo_off;
+    static float memo_a2, memo_b2, memo_a3, memo_b3;
+    static float memo_start, memo_end;
+    static int memo_valid;
+
+    float start, end;
+
+    if (memo_valid && memo_mul == rsp.fog_mul && memo_off == rsp.fog_offset &&
+        memo_a2 == a2 && memo_b2 == b2 && memo_a3 == a3 && memo_b3 == b3) {
+        start = memo_start;
+        end = memo_end;
+    } else {
+        /* Recover the 0..1000 near/far the display list asked for. */
+        const float span = 128000.0f / (float)rsp.fog_mul;      /* far - near */
+        const float n64_near = 500.0f - (float)rsp.fog_offset * 500.0f / (float)rsp.fog_mul;
+        const float n64_half = n64_near + span * 0.5f;
+
+        float e[2];
+        for (int i = 0; i < 2; i++) {
+            const float t = ((i == 0 ? n64_near : n64_half) / 500.0f) - 1.0f; /* target z_ndc */
+            /* (a2*z + b2) = t*(a3*z + b3), with z = -e */
+            const float denom = a2 - t * a3;
+            if (denom == 0.0f) {
+                ++gPspFogBadRange;
+                return;
+            }
+            e[i] = -((t * b3 - b2) / denom);
+        }
+
+        start = e[0];
+        end = start + 2.0f * (e[1] - start);
+        if (!(end > start) || !(start >= 0.0f)) {
+            ++gPspFogBadRange;
+            return;
+        }
+
+        memo_mul = rsp.fog_mul;
+        memo_off = rsp.fog_offset;
+        memo_a2 = a2; memo_b2 = b2; memo_a3 = a3; memo_b3 = b3;
+        memo_start = start;
+        memo_end = end;
+        memo_valid = 1;
+    }
+
+    ++gPspFogDraws;
+    /* sceGuFog's own contract (pspsdk, sceGuFog.c): near >= 0, far > near,
+     * far <= 65535. The first two are checked above; clamp the third rather
+     * than hand the GE a value its register cannot hold. */
+    psp_fog_set(start, end > 65535.0f ? 65535.0f : end, color);
+}
+
 /* Dimensions of the texture a tile actually had UPLOADED, which is what its
  * texture coordinates must be normalised by. Derived from the load's line size
  * and byte count -- the same arithmetic every import_texture_* uses to decide
@@ -2490,15 +3081,55 @@ static void gfx_tile_dimensions(int tile, uint32_t *out_w, uint32_t *out_h) {
  * times across the surface -- came out as a single stretched band, i.e. no
  * detail. This is the same trap the two earlier attempts fell into: never take
  * the state a render pass depends on from a path that only runs on a change. */
+/* Old behaviour: reach the bind by forcing the whole import loop to run again.
+ * Kept as a runtime switch rather than deleted, so both halves of the A/B come
+ * from ONE build -- the rule this port adopted after two screenshots taken
+ * under uncertain build states produced a wrong conclusion. Default off. */
+int gPspLerp2ForceReimport = 0;
+
 static void gfx_lerp2_assert_texture_state(void) {
     const int tile = gPspLerp2SecondPass ? 1 : 0;
     const bool linear_filter = (rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT;
 
-    rdp.textures_changed[0] = true;
-    rdp.textures_changed[1] = true;
+    /* Ask for the BIND, not for a re-import.
+     *
+     * This used to set rdp.textures_changed[0] and [1], purely so that the
+     * import loop in gfx_sp_tri1 would run and reach its select_texture call.
+     * That works, but textures_changed is the display list's flag for "a new
+     * texture was loaded", and setting it drags import_texture along with the
+     * bind. On the ONE frame per room where the cache is cold, that turns every
+     * LERP triangle into a second full cache lookup for BOTH tiles.
+     *
+     * Measured on hardware, same room, same first frame (2026-08-28):
+     *
+     *   second pass on   79 texture imports, 60 of them the skybox's -> broken
+     *   second pass off  50 texture imports, 31 of them the skybox's -> clean
+     *   frame after      0 imports, second pass still running        -> clean
+     *
+     * So the fault needs the second pass AND an upload, and the second pass's
+     * own contribution is that it roughly DOUBLES the uploads on precisely the
+     * frame that comes out wrong. Neither half is guilty alone; this is where
+     * they meet.
+     *
+     * gfx_scegu_invalidate_texture_binding() below already guarantees that
+     * select_texture will not short-circuit, so the flags were never what made
+     * the bind happen -- they only added the imports. Bind directly instead.
+     *
+     * (A different mechanism was suspected first and is now ruled out by
+     * measurement: that the upload's own texman_bind_tex left the GE bound to
+     * tile 0 while the second pass wanted tile 1. bindDesync2nd measured 0 on
+     * the corrupted frame, i.e. the binding never desyncs inside the second
+     * pass. Do not re-chase it.) */
+    if (gPspLerp2ForceReimport) {
+        rdp.textures_changed[0] = true;
+        rdp.textures_changed[1] = true;
+    }
     /* Force the bind itself to happen: without this, select_texture's own
      * "same id, nothing to do" test skips it and the wrong tile stays bound. */
     gfx_scegu_invalidate_texture_binding();
+    if (!gPspLerp2ForceReimport && rendering_state.textures[tile] != NULL) {
+        gfx_rapi->select_texture(tile, rendering_state.textures[tile]->texture_id);
+    }
 
     gfx_rapi->set_sampler_parameters(tile, linear_filter,
                                      rdp.texture_tile[tile].cms,
@@ -2511,6 +3142,20 @@ static void gfx_lerp2_assert_texture_state(void) {
         rendering_state.textures[tile]->cmt = rdp.texture_tile[tile].cmt;
     }
 }
+#endif
+
+#if TARGET_PSP
+/* Messwerte der GLOW-Sonde; ausgegeben in der GLOW-Zeile des HUD. Der
+ * UV-Bereich ist NORMIERT, also gegen die gebackene (gespiegelte) Textur. */
+uint32_t gPspGlowDraws;
+uint32_t gPspGlowTexW, gPspGlowTexH;
+uint32_t gPspGlowCms, gPspGlowCmt, gPspGlowCcId;
+uint32_t gPspGlowSiz, gPspGlowMirror, gPspGlowPrimA, gPspGlowVtxA, gPspGlowUseAlpha;
+uint32_t gPspGlowVtxAMax, gPspGlowAlphaSrc;
+uint32_t gPspGlowWantTex, gPspGlowBoundTex, gPspGlowFmt;
+uint32_t gPspGlowCapture;
+float gPspGlowArea2;
+float gPspGlowUMin, gPspGlowUMax, gPspGlowVMin, gPspGlowVMax;
 #endif
 
 static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
@@ -2631,6 +3276,8 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         clipped_vertices = ptr_clipped_vertices;
     }
 
+    psp_fog_apply();
+
     bool depth_test = psp_depth_test_enabled();
     if (depth_test != rendering_state.depth_test) {
         gfx_flush();
@@ -2668,7 +3315,7 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     
     uint32_t cc_id = rdp.combine_mode;
     
-    bool use_alpha = (rdp.other_mode_l & (G_BL_A_MEM << 18)) == 0;
+    bool use_alpha = gfx_use_alpha_for(rdp.other_mode_l);
     bool use_fog = (rdp.other_mode_l >> 30) == G_BL_CLR_FOG;
     bool texture_edge = (rdp.other_mode_l & CVG_X_ALPHA) == CVG_X_ALPHA;
     bool use_noise = (rdp.other_mode_l & G_AC_DITHER) == G_AC_DITHER;
@@ -2694,8 +3341,12 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         gfx_rapi->load_shader(prg);
         rendering_state.shader_program = prg;
         /* Applying a shader re-issues sceGuTexFunc, so the override below has
-         * to be re-decided rather than assumed still in force. */
+         * to be re-decided rather than assumed still in force. Same for the
+         * LERP's tex-env colour: other paths (the boot logo, the 2D blit)
+         * write sceGuTexEnvColor directly, so a remembered value cannot be
+         * trusted across a shader change. */
         rendering_state.two_texture_tint = -1;
+        rendering_state.lerp_prim_color = 0xFFFFFFFFu ^ gRdpPrimColorPacked;
     }
     if (use_alpha != rendering_state.alpha_blend) {
         gfx_flush();
@@ -2728,12 +3379,41 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         }
     }
 
+    /* The PRIM/ENV LERP carries PRIM in the tex-env colour, and PRIM changes
+     * per draw (each dust mote sets its own). Same shape as the tint above:
+     * only when it actually changed, and behind a flush, since the buffered
+     * triangles were built against the previous value. */
+    if ((gfx_scegu_shader_is_prim_env_lerp() || gfx_scegu_shader_is_flat_colour()) &&
+        gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
+        gfx_flush();
+        gfx_scegu_set_lerp_prim_color(gRdpPrimColorPacked);
+        rendering_state.lerp_prim_color = gRdpPrimColorPacked;
+    }
+
+    /* Did an upload happen in the loop below? See the re-bind after it. */
+    bool psp_imported_any = false;
+    /* Gehoert dieser Draw zum Leuchtkreis? Gesetzt weiter unten, sobald die
+     * Spiegelflags der gebundenen Textur bekannt sind. */
+    bool psp_glow_probe = false;
+
     for (int i = 0; i < 2; i++) {
         if (used_textures[i]) {
             if (rdp.textures_changed[i]) {
                 gfx_flush();
                 import_texture(i);
                 rdp.textures_changed[i] = false;
+                psp_imported_any = true;
+                /* A cache MISS uploads, and the upload binds whatever it just
+                 * decoded -- for tile 1 that means tile 1's texture wins the
+                 * single GE texture unit, the opposite of the TEXEL0-wins rule
+                 * gfx_scegu_select_texture applies on every other frame (see
+                 * its comment and the Chamber of the Sages water it cites).
+                 * Ask for the binding explicitly, so a miss ends up in the
+                 * same state a hit would instead of in whatever order the
+                 * uploads happened to finish. */
+                if (rendering_state.textures[i] != NULL) {
+                    gfx_rapi->select_texture(i, rendering_state.textures[i]->texture_id);
+                }
             }
             bool linear_filter = (rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT;
             if (linear_filter != rendering_state.textures[i]->linear_filter || rdp.texture_tile[i].cms != rendering_state.textures[i]->cms || rdp.texture_tile[i].cmt != rendering_state.textures[i]->cmt) {
@@ -2745,9 +3425,70 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             }
         }
     }
-    
+
+#if TARGET_PSP
+    /* Restore the binding a two-texture material actually wants, after an
+     * upload has taken it away.
+     *
+     * import_texture() on a cache MISS calls texman_bind_tex() itself, behind
+     * gfx_scegu_select_texture's back: whichever tile was uploaded LAST is what
+     * the single GE texture unit physically holds. Tile 1 is processed second,
+     * so a miss on tile 1 leaves TEXEL1 bound -- and the first pass then draws
+     * TEXEL1's texels while believing it drew TEXEL0's.
+     *
+     * The per-tile select_texture() call inside the loop was meant to fix this
+     * and cannot: for a two-texture shader, select_texture(1, ...) returns
+     * immediately by design ("TEXEL0 wins"), and a later select_texture(0, ...)
+     * short-circuits on `tmu_state[0].tex == id` because tmu_state still claims
+     * tile 0 is bound. Both caches say the right thing while the GE holds the
+     * wrong texture. Hence: invalidate, then bind explicitly.
+     *
+     * THIS IS THE BROKEN SKY. OoT's skybox (SETUPDL_40) is
+     * (TEXEL1 - TEXEL0) * PRIM_ALPHA + TEXEL0 over the two times of day, and it
+     * reloads a fresh tile pair for every one of its 32 quads per face, so it
+     * misses the texture cache constantly. Faces whose tiles hit rendered the
+     * day sky correctly; faces whose tiles missed rendered the DUSK texture at
+     * full strength in the first pass -- the hard-edged orange wedge next to
+     * blue sky, with the seams exactly on face and tile boundaries.
+     *
+     * It also matches the measurement already recorded above
+     * gfx_lerp2_assert_texture_state: "second pass on, 79 imports, 60 of them
+     * the skybox's -> broken / frame after, 0 imports, second pass still
+     * running -> clean". The fault needed an UPLOAD, not the second pass. */
+    /* NICHT auf Zwei-Textur-Materialien einschraenken. Das war die erste
+     * Fassung dieses Blocks, und sie hat den Himmel nur halb geheilt: sobald
+     * der Himmel bei blend == 0 auf G_CC_DECALRGBA umschaltet (siehe
+     * z_vr_box_draw.c), ist er ein EIN-Textur-Material -- und genau dann lief
+     * dieser Block nicht mehr, obwohl die Bindung genauso verloren gehen kann.
+     *
+     * Der Verlust braucht kein zweites TEXEL: es genuegt, dass irgendein
+     * frueherer Upload texman_bind_tex() hinter tmu_state[] vorbei aufgerufen
+     * hat. Danach behauptet tmu_state[0] weiter, Kachel 0 sei gebunden, der
+     * naechste select_texture(0, ...) kurzschliesst auf "gleiche id, nichts zu
+     * tun", und die GE zeichnet mit der Textur, die zuletzt physisch gebunden
+     * wurde. Beim Himmel ist das die Nacht-Textur mit der Tag-Palette --
+     * dunkelblaues Streifenrauschen neben korrektem Himmel, mit der Naht
+     * exakt auf einer Flaechenkante.
+     *
+     * Die Regel lautet deshalb: nach JEDEM Upload die Bindung ausdruecklich
+     * wiederherstellen, nicht nur dort, wo zwei Kacheln im Spiel sind. */
+    {
+        const bool two_tex = used_textures[0] && used_textures[1];
+        const int win = (two_tex && (gPspGfxHackPreferTexel1 || gPspLerp2SecondPass)) ? 1 : 0;
+
+        if (gPspRebindAfterUpload && psp_imported_any && used_textures[win] &&
+            rendering_state.textures[win] != NULL) {
+            gfx_flush();
+            gfx_scegu_invalidate_texture_binding();
+            gfx_rapi->select_texture(win, rendering_state.textures[win]->texture_id);
+        }
+    }
+#endif
+
     bool use_texture = used_textures[0] || used_textures[1];
     if (use_texture) { GFXSTAT_INC(tex_used); } else { GFXSTAT_INC(tex_unused); }
+    if (use_texture && !rsp.texture_on) { GFXSTAT_INC(tex_off_draws); }
+    if (use_texture && rsp.texture_scaling_factor.s == 0) { GFXSTAT_INC(tex_sc0_draws); }
 
     /* Texture coordinates are normalised by the size of the texture that was
      * actually UPLOADED, which is derived from the load's line size and byte
@@ -2799,7 +3540,18 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
      * recurse forever. */
     bool lerp2 = false;
     uint8_t lerp2_mix = 0;
-    if (!gPspLerp2SecondPass && used_textures[0] && used_textures[1] && gPspGfxLerp2Enable) {
+    /* Also skipped while gPspFogSecondPass is set, for a related reason: fog
+     * mode 2 resubmits this same triangle too, with an unchanged combine id, so
+     * a fogged LERP terrain triangle used to qualify a SECOND time inside its
+     * own fog pass. That ran gfx_scegu_lerp2_blend_begin() over the fog pass's
+     * state, replacing the SRC_ALPHA/1-SRC_ALPHA blend that carries the
+     * per-vertex fog factor with the LERP's fixed ENV/(1-ENV) factors -- so on
+     * two-texture ground (Kakariko's paths, outdoor terrain generally) the fog
+     * colour came in at a constant material fraction instead of by distance,
+     * which reads as the ground changing colour while fog elsewhere looks
+     * right. The fog pass is untextured and flat by construction; there is no
+     * second tile for it to mix in. */
+    if (!gPspLerp2SecondPass && !gPspFogSecondPass && used_textures[0] && used_textures[1] && gPspGfxLerp2Enable) {
         const uint8_t a = (cc_id >> 0) & 7;
         const uint8_t b = (cc_id >> 3) & 7;
         const uint8_t d = (cc_id >> 9) & 7;
@@ -2829,6 +3581,30 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
                     lerp2_mix = rdp.env_color.a;
                     break;
                 case G_CCMUX_PRIM_LOD_FRAC:
+                    lerp2_mix = rdp.prim_lod_frac;
+                    break;
+                /* Fixed-LOD portal/warp-glow materials: the display list sets
+                 * this cycle's C operand to the true LOD_FRACTION register,
+                 * but never turns on real per-pixel texture LOD (no
+                 * G_TL_LOD/detail texturing here) -- on real RDP hardware
+                 * LOD_FRACTION then just reads back whatever gDPSetPrimColor
+                 * last wrote into PRIM_LOD_FRAC, i.e. this case and the one
+                 * above are the SAME hardware value for these materials.
+                 * Before this, an unrecognised C operand fell through to
+                 * `have_mix = false`, this shape missed the LERP path
+                 * entirely, and generic combiner handling's CC_LOD case
+                 * synthesised a DISTANCE-based fraction instead of the
+                 * fixed one -- close to the camera that reads near 0, so
+                 * the glow came out black instead of tinted. Ported from
+                 * reference/oot-psp-z2442 commit d6411ef9c
+                 * ("fix exit warps"), adapted to this port's shape: z2442
+                 * special-cases the combine in its shader-selection code,
+                 * this port already has a general two-texture-LERP second
+                 * pass for exactly this cycle-1 shape (TEXEL1,TEXEL0,mix,
+                 * TEXEL0), so recognising this operand here is enough to
+                 * route it through that existing, proven mechanism instead
+                 * of adding a second one. */
+                case G_CCMUX_LOD_FRACTION:
                     lerp2_mix = rdp.prim_lod_frac;
                     break;
                 case G_CCMUX_PRIMITIVE_ALPHA:
@@ -2871,6 +3647,79 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             tex_height *= 2;
         }
     }
+
+#if TARGET_PSP
+    /* --- GLOW-Sonde: der Kasten um Sonne und Feen -------------------------
+     *
+     * Beide zeichnen denselben Leuchtkreis (gGlowCircleDL aus Lights_DrawGlow,
+     * gLensFlareCircleDL aus Environment_DrawLensFlare) mit demselben
+     * Combine: RGB ist die flache Konstante PRIM, die FORM kommt
+     * ausschliesslich aus dem Alphakanal (TEXEL0 * PRIM). Faellt der
+     * Texturalphakanal aus, bleibt genau ein einfarbiges Rechteck in der
+     * PRIM-Farbe uebrig -- das mit ihr mitdunkelt. Genau die Meldung.
+     *
+     * gCircleGlowLTex ist NACHGEMESSEN die LINKE HAELFTE einer Leuchtscheibe:
+     * linke Spalte, obere und untere Zeile durchgehend 0, aber die RECHTE
+     * Spalte erreicht 255 -- das ist die Nahtkante, die Mitte des vollen
+     * Kreises. Die Spiegelung in S ergaenzt sie zum Kreis. Damit ist jeder
+     * Fehler, der ueber die gebackene Textur hinaus abtastet und klemmt,
+     * sofort eine vollflaechig HELLE Flaeche statt eines Verlaufs.
+     *
+     * Diese Sonde misst deshalb genau das: den tatsaechlich benutzten
+     * UV-Bereich gegen die gebackene Textur. Erwartet ist u in [0,1] und
+     * v in [0,0.5] -- gGlowCircleVtx spannt in S das Doppelte der
+     * Texturbreite (0x800 = 64 Texel bei 32 breit) und in T das Einfache,
+     * waehrend BEIDE Achsen gespiegelt hochgeladen werden. Alles ausserhalb
+     * davon tastet in die 255er-Naht und erklaert den Kasten; liegt der
+     * Bereich im Soll, ist die UV-Kette entlastet und der Fehler sitzt in der
+     * Mischstufe.
+     *
+     * Ausgeloest ueber "in BEIDEN Achsen gespiegelt", weil der Leuchtkreis in
+     * diesem Port praktisch der einzige solche Fall ist -- das braucht keinen
+     * Symbolbezug, der bei schwachen Blob-Symbolen ohnehin unzuverlaessig
+     * waere. */
+    /* Ausgeloest ueber das TEXTURFORMAT, nicht mehr ueber die Spiegelung.
+     * Der erste Versuch nahm "in beiden Achsen gespiegelt" und griff damit
+     * eine fremde 16x16-Textur, 92 Draws pro Frame -- der Leuchtkreis war gar
+     * nicht dabei. Nachgesehen: die beiden Leuchttexturen sind VERSCHIEDEN
+     * gebaut, und nur eine davon ist gespiegelt.
+     *
+     *   Fee:   gCircleGlowLTex,      I8, 32x64, G_TX_MIRROR in BEIDEN Achsen
+     *   Sonne: gLensFlareCircleTex,  I4, 64x64, G_TX_NOMIRROR
+     *
+     * Gemeinsam ist ihnen das I-Format -- eine Intensitaetstextur, bei der
+     * A = I ist und die Form deshalb ausschliesslich im Alphakanal steckt.
+     * Das ist der richtige Auslöser fuer beide.
+     *
+     * Und es gewinnt der FLAECHENGROESSTE solche Draw, nicht der letzte: der
+     * Leuchtkreis ist auf dem Schirm gross, die uebrigen I-Texturen sind
+     * Kleinkram. Der letzte Draw zu nehmen war der zweite Fehler der ersten
+     * Fassung. */
+    /* I UND IA, und keine Winzlinge.
+     *
+     * Zwei Nachbesserungen aus dem Betrieb. Erstens war "nur I-Format" zu eng:
+     * der MOND ist IA8 (gMoonDL laedt gMoonTex als G_IM_FMT_IA/G_IM_SIZ_8b),
+     * die Sonde konnte ihn also nie sehen -- und er ist eines der beiden
+     * Objekte mit dem Kasten.
+     *
+     * Zweitens gewann ueber die reine Flaeche verlaesslich eine fremde
+     * 16x16-Textur, die in beiden Achsen gespiegelt auf 32x32 aufgeht und
+     * gross gezogen wird. Alle drei Verdaechtigen sind mindestens 32 Texel
+     * breit (Sonne 64x31 I4, Flare 64x64 I4, Mond 64x64 IA8, Feenkreis 32x64
+     * I8), also faellt der Stoerer ueber die Breite heraus -- gemessen an der
+     * QUELLtextur, nicht an der gebackenen, sonst zaehlt die Spiegelung
+     * doppelt. */
+    {
+        const uint8_t pfmt = rdp.texture_tile[uv_tile].fmt;
+        uint32_t src_w = tex_width;
+
+        if (rendering_state.textures[0] != NULL && rendering_state.textures[0]->mirror_s) {
+            src_w /= 2;
+        }
+        psp_glow_probe = use_texture && rendering_state.textures[0] != NULL &&
+                         (pfmt == G_IM_FMT_I || pfmt == G_IM_FMT_IA) && src_w >= 32;
+    }
+#endif
 
 #if TARGET_PSP
     /* Biggest-triangle probe. The outdoor ground is reliably the largest
@@ -2946,6 +3795,53 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             }
         }
 
+        if (psp_glow_probe) {
+            ++gPspGlowDraws;
+            if (area2 > gPspGlowArea2) {
+                gPspGlowArea2 = area2;
+                gPspGlowTexW = tex_width;
+                gPspGlowTexH = tex_height;
+                gPspGlowCms = rdp.texture_tile[uv_tile].cms;
+                gPspGlowCmt = rdp.texture_tile[uv_tile].cmt;
+                gPspGlowCcId = cc_id;
+                gPspGlowSiz = rdp.texture_tile[uv_tile].siz;
+                gPspGlowFmt = rdp.texture_tile[uv_tile].fmt;
+                gPspGlowMirror = (rendering_state.textures[0]->mirror_s ? 1 : 0) |
+                                 (rendering_state.textures[0]->mirror_t ? 2 : 0);
+                /* Die eigentliche Frage: welches Alpha geht in den Vertex?
+                 * Soll ist PRIM-Alpha (die Alphazeile lautet TEXEL0*PRIMITIVE,
+                 * der Texel kommt von der GE, PRIM von hier). Steht hier 255,
+                 * waehrend primA klein ist, ist der Kasten erklaert: dann wird
+                 * der Verlauf der Textur mit voller Deckung gezeichnet. */
+                gPspGlowPrimA = rdp.prim_color.a;
+                gPspGlowUseAlpha = use_alpha ? 1 : 0;
+                gPspGlowAlphaSrc = 0;
+                /* Zeichnet die GE ueberhaupt die Textur, die dieser Draw
+                 * gemeint hat?
+                 *
+                 * gSun1Tex ist nachgemessen sauber (Raender 0), TFX/TCC sind
+                 * korrekt (BLEND/RGBA) -- und trotzdem steht ein Kasten da,
+                 * dessen Inhalt nach WOLKEN aussieht und nicht nach Sonne.
+                 * Damit bleibt nur, dass physisch eine andere Textur gebunden
+                 * ist als die, deren Cache-Eintrag dieser Draw benutzt.
+                 *
+                 * want ist die ID aus dem Cache-Eintrag, bound die, die
+                 * gfx_scegu zuletzt wirklich an die GE gegeben hat. Weichen
+                 * sie ab, ist der Kasten erklaert -- und es waere derselbe
+                 * Desync, den dieser Port schon mehrfach hatte ("both caches
+                 * say the right thing while the GE holds the wrong texture"). */
+                gPspGlowWantTex = rendering_state.textures[uv_tile] != NULL
+                                      ? rendering_state.textures[uv_tile]->texture_id
+                                      : 0xFFFFFFFFu;
+                gPspGlowBoundTex = gPspCurBoundTex;
+                gPspGlowCapture = 1;
+                gPspGlowUMin = gPspGlowVMin = 1.0e9f;
+                gPspGlowUMax = gPspGlowVMax = -1.0e9f;
+            } else {
+                gPspGlowCapture = 0;
+            }
+        }
+
         if (horizontal && area2 > gPspBigTriArea2) {
             gPspBigTriArea2 = area2;
             gPspBigTriTexW = tex_width;
@@ -3017,6 +3913,15 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             buf_vbo[buf_num_vert].u = u / tex_width;
             buf_vbo[buf_num_vert].v = v / tex_height;
 #if TARGET_PSP
+            if (psp_glow_probe && gPspGlowCapture) {
+                const float nu = u / tex_width;
+                const float nv = v / tex_height;
+
+                if (nu < gPspGlowUMin) { gPspGlowUMin = nu; }
+                if (nu > gPspGlowUMax) { gPspGlowUMax = nu; }
+                if (nv < gPspGlowVMin) { gPspGlowVMin = nv; }
+                if (nv > gPspGlowVMax) { gPspGlowVMax = nv; }
+            }
             if (psp_l2_capture && i == 0) {
                 const int pass = gPspLerp2SecondPass ? 1 : 0;
                 gPspL2UvU[pass] = u / tex_width;
@@ -3074,6 +3979,16 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
                 if (k == 0) {
                     probe_cc_input = (uint32_t)comb->shader_input_mapping[k][j] + 1;
                 }
+#if TARGET_PSP
+                /* Woher stammt das Alpha wirklich? primA 255 bei vtxA 0 sagt,
+                 * dass die Alphazeile NICHT bei PRIM gelandet ist -- aber nicht,
+                 * wo stattdessen. Diese Zahl sagt es: +1, damit 0 ehrlich
+                 * "die Schleife hat nichts zugewiesen" heisst und nicht mit
+                 * CC_PRIM == 0 verwechselt wird. */
+                if (k == 1 && psp_glow_probe && gPspGlowCapture) {
+                    gPspGlowAlphaSrc = (uint32_t)comb->shader_input_mapping[k][j] + 1;
+                }
+#endif
                 switch (comb->shader_input_mapping[k][j]) {
                     case CC_PRIM:
                         *dst = &rdp.prim_color;
@@ -3217,8 +4132,51 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
          * a constant 1 means. Note this also stops the vertex alpha picking up
          * gfx_sp_vertex's fog factor, which it stores in color.a when G_FOG is
          * set (the room's display lists do set it) and which is not an alpha at
-         * all; that is the likely source of the walls' half-transparent look. */
-        buf_vbo[buf_num_vert].color.a = alpha_src->a;
+         * all; that is the likely source of the walls' half-transparent look.
+         *
+         * Exception: cycle 2 alpha == COMBINED*PRIMITIVE over a cycle-1
+         * constant 1 (see combine_cyc2_alpha_is_prim) means the material
+         * WANTS PRIM's alpha here, not the opaque default that "constant 1"
+         * reduces to on its own -- water materials use this shape for their
+         * fade. Gated on 2-cycle mode the same way combine_cyc2_tint is: the
+         * flag is computed unconditionally at G_SETCOMBINE time from
+         * whatever bits happen to be there, and only means anything once
+         * G_SETOTHERMODE_H has actually turned 2-cycle mode on. */
+        if (rdp.combine_cyc2_alpha_is_prim &&
+            (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) {
+            buf_vbo[buf_num_vert].color.a = rdp.prim_color.a;
+        } else {
+            buf_vbo[buf_num_vert].color.a = alpha_src->a;
+        }
+#if TARGET_PSP
+        /* Im Zweitdurchgang den Mischfaktor ins Alpha einrechnen. Die
+         * Mischstufe steht dort auf SRC_ALPHA/1-SRC_ALPHA (siehe
+         * gfx_scegu_lerp2_blend_begin), also traegt das Alpha jetzt BEIDES:
+         * wie stark die zweite Textur beigemischt wird UND wie deckend das
+         * Material an dieser Stelle ueberhaupt ist. Bei deckenden Boeden ist
+         * das Ergebnis identisch zum alten festen Faktor. */
+        if (gPspLerp2SecondPass) {
+            buf_vbo[buf_num_vert].color.a =
+                (uint8_t)((buf_vbo[buf_num_vert].color.a * gPspLerp2MixApplied) / 255u);
+        }
+#endif
+#if TARGET_PSP
+        /* Min UND Max ueber die Vertices: ein Quad, dessen Ecken verschiedene
+         * Alphawerte tragen, ist eine ganz andere Aussage als eines mit
+         * durchgehend demselben -- und "der letzte Vertex" verwischt genau
+         * diesen Unterschied. */
+        if (psp_glow_probe && gPspGlowCapture) {
+            const uint32_t a = buf_vbo[buf_num_vert].color.a;
+
+            if (i == 0) {
+                gPspGlowVtxA = a;
+                gPspGlowVtxAMax = a;
+            } else {
+                if (a < gPspGlowVtxA) { gPspGlowVtxA = a; }
+                if (a > gPspGlowVtxAMax) { gPspGlowVtxAMax = a; }
+            }
+        }
+#endif
 
         /* Shade probe -- the other half of the cut, see PspGfxFrameStats.
          * Only textured, lit draws: that is the walls and the floor. */
@@ -3239,6 +4197,19 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         if((rendering_state.shader_program->shader_id == 0x01A00045)){
             color = &tmp;
         }
+#if TARGET_PSP
+        /* Fog mode 2's second pass: overrides every material-specific colour
+         * decided above with flat fog_color, alpha = this vertex's N64 fog
+         * factor. Deliberately the LAST write before buffering, so it wins
+         * over the shader-id special cases too -- the fog pass has to look
+         * the same regardless of what material the base pass drew. */
+        if (gPspFogSecondPass) {
+            buf_vbo[buf_num_vert].color.r = rdp.fog_color.r;
+            buf_vbo[buf_num_vert].color.g = rdp.fog_color.g;
+            buf_vbo[buf_num_vert].color.b = rdp.fog_color.b;
+            buf_vbo[buf_num_vert].color.a = psp_fog_vertex_alpha(clipped_vertices[i]);
+        }
+#endif
         buf_num_vert++;
         buf_vbo_len += sizeof(psp_fast_t);
     }
@@ -3291,6 +4262,29 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         gfx_scegu_lerp2_blend_end();
         gPspLerp2Draws++;
     }
+
+    /* Fog mode 2's second pass -- see the long comment on gPspFogSecondPass
+     * above psp_fog_apply. Runs AFTER the LERP block on purpose: if this
+     * triangle is both a terrain LERP and fogged, the LERP block above has
+     * already flushed its own blended result into the framebuffer, so this
+     * pass draws fog over the composed picture instead of only over the
+     * LERP's first half.
+     *
+     * fog_mul == 0 && fog_offset < 255 is Gfx_SetFog's "no fog at all"
+     * special case (see psp_fog_apply); skipped here to save the draw
+     * instead of submitting a triangle whose every vertex would come out at
+     * alpha 0 anyway. */
+    if (!gPspFogSecondPass && gPspFogMode == 2 && (rsp.geometry_mode & G_FOG) == G_FOG &&
+        (rsp.fog_mul != 0 || rsp.fog_offset >= 255)) {
+        gfx_flush(); /* the base pass must be in the framebuffer before fog blends over it */
+        gfx_scegu_fog2_blend_begin();
+        gPspFogSecondPass = 1;
+        gfx_sp_tri1(vtx1_idx, vtx2_idx, vtx3_idx);
+        gfx_flush();
+        gPspFogSecondPass = 0;
+        gfx_scegu_fog2_blend_end(used_textures[0] || used_textures[1]);
+        gPspFog2Draws++;
+    }
 #endif
 }
 
@@ -3299,6 +4293,12 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
     struct VertexColor *v1 = &rsp.loaded_vertices_2D[vtx1_idx];
     struct VertexColor *v2 = &rsp.loaded_vertices_2D[vtx2_idx];
     struct VertexColor *v_arr[2] = {v1, v2};
+
+    /* Never fog the 2D path: the HUD, the texture rectangles and the
+     * pre-rendered backgrounds are screen-space quads whose eye-space Z means
+     * nothing. Their vertices would land at whatever depth the fog range
+     * happens to cover, and the HUD would fade with the scenery. */
+    psp_fog_disable();
 
     bool depth_test = psp_depth_test_enabled();
     if (depth_test != rendering_state.depth_test) {
@@ -3337,7 +4337,7 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
     
     uint32_t cc_id = rdp.combine_mode;
     
-    bool use_alpha = (rdp.other_mode_l & (G_BL_A_MEM << 18)) == 0;
+    bool use_alpha = gfx_use_alpha_for(rdp.other_mode_l);
     bool use_fog = (rdp.other_mode_l >> 30) == G_BL_CLR_FOG;
     bool texture_edge = (rdp.other_mode_l & CVG_X_ALPHA) == CVG_X_ALPHA;
     bool use_noise = (rdp.other_mode_l & G_AC_DITHER) == G_AC_DITHER;
@@ -3363,8 +4363,12 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
         gfx_rapi->load_shader(prg);
         rendering_state.shader_program = prg;
         /* Applying a shader re-issues sceGuTexFunc, so the override below has
-         * to be re-decided rather than assumed still in force. */
+         * to be re-decided rather than assumed still in force. Same for the
+         * LERP's tex-env colour: other paths (the boot logo, the 2D blit)
+         * write sceGuTexEnvColor directly, so a remembered value cannot be
+         * trusted across a shader change. */
         rendering_state.two_texture_tint = -1;
+        rendering_state.lerp_prim_color = 0xFFFFFFFFu ^ gRdpPrimColorPacked;
     }
     if (use_alpha != rendering_state.alpha_blend) {
         gfx_flush();
@@ -3396,6 +4400,17 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
             rendering_state.two_texture_tint = tint;
         }
     }
+
+    /* The PRIM/ENV LERP carries PRIM in the tex-env colour, and PRIM changes
+     * per draw (each dust mote sets its own). Same shape as the tint above:
+     * only when it actually changed, and behind a flush, since the buffered
+     * triangles were built against the previous value. */
+    if ((gfx_scegu_shader_is_prim_env_lerp() || gfx_scegu_shader_is_flat_colour()) &&
+        gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
+        gfx_flush();
+        gfx_scegu_set_lerp_prim_color(gRdpPrimColorPacked);
+        rendering_state.lerp_prim_color = gRdpPrimColorPacked;
+    }
     
     for (int i = 0; i < 2; i++) {
         if (used_textures[i]) {
@@ -3403,6 +4418,17 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
                 gfx_flush();
                 import_texture(i);
                 rdp.textures_changed[i] = false;
+                /* A cache MISS uploads, and the upload binds whatever it just
+                 * decoded -- for tile 1 that means tile 1's texture wins the
+                 * single GE texture unit, the opposite of the TEXEL0-wins rule
+                 * gfx_scegu_select_texture applies on every other frame (see
+                 * its comment and the Chamber of the Sages water it cites).
+                 * Ask for the binding explicitly, so a miss ends up in the
+                 * same state a hit would instead of in whatever order the
+                 * uploads happened to finish. */
+                if (rendering_state.textures[i] != NULL) {
+                    gfx_rapi->select_texture(i, rendering_state.textures[i]->texture_id);
+                }
             }
             bool linear_filter = (rdp.other_mode_h & (3U << G_MDSFT_TEXTFILT)) != G_TF_POINT;
             if (linear_filter != rendering_state.textures[i]->linear_filter || rdp.texture_tile[i].cms != rendering_state.textures[i]->cms || rdp.texture_tile[i].cmt != rendering_state.textures[i]->cmt) {
@@ -3614,6 +4640,22 @@ static void gfx_sp_moveword(uint8_t index, uint16_t offset, uint32_t data) {
         case G_MW_NUMLIGHT:
 #ifdef F3DEX_GBI_2
             rsp.current_num_lights = data / 24 + 1; // add ambient light
+            /* Measure BEFORE the clamp -- afterwards every frame reads 8 and
+             * the question "did OoT ever ask for more than three?" is gone. */
+            if (rsp.current_num_lights > gPspLightsMax) {
+                gPspLightsMax = rsp.current_num_lights;
+            }
+            if (rsp.current_num_lights > 3) {
+                gPspLightsOverOld++;
+            }
+            /* Clamp: the count comes straight off the command stream and
+             * indexes current_lights[] / current_lights_coeffs[] unchecked.
+             * See MAX_LIGHTS. */
+            if (rsp.current_num_lights > MAX_LIGHTS + 1) {
+                rsp.current_num_lights = MAX_LIGHTS + 1;
+            } else if (rsp.current_num_lights < 1) {
+                rsp.current_num_lights = 1;
+            }
 #else
             // Ambient light is included
             // The 31th bit is a flag that lights should be recalculated
@@ -3643,10 +4685,10 @@ static void gfx_sp_moveword(uint8_t index, uint16_t offset, uint32_t data) {
 static void gfx_sp_texture(uint16_t sc, uint16_t tc, uint8_t level, uint8_t tile, uint8_t on) {
     _UNUSED(level);
     _UNUSED(tile);
-    _UNUSED(on);
 
     rsp.texture_scaling_factor.s = sc;
     rsp.texture_scaling_factor.t = tc;
+    rsp.texture_on = (on != 0);
 }
 
 static void gfx_dp_set_scissor(uint32_t mode, uint32_t ulx, uint32_t uly, uint32_t lrx, uint32_t lry) {
@@ -3684,8 +4726,47 @@ static void gfx_dp_set_texture_image(uint32_t format, uint32_t size, uint32_t wi
 }
 
 static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t tmem, uint8_t tile, UNUSED uint32_t palette, uint32_t cmt, uint32_t maskt, uint32_t shiftt, uint32_t cms, uint32_t masks, uint32_t shifts) {
-    _UNUSED(maskt);
-    _UNUSED(masks);
+    /* A tile with NO MASK does not wrap on the RDP: the mask is the number of
+     * coordinate bits the hardware keeps, and zero bits means the coordinate is
+     * simply held at the tile's edge -- so G_TX_WRAP + G_TX_NOMASK behaves as
+     * CLAMP, not as REPEAT. This port threw both masks away (`_UNUSED`) and
+     * handed cms/cmt straight to sceGuTexWrap, which turned exactly that
+     * combination into a genuine hardware repeat.
+     *
+     * THE FOUR MOONS. gMoonDL (assets/objects/gameplay_keep/moon.c) loads its
+     * texture with `G_TX_NOMIRROR | G_TX_WRAP` and `G_TX_NOMASK` on BOTH axes,
+     * and gMoonVtx's texture coordinates run past the texture -- on the N64
+     * that is clamped away, here it tiled the moon 2x2 across its own
+     * billboard.
+     *
+     * Verbatim from Ship of Harkinian: reference/shipwright-vita/libultraship/
+     * src/graphic/Fast3D/gfx_pc.cpp:1813, first thing gfx_dp_set_tile does.
+     * z2442 encodes the same rule differently (gfx_fast3d.c:1177, mirroring is
+     * likewise suppressed at G_TX_NOMASK). */
+    /* Auf einem Schalter, weil dies der erste Verdaechtige im Bisect ueber
+     * 34ab82e0b ist -- siehe gPspTileNomaskClamp in gfx_scegu.c. Und gezaehlt,
+     * weil "greift die Regel beim Himmel ueberhaupt?" eine eigene Frage ist:
+     * nomaskClamp zaehlt alle Umwandlungen, nomaskClampSky nur die zwischen
+     * den Skybox-Markern. Steht der zweite auf 0, kann diese Aenderung den
+     * Himmel gar nicht angefasst haben, egal was der Schalter zeigt. */
+    if (gPspTileNomaskClamp) {
+        bool clamped = false;
+
+        if (cms == G_TX_WRAP && masks == G_TX_NOMASK) {
+            cms = G_TX_CLAMP;
+            clamped = true;
+        }
+        if (cmt == G_TX_WRAP && maskt == G_TX_NOMASK) {
+            cmt = G_TX_CLAMP;
+            clamped = true;
+        }
+        if (clamped) {
+            GFXSTAT_INC(nomask_clamps);
+            if (gPspSkyTriMark) {
+                GFXSTAT_INC(nomask_clamps_sky);
+            }
+        }
+    }
 
     GFXSTAT_INC(settile);
     if (tile < 2) {
@@ -3695,14 +4776,24 @@ static void gfx_dp_set_tile(uint8_t fmt, uint32_t siz, uint32_t line, uint32_t t
         rdp.texture_tile[tile].cms = cms;
         rdp.texture_tile[tile].cmt = cmt;
         rdp.texture_tile[tile].line_size_bytes = line * 8;
-        rdp.texture_tile[tile].tmem_slot = (tmem / 256) & 1;
+        /* Which of this port's only TWO tracked texture slots (this is a
+         * simplified stand-in for the RDP's real 4KB TMEM, not a full
+         * emulation of it -- see LOADED_TEX) a nonzero TMEM base belongs to.
+         * Was `(tmem / 256) & 1`, which only tells slot 0 (0x000) from slot 1
+         * at exactly 0x100 apart; OoT's two-texture display lists also place
+         * tile 1 at TMEM 0x80 for smaller tiles, which that formula still
+         * read as slot 0, colliding with whatever tile 0 had just loaded.
+         * Since there are only two slots here regardless of the real TMEM
+         * offset, "nonzero" is the whole test. Ported from
+         * reference/oot-psp-z2442 commit 3f7c9cf3c ("Improve skybox!"). */
+        rdp.texture_tile[tile].tmem_slot = (tmem != 0) ? 1 : 0;
         rdp.texture_tile[tile].shifts = shifts & 0xf;
         rdp.texture_tile[tile].shiftt = shiftt & 0xf;
         rdp.textures_changed[tile] = true;
     }
 
     if (tile == G_TX_LOADTILE) {
-        rdp.texture_to_load.tile_number = tmem / 256;
+        rdp.texture_to_load.tile_number = (tmem != 0) ? 1 : 0;
     }
 }
 
@@ -3959,6 +5050,18 @@ static uint8_t combine_cycle2_tint(uint32_t a, uint32_t b, uint32_t c, uint32_t 
     return (reg == CC_PRIM || reg == CC_ENV || reg == CC_SHADE) ? reg : CC_0;
 }
 
+/* Cycle 1 alpha == the constant 1 ((0-0)*0+1) and cycle 2 alpha ==
+ * (COMBINED-0)*PRIMITIVE+0, i.e. the finished alpha is just PRIM's alpha.
+ * Raw G_ACMUX_* operands, not CC_* codes -- same reasoning as
+ * combine_c0_raw above: CC_* has no way to say "this scalar, unmodified". */
+static bool combine_cycle2_alpha_is_prim(uint32_t a0, uint32_t b0, uint32_t c0, uint32_t d0,
+                                         uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1) {
+    if (a0 != G_ACMUX_0 || b0 != G_ACMUX_0 || c0 != G_ACMUX_0 || d0 != G_ACMUX_1) {
+        return false;
+    }
+    return (a1 == G_ACMUX_COMBINED) && (b1 == G_ACMUX_0) && (c1 == G_ACMUX_PRIMITIVE) && (d1 == G_ACMUX_0);
+}
+
 static void gfx_dp_set_combine_mode(uint32_t rgb, uint32_t alpha) {
     rdp.combine_mode = rgb | (alpha << 12);
 }
@@ -4026,6 +5129,11 @@ static void gfx_dp_set_fill_color(uint32_t packed_color) {
     rdp.fill_color.a = a * 255;
 }
 
+/* 1 = the old behaviour, aspect-correct 2D rectangles (and pillarbox them).
+ * 0 = the fix. A switch rather than a deletion because this path also carries
+ * the HUD and the screen fades, so the two can be compared in place. */
+int gPspRect2dPillarbox = 0;
+
 static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
     uint32_t saved_other_mode_h = rdp.other_mode_h;
     uint32_t cycle_type = (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE));
@@ -4044,9 +5152,42 @@ static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lr
     ulyf = (ulyf / (4.0f * HALF_SCREEN_HEIGHT)) - 1.0f;
     lrxf = lrxf / (4.0f * HALF_SCREEN_WIDTH) - 1.0f;
     lryf = (lryf / (4.0f * HALF_SCREEN_HEIGHT)) - 1.0f;
-    
-    ulxf = gfx_adjust_x_for_aspect_ratio(ulxf);
-    lrxf = gfx_adjust_x_for_aspect_ratio(lrxf);
+
+    /* NOT aspect-corrected, and that is the fix rather than an oversight.
+     *
+     * gfx_adjust_x_for_aspect_ratio multiplies x by (4/3)/(480/272) = 0.7556.
+     * Applied here it PILLARBOXES every screen-space rectangle: a full-width
+     * N64 rect (0..319) came out spanning pixels 59..421 of 480, with a 59-pixel
+     * black bar down each side.
+     *
+     * The 3D scene has no such bar. gfx_calc_and_set_viewport scales the
+     * viewport by RATIO_X = 480/320 = 1.5, i.e. the full width, and the only
+     * place the 3D path applies the aspect factor is the CLIP test in
+     * gfx_sp_vertex -- never the coordinates the GE rasterises (see the long
+     * comment there, which flags exactly this inconsistency and says it is real
+     * and worth revisiting). So 2D rectangles were pillarboxed onto a world
+     * that is not.
+     *
+     * What made it visible: OoT paints a full-screen rectangle in the scene's
+     * FOG COLOUR whenever skyboxId is SKYBOX_UNSET_1D -- that is how a scene
+     * with no skybox gets a sky (Environment_DrawSkyboxFilters, z_kankyo.c,
+     * where UNSET_1D also forces alpha to 1.0). Every scene the user reported
+     * as "a coloured box with black bars left and right" is SKYBOX_UNSET_1D and
+     * no other: Kokiri Forest, Sacred Forest Meadow, Lost Woods, Zora's
+     * Fountain, Lord Jabu-Jabu's boss room, the Windmill/Dampe's Grave scene and
+     * the Water Temple. It also explains the colours -- olive in Kokiri Forest
+     * (76,83,60), yellow-green in the Windmill (150,170,120), dark blue in the
+     * Lost Woods at night -- because they ARE those scenes' fog colours, and why
+     * two of them are interiors with no sky at all, which is what made the
+     * report look like two unrelated bugs.
+     *
+     * The HUD uses this same path and moves with it. That is the point: it has
+     * to line up with a world that fills the width. Nobody noticed it was inset
+     * because almost all of Interface_* is still stubbed. */
+    if (gPspRect2dPillarbox) {
+        ulxf = gfx_adjust_x_for_aspect_ratio(ulxf);
+        lrxf = gfx_adjust_x_for_aspect_ratio(lrxf);
+    }
 
     ulxf = (ulxf*240)+240;
     lrxf = (lrxf*240)+240;
@@ -4379,6 +5520,12 @@ static void gfx_psp_bg_rect(const PspBgRect *bg) {
         }
     }
 
+    /* Tell the grabber which background is on screen. Rooms with a fixed
+     * camera can hold several images, one per camera angle, and switching
+     * angle swaps the image without reloading the room -- which is exactly
+     * the moment being investigated. */
+    PspScreenshot_NoteBgImage(img);
+
     gfx_flush();
     gfx_scegu_draw_background(img, bg->width, bg->height, bg->offsetX, bg->offsetY);
     ++gPspBgDrawn;
@@ -4612,6 +5759,23 @@ static void gfx_run_dl(Gfx* cmd) {
                 gfx_sp_texture(C1(16, 16), C1(0, 16), C0(11, 3), C0(8, 3), C0(0, 8));
 #endif
                 break;
+            case (uint8_t)G_RDPHALF_1:
+                rsp.rdp_half_1 = cmd->words.w1;
+                break;
+            case (uint8_t)G_BRANCH_Z:
+                /* This port keeps vertices in OBJECT space and lets the GE
+                 * transform at draw time (see LoadedVertex's mtx_slot_at_load
+                 * comment), so it never has the RSP's fixed-point screen Z the
+                 * real hardware branches on. Follow the branch unconditionally
+                 * whenever the display list actually set one up -- rendering
+                 * the detailed chunk at every distance costs more triangles
+                 * than a real LOD switch would, but a missing chunk is a worse
+                 * defect than an early one. */
+                if (rsp.rdp_half_1 != 0) {
+                    cmd = (Gfx *)seg_addr(rsp.rdp_half_1);
+                    --cmd;
+                }
+                break;
             case G_VTX:
 #ifdef F3DEX_GBI_2
                 gfx_sp_vertex(C0(12, 8), C0(1, 7) - C0(12, 8), seg_addr(cmd->words.w1));
@@ -4763,7 +5927,9 @@ static void gfx_run_dl(Gfx* cmd) {
                  * purpose so shader ids are unaffected. */
                 rdp.combine_cyc2_tint = combine_cycle2_tint(C0(5, 4), C1(24, 4), C0(0, 5), C1(6, 3));
                 rdp.combine_c0_raw = C0(15, 5);
-                /* alpha cycle 2 would be color_comb(C1(21,3), C1(3,3), C1(18,3), C1(0,3)) */
+                rdp.combine_cyc2_alpha_is_prim = combine_cycle2_alpha_is_prim(
+                    C0(12, 3), C1(12, 3), C0(9, 3), C1(9, 3),
+                    C1(21, 3), C1(3, 3), C1(18, 3), C1(0, 3));
                 break;
             // G_SETPRIMCOLOR, G_CCMUX_PRIMITIVE, G_ACMUX_PRIMITIVE, is used by Goddard
             // G_CCMUX_TEXEL1, LOD_FRACTION is used in Bowser room 1
@@ -4856,6 +6022,11 @@ static void gfx_sp_reset() {
     rsp.modelview_matrix_stack_size = 1;
     rsp.current_num_lights = 2;
     rsp.lights_changed = true;
+    /* Default ON. A frame that draws before its first gsSPTexture must not be
+     * counted as "texturing switched off" -- that would be a measurement
+     * artefact, not the condition tex_off_draws is asking about. */
+    rsp.texture_on = true;
+    rsp.rdp_half_1 = 0;
 }
 
 void gfx_get_dimensions(uint32_t *width, uint32_t *height) {
@@ -4914,10 +6085,69 @@ struct GfxRenderingAPI *gfx_get_current_rendering_api(void) {
 
 unsigned int total_t0, total_t1;
 
+#if TARGET_PSP
+/* Raised by the power callback after standby. Acted on here rather than in the
+ * callback because this is the one point in the frame where the GE is provably
+ * idle: gfx_end_frame has already run its sceGuFinish/sceGuSync, and nothing
+ * of this frame has been queued yet. Wiping a texture cache the GE is still
+ * reading from is the speckled corruption this file fights elsewhere. */
+static volatile int sGfxResumePending;
+unsigned int gPspGfxResumes;
+
+/* Bumped by whoever loads a room; see gfx_scegu_draw_background. */
+extern unsigned int gPspBgCacheGeneration;
+extern float gPspGlowArea2;
+void gfx_texture_cache_reset(void);
+
+void PspGfx_NotifyResume(void) {
+    sGfxResumePending = 1;
+}
+#endif
+
 void gfx_start_frame(void) {
     //sceIoWrite(1, "----START FRAME!\n", 18);
     total_t0 = sceKernelLibcClock();
 #if TARGET_PSP
+    /* Der Flaechen-Hoechststand der GLOW-Sonde gehoert an den Frameanfang,
+     * nicht in die HUD-Zeichenroutine. Dort stand er, und weil das HUD
+     * abschaltbar ist, blieb der erste grosse Draw der Sitzung sonst fuer
+     * immer Sieger -- die Sonde klebte an einer fremden Textur fest und
+     * meldete drei Messungen lang denselben falschen Draw. Eine Sonde, deren
+     * Gueltigkeit davon abhaengt, ob man sie gerade anschaut, ist keine. */
+    gPspGlowArea2 = 0.0f;
+    if (sGfxResumePending) {
+        sGfxResumePending = 0;
+        ++gPspGfxResumes;
+
+        /* Standby powers the GE's eDRAM down, so every texture the cache
+         * still claims to have in VRAM is gone -- the entries are valid, the
+         * pixels behind them are not. Throw the cache away so the next draws
+         * re-upload instead of sampling whatever survived. */
+        gfx_texture_cache_reset();
+
+        /* And force the fixed-camera background to be flushed to RAM again.
+         * gfx_scegu_draw_background skips its 150 KB writeback when the image
+         * pointer AND the generation both match the last blit -- an
+         * optimisation that is exactly wrong across a resume, because the
+         * room buffer is reused at the same address and the generation only
+         * moves when a room loads. Walking back into the room you slept in
+         * would otherwise blit whatever the GE finds in RAM. */
+        ++gPspBgCacheGeneration;
+    }
+    if (sTexWipePending) {
+        sTexWipePending = 0;
+
+        /* gfx_texture_cache_lookup set this when the cache/VRAM was full,
+         * instead of wiping right there while the GE could still be mid-list
+         * over draws pointing into the memory a wipe hands out next -- see
+         * the comment at that call site for the hardware capture that showed
+         * this happening. This is the same idle point sGfxResumePending
+         * above relies on: gfx_end_frame has already run its
+         * sceGuFinish/sceGuSync for the PREVIOUS frame, and nothing of this
+         * one has been queued yet, so it is safe to hand this frame's
+         * textures out at addresses the last frame's draws used. */
+        gfx_texture_cache_reset();
+    }
     /* Without this the probe would latch onto the largest triangle ever drawn
      * in the session -- typically something from a long-gone scene -- instead
      * of the largest one in the picture being looked at. */
@@ -4930,6 +6160,18 @@ void gfx_start_frame(void) {
 
 void gfx_run(Gfx *commands) {
     gfx_sp_reset();
+#if TARGET_PSP
+    /* The GE's fog state does not survive whatever else touched the hardware
+     * between frames, and neither does the cache in gfx_scegu_set_fog once the
+     * display list is rebuilt. Start every frame not knowing, so the first draw
+     * that cares establishes it. */
+    rendering_state.fog_enabled = -1;
+    gPspFogDraws = 0;
+    gPspFogBadRange = 0;
+    /* N36 lighting probe -- per frame, like the fog counters above. */
+    gPspLightsMax = 0;
+    gPspLightsOverOld = 0;
+#endif
 #if TARGET_PSP
     /* Rotate the stat generations *before* building this frame, so prev/prev2
      * always describe two fully completed, consecutive frames while the game
@@ -4949,6 +6191,18 @@ void gfx_run(Gfx *commands) {
         gPspGfxDlTrace.magic = PSP_DL_TRACE_MAGIC;
         gPspGfxDlTrace.frame = next_frame;
         gPspGfxDlTrace.dl_top = (uint32_t)(uintptr_t)commands;
+
+        /* gPspTexBindDesyncs lives in gfx_scegu.c next to the draw it guards and
+         * so cannot be reset by the rotation above. Remember where it stood at
+         * the start of this frame instead, and report the difference -- a
+         * cumulative counter beside a single screenshot cannot say whether that
+         * frame contributed anything, which cost a reading already. */
+        {
+            extern uint32_t gPspTexBindDesyncs;
+            extern uint32_t gPspTexBindDesyncsFrameBase;
+
+            gPspTexBindDesyncsFrameBase = gPspTexBindDesyncs;
+        }
 
         gPspGfxMtxPrev2 = gPspGfxMtxPrev;
         gPspGfxMtxPrev = gPspGfxMtx;
@@ -5033,6 +6287,87 @@ unsigned int gfx_pc_stat_tex_imports(void) {
 
 unsigned int gfx_pc_stat_tex_hits(void) {
     return gPspGfxStatsPrev.tex_hits;
+}
+
+/* The CURRENT frame's counters, for the screenshot writer.
+ *
+ * Not Prev: the grab happens in gfx_scegu's end-of-frame path, after the GE
+ * has gone idle and before the next gfx_run rotates the generations -- so the
+ * frame in the picture is the one still sitting in gPspGfxStats. Reading Prev
+ * there would label the image with the previous frame's numbers, which is
+ * exactly the picture-and-counters mismatch this whole mechanism exists to
+ * prevent.
+ *
+ * One out-parameter block rather than eleven accessors: the caller wants all
+ * of them at the same instant anyway. */
+void gfx_pc_stat_snapshot_current(struct GfxPcFrameSnapshot *out) {
+    if (out == NULL) {
+        return;
+    }
+    out->frame        = gPspGfxStats.frame;
+    out->tris_drawn   = gPspGfxStats.tris_drawn;
+    out->tri_calls    = gPspGfxStats.tri_calls;
+    out->flushes      = gPspGfxStats.flushes;
+    out->tex_imports  = gPspGfxStats.tex_imports;
+    out->tex_hits     = gPspGfxStats.tex_hits;
+    out->tex_used     = gPspGfxStats.tex_used;
+    out->tex_unused   = gPspGfxStats.tex_unused;
+    out->settimg      = gPspGfxStats.settimg;
+    out->loadblock    = gPspGfxStats.loadblock;
+    out->loadtile     = gPspGfxStats.loadtile;
+    out->settile      = gPspGfxStats.settile;
+    /* sky_tris is per-frame (reset at the BEGIN marker); sky_begins and
+     * sky_calls are running totals since boot, hence the "Total" suffix on
+     * their labels in the file. Mixing the two silently would invite reading a
+     * cumulative number as this frame's. */
+    out->sky_tris     = gPspSkyTri[0];
+    out->sky_begins   = gPspSkyTri[1];
+    out->sky_calls    = gPspSkyCall[0];
+    out->sky_id       = gPspSkyCall[1];
+    out->sky_drawtype = gPspSkyCall[2];
+    out->tex_unswap_yes  = gPspGfxStats.tex_unswap_yes;
+    out->tex_unswap_no   = gPspGfxStats.tex_unswap_no;
+    out->sky_tex_imports = gPspGfxStats.sky_tex_imports;
+    out->sky_tex_unswap  = gPspGfxStats.sky_tex_unswap;
+    out->nomask_clamps     = gPspGfxStats.nomask_clamps;
+    out->nomask_clamps_sky = gPspGfxStats.nomask_clamps_sky;
+    out->sky_tex_hits    = gPspGfxStats.sky_tex_hits;
+    out->tex_off_draws   = gPspGfxStats.tex_off_draws;
+    out->tex_sc0_draws   = gPspGfxStats.tex_sc0_draws;
+    {
+        extern uint32_t gPspTccRgbNoAlphaOpt, gPspTccRgbNoTexelRow, gPspTccRgbaOk;
+        out->tcc_rgb_no_alpha_opt = gPspTccRgbNoAlphaOpt;
+        out->tcc_rgb_no_texel_row = gPspTccRgbNoTexelRow;
+        out->tcc_rgba_ok          = gPspTccRgbaOk;
+    }
+    out->lights_max      = gPspLightsMax;
+    out->lights_over_old = gPspLightsOverOld;
+    out->amb_color       = gPspGfxStats.amb_color;
+    out->lit_color       = gPspGfxStats.lit_color;
+    out->fog_draws       = gPspFogDraws;
+    out->fog_bad_range   = gPspFogBadRange;
+    out->sky_seg0        = gPspSkyCall[8];
+    out->sky_seg0_native = (unsigned int)(gPspSkyCall[8] != 0 &&
+        PspStaticAssetIsStatic((const void *)(uintptr_t)gPspSkyCall[8]) != 0);
+    out->sky_pal         = gPspSkyCall[9];
+    out->sky_pal_native  = (unsigned int)(gPspSkyCall[9] != 0 &&
+        PspStaticAssetIsStatic((const void *)(uintptr_t)gPspSkyCall[9]) != 0);
+    {
+        /* Cumulative since boot, not per-frame: the counter lives in gfx_scegu.c
+         * next to the draw it guards, and a per-frame reset there would have to
+         * reach across into this file's generation rotation. Two consecutive
+         * shots give the per-frame figure by subtraction, and the automatic grab
+         * always takes three. */
+        extern uint32_t gPspTexBindDesyncs;
+        extern uint32_t gPspTexBindDesyncs2nd;
+
+        extern uint32_t gPspTexBindDesyncsFrameBase;
+
+        out->bind_desyncs       = gPspTexBindDesyncs;
+        out->bind_desyncs_frame = gPspTexBindDesyncs - gPspTexBindDesyncsFrameBase;
+        out->bind_desyncs_2nd = gPspTexBindDesyncs2nd;
+    }
+    out->lerp2_draws = gPspLerp2Draws;
 }
 
 void gfx_end_frame(void) {

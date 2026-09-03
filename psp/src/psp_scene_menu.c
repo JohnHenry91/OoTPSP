@@ -41,11 +41,13 @@
 
 #include "controller.h"
 #include "scene.h"
+#include "psp_screenshot.h"
 #include "save.h"
 #include "psp_raw_input.h"
 #include "psp_scene_menu.h"
 #include "psp_frame_pace.h"
 #include "gfx_pc.h"
+#include "gfx/gfx_pc_frame_snapshot.h"
 #include <pspiofilemgr.h>
 
 #include "psp_audio.h"
@@ -92,6 +94,7 @@ extern s32 gPspRoomCullDisable;
 
 #include <stdio.h>
 #include <string.h>
+#include "psp_hw_diag.h"
 
 /* Implemented in psp/src/gfx/gfx_scegu.c -- the font atlas is bound behind the
  * texture manager's back, same as the pre-rendered background blit does. */
@@ -176,18 +179,41 @@ static void PspSceneMenu_ApplyLayer(s32 layer) {
  * line here plus the global it points at.
  * ------------------------------------------------------------------------- */
 extern int gPspGfxHackNoTexture;
+/* Distance fog -- see psp_fog_apply in gfx_pc.c. Defaults to mode 2, the
+ * two-pass blend that ports the RDP's own per-pixel lerp; the entries below
+ * are the ways OUT of that default (off entirely, or back to the GE fog
+ * unit's cheaper approximation), kept because fog changes the look of every
+ * scene with a fog colour and an in-place A/B is the only honest way to
+ * judge it. */
+extern int gPspFogMode;
+/* Pillarboxing of 2D rectangles -- the "coloured box with black bars" bug.
+ * See the long comment in gfx_draw_rectangle. */
+extern int gPspRect2dPillarbox;
 extern int gPspGfxHackPointFilter;
 extern int gPspGfxHackPreferTexel1;
 extern int gPspGfxLerp2Enable;
 extern int gPspLerp2Force;
+extern int gPspLerp2ForceReimport;
+extern int gPspShotOnBgChange;
 extern int gPspGfxTile1LoadsEnable;
 extern int gDebugSkyFaceMask;
 extern int gPspGfxHackHighlightBigTri;
 extern const unsigned char *gPspBigTriTexAddr, *gPspBigTriPalAddr;
 extern unsigned int gPspBigTriTexFmt, gPspBigTriTexSiz, gPspBigTriTexLine, gPspBigTriTexBytes;
 
-/* Request flag for the texture dump below; cleared as soon as it has run. */
-static int sDumpProbeTexture;
+
+/* Frei durch Waende, Boeden und verschlossene Tueren bewegen.
+ *
+ * Der Decomp hat das schon (Player_UpdateNoclip in z_player.c), nur hinter
+ * DEBUG_FEATURES, das in diesem Build 0 ist. Statt es nachzubauen wird es hier
+ * erreichbar gemacht -- und statt ueber die Tastenkombination des Decomp ueber
+ * diesen Schalter, weil jene Kombination BTN_L verlangt und os_cont.c auf
+ * dieser Tastatur nie ein BTN_L setzt (LTRIGGER wird BTN_Z, RTRIGGER wird
+ * BTN_R). Sie waere also unerreichbar.
+ *
+ * Praktisch noetig geworden, weil mit inzwischen 429 aktiven Aktoren viele
+ * Orte nicht mehr zu Fuss erreichbar sind. */
+int gPspNoclip;
 
 /* Biggest-textured-triangle probe, filled in gfx_pc.c's gfx_sp_tri1. */
 extern unsigned int gPspBigTriTexW, gPspBigTriTexH;
@@ -204,6 +230,11 @@ extern int gPspBigTriU0, gPspBigTriV0, gPspBigTriU1, gPspBigTriV1, gPspBigTriU2,
  * makes a sampler-state change take effect on already-bound textures. */
 extern void gfx_scegu_invalidate_texture_binding(void);
 
+/* gfx_scegu.c -- the per-frame GU_ALPHA_TEST switch. */
+extern int gDebugAlphaTest;
+/* gfx_pc.c -- pick the old single-bit use_alpha test over the reference one. */
+extern int gPspUseAlphaLegacy;
+
 typedef struct {
     const char* name;
     int* value;
@@ -211,27 +242,63 @@ typedef struct {
 } PspRenderHack;
 
 static const PspRenderHack sHacks[] = {
+    /* --- Bisect ueber 34ab82e0b, nach Verdacht sortiert ---------------------
+     * Ganz oben, weil das die laufende Untersuchung ist und jede Zeile hier
+     * eine Messung ist, die genau einen Rebuild spart. Jede schaltet EINE
+     * Aenderung jenes Commits auf das Verhalten davor zurueck; die uebrigen
+     * drei bleiben stehen. Wenn die verwuerfelte Flaeche bei genau einer
+     * verschwindet, ist die Ursache benannt -- und diese vier Zeilen
+     * verschwinden zusammen mit ihr. */
     { "No textures (vertex colour only)", &gPspGfxHackNoTexture, 1 },
     { "Point filter (show texel size)", &gPspGfxHackPointFilter, 1 },
     { "Prefer TEXEL1 (detail layer, diagnostic)", &gPspGfxHackPreferTexel1, 1 },
     { "Disable two-pass terrain detail", &gPspGfxLerp2Enable, 0 },
-    { "Second pass at FULL strength (diag)", &gPspLerp2Force, 1 },
-    { "Drop tile-1 texture loads (old behaviour)", &gPspGfxTile1LoadsEnable, 0 },
+    { "Auto screenshot on scene/room/camera change", &gPspShotOnBgChange, 1 },
     /* gPspRoomCullDisable is s32 (long int) while the renderer's own switches
      * are plain int. Both are 32 bits on this ABI, but they are distinct types
      * to the compiler, so one cast is needed to keep the table homogeneous. */
     { "Disable room culling", (int*)&gPspRoomCullDisable, 1 },
     { "Skybox: side faces only", &gDebugSkyFaceMask, 0x0F },
+    /* Der Gegentest zur Zeile darueber: NUR die Deckflaeche (Flaeche 8,
+     * also Bit 0x100). Beantwortet in einem Schritt, ob eine andersfarbige
+     * Flaeche im Zenit wirklich die Deckflaeche ist oder eine schlecht
+     * projizierte Seitenflaeche, die darueber malt. */
+    { "Skybox: top face only", &gDebugSkyFaceMask, 0x100 },
     { "Highlight probed triangle (magenta)", &gPspGfxHackHighlightBigTri, 1 },
     /* Not really a toggle -- flipping it on performs the dump and it is turned
      * straight back off. Living in the same list keeps one place to look. */
-    { "Dump probed texture to ms0:/bigtex.bin", &sDumpProbeTexture, 1 },
+    { "Disable distance fog", &gPspFogMode, 0 },
+    /* Both this entry and the one above write &gPspFogMode, so toggling both
+     * on leaves whichever was toggled LAST in charge -- same as toggling any
+     * other pair of mutually exclusive diagnostics here, not a new problem.
+     *
+     * The two-pass blend (mode 2) is now the DEFAULT, so this entry is the
+     * way back to the old GE-hardware-fog approximation (mode 1) rather than
+     * the way forward to the new one: toggling it off restores mode 2 like
+     * every other entry restores its default. See the gPspFogSecondPass
+     * comment in gfx_pc.c for what the two modes actually do. */
+    /* The old blanket alpha discard: GU_ALPHA_TEST forced on for the whole
+     * frame with GU_GREATER, 0x55, throwing away every fragment below alpha
+     * 85 whatever other_mode_l asked for. Now off by default -- the test
+     * follows the render mode per draw instead. Kept switchable because the
+     * blunt cut may have been hiding missing sorting of transparent surfaces.
+     * See FEHLERLISTE2 N37. */
+    /* use_alpha: sm64-port's single-bit test (old) vs the three-part one both
+     * reference ports use. Decides whether a shader gets the texture's alpha
+     * channel at all -- see gfx_use_alpha_for. On = old single-bit test. */
+    /* Ganz unten, direkt neben dem anderen Ausloeser -- beide sind Aktionen,
+     * keine Zustaende. */
+    /* Kein Renderer-Hack, sondern ein Bewegungswerkzeug -- steht trotzdem
+     * hier, weil dies die einzige Liste ist, die der User im Spiel erreicht. */
+    { "Noclip: durch Waende/Boeden/Tueren", &gPspNoclip, 1 },
 };
 
 #define HACK_COUNT ((s32)(sizeof(sHacks) / sizeof(sHacks[0])))
 
-/* gDebugSkyFaceMask's "off" is 0xFF (all faces), not 0 (no faces), so the
- * default has to be recorded rather than assumed. */
+/* gDebugSkyFaceMask's "off" is 0xFFF (all faces), not 0 (no faces), so the
+ * default has to be recorded rather than assumed. It was 0xFF, which silently
+ * dropped the skybox's top face -- see the comment on the variable itself in
+ * src/code/z_vr_box_draw.c. */
 static int sHackDefault[HACK_COUNT];
 static s32 sHackDefaultsCaptured;
 
@@ -268,7 +335,7 @@ enum {
 
 static int sHudSection[HUD_SEC_COUNT] = {
     /* FPS  */ 1, /* frame budget -- cheap and always worth seeing */
-    /* PATH */ 1, /* audio decode census + the SFX distance probe */
+    /* PATH */ 0, /* audio decode census + the SFX distance probe */
     /* DROP */ 0, /* audio note drops */
     /* AUD  */ 1, /* audio output backend + Media Engine counters */
     /* BGM  */ 0, /* sequence player */
@@ -279,8 +346,11 @@ static int sHudSection[HUD_SEC_COUNT] = {
                    * silently stopped being written, so it must not depend on
                    * someone having switched it on beforehand. */
     /* BIG  */ 0, /* biggest-triangle texture probe -- an older subject */
-    /* SFX  */ 1, /* positional-sound distance/volume probe */
-    /* ME   */ 1, /* Media Engine offload counters */
+    /* SFX  */ 0, /* positional-sound distance/volume probe */
+    /* ME   */ 0, /* NOTE/ENV envelope probes -- despite the name, this section
+                   * no longer carries the Media Engine counters; those moved
+                   * onto the AUD line, which is where someone looking for
+                   * "is the offload working" will actually look. */
 };
 
 static const char* const sHudSectionName[HUD_SEC_COUNT] = {
@@ -350,10 +420,6 @@ static void PspSceneMenu_DumpProbeTexture(void) {
 static void PspSceneMenu_ToggleHack(s32 i) {
     const PspRenderHack* h = &sHacks[i];
 
-    if (h->value == &sDumpProbeTexture) {
-        PspSceneMenu_DumpProbeTexture();
-        return;
-    }
 
     *h->value = (*h->value == h->onValue) ? sHackDefault[i] : h->onValue;
 
@@ -462,13 +528,24 @@ void PspSceneMenu_Update(PlayState* play) {
      * usable from the debugger -- poke sPendingEntrance and the game goes,
      * which is what drives the automated scene sweep. */
     if (sPendingEntrance >= 0 && play != NULL && play->transitionTrigger == TRANS_TRIGGER_OFF) {
+        /* Durable probes on the warp path. A hardware run died warping out of
+         * Hyrule Field after six minutes of play, and the trace ends on an
+         * ordinary frame line with none of the gs-* teardown probes -- so the
+         * fault is before the gamestate handover, in the few frames where the
+         * warp arms the transition. This path runs once per warp, so a forced
+         * flush per step costs nothing. */
+        PspDiag_Note("  warp to entrance %u layer %u\n", (unsigned int)sPendingEntrance,
+                     (unsigned int)sPendingLayer);
+        PspDiag_StepSync("  warp-armed");
         PspSceneMenu_ApplyLayer(sPendingLayer);
+        PspDiag_StepSync("  warp-layer-set");
         sPendingLayer = -1;
         play->nextEntranceIndex = sPendingEntrance;
         play->transitionTrigger = TRANS_TRIGGER_START;
         play->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
         gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK_FAST;
         sPendingEntrance = -1;
+        PspDiag_StepSync("  warp-triggered");
     }
 
     /* HUD and pace override sit OUTSIDE the "menu closed" early-out on
@@ -503,7 +580,16 @@ void PspSceneMenu_Update(PlayState* play) {
          * are already spoken for. L doubles as BTN_Z in game, but a Z press
          * that also lands on TRIANGLE is not something that happens by
          * accident. */
-        if (gPspRawButtons & PSP_CTRL_LTRIGGER) {
+        /* BOTH triggers plus TRIANGLE takes the screenshot. The retired
+         * R+TRIANGLE fanfare hotkey is the warning here: R alone is pressed
+         * constantly in normal play, so anything guarded by R fires by
+         * accident. Requiring L as well cannot happen unintentionally, and
+         * this must be checked before the L-only branch or it would never be
+         * reached. Two frames rather than one, because the interesting frame
+         * is rarely the one the thumb lands on. */
+        if ((gPspRawButtons & PSP_CTRL_LTRIGGER) && (gPspRawButtons & PSP_CTRL_RTRIGGER)) {
+            PspScreenshot_Request(2);
+        } else if (gPspRawButtons & PSP_CTRL_LTRIGGER) {
             gPspRoomCullDisable = !gPspRoomCullDisable;
         /* The R+TRIANGLE fanfare hotkey that lived here is gone. It was only
          * ever a bring-up probe for "does any sequence play at all", and once
@@ -514,6 +600,9 @@ void PspSceneMenu_Update(PlayState* play) {
             sHudOpen = !sHudOpen;
         }
     }
+    /* The L+R+SQUARE toggle that used to live here (auto-screenshot on/off) is
+     * gone -- that switch moved into the HACKS page (SELECT), which is
+     * reachable without knowing a button combo. */
     if (sHudOpen && !gPspSceneMenuOpen && PSP_RAW_PRESSED(PSP_CTRL_SQUARE)) {
         /* off -> 3 -> 2 -> 1 -> off. "off" is not the same as 3: it hands
          * R_UPDATE_RATE back to the engine, which drives it to 1 during
@@ -705,6 +794,42 @@ static void PspSceneMenu_FillPanel(s32 x0, s32 y0, s32 x1, s32 y1, u32 color) {
     sceGuDrawArray(GU_SPRITES, GU_COLOR_8888 | GU_VERTEX_16BIT | GU_TRANSFORM_2D, 2, 0, bg);
 }
 
+/* ---------------------------------------------------------------------------
+ * Farben im Stil des Pausenmenues von OoT.
+ *
+ * Die GE erwartet ABGR8888, also 0xAABBGGRR -- ROT steht im NIEDRIGSTEN Byte.
+ * Das ist genau umgekehrt zu der Schreibweise, in der man eine Farbe
+ * nachschlaegt, und die haeufigste Fehlerquelle hier; die Namen unten sind
+ * deshalb nach dem gemeinten Farbton benannt, nicht nach ihren Bytes.
+ *
+ * Nachgebaut sind die vier Elemente, die den Look ausmachen: tiefblauer
+ * Grund, goldene Rahmenlinie, goldene Schrift auf der Auswahl und ein
+ * durchscheinender Balken darunter. Ohne neue Glyphen -- der Font ist ein
+ * fester 8x8-Atlas und kennt nur ASCII. */
+#define MC_BG        0xF0280C04u /* tiefes Nachtblau, fast deckend     */
+#define MC_HEADER    0xF0501C08u /* Kopfband, eine Stufe heller        */
+#define MC_FRAME     0xFF60C8FFu /* Goldrahmen                         */
+#define MC_FRAME_DIM 0xFF204878u /* innere Schattenlinie               */
+#define MC_SEL_BAR   0x5030A0E0u /* Auswahlbalken, durchscheinend      */
+#define MC_GOLD      0xFF60C8FFu /* Auswahl- und Reiterschrift         */
+#define MC_TEXT      0xFFE8E8D8u /* Normalschrift, warmes Weiss        */
+#define MC_DIM       0xFF806050u /* inaktiv                            */
+#define MC_ON        0xFF60E060u /* eingeschaltet                      */
+
+/* Rahmen aus vier duennen Balken, aussen gold und innen dunkel abgesetzt --
+ * dieselbe zweifarbige Kante wie die Fenster im Original. */
+static void PspSceneMenu_Frame(s32 x0, s32 y0, s32 x1, s32 y1) {
+    PspSceneMenu_FillPanel(x0, y0, x1, y0 + 2, MC_FRAME);
+    PspSceneMenu_FillPanel(x0, y1 - 2, x1, y1, MC_FRAME);
+    PspSceneMenu_FillPanel(x0, y0, x0 + 2, y1, MC_FRAME);
+    PspSceneMenu_FillPanel(x1 - 2, y0, x1, y1, MC_FRAME);
+
+    PspSceneMenu_FillPanel(x0 + 2, y0 + 2, x1 - 2, y0 + 3, MC_FRAME_DIM);
+    PspSceneMenu_FillPanel(x0 + 2, y1 - 3, x1 - 2, y1 - 2, MC_FRAME_DIM);
+    PspSceneMenu_FillPanel(x0 + 2, y0 + 2, x0 + 3, y1 - 2, MC_FRAME_DIM);
+    PspSceneMenu_FillPanel(x1 - 3, y0 + 2, x1 - 2, y1 - 2, MC_FRAME_DIM);
+}
+
 /* Binds the font atlas, draws everything PspSceneMenu_PutString appended
  * between `verts` and `v`, then hands the pipeline back. */
 static void PspSceneMenu_SubmitText(MenuVertex* verts, MenuVertex* v) {
@@ -751,8 +876,13 @@ void PspSceneMenu_DrawBackdrop(void) {
         sFontReady = 1;
     }
 
-    /* ABGR, near-opaque dark blue */
-    PspSceneMenu_FillPanel(0, 0, MENU_SCR_W, MENU_SCR_H, 0xE0301808);
+    /* Hintergrund, Kopfband und Rahmen -- alles VOR dem Text. FillPanel
+     * zeichnet sofort, die Schrift wird dagegen gesammelt und erst am Ende
+     * abgeschickt; ein Panel danach wuerde den Text uebermalen. */
+    PspSceneMenu_FillPanel(0, 0, MENU_SCR_W, MENU_SCR_H, MC_BG);
+    PspSceneMenu_FillPanel(4, 4, MENU_SCR_W - 4, 20, MC_HEADER);
+    PspSceneMenu_Frame(2, 2, MENU_SCR_W - 2, MENU_SCR_H - 2);
+    PspSceneMenu_FillPanel(4, 20, MENU_SCR_W - 4, 21, MC_FRAME_DIM);
 
     /* --- text ------------------------------------------------------------ */
     last = sScroll + VISIBLE_ROWS;
@@ -771,14 +901,21 @@ void PspSceneMenu_DrawBackdrop(void) {
      * other pages are discoverable rather than something you have to be told
      * about. */
     {
-        static const char* const kTabs[PAGE_COUNT] = { "MAPS", "HACKS", "HUD" };
+        static const char* const kTabs[PAGE_COUNT] = { "MAPS", "DEBUG", "HUD" };
         s32 x = 8;
 
         for (i = 0; i < PAGE_COUNT; i++) {
-            PspSceneMenu_PutString(&v, x, 6, (i == sPage) ? 0xFF00FFFF : 0xFF808080, kTabs[i]);
-            x += (s32)strlen(kTabs[i]) * GLYPH_W + 16;
+            const s32 w = (s32)strlen(kTabs[i]) * GLYPH_W;
+
+            /* Der aktive Reiter bekommt einen eigenen Balken, damit er auch
+             * auf einem Foto vom Bildschirm sofort zu finden ist. */
+            if (i == sPage) {
+                PspSceneMenu_FillPanel(x - 4, 4, x + w + 4, 20, MC_SEL_BAR);
+            }
+            PspSceneMenu_PutString(&v, x, 6, (i == sPage) ? MC_GOLD : MC_DIM, kTabs[i]);
+            x += w + 16;
         }
-        PspSceneMenu_PutString(&v, x + 8, 6, 0xFF80FFFF,
+        PspSceneMenu_PutString(&v, x + 8, 6, MC_TEXT,
                                (sPage == PAGE_MAPS) ? "<> TAB  L/R +-10  X LOAD  O CLOSE"
                                                     : "<> TAB  X TOGGLE  O CLOSE");
     }
@@ -790,10 +927,11 @@ void PspSceneMenu_DrawBackdrop(void) {
             s32 on = (*sHacks[i].value == sHacks[i].onValue);
 
             if (selected) {
-                PspSceneMenu_PutString(&v, 8, y, 0xFF00FFFF, ">");
+                PspSceneMenu_FillPanel(6, y - 1, MENU_SCR_W - 6, y + GLYPH_H + 1, MC_SEL_BAR);
+                PspSceneMenu_PutString(&v, 10, y, MC_GOLD, ">");
             }
-            PspSceneMenu_PutString(&v, 24, y, on ? 0xFF00FF00 : 0xFF808080, on ? "[X]" : "[ ]");
-            PspSceneMenu_PutString(&v, 56, y, selected ? 0xFF00FFFF : 0xFFFFFFFF, sHacks[i].name);
+            PspSceneMenu_PutString(&v, 24, y, on ? MC_ON : MC_DIM, on ? "[X]" : "[ ]");
+            PspSceneMenu_PutString(&v, 56, y, selected ? MC_GOLD : MC_TEXT, sHacks[i].name);
         }
 
         PspSceneMenu_SubmitText(verts, v);
@@ -809,10 +947,11 @@ void PspSceneMenu_DrawBackdrop(void) {
                 (i == HUD_ROW_VISIBLE) ? "SHOW HUD  (or TRIANGLE)" : sHudSectionName[i - 1];
 
             if (selected) {
-                PspSceneMenu_PutString(&v, 8, y, 0xFF00FFFF, ">");
+                PspSceneMenu_FillPanel(6, y - 1, MENU_SCR_W - 6, y + GLYPH_H + 1, MC_SEL_BAR);
+                PspSceneMenu_PutString(&v, 10, y, MC_GOLD, ">");
             }
-            PspSceneMenu_PutString(&v, 24, y, on ? 0xFF00FF00 : 0xFF808080, on ? "[X]" : "[ ]");
-            PspSceneMenu_PutString(&v, 56, y, selected ? 0xFF00FFFF : 0xFFFFFFFF, name);
+            PspSceneMenu_PutString(&v, 24, y, on ? MC_ON : MC_DIM, on ? "[X]" : "[ ]");
+            PspSceneMenu_PutString(&v, 56, y, selected ? MC_GOLD : MC_TEXT, name);
         }
 
         PspSceneMenu_SubmitText(verts, v);
@@ -824,9 +963,10 @@ void PspSceneMenu_DrawBackdrop(void) {
         s32 selected = (i == sCursor);
 
         if (selected) {
-            PspSceneMenu_PutString(&v, 8, y, 0xFF00FFFF, ">");
+            PspSceneMenu_FillPanel(6, y - 1, MENU_SCR_W - 6, y + GLYPH_H + 1, MC_SEL_BAR);
+            PspSceneMenu_PutString(&v, 10, y, MC_GOLD, ">");
         }
-        PspSceneMenu_PutString(&v, 24, y, selected ? 0xFF00FFFF : 0xFFFFFFFF, sEntries[i].name);
+        PspSceneMenu_PutString(&v, 24, y, selected ? MC_GOLD : MC_TEXT, sEntries[i].name);
     }
 
     PspSceneMenu_SubmitText(verts, v);
@@ -874,6 +1014,11 @@ static s32 sHackLineLen;
 #define HUD_Y 6
 
 static int sGfxProbeBad;
+/* Entrance index at the moment the GFX health line first went red, and whether
+ * it has been captured. Latched once and never cleared: the first failure is
+ * the interesting one, later ones are usually its consequences. */
+static int sGfxProbeBadLatched;
+static unsigned int sGfxProbeBadEntrance;
 
 void PspSceneMenu_DrawHud(void) {
     MenuVertex* verts;
@@ -884,7 +1029,9 @@ void PspSceneMenu_DrawHud(void) {
      * error code, and an overflowing sprintf here smashes the stack (see the
      * session-4 audio notes). */
     char line2[96];
-    char line3[64];
+    /* Same reasoning as line2: the ME counters push this past 96 in the worst
+     * case, and an overflowing sprintf here smashes the stack. */
+    char line3[160];
     char line7[64];
     char line8[112];
     char line9[96];
@@ -896,6 +1043,18 @@ void PspSceneMenu_DrawHud(void) {
      * this gets a line of its own rather than being appended to LOAD, and it
      * is kept under 60 characters on purpose. */
     char lineGfx[96];
+    /* Der Himmels-Bisect braucht seine Zahlen AUF DEM SCHIRM, nicht nur in
+     * shotNNN.txt. Die Uebergabe behauptete, skyUnswap stehe im GFX-Block --
+     * das stimmte nicht, der Zaehler existierte nur im Screenshot-Textfile.
+     * Genau der Fehler, vor dem AUFTRAG_SONNET.md Regel 3 warnt. */
+    char lineSky[112];
+    char lineGlow[112];
+    /* N34: which guard sent a shader down the GU_TCC_RGB path, i.e. bound it
+     * so the texture's alpha channel never reaches the blender. On the HUD and
+     * not only in shotNNN.txt, because L+R+Triangle does not reach the game
+     * under the emulator -- and a photograph of the screen is then the only
+     * channel left. Same reason the GFX line above lives here. */
+    char lineAlpha[96];
     int gateVal;
     u32 workUsec;
     u32 frameUsec;
@@ -1021,9 +1180,35 @@ void PspSceneMenu_DrawHud(void) {
          * cpu frozen is the only real proof the offload is live; cpu climbing
          * alone means the ME never came up (always the case under PPSSPP) or
          * timed out once and was switched off for good. */
-        sprintf(line3, "AUD calls %u n %u peak %d rsvf %u", (unsigned)PspAudio_StatOutputCalls(),
-                (unsigned)PspAudio_StatLastNumSamples(), (int)PspAudio_StatLastPeakSample(),
-                (unsigned)PspAudio_StatReserveFailures());
+        /* The Media Engine counters belong here.
+         *
+         * They existed (PspAudioMe_StatMeJobs/StatCpuJobs/StatTimeouts) but
+         * were displayed nowhere: HUD_SEC_ME had been repurposed for the ADSR
+         * envelope probes and still carries them under the old name. Since the
+         * offload is opt-in and unproven, "is it actually mixing" has to be
+         * answerable at a glance -- me climbing while cpu stands still is the
+         * only proof, and a rising timeout count is the failure mode that
+         * otherwise looks identical to it never having been enabled. */
+        {
+            extern int32_t gPspAudioMeInitResult;
+
+            /* w/wx are how long the last collect blocked and the worst so
+             * far, in microseconds, and f counts collects that found the job
+             * already finished. Those three are what tell the offload apart
+             * from the busy-wait it replaced: before the job queue, w tracked
+             * the whole mix time and f never moved, because the main core sat
+             * on the state word until the ME was done. With the queue the ME
+             * mixes tick N while this core builds tick N+1, so a healthy run
+             * is f climbing in step with me/ and w near zero. w staying high
+             * with me/ climbing means the mix is now the slower half -- the
+             * offload works but is not keeping up. */
+            sprintf(line3, "AUD calls %u peak %d | ME %u/%u to%u i%d w%u wx%u f%u",
+                    (unsigned)PspAudio_StatOutputCalls(), (int)PspAudio_StatLastPeakSample(),
+                    (unsigned)PspAudioMe_StatMeJobs(), (unsigned)PspAudioMe_StatCpuJobs(),
+                    (unsigned)PspAudioMe_StatTimeouts(), (int)gPspAudioMeInitResult,
+                    (unsigned)PspAudioMe_StatLastWaitUsec(), (unsigned)PspAudioMe_StatMaxWaitUsec(),
+                    (unsigned)PspAudioMe_StatFreeCollects());
+        }
 
         /* SFX: what the engine last computed for a BANK_PLAYER sound (Link's
          * jump, his sword). vol is the final channel volume x1000, ent is
@@ -1132,15 +1317,64 @@ void PspSceneMenu_DrawHud(void) {
         extern unsigned int psp_tex_overflows;
         extern unsigned int gPspTexCacheResetVram;
         extern unsigned int gPspTexCacheResetPool;
+        extern unsigned int gPspTexCacheHighWater;
+        extern unsigned int gPspTexSizeVariants;
+        extern unsigned int psp_tex_spills;
+        extern unsigned int gPspTexSpillBytes;
+        extern unsigned int gPspBlobResumes;
+        extern unsigned int gPspGfxResumes;
+        /* The pre-rendered background counters, which existed and were shown
+         * nowhere. drawn/skipped plus the skip reason (1 = the RoomShapeImage
+         * was not RGBA16, 2 = the data is still compressed JPEG) and the
+         * active camera setting. Between them they say which of three things
+         * the broken side view is: the background was blitted and the blit is
+         * wrong, a guard rejected it, or it was never asked for because the
+         * camera is not CAM_SET_PREREND_FIXED -- and only the first of those
+         * is a renderer bug at all. */
+        extern unsigned int gPspBgDrawn;
+        extern unsigned int gPspBgSkipped;
+        extern unsigned int gPspBgLastSkipReason;
+        extern unsigned int gPspBgProbeCamSetting;
         extern unsigned int gPspGfxBadDlCursors;
         extern unsigned int gPspZeldaAllocFails;
         extern unsigned int gPspDiagWriteFails;
         extern int gPspDiagWriteLastErr;
         extern unsigned int gPspBlobOpenFails;
+        /* A read that came back short leaves the tail of the destination
+         * holding whatever was there before -- so it produces wrong PIXELS,
+         * never a crash and never a failed open. It was counted from the
+         * start and displayed nowhere, which made it the one asset failure
+         * that could not be seen from the console at all. */
+        extern unsigned int gPspBlobShortReads;
+        extern unsigned int gPspBlobShortLastVrom;
+        extern unsigned int gPspBlobShortLastMissing;
+        /* Raw .z64 reads that did not deliver what was asked for. Counted
+         * since the read path was written, displayed nowhere -- and it is the
+         * counter for the one asset class the blobs do not cover. */
+        extern unsigned int gPspRomUnservedReads;
 
         sGfxProbeBad = (gPspPoolOverflows | psp_tex_overflows | gPspTexCacheResetVram |
                         gPspTexCacheResetPool | gPspGfxBadDlCursors | gPspZeldaAllocFails |
-                        gPspDiagWriteFails | gPspBlobOpenFails) != 0;
+                        gPspDiagWriteFails | gPspBlobOpenFails | gPspBlobShortReads |
+                        gPspRomUnservedReads) != 0;
+
+        /* Latch WHERE it first went bad.
+         *
+         * These counters are cumulative and the line says how many, never
+         * where. That is fine for a fault that reproduces on demand and
+         * useless for one that does not: this line has been seen going red
+         * "very rarely, on entering a house with a fixed camera", and by the
+         * time anyone reads the HUD the room is long gone. Recording the
+         * entrance the first time it trips turns the next sighting into an
+         * address instead of an anecdote.
+         *
+         * Entrance rather than scene id: every house shares a handful of
+         * interior scenes, so the scene would not say which door was walked
+         * through, and the door is the reproduction step. */
+        if (sGfxProbeBad && !sGfxProbeBadLatched) {
+            sGfxProbeBadLatched = 1;
+            sGfxProbeBadEntrance = (unsigned int)gSaveContext.save.entranceIndex;
+        }
         /* Never print a row of zeroes.
          *
          * The first version showed all seven counters as digits, and the
@@ -1152,13 +1386,155 @@ void PspSceneMenu_DrawHud(void) {
          * So: name only what is actually non-zero, and say "clean" in words
          * when nothing is. The answer then needs no digit at all, and any
          * digits that do appear are ones that matter. */
+        /* Resume bookkeeping rides along on this line because it is the one
+         * that is always on screen and usually has nothing to say.
+         *
+         * res is blob/audio/gfx resumes handled. All three staying 0 after a
+         * standby means the power callback never reached us at all, which is a
+         * completely different bug from "the handler ran and was not enough" --
+         * and the two are indistinguishable from the symptom, since both leave
+         * the console looking exactly as broken. rsv counts failed SRC channel
+         * reservations, which is what silent audio after a resume looks like
+         * from inside the backend. */
+        {
+            /* noAlphaOpt blames use_alpha upstream; noTexelRow blames the
+             * combine decode; ok is the denominator. Predicted for the fairy
+             * (G_CC_MODULATEI_PRIM, alpha row 0,0,0,PRIMITIVE): noTexelRow
+             * climbs, noAlphaOpt stays put. Anything else falsifies that. */
+            extern uint32_t gPspTccRgbNoAlphaOpt, gPspTccRgbNoTexelRow, gPspTccRgbaOk;
+            extern uint32_t gPspFlatBinds, gPspFlatRgbBinds;
+
+            /* flat = binds of the glow-sprite combine (flat colour, textured
+             * alpha -- the fairy's wings). flatRgb = how many of those were
+             * bound WITHOUT the texture's alpha channel, which is exactly the
+             * pale rectangle still left around the fairy. Any value above zero
+             * there is the remaining defect. */
+            snprintf(lineAlpha, sizeof(lineAlpha),
+                     "TCC nAO %u nTR %u ok %u | flat %u rgb %u",
+                     (unsigned int)gPspTccRgbNoAlphaOpt,
+                     (unsigned int)gPspTccRgbNoTexelRow,
+                     (unsigned int)gPspTccRgbaOk,
+                     (unsigned int)gPspFlatBinds,
+                     (unsigned int)gPspFlatRgbBinds);
+        }
+        /* SKY: die Messung, die der Himmels-Bisect braucht.
+         *
+         * imp/hit  Skybox-Texturen, die diesen Frame importiert bzw. aus dem
+         *          Cache bedient wurden -- imp == 0 nimmt den Texturpfad ganz
+         *          aus dem Fall heraus.
+         * unsw     wie oft das Adress-Orakel (PspBlob_IsNative) eine
+         *          Skybox-Textur faelschlich fuer "native" gehalten HAETTE.
+         *          Ueber 0 heisst: die Byteordnungs-Diagnose trifft zu.
+         *          Genau 0 heisst: die Byteordnung ist unschuldig.
+         * clmp/sky wie oft Aenderung 1 (G_TX_NOMASK -> CLAMP) eine Kachel
+         *          umgeschrieben hat, und wie viel davon auf den Himmel
+         *          entfiel. sky == 0 spricht Aenderung 1 frei, ohne dass der
+         *          Schalter ueberhaupt angefasst werden muss.
+         * b        der Stand der vier Bisect-Schalter als Bitmuster, damit ein
+         *          Screenshot fuer sich allein sagt, welcher Zustand darauf zu
+         *          sehen ist. 1111 == alle vier an == Verhalten von 34ab82e0b. */
+        {
+            struct GfxPcFrameSnapshot g;
+            /* inv/drp: Aufrufe von gfx_texture_cache_invalidate_range und wie
+             * viele Eintraege dabei wirklich entwertet wurden. KUMULATIV, im
+             * Gegensatz zu den Frame-Zaehlern davor. drp muss bei jedem
+             * Wechsel der Tageszeit um rund fuenf steigen -- bleibt es auf 0,
+             * ueberschreibt das Spiel die Puffer nicht so, wie die Diagnose
+             * behauptet, und die Erklaerung ist falsch. */
+            extern uint32_t gPspTexInvalCalls, gPspTexInvalDropped;
+
+            gfx_pc_stat_snapshot_current(&g);
+            /* Auf 54 Spalten gekuerzt -- so breit ist das Panel
+             * (HUD_X + 4 + 54 * GLYPH_W), und was darueber hinausgeht, wird
+             * ohne Umbruch abgeschnitten und ist damit schlicht nicht lesbar.
+             * Die NOMASK->CLAMP-Zaehler sind raus: der Bisect ist entschieden,
+             * und sie stehen weiterhin in shotNNN.txt. */
+            snprintf(lineSky, sizeof(lineSky),
+                     "SKY imp%u hit%u unsw%u inv%u drp%u",
+                     g.sky_tex_imports, g.sky_tex_hits, g.sky_tex_unswap,
+                     (unsigned int)gPspTexInvalCalls, (unsigned int)gPspTexInvalDropped);
+        }
+        /* GLOW: der Kasten um Sonne und Feen. n zaehlt die Draws des
+         * Leuchtkreises im letzten Frame, WxH ist die gebackene (gespiegelte)
+         * Texturgroesse, u/v ist der tatsaechlich abgetastete Bereich in
+         * Tausendsteln davon.
+         *
+         * SOLL: u 0..1000, v 0..500. gGlowCircleVtx spannt in S das Doppelte
+         * der Texturbreite und in T das Einfache, waehrend beide Achsen
+         * gespiegelt hochgeladen werden. Liegt u oder v darueber, tastet der
+         * Draw in die 255er-Naht von gCircleGlowLTex -- und genau das WAERE
+         * der einfarbig helle Kasten. Liegt beides im Soll, ist die UV-Kette
+         * entlastet und der Fehler sitzt in der Mischstufe. */
+        {
+            extern uint32_t gPspGlowTexW, gPspGlowTexH, gPspGlowDraws;
+            extern uint32_t gPspGlowVtxA, gPspGlowAlphaSrc, gPspGlowFmt;
+            extern uint32_t gPspGlowWantTex, gPspGlowBoundTex;
+            extern float gPspGlowArea2;
+            /* +1 gegen die CC_*-Aufzaehlung in gfx_cc.h, damit 0 "die
+             * Eingabeschleife hat der Alphazeile nichts zugewiesen" heisst --
+             * und genau DAS waere die Ursache: alpha_src bleibt dann weiss. */
+            static const char* const kAlphaSrc[] = {
+                "KEINE", "0", "TEX0", "TEX1", "PRIM", "SHADE", "ENV", "TEX0A", "LOD"
+            };
+            const char* asrc = (gPspGlowAlphaSrc < 9) ? kAlphaSrc[gPspGlowAlphaSrc] : "?";
+            extern float gPspGlowArea2;
+
+            if (gPspGlowDraws == 0) {
+                snprintf(lineGlow, sizeof(lineGlow), "GLOW keine I-Textur-Draws");
+            } else {
+                /* siz 0/1 == I4/I8, mir als Bitpaar S|T, ua == use_alpha.
+                 * primA ist das Alpha, das die Alphazeile liefern SOLL,
+                 * vtxA das tatsaechlich in den Vertex geschriebene. Weichen
+                 * die beiden ab -- vor allem vtxA 255 bei kleinem primA --,
+                 * wird der Texturverlauf mit voller Deckung gezeichnet, und
+                 * das IST der Kasten. */
+                /* UV ist raus: als im Soll gemessen (u/v blieben in 0..1000),
+                 * damit beantwortet. Stattdessen der GE-Zustand, mit dem das
+                 * Leuchtsprite gezeichnet wird -- f = TFX, c = TCC. Erwartet
+                 * ist f3 (BLEND) und c1 (RGBA). Alles andere heisst, dass der
+                 * Zweitdurchgang seine Texturumgebung hat stehen lassen. */
+                /* f/c (TFX/TCC) standen hier einmal mit drin und sind wieder
+                 * raus: sie werden fuer den zuletzt gebundenen
+                 * Leuchtsprite-Shader aufgezeichnet, waehrend der Rest der
+                 * Zeile den flaechengroessten I/IA-Draw beschreibt. Das sind
+                 * zwei verschiedene Draws in einer Zeile -- eine Zahl, die
+                 * neben einer anderen steht und etwas anderes meint, ist
+                 * schlimmer als keine. In shotNNN.txt stehen sie weiterhin,
+                 * dort aber als flatTfx/flatTcc benannt und damit ehrlich
+                 * einem anderen Gegenstand zugeordnet. */
+                snprintf(lineGlow, sizeof(lineGlow),
+                         "GLOW %ux%u fmt%u vA%u %s tex w%u b%u",
+                         (unsigned int)gPspGlowTexW, (unsigned int)gPspGlowTexH,
+                         (unsigned int)gPspGlowFmt,
+                         (unsigned int)gPspGlowVtxA,
+                         asrc,
+                         (unsigned int)gPspGlowWantTex, (unsigned int)gPspGlowBoundTex);
+            }
+            /* Pro Frame zuruecksetzen, damit "keine Draws" ehrlich ist und der
+             * Flaechenvergleich nicht ueber Frames hinweg haengen bleibt. */
+            gPspGlowDraws = 0;
+            gPspGlowArea2 = 0.0f;
+        }
         if (!sGfxProbeBad) {
-            snprintf(lineGfx, sizeof(lineGfx), "GFX  all clean");
+            snprintf(lineGfx, sizeof(lineGfx),
+                     "GFX clean res %u/%u/%u bg %u/%u shot %u f%u e%d fb%u",
+                     gPspBlobResumes, (unsigned int)PspAudio_StatResumes(), gPspGfxResumes,
+                     gPspBgDrawn, gPspBgSkipped,
+                     PspScreenshot_StatCount(), PspScreenshot_StatFails(),
+                     PspScreenshot_StatLastErr(), PspScreenshot_StatFallback());
         } else {
             char* w = lineGfx;
             char* end = lineGfx + sizeof(lineGfx);
 
-            w += snprintf(w, (size_t)(end - w), "GFX BAD:");
+            /* The entrance goes first, ahead of even the log clause: it is the
+             * only field here that cannot be recovered afterwards, and the
+             * line is drawn without wrapping or clipping. */
+            /* The resume count belongs on BOTH branches. It was only on the
+             * clean one, so the moment anything went red -- exactly when it
+             * matters -- there was no way to tell a fault that follows a
+             * standby from one that does not. */
+            w += snprintf(w, (size_t)(end - w), "GFX BAD @%04x res%u:", sGfxProbeBadEntrance,
+                          gPspBlobResumes);
             /* First, because the line is drawn without wrapping or clipping and
              * only ~60 columns fit: if every counter fires at once the tail
              * runs off the screen, and this is the clause that must survive.
@@ -1171,6 +1547,16 @@ void PspSceneMenu_DrawHud(void) {
             if (gPspBlobOpenFails) {
                 w += snprintf(w, (size_t)(end - w), " blobopen=%u", gPspBlobOpenFails);
             }
+            /* Second only to the log clause: this is the failure that shows up
+             * as a wrong picture rather than as an error, so it is the one
+             * most likely to be blamed on the renderer. */
+            if (gPspBlobShortReads) {
+                w += snprintf(w, (size_t)(end - w), " blobshort=%u-%u@%08x", gPspBlobShortReads,
+                              gPspBlobShortLastMissing, gPspBlobShortLastVrom);
+            }
+            if (gPspRomUnservedReads) {
+                w += snprintf(w, (size_t)(end - w), " romshort=%u", gPspRomUnservedReads);
+            }
             if (gPspPoolOverflows) {
                 w += snprintf(w, (size_t)(end - w), " dlpool=%u", gPspPoolOverflows);
             }
@@ -1178,8 +1564,22 @@ void PspSceneMenu_DrawHud(void) {
                 w += snprintf(w, (size_t)(end - w), " texpool=%u", psp_tex_overflows);
             }
             if (gPspTexCacheResetVram || gPspTexCacheResetPool) {
-                w += snprintf(w, (size_t)(end - w), " wipe=%u/%u", gPspTexCacheResetVram,
-                              gPspTexCacheResetPool);
+                /* The two numbers are vram/pool, and they are not variations
+                 * on one problem -- they have different fixes (a bigger or
+                 * better-packed VRAM budget vs. more than 512 cache entries),
+                 * so the split is the whole point of printing both.
+                 *
+                 * hw is how full the entry pool was when it happened and var
+                 * is how often the size-aware key made a SECOND entry for an
+                 * address already cached. Together they settle the pool case
+                 * without another run: hw at 512 with a large var means the
+                 * entries are mostly duplicates of the same textures at
+                 * different tile sizes, which is a keying question, not a
+                 * capacity one. */
+                w += snprintf(w, (size_t)(end - w), " wipe=%u/%u hw=%u var=%u sp=%u/%uk",
+                              gPspTexCacheResetVram, gPspTexCacheResetPool,
+                              gPspTexCacheHighWater, gPspTexSizeVariants, psp_tex_spills,
+                              gPspTexSpillBytes / 1024u);
             }
             if (gPspGfxBadDlCursors) {
                 w += snprintf(w, (size_t)(end - w), " badDL=%u", gPspGfxBadDlCursors);
@@ -1220,8 +1620,10 @@ void PspSceneMenu_DrawHud(void) {
      * switched on mid-scene shows real values immediately rather than stale
      * ones. */
     {
-        const char* text[HUD_SEC_COUNT + 4];
-        u32 colour[HUD_SEC_COUNT + 4];
+        /* +7: the GFX section contributes FOUR lines (lineGfx, lineAlpha,
+         * lineSky, lineGlow). Both arrays are indexed by the same running n. */
+        const char* text[HUD_SEC_COUNT + 7];
+        u32 colour[HUD_SEC_COUNT + 7];
         s32 n = 0;
         s32 k;
         char buildLine[40];
@@ -1274,6 +1676,15 @@ void PspSceneMenu_DrawHud(void) {
              * leaves zero, so it can be read at a glance from a photograph. */
             text[n] = lineGfx;
             colour[n++] = sGfxProbeBad ? 0xFF4040FF : 0xFF80FF80;
+            /* Yellow: this is a live investigation's readout, not a health
+             * indicator -- neither value is "good" or "bad" on its own. */
+            text[n] = lineAlpha;
+            colour[n++] = 0xFF40FFFF;
+            /* Gelb wie lineAlpha: laufende Untersuchung, kein Gesundheitswert. */
+            text[n] = lineSky;
+            colour[n++] = 0xFF40FFFF;
+            text[n] = lineGlow;
+            colour[n++] = 0xFF40FFFF;
         }
 
         /* Biggest horizontal textured triangle this frame -- the ground,

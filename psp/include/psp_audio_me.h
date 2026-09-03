@@ -11,7 +11,13 @@
  *
  * HOW IT WORKS. libme-core boots the ME into PspAudioMe_Process (our
  * meLibOnProcess). That function never returns: it spins on a state word and
- * runs a job whenever the main CPU publishes one. Both processors see each
+ * runs a job whenever the main CPU publishes one. Submission is
+ * ASYNCHRONOUS -- PspAudio_RunCommandList publishes the job and returns, and
+ * the result is collected at the following call. Without that split the main
+ * core busy-waits out the whole mix and the offload saves nothing; with it,
+ * the ME mixes tick N while this core runs the sequence player and builds the
+ * command list for tick N+1. The ME raises PSP_MECODEC_INT when it is done so
+ * the collector can sleep on a semaphore rather than poll. Both processors see each
  * other's writes only through UNCACHED memory, so every shared variable
  * lives in the .uncached section and every buffer handed across is flushed
  * or invalidated explicitly. Getting that wrong does not fail loudly -- it
@@ -51,8 +57,31 @@ void PspAudioMe_Shutdown(void);
 
 /* Execute a finished command list. Uses the ME when it is up and idle,
  * otherwise runs it on the calling thread. aiBuffer/aiFrames describe the PCM
- * the list writes, so the result can be made visible to the other processor. */
+ * the list writes, so the result can be made visible to the other processor.
+ *
+ * On the ME path this RETURNS BEFORE THE MIX HAS RUN. It first collects the
+ * job submitted by the previous call (blocking only for whatever is left of
+ * it), then hands this one over and returns. Callers must therefore not read
+ * aiBuffer until a later call, or until PspAudio_WaitForCommandList. The
+ * audio thread satisfies that for free: AudioThread_Update hands a buffer to
+ * the DAC two ticks after mixing it, and the collect lands one tick after.
+ *
+ * Only one thread may submit. There is no lock -- the audio thread is the
+ * sole caller, and adding one would put a kernel round trip on the hot path
+ * to protect against a caller that does not exist. */
 void PspAudio_RunCommandList(const Acmd* cmdList, int32_t cmdCount, int16_t* aiBuffer, int32_t aiFrames);
+
+/* Block until the outstanding job (if any) has finished and its output is
+ * visible to this core. A no-op when nothing is in flight, so it is cheap to
+ * call defensively before touching mixer output or tearing the audio system
+ * down. Must be called from the submitting thread. */
+void PspAudio_WaitForCommandList(void);
+
+/* Tell the offload the console came back from standby, which left the second
+ * core powered down and any job in flight orphaned. Safe from the power
+ * callback: raises a flag, and the audio thread retires the job and switches
+ * to CPU mixing at its next collect instead of waiting out the timeout. */
+void PspAudioMe_NotifyResume(void);
 
 /* HUD/debugger counters. meJobs climbing while cpuJobs stays flat is the
  * only positive proof the ME is really doing the work. */
@@ -60,6 +89,13 @@ uint32_t PspAudioMe_StatMeJobs(void);
 uint32_t PspAudioMe_StatCpuJobs(void);
 uint32_t PspAudioMe_StatTimeouts(void);
 uint32_t PspAudioMe_StatLastJobUsec(void);
+/* How long the last collect actually blocked, and the worst seen so far. This
+ * is the number the asynchronous submit exists to drive down: lastJobUsec
+ * says how long the mix took, waitUsec says how much of that the main core
+ * paid for. freeCollects counts collects that found the job already done. */
+uint32_t PspAudioMe_StatLastWaitUsec(void);
+uint32_t PspAudioMe_StatMaxWaitUsec(void);
+uint32_t PspAudioMe_StatFreeCollects(void);
 int32_t PspAudioMe_IsActive(void);
 
 #endif

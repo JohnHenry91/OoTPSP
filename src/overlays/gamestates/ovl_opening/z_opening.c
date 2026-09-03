@@ -62,7 +62,7 @@ void TitleSetup_SetupTitleScreen(TitleSetupState* this) {
      * opens a warp menu (psp/src/psp_scene_menu.c) that reaches every scene at
      * runtime, so this only decides where a fresh launch lands. */
 #ifndef PSP_BOOT_ENTRANCE
-#define PSP_BOOT_ENTRANCE ENTR_MARKET_DAY_0
+#define PSP_BOOT_ENTRANCE ENTR_HYRULE_FIELD_0
 #endif
     gSaveContext.save.entranceIndex = PSP_BOOT_ENTRANCE;
     /* No intro cutscene: link_home's alternate headers include the "Link asleep

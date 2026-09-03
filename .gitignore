@@ -43,3 +43,10 @@ blobs/
 # install.sh output
 psp-ready/
 ootpsp-install-logs/
+
+# Runtime artifacts from PPSSPP testing sessions (crash logs, auto-screenshots)
+*.log
+shot*.bmp
+shot*.txt
+psp_check_shot*.png
+warp_ok.log

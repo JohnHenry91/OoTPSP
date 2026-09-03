@@ -141,8 +141,23 @@ void texman_reset(void *buf, unsigned int size) {
 #endif
 }
 
+/* Emergency slot, handed out once every region is full. NOT a region: it must
+ * stay invisible to gfx_vram_space_available(), or the renderer would believe
+ * there is still room and never schedule the wipe that actually fixes things. */
+static void *sScratch;
+static unsigned int sScratchSize;
+
 /* Register the spill region. Call after texman_reset. */
 void texman_set_overflow_buffer(void *buf, unsigned int size) {
+    /* Carve the emergency slot off the tail. Taking it from the spill rather
+     * than allocating separately keeps the total footprint unchanged, and the
+     * spill is the region that can afford it -- it is the slow one anyway. */
+    if (size > TEXMAN_SCRATCH_SIZE * 2u) {
+        size -= TEXMAN_SCRATCH_SIZE;
+        sScratch = (char *)buf + size;
+        sScratchSize = TEXMAN_SCRATCH_SIZE;
+    }
+
     regions[1].start = regions[1].cur = buf;
     regions[1].end = (char *)buf + size;
 }
@@ -254,10 +269,39 @@ struct PSP_Texture *texman_reserve_memory(int width, int height, unsigned int ty
         return &textures[psp_tex_number];
     }
 
-    /* Every region full. Wrap the first one rather than scribbling past its
-     * end: that corrupts the OLDEST texture instead of unrelated memory, and
-     * the caches are about to be wiped anyway. */
+    /* Every region is full. THIS IS THE PATH THAT CORRUPTS THE PICTURE, and
+     * the reason deferring the cache wipe to the frame boundary did not fix
+     * anything on its own.
+     *
+     * It used to wrap region 0 back to its start, on the stated grounds that
+     * "the caches are about to be wiped anyway". They are -- but not until the
+     * frame ends. Between here and there, every texture handed out lands on
+     * top of one that draws ALREADY IN THE GE'S LIST are pointing at, and the
+     * GE reads them when it gets there. That is exactly what the hardware
+     * capture shows: correct geometry next to rectangular blocks of noise, at
+     * polygon boundaries, for one frame. Moving the wipe out of the frame left
+     * this untouched, so the picture did not change.
+     *
+     * Recycling live memory mid-frame cannot be made safe by timing it
+     * better; it has to stop. Hand out the emergency slot instead. Every
+     * further texture this frame shares it, so late surfaces draw with the
+     * wrong image -- but a wrong, coherent image, never noise, and nothing
+     * already drawn is disturbed. The next gfx_start_frame wipes the cache
+     * with the GE idle and the frame after is correct again.
+     *
+     * psp_tex_overflows still counts, and now means "a frame ran out and
+     * degraded" rather than "a frame corrupted itself". */
     ++psp_tex_overflows;
+
+    if (sScratch != NULL && tex_size <= sScratchSize) {
+        textures[psp_tex_number].location = sScratch;
+        return &textures[psp_tex_number];
+    }
+
+    /* Larger than the emergency slot. Writing it there would run off the end,
+     * which is worse than the wrap this replaces, so take the wrap -- with the
+     * corruption that implies. Unreachable in practice: the slot is sized for
+     * the largest texture the importers can produce. */
     region_cur = 0;
     regions[0].cur = regions[0].start;
     textures[psp_tex_number].location = regions[0].cur;
@@ -268,15 +312,23 @@ struct PSP_Texture *texman_reserve_memory(int width, int height, unsigned int ty
 
 unsigned int texman_create(void) {
     /* textures[] is a fixed 512 entries. gfx_pc.c keeps its own pool in
-     * lockstep and wipes both when either fills, so this should not be
-     * reachable -- but an unchecked ++ here writes out of bounds if it ever
-     * is, which is exactly the corruption class this file already caused once
-     * (see the comment on the pool wipe in gfx_texture_cache_lookup). */
-    if (psp_tex_number + 1 >= (unsigned int) (sizeof(textures) / sizeof(textures[0]))) {
-        texman_clear();
+     * lockstep and calls here in lockstep too -- both this cap and the
+     * pool_pos cap in gfx_texture_cache_lookup are reached on the exact same
+     * call, the one that fills the last shared slot. This used to call
+     * texman_clear() right here, immediately, which is reachable from the
+     * gfx_pc.c side deferring ITS wipe to gfx_start_frame(): a frame that
+     * keeps requesting new distinct textures past the cap would still hit
+     * this immediate clear mid-frame, with the GE possibly still reading a
+     * draw that points into the memory being handed out next -- the same
+     * corruption class as the pool wipe this comment used to describe (see
+     * gfx_texture_cache_lookup for the hardware evidence). Reuse the last
+     * slot instead: psp_tex_number just stops advancing, so every call for
+     * the rest of the frame lands on the same slot, and the deferred
+     * gfx_texture_cache_reset() cleans this up together with the pool at the
+     * next frame's start, once the GE is idle. */
+    if (psp_tex_number + 1 < (unsigned int) (sizeof(textures) / sizeof(textures[0]))) {
+        psp_tex_number++;
     }
-
-    psp_tex_number++;
     textures[psp_tex_number] = (struct PSP_Texture){
         location : regions[region_cur].cur,
         width : 0,
@@ -292,6 +344,19 @@ unsigned int texman_create(void) {
     return psp_tex_number;
 }
 
+/* gfx_scegu.c remembers, per tile, which texture id it last bound, and skips
+ * the bind when the id has not changed. The two upload paths below go straight
+ * to texman_bind_tex and never touch that record, so after an upload the GE is
+ * bound to the new texture while gfx_scegu still believes the OLD one is
+ * current -- and the next draw that genuinely wants the old one is skipped as
+ * "already bound" and draws with the new one instead.
+ *
+ * That desync can only happen on a frame that uploads, which is why it shows
+ * up as the first frame after entering a room being wrong and every frame
+ * after it being right: once everything is a cache hit, no upload happens and
+ * the record stays true. Tell gfx_scegu its record is stale. */
+void gfx_scegu_invalidate_texture_binding(void);
+
 void texman_upload_swizzle(int width, int height, unsigned int type, const void *buffer) {
     struct PSP_Texture *current = texman_reserve_memory(width, height, type);
     texman_publish_to_ge(buffer, getMemorySize(width, height, type));
@@ -306,6 +371,7 @@ void texman_upload_swizzle(int width, int height, unsigned int type, const void 
 #endif
     texman_publish_to_ge(current->location, getMemorySize(width, height, type));
     texman_bind_tex(psp_tex_number);
+    gfx_scegu_invalidate_texture_binding();
 }
 
 void texman_upload(int width, int height, unsigned int type, const void *buffer) {
@@ -321,6 +387,7 @@ void texman_upload(int width, int height, unsigned int type, const void *buffer)
 #endif
     texman_publish_to_ge(current->location, getMemorySize(width, height, type));
     texman_bind_tex(psp_tex_number);
+    gfx_scegu_invalidate_texture_binding();
 }
 
 void texman_bind_tex(unsigned int num) {
@@ -332,6 +399,27 @@ void texman_bind_tex(unsigned int num) {
 #endif
     sceGuTexMode(current->type, 0, 0, current->swizzled);
     sceGuTexImage(0, current->width, current->height, current->width, current->location);
+    /* The GE keeps its OWN texture cache, and it is not coherent with writes
+     * to texture memory. Nothing in this port ever invalidated it.
+     *
+     * That went unnoticed for as long as it did because the allocator hands
+     * out addresses monotonically: a newly uploaded texture normally lands
+     * somewhere the GE has never sampled, so it misses and fetches the real
+     * data. The moment that stops being true is a whole-cache wipe --
+     * texman_clear resets every region to its start, and every address is then
+     * handed out a SECOND time, to different pixels. The GE happily serves
+     * what it cached for that address the first time round.
+     *
+     * That is the "speckled corruption" this port has attributed to a wipe
+     * happening mid-frame while the GE was still reading. The timing was never
+     * the mechanism; the stale texture cache was. It also explains why the
+     * fault appears after a standby, which is simply another way to end up
+     * re-uploading everything into addresses that have been used before, and
+     * why it is only VISIBLE in prerendered rooms with a PIVOT camera -- the
+     * only view where no background image and no skybox covers the geometry.
+     *
+     * One GE command per bind. */
+    sceGuTexFlush();
     psp_tex_bound = num;
 }
 

@@ -33,8 +33,66 @@ unsigned int gPspRomBadReadRa;
  * AudioLoad_Dma has an error channel back to the audio engine. */
 unsigned int gPspRomUnservedReads;
 
+/* Kept so the descriptor can be rebuilt later; see PspRom_NotifyResume. */
+static char sRomPath[256];
+
+/* Descriptors reopened after a standby, for the HUD. */
+unsigned int gPspRomReopens;
+unsigned int gPspRomReopenFails;
+
+static volatile int sResumePending;
+
+void PspRom_NotifyResume(void) {
+    sResumePending = 1;
+}
+
 void PspRom_Init(const char* path) {
+    if (path != NULL) {
+        unsigned int i = 0;
+
+        while ((path[i] != '\0') && (i < sizeof(sRomPath) - 1)) {
+            sRomPath[i] = path[i];
+            i++;
+        }
+        sRomPath[i] = '\0';
+    }
     sRomFd = sceIoOpen(path, PSP_O_RDONLY, 0777);
+}
+
+/* Standby powers the Memory Stick down and every descriptor open across it
+ * comes back invalid. This one is open for the entire session -- PspRom_Init
+ * runs once at boot and nothing ever reopens it -- so after a wake every raw
+ * .z64 read returns garbage or nothing.
+ *
+ * That is a much bigger deal than the file's remaining traffic suggests,
+ * because of WHAT is still served this way. Almost every asset now comes from
+ * the native blobs; the skybox does not (see the block comment in z_vr_box.c),
+ * and in prerendered rooms with a PIVOT camera the skybox IS the visible
+ * surroundings -- the walls and sky the player is looking at. So a stale
+ * descriptor here shows up as exactly one symptom: those rooms, and only those
+ * rooms, drawn over in noise after a resume. Rooms with a FIXED camera hide it
+ * behind their background image, and shops never leave LOCKED at all.
+ *
+ * Reopen from the path rather than trying to revive the handle. Done on the
+ * reading thread, not in the callback, for the same reason as everywhere else
+ * here: a power callback must not do I/O. */
+static void PspRomHandleResume(void) {
+    sResumePending = 0;
+
+    if (sRomFd >= 0) {
+        sceIoClose(sRomFd);
+        sRomFd = -1;
+    }
+    if (sRomPath[0] == '\0') {
+        ++gPspRomReopenFails;
+        return;
+    }
+    sRomFd = sceIoOpen(sRomPath, PSP_O_RDONLY, 0777);
+    if (sRomFd < 0) {
+        ++gPspRomReopenFails;
+    } else {
+        ++gPspRomReopens;
+    }
 }
 
 /* A bad `size` here is not a harmless failed read: sceIoRead writes `size`
@@ -70,6 +128,10 @@ void PspRom_Read(uint32_t romOffset, void* dst, size_t size) {
         if (PspBlob_Read(romOffset, dst, size)) {
             return;
         }
+    }
+
+    if (sResumePending) {
+        PspRomHandleResume();
     }
 
     if (sRomFd < 0) {

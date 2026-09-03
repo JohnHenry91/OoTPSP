@@ -154,7 +154,6 @@ PSP_C_FILES += assets/objects/gameplay_keep/lens_flare.c
 PSP_C_FILES += assets/objects/gameplay_keep/raindrop_model.c
 PSP_C_FILES += assets/objects/gameplay_keep/eff_lightning.c
 PSP_C_FILES += assets/objects/gameplay_keep/eff_shockwave.c
-PSP_C_FILES += extracted/pal-1.0/assets/objects/gameplay_field_keep/gameplay_field_keep.c
 
 PSP_C_FILES += psp/src/phase2_stubs.c
 # Real table, not a stub: it is walked as EffectSsOverlay[EFFECT_SS_TYPE_MAX]
@@ -182,17 +181,209 @@ PSP_C_FILES += assets/objects/gameplay_keep/gDoorAdultOpeningLeftAnim.c
 PSP_C_FILES += assets/objects/gameplay_keep/gDoorAdultOpeningRightAnim.c
 PSP_C_FILES += assets/objects/gameplay_keep/gDoorChildOpeningLeftAnim.c
 PSP_C_FILES += assets/objects/gameplay_keep/gDoorChildOpeningRightAnim.c
-PSP_C_FILES += extracted/pal-1.0/assets/objects/object_hidan_objects/object_hidan_objects.c
-PSP_C_FILES += extracted/pal-1.0/assets/objects/object_haka_door/object_haka_door.c
-PSP_C_FILES += extracted/pal-1.0/assets/objects/object_mizu_objects/object_mizu_objects.c
 # Engine sources these actors pull in (DynaPolyActor_Init / the path system).
 PSP_C_FILES += src/code/z_bg_item.c
 PSP_C_FILES += src/code/z_path.c
-PSP_C_FILES += extracted/pal-1.0/assets/objects/object_kibako2/object_kibako2.c
-PSP_C_FILES += extracted/pal-1.0/assets/objects/object_wood02/object_wood02.c
-PSP_C_FILES += extracted/pal-1.0/assets/objects/object_dog/object_dog.c
+# The "old init" soft-sprite spawners (func_8002829C, EffectSsDeadDb_Spawn,
+# EffectSsHahen_SpawnBurst). Pulled in by the Bg_* scenery actors below;
+# compiled for real rather than stubbed because the effect system it drives
+# (z_effect_soft_sprite.c and its real dlftbls table) is already in the build.
+PSP_C_FILES += src/code/z_effect_soft_sprite_old_init.c
 PSP_C_FILES += assets/objects/gameplay_keep/cuttable_shrub.c
-PSP_C_FILES += extracted/pal-1.0/assets/objects/object_kusa/object_kusa.c
+# En_Holl: the invisible plane that triggers Room_RequestNewRoom when Link
+# walks through it. Measured (offline inventory of every ActorEntryList under
+# extracted/pal-1.0/assets/scenes): 203 instances across the game, and it is
+# the ONLY transition actor in Kokiri Forest (29x), Temple of Time (12x) and
+# Royal Family Tomb -- three of the scenes reported as "the player cannot get
+# into the next room". As a dummy it spawns and does nothing, so the room load
+# is never requested. Draws from gameplay_keep plus its own inline plane DL,
+# so it costs one object file and no new dependency web.
+PSP_C_FILES += src/overlays/actors/ovl_En_Holl/z_en_holl.c
+# Door_Shutter: the dungeon door, and the transition actor for Treasure Box
+# Shop (6x), Spirit Temple Boss (12x), Gerudo Training (21x), Ganon's Tower
+# (19x) and Lord Jabu-Jabu (32x) -- the rest of the "cannot reach the next
+# room" reports. 269 instances game-wide. It indexes ONE table covering every
+# dungeon's door model, so all of its objects have to be resident even in a
+# scene that uses a single variant, exactly like En_Door.
+PSP_C_FILES += src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c
+# Door_Shutter's model table: every dungeon's door variant plus the boss doors
+# in gameplay_keep. All of them, because the actor selects by scene at runtime.
+PSP_C_FILES += assets/objects/gameplay_keep/gameplay_keep_0x49F20.c
+PSP_C_FILES += assets/objects/gameplay_keep/gameplay_keep_0x4A090.c
+# The chain and lock textures the barred-door variants draw over the model.
+
+# --- Scenery actors named by the offline actor inventory --------------------
+# Every ActorEntryList under extracted/pal-1.0/assets/scenes was counted and
+# matched against the reported "part of the room is missing" scenes. Each line
+# below is one of those matches, with the count that named it. None of this is
+# a renderer defect: the geometry is drawn by an actor that was a no-op dummy.
+#
+# Deku Tree, lower floor: the floor there IS the giant spider web, drawn and
+# collided by Bg_Ydan_Sp (7x in ydan). Hasi (the bridge, 4x) and Maruta (the
+# rotating logs, 2x) share its object and are the same room's missing pieces.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Ydan_Sp/z_bg_ydan_sp.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Ydan_Hasi/z_bg_ydan_hasi.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Ydan_Maruta/z_bg_ydan_maruta.c
+# Kokiri Forest: "the Deku Tree is incomplete". Bg_Treemouth (12x in spot04) is
+# the tree's mouth -- the entrance geometry, not part of the room model.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Treemouth/z_bg_treemouth.c
+# Kakariko Village: "a whole house is missing, only the door is there".
+# Bg_Spot01_Objects2 (14x in spot01) draws the houses themselves.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Spot01_Objects2/z_bg_spot01_objects2.c
+# Ice Cavern: "floor areas completely black, see-through into other rooms".
+# Bg_Ice_Shelter (23x) is the ice platform/block geometry; its object is
+# already resident for Door_Shutter's ice variant.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Ice_Shelter/z_bg_ice_shelter.c
+# Bottom of the Well: "holes, see-through into the map". Bg_Haka_Megane is the
+# false wall/floor set (3x in HAKAdanCH).
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c
+# Temple of Time: the Master Sword room. Bg_Toki_Swd is the pedestal and sword
+# (11x), Bg_Toki_Hikari the light shafts (16x).
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Toki_Hikari/z_bg_toki_hikari.c
+# Shadow Temple boss room: "the floor at the bottom of the pit is missing, the
+# player falls through -- collision, not just optics". Measured: HAKAdan_bs
+# room 1 contains exactly ONE actor, ACTOR_BOSS_SST. Bongo Bongo's drum IS the
+# floor of that room -- there is no room-model floor to draw -- so as a dummy
+# there is nothing to stand on. This is the report's own description of the
+# mechanism, arrived at from the scene data rather than from the renderer.
+PSP_C_FILES += src/overlays/actors/ovl_Boss_Sst/z_boss_sst.c
+PSP_C_FILES += assets/objects/gameplay_keep/gameplay_keep_0x173D0.c
+# Bg_Sst_Floor: Bongo Bongo's drum as a walkable surface. Boss_Sst DRAWS the
+# drum but spawns this actor at runtime (z_boss_sst.c:303) for the collision --
+# DynaPolyActor_Init + DynaPoly_SetBgActor(gBongoDrumCol). Without it the player
+# sees the drum and falls straight through it, which is exactly what the user
+# reported once Boss_Sst was in. Costs no new object file: object_sst is already
+# resident for Boss_Sst.
+#
+# Note for the next actor hunt: psp/tools/actor_inventory.py reads SCENE data and
+# therefore cannot see this actor at all -- nothing places it, another actor
+# spawns it. The inventory is a LOWER BOUND. When a newly enabled actor draws but
+# misbehaves, grep its own source for Actor_Spawn before trusting the inventory.
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c
+
+# --- The water surfaces -----------------------------------------------------
+# Four "the water is missing" reports, four actors that draw it. In OoT a water
+# surface is an ACTOR, not room geometry, so as dummies these scenes are simply
+# dry. Two of them cost nothing but this line: their objects are already resident
+# because other actors brought them in.
+#
+#   Bg_Mizu_Water      Water Temple        11x  object_mizu_objects   (En_Door)
+#   Bg_Haka_Water      Bottom of the Well   1x  object_hakach_objects (Bg_Haka_Megane)
+#   Bg_Spot07_Taki     Zora's Domain        6x  object_spot07_object  (new)
+#   Bg_Spot06_Objects  Lake Hylia          13x  object_spot06_objects (new)
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Mizu_Water/z_bg_mizu_water.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Haka_Water/z_bg_haka_water.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Spot07_Taki/z_bg_spot07_taki.c
+PSP_C_FILES += src/overlays/actors/ovl_Bg_Spot06_Objects/z_bg_spot06_objects.c
+
+# --- Object DATA: none of it is linked in any more --------------------------
+# Thirty object .c files used to be listed here, one per actor that had been
+# enabled by hand. They are gone, and this is the note that explains the empty
+# space rather than leaving it a mystery.
+#
+# Every one of them is now a blob (psp/tools/make_object_blobs.py), and their
+# asset symbols come from psp/build/psp_object_syms_gen.c as weak segment
+# addresses. While the .c files were also still listed here, each object existed
+# TWICE: once as data in the EBOOT, once as a blob on the stick -- and because a
+# strong definition beats a weak one, the EBOOT copy always won and the blob was
+# dead weight. 1217 KB of it.
+#
+# They were deliberately left in place for one build, so that the actors that
+# already worked kept their exact previous data path while the blob path was
+# under test. That test is over: the great majority of the game's 381 objects
+# only ever existed as blobs, and they draw -- the Kokiri boy, the market
+# townspeople, the plants. Keeping the duplicates would now be the less
+# justified choice, not the safer one.
+#
+# WHAT DELIBERATELY STAYS LINKED IN, and why:
+#   assets/objects/gameplay_keep/*.c   Its player_anim_headers hold REAL
+#       pointers into the compiled-in link_animetion (see the TARGET_PSP note in
+#       AnimTaskQueue_AddLoadPlayerFrame). Those cannot become segment
+#       addresses, so gameplay_keep must keep its EBOOT copy. Its blob still
+#       exists and serves segment 4 for everything else.
+#   link_animetion.c                   Same reason, from the other end.
+#   object_link_child/boy              Correct to blob -- z_actor.c:939 points
+#       segment 6 at every actor's own object, Player included -- but Player is
+#       the one path that has worked reliably throughout, so it is changed
+#       separately rather than bundled in here. 402 KB still to gain.
+
+# --- Scene textures named directly by z_scene_table.c -----------------------
+# Generated: psp/tools/gen_scene_textures.py copies the definitions out of the
+# scene sources, because those symbols are referenced by C name while the scenes
+# themselves are runtime blobs. They were 64-byte placeholders, and a placeholder
+# is worse than nothing here -- the display list reads a full texture from the
+# address regardless, so the GE got the neighbouring globals as pixels. That is
+# the Dodongo's Cavern lava and the coloured pixel bands on the Kakariko and
+# Lon Lon walls. ~78 KB of real data.
+PSP_C_FILES += psp/build/psp_scene_textures_gen.c
+# The 41st of that set. It is not scene data at all -- it lives in gameplay_keep
+# and simply had never been compiled in.
+PSP_C_FILES += assets/objects/gameplay_keep/lens_mask_tex.c
+
+# --- Phase 3: EVERY actor ---------------------------------------------------
+# The blocks above enabled actors one at a time, each with its object files
+# linked into the EBOOT alongside it. That approach ran out of room, not of
+# patience: the game's 381 objects are 9.8 MB of data and a PSP-1000 has ~24 MB
+# of user RAM to hold the module, the 1000 KB object bank, the ~1.8 MB Zelda
+# arena and the audio heap.
+#
+# psp/tools/make_object_blobs.py removes the constraint. Every object is linked
+# at its N64 segment base and shipped as a blob, exactly like scenes and rooms
+# already are, and the asset symbols an actor references are emitted as WEAK
+# absolute segment addresses (psp/build/psp_object_syms_gen.c). The engine's own
+# Object_UpdateEntries then loads one object at a time into the object bank and
+# points segment 6 at it -- which is what the console does.
+#
+# So the whole set goes in. Measured before it was: all 426 actor sources
+# compile unmodified, adding ~2.6 MB of text and ~0.4 MB of data, and the only
+# symbols they reference that neither the blobs nor the EBOOT already define
+# are the 35 engine functions and the scene-owned cutscene scripts handled
+# below.
+#
+# Wildcard, not a hand-written list: a list of 426 lines is a list that goes
+# stale. The *_colchk.inc.c / *_cutscene_data.inc.c files are #included by their
+# actor rather than compiled on their own, so they are filtered out -- they do
+# not compile standalone (no ARRAY_COUNT, no PLAYER_CUEID_*).
+PSP_ALL_ACTOR_SRCS := $(filter-out %.inc.c,$(wildcard src/overlays/actors/ovl_*/z_*.c))
+PSP_C_FILES += $(PSP_ALL_ACTOR_SRCS)
+
+# Engine files the newly enabled actors call into. Each was measured as a
+# genuinely undefined symbol across the whole actor set, not guessed at:
+#   z_fcurve_data_skelanime.c  SkelCurve_*      (curve-animated actors)
+#   z_skin.c / z_skin_awb.c    Skin_*           (skin-deformed enemies)
+#   z_horse.c                  Horse_*
+#   z_eff_blure.c              EffectBlure_AddSpace
+#   z_eff_ss_dead.c            func_80026230 / func_80026690
+#   z_face_reaction.c          MaskReaction_GetTextId
+#   z_elf_message.c            QuestHint_*
+#   z_en_item00.c              Item_DropCollectible2 (and En_Item00 itself,
+#                              an internal actor the table already points at)
+PSP_C_FILES += src/code/z_fcurve_data_skelanime.c
+PSP_C_FILES += src/code/z_fcurve_data.c
+PSP_C_FILES += src/code/z_skin.c
+PSP_C_FILES += src/code/z_skin_awb.c
+PSP_C_FILES += src/code/z_horse.c
+PSP_C_FILES += src/code/z_eff_blure.c
+PSP_C_FILES += src/code/z_eff_ss_dead.c
+PSP_C_FILES += src/code/z_face_reaction.c
+PSP_C_FILES += src/code/z_elf_message.c
+PSP_C_FILES += src/code/z_en_item00.c
+# En_A_Obj, the third DEFINE_ACTOR_INTERNAL actor (the wooden signs, cubes and
+# tree stumps built from gameplay_keep models). It lives in src/code/ rather
+# than src/overlays/actors/, so the wildcard above cannot see it -- with 428 of
+# 429 profiles strongly defined, this was the one still falling through to
+# gDummyActorProfile.
+PSP_C_FILES += src/code/z_en_a_keep.c
+# The remainder: functions belonging to subsystems that are still stubbed
+# wholesale (Interface, Message, OnePointCutscene, Cutscene) plus two libultra
+# odds and ends. Kept in one file so the boundary between "ported" and
+# "not yet" stays visible in one place rather than spread through the build.
+PSP_C_FILES += psp/src/phase3_actor_stubs.c
+# Weak absolute addresses for every object asset symbol, and for the cutscene
+# scripts that live in scene files. Both are generated; see their rules below.
+PSP_C_FILES += psp/build/psp_object_syms_gen.c
+PSP_C_FILES += psp/build/psp_scene_syms_gen.c
 
 # --- Phase 2: real Player (flattened, no overlay indirection -- see file header) ---
 PSP_C_FILES += src/overlays/actors/ovl_player_actor/z_player.c
@@ -283,6 +474,7 @@ PSP_C_FILES += psp/src/psp_test_scenes.c
 # header. Its scene list is generated from the decomp's own tables, so it never
 # needs updating by hand.
 PSP_C_FILES += psp/src/psp_scene_menu.c
+PSP_C_FILES += psp/src/psp_screenshot.c
 
 # --- Audio (Phase 1 bring-up) -------------------------------------------------
 #
@@ -340,7 +532,12 @@ PSP_C_FILES += psp/src/audio/psp_audio_probe.c
 # down the file would append nothing at all.
 PSP_C_FILES += psp/build/psp_audio_tables_gen.c
 
-OBJS := $(PSP_C_FILES:.c=.o)
+# $(sort) as much for its side effect as for the order: it removes duplicates.
+# The actor block below adds every actor by wildcard while the hand-written
+# lines that named a dozen of them individually are kept for their comments,
+# so the same .c genuinely appears twice -- and a repeated entry here would
+# compile fine and then fail the link with a few hundred duplicate symbols.
+OBJS := $(sort $(PSP_C_FILES:.c=.o))
 # Assembled, not compiled, so it cannot ride along in PSP_C_FILES. This is the
 # real generated sequence->soundfont mapping table (see its rule below).
 OBJS += psp/build/assets/audio/sequence_font_table.o
@@ -429,15 +626,60 @@ PSP_AUDIO_TABLES_C = psp/build/psp_audio_tables_gen.c
 # is already up to date with respect to the script alone). The generated registry
 # maps each file's vromStart to its blob path; psp_blob_assets.c #includes it, so
 # no vrom hex is ever written by hand.
-$(BLOB_REGISTRY): psp/tools/make_scene_blob.sh psp/tools/jfif_to_psp.py Makefile.psp $(AUDIO_BLOB_BINS)
-	@rm -f $(BLOB_DIR)/*.reg
+$(BLOB_REGISTRY): psp/tools/make_scene_blob.sh psp/tools/jfif_to_psp.py Makefile.psp $(AUDIO_BLOB_BINS) $(OBJECT_SYMS_C)
+	@rm -f $(BLOB_DIR)/*.reg $(BLOB_DIR)/*.sym
 	@for s in $(BLOB_SCENES); do \
 		d=$${s%%:*}; r=$${s##*:}; n=$${s#*:}; n=$${n%:*}; \
 		echo "  BLOB    $$n ($$r room(s))"; \
 		sh psp/tools/make_scene_blob.sh \
 			extracted/pal-1.0/assets/scenes/$$d $$n $(BLOB_DIR) $$r > /dev/null || exit 1; \
 	done
-	@cat $(BLOB_DIR)/*.reg > $@
+	@cat $(BLOB_DIR)/*.reg $(OBJECT_REGISTRY) > $@
+
+# --- Object blobs -----------------------------------------------------------
+# Every object linked at its N64 segment base and shipped as a flat binary, so
+# the 9.8 MB of object data does not have to fit in the EBOOT. See
+# psp/tools/make_object_blobs.py for the full rationale; the short version is
+# that the engine already loads objects one at a time into a 1000 KB bank, and
+# this just gives that bank native-endian data to load.
+#
+# The two outputs must be produced together and are: the registry maps each
+# object's vromStart to its blob, and the symbol file gives the addresses inside
+# that blob. A stale pairing would resolve a symbol into the wrong object.
+OBJECT_SYMS_C = psp/build/psp_object_syms_gen.c
+# Deliberately NOT a .reg: the scene rule clears $(BLOB_DIR)/*.reg before it
+# regenerates the per-scene fragments, and this one is written by a different
+# rule that has already run by then.
+OBJECT_REGISTRY = $(BLOB_DIR)/objects.reginc
+OBJECT_BLOB_TOOL = psp/tools/make_object_blobs.py
+
+$(OBJECT_SYMS_C): $(OBJECT_BLOB_TOOL) build/pal-1.0/spec psp/src/segment_roms_psp.c
+	@mkdir -p $(BLOB_DIR) psp/build
+	python3 $(OBJECT_BLOB_TOOL) $(BLOB_DIR) \
+		--syms-out $(OBJECT_SYMS_C) --reg-out $(OBJECT_REGISTRY)
+
+# Order-only-style pairing: the registry is written by the rule above, so
+# asking for it separately must not re-run the tool.
+$(OBJECT_REGISTRY): $(OBJECT_SYMS_C)
+	@:
+
+# --- Scene-owned symbols ----------------------------------------------------
+# Cutscene scripts (gZeldasCourtyardMeetCs and ~40 others) live in scene files
+# and are named directly by actors. make_scene_blob.sh writes one .sym per
+# scene; this turns the collection into weak absolute segment-2 definitions.
+#
+# WEAK for the same reason the object symbols are: psp_scene_textures_gen.c
+# already compiles some scene data into the EBOOT, and a strong definition
+# there must keep winning.
+SCENE_SYMS_C = psp/build/psp_scene_syms_gen.c
+$(SCENE_SYMS_C): $(BLOB_REGISTRY)
+	@mkdir -p psp/build
+	@{ echo '/* GENERATED from the scene blob links -- do not edit. */'; \
+	   cat $(BLOB_DIR)/*.sym | sort -u | while read sym addr scene; do \
+	     printf '__asm__(".globl %s\\n.weak %s\\n%s = 0x%08x\\n");\n' \
+	       "$$sym" "$$sym" "$$sym" \
+	       $$(( (0x$$addr - 0x08804000) & 0xffffffff )); \
+	   done; } > $@
 
 # The ranged registry and the C table are emitted together, from one address
 # assignment: they must agree exactly, and two hand-kept lists of 150-odd
@@ -455,7 +697,7 @@ $(PSP_AUDIO_TABLES_C): $(BLOB_RANGED_REGISTRY)
 # Ship the blobs next to EBOOT.PBP: PSP resolves the registry's relative paths
 # ("blobs/<name>.bin") against the EBOOT's own directory. Separate rule with its
 # own stamp so the copy still happens when the registry is already up to date.
-blobs/.stamp: $(BLOB_REGISTRY) $(BLOB_RANGED_REGISTRY)
+blobs/.stamp: $(BLOB_REGISTRY) $(BLOB_RANGED_REGISTRY) $(OBJECT_SYMS_C)
 	@mkdir -p blobs && cp -f $(BLOB_DIR)/*.bin blobs/ && touch $@
 
 psp/src/psp_blob_assets.o: $(BLOB_REGISTRY) $(BLOB_RANGED_REGISTRY)
@@ -471,12 +713,25 @@ $(SCENE_MENU_INC): include/tables/scene_table.h include/tables/entrance_table.h 
 	@mkdir -p $(BLOB_DIR)
 	@python3 psp/tools/gen_scene_menu.py include $@ $(BLOB_SCENES)
 
+# The scene textures z_scene_table.c names by C symbol. Generated rather than
+# hand-written: the definitions are copied verbatim out of the scene sources, so
+# a change there cannot silently drift away from what is compiled in. Depends on
+# z_scene_table.c because that is the file that names these symbols in the first
+# place -- add a draw config that references a new texture and this picks it up.
+# (It deliberately does NOT read the placeholder list: that was circular, and
+# removing the placeholders once made the generator emit nothing.)
+SCENE_TEX_GEN = psp/build/psp_scene_textures_gen.c
+$(SCENE_TEX_GEN): psp/tools/gen_scene_textures.py src/code/z_scene_table.c
+	@mkdir -p psp/build
+	@python3 psp/tools/gen_scene_textures.py . $@
+
 MENU_FONT_INC = $(BLOB_DIR)/psp_menu_font.inc
 $(MENU_FONT_INC): psp/tools/gen_menu_font.py
 	@mkdir -p $(BLOB_DIR)
 	@python3 psp/tools/gen_menu_font.py $@
 
 psp/src/psp_scene_menu.o: $(SCENE_MENU_INC) $(MENU_FONT_INC)
+psp/build/psp_scene_textures_gen.o: $(SCENE_TEX_GEN)
 
 blobs: $(BLOB_REGISTRY)
 .PHONY: blobs
@@ -724,9 +979,17 @@ LIBS = -lme-core -lpspfpu -lpspgum -lpspgu -lpspdisplay -lpspctrl -lpspge -lpspm
 # real Mtx here -- allocating one would silently give every billboarded sprite
 # an identity matrix instead of the camera's.
 LDFLAGS += -Wl,--defsym,D_01000000=0x01000000
+# Same thing one segment along. D_06000000 is the base of the OBJECT segment,
+# written into a display list by actors that want "the object I am holding,
+# from its start" (Bg_Jya_Bombiwa and friends). Like D_01000000 it is an
+# address the N64 spec resolves literally, not a variable, so allocating
+# storage for it would hand the GE a pointer to four zero bytes instead.
+LDFLAGS += -Wl,--defsym,D_06000000=0x06000000
 
 BUILD_PRX = 1
-PSP_EBOOT_TITLE = OoT PSP (bring-up)
+# Selbstironisch: "AI slop" ist der Begriff, mit dem KI-Erzeugnisse gerade
+# abgetan werden. Der Name nimmt den Vorwurf vorweg, statt ihn zu verschweigen.
+PSP_EBOOT_TITLE = Slopcarina of Time
 EXTRA_TARGETS = EBOOT.PBP blobs/.stamp
 
 PSPSDK = $(shell psp-config --pspsdk-path)

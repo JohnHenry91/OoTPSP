@@ -23,4 +23,13 @@ int32_t PspAudio_StatLastOutputRet(void);
 uint32_t PspAudio_StatUnderruns(void);
 uint32_t PspAudio_StatMinRest(void);
 
+/* Tell the backend the console just came back from standby, which invalidates
+ * the reserved SRC channel. Safe from the power callback: raises a flag only,
+ * the audio thread does the work. */
+void PspAudio_NotifyResume(void);
+/* How many resumes the backend has handled. Zero after a standby means the
+ * power callback never reached us, which is a different bug from the channel
+ * not coming back. */
+uint32_t PspAudio_StatResumes(void);
+
 #endif

@@ -2,6 +2,7 @@
 #if defined(TARGET_SCEGU) || defined(TARGET_PSP)
 
 #include <stdint.h>
+#include "psp_screenshot.h"
 #include <stdlib.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -188,6 +189,11 @@ static unsigned int getMemorySize(unsigned int width, unsigned int height, unsig
 }
 
 #define TEX_ALIGNMENT (16)
+/* How much spill actually got reserved, for the HUD -- the difference between
+ * "the budget is too small" and "the region was never allocated" is not
+ * visible from any other number. */
+unsigned int gPspTexSpillBytes;
+
 void *getStaticVramBuffer(unsigned int width, unsigned int height, unsigned int psm) {
     unsigned int memSize = getMemorySize(width, height, psm);
     void *result = (void *) (staticOffset | 0x40000000);
@@ -357,15 +363,42 @@ static bool gfx_scegu_z_is_from_0_to_1(void) {
  *
  * GU_TCC_RGB takes RGB from the texture and alpha from the vertex alone, which
  * is what a constant alpha row means. */
+/* N34 probe. The fairy's glow quad shows as a rectangle that is uniformly
+ * ~20% darker than the background -- not opaque black. Its prim alpha is 50
+ * (z_lights.c:385), i.e. ~20%, so the alpha reaching the blender is the
+ * CONSTANT 50 rather than TEXEL0_a * 50. At the quad's corners the I8 texture
+ * is 0, so a correct result is invisible there. A constant alpha is exactly
+ * what GU_TCC_RGB produces: RGB from the texture, alpha from the vertex alone.
+ *
+ * So the question is which of the two guards below sends this shader down the
+ * RGB path. Counted separately, because they mean different things:
+ *   gPspTccRgbNoAlphaOpt -- opt_alpha was false, i.e. the render mode was read
+ *     as opaque. Then the bug is in use_alpha, upstream of here.
+ *   gPspTccRgbNoTexelRow -- opt_alpha was true but the alpha row carried no
+ *     texel, i.e. the combine was decoded without its TEXEL0. Then the bug is
+ *     in the combine decode.
+ * gPspTccRgbaOk counts the shaders that do get the texture's alpha, as a
+ * denominator -- "0 of 40" and "38 of 40" are very different pictures. */
+uint32_t gPspFlatBinds;
+uint32_t gPspFlatTfx, gPspFlatTcc;
+uint32_t gPspFlatRgbBinds;
+uint32_t gPspTccRgbNoAlphaOpt;
+uint32_t gPspTccRgbNoTexelRow;
+uint32_t gPspTccRgbaOk;
+
 static inline int tcc_for_alpha(const struct ShaderProgram *prg) {
     if (prg->cc.opt_alpha) {
         for (int i = 0; i < 4; i++) {
             uint8_t v = prg->cc.c[1][i];
 
             if (v == SHADER_TEXEL0 || v == SHADER_TEXEL0A || v == SHADER_TEXEL1) {
+                gPspTccRgbaOk++;
                 return GU_TCC_RGBA;
             }
         }
+        gPspTccRgbNoTexelRow++;
+    } else {
+        gPspTccRgbNoAlphaOpt++;
     }
     return GU_TCC_RGB;
 }
@@ -430,6 +463,87 @@ static inline bool is_n64_logo_text_combine(struct ShaderProgram *prg) {
            prg->cc.c[0][2] == SHADER_INPUT_2 && prg->cc.c[0][3] == SHADER_TEXEL0;
 }
 
+/* (PRIM - ENV) * TEXEL0 + ENV  --  a genuine LERP between two colour
+ * registers, steered by the texture. OoT uses it for the Kokiri forest's
+ * floating dust motes (gKokiriDustMoteMaterialDL), whose two variants are
+ * white core / blue rim and pale-yellow core / orange rim.
+ *
+ * This is NOT an approximation on the GE. GU_TFX_BLEND computes
+ *     out = Cvertex * (1 - Ct) + Ctexenv * Ct
+ * so with ENV in the vertex colour (which gfx_sp_tri1's input loop already
+ * puts there -- ENV is the last matched input) and PRIM as the tex-env
+ * colour, that is exactly (PRIM - ENV) * T + ENV. The alpha row
+ * (PRIM - 0) * TEXEL0 + 0 lands correctly too: BLEND takes alpha as
+ * Avertex * Atexture, and the input loop puts PRIM in the vertex alpha.
+ *
+ * Under the inherited default of GU_TFX_MODULATE the result was
+ * ENV * TEXEL0 instead -- the rim colour everywhere, no core. That is why
+ * the motes came out blue and orange rather than white and yellow.
+ *
+ * Matched structurally on the operands, not on a shader id: the identity
+ * above holds wherever the shape holds, so there is nothing to misapply.
+ * Distinct from is_n64_logo_cube_combine, whose shape is (TEXEL0-X)*Y+TEXEL0
+ * and which really is an approximation -- hence its boot-phase gating. */
+static inline bool is_prim_env_lerp_combine(struct ShaderProgram *prg) {
+    return prg->cc.c[0][0] == SHADER_INPUT_1 && prg->cc.c[0][1] == SHADER_INPUT_2 &&
+           prg->cc.c[0][2] == SHADER_TEXEL0 && prg->cc.c[0][3] == SHADER_INPUT_2;
+}
+
+int gfx_scegu_shader_is_prim_env_lerp(void) {
+    return (cur_shader != NULL && is_prim_env_lerp_combine(cur_shader)) ? 1 : 0;
+}
+
+/* The tex-env colour carries PRIM for the LERP above, and PRIM changes per
+ * mote, so gfx_pc.c re-issues this per draw (after a flush) the same way it
+ * does for the two-texture tint. */
+void gfx_scegu_set_lerp_prim_color(uint32_t packed) {
+    sceGuTexEnvColor(packed);
+}
+
+/* Colour row is a bare constant, alpha row is textured:
+ *     RGB   = (0 - 0) * 0 + INPUT      -- the texture does not appear at all
+ *     ALPHA = (TEXEL0 - 0) * INPUT + 0
+ *
+ * The N64 idiom for a glow sprite: one flat colour, with the texture supplying
+ * only the silhouette through alpha. gFairyWing1DL..4DL are exactly this
+ * (PRIM = 210,210,255), and so is anything else drawn as a soft light.
+ *
+ * GU_TFX_MODULATE gets this wrong in a way that is very visible: it computes
+ * RGB = Cvertex * Ct, so where the texture fades to black the sprite's colour
+ * is dragged to black with it -- and since the quad's alpha no longer masks
+ * those texels away, the fade becomes a solid dark RECTANGLE around the
+ * sprite. That is the box around the fairy.
+ *
+ * GU_TFX_BLEND with the tex-env colour set to the SAME colour as the vertex
+ * reproduces the combine exactly:
+ *     Cv * (1 - Ct) + Ctev * Ct  ==  Cv  when Ctev == Cv
+ * and BLEND takes alpha as Avertex * Atexture, which is the alpha row. So the
+ * colour comes out flat and the texture is confined to the alpha channel,
+ * which is precisely what the combine asks for.
+ *
+ * Matched on the operand shape, not on a shader id -- the identity holds
+ * wherever the shape holds. */
+static inline bool is_flat_colour_alpha_textured(struct ShaderProgram *prg) {
+    const bool colour_row_is_constant =
+        prg->cc.c[0][0] == SHADER_0 && prg->cc.c[0][1] == SHADER_0 &&
+        prg->cc.c[0][2] == SHADER_0 && prg->cc.c[0][3] == SHADER_INPUT_1;
+
+    if (!colour_row_is_constant) {
+        return false;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        if (prg->cc.c[1][i] == SHADER_TEXEL0 || prg->cc.c[1][i] == SHADER_TEXEL0A) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int gfx_scegu_shader_is_flat_colour(void) {
+    return (cur_shader != NULL && is_flat_colour_alpha_textured(cur_shader)) ? 1 : 0;
+}
+
 static inline int texenv_set_texture_color(struct ShaderProgram *prg) {
     int mode;
     /*@Hack: lord forgive me for this, but this is easier */
@@ -443,7 +557,12 @@ static inline int texenv_set_texture_color(struct ShaderProgram *prg) {
             mode = GU_TFX_BLEND;
             break;
         default:
-            mode = is_n64_logo_cube_combine(prg) ? GU_TFX_BLEND : GU_TFX_MODULATE;
+            if (is_n64_logo_cube_combine(prg) || is_prim_env_lerp_combine(prg) ||
+                is_flat_colour_alpha_textured(prg)) {
+                mode = GU_TFX_BLEND;
+            } else {
+                mode = GU_TFX_MODULATE;
+            }
             break;
     }
 
@@ -565,6 +684,54 @@ extern int gPspLerp2SecondPass;
  * it does not, the pass is not drawing what it is supposed to. */
 int gPspLerp2Force;
 
+/* ---------------------------------------------------------------------------
+ * Bisect-Schalter fuer Commit 34ab82e0b ("Sky, sun and moon").
+ *
+ * Der User meldet, dass die verwuerfelte Himmelsflaeche VOR diesem Commit noch
+ * nicht da war. Vier Aenderungen darin fassen den Renderpfad des Himmels an,
+ * und statt sie einzeln herauszubauen und viermal neu zu uebersetzen, liegt
+ * jede hier auf einem Schalter: im HACKS-Menue laesst sich damit in EINEM Lauf
+ * A/B testen, welche von ihnen die Flaeche einschleppt. Alle vier stehen auf
+ * "an" (== dem Verhalten nach dem Commit); jede Menue-Zeile schaltet sie auf
+ * das Verhalten davor zurueck.
+ *
+ * Sie sind bewusst getrennt und nicht ein einzelner "alles zurueck"-Schalter:
+ * die vier greifen an vier verschiedenen Stellen an, und nur die einzelne
+ * Zuordnung ist eine Messung.
+ *
+ * ERGEBNIS DES BISECTS (2026-08-31): KEINER der vier war die Ursache, und
+ * keiner konnte es sein. Die HUD-Zeile zeigte "SKY imp 0 hit 24" -- der Himmel
+ * importierte gar nichts und wurde vollstaendig aus dem Texturcache bedient.
+ * Aenderung 2 und 4 sitzen im Importpfad und liefen damit nie. Die echte
+ * Ursache war der ueber die Quelladresse geschluesselte Cache gegen Puffer,
+ * die das Spiel an derselben Adresse neu befuellt; siehe
+ * gfx_texture_cache_invalidate_range() in gfx_pc.c.
+ *
+ * Die Schalter bleiben trotzdem stehen, und zwar aus einem konkreten Grund:
+ * seit der Cache die Himmelstexturen wieder freigibt, FINDEN Importe statt.
+ * Die Messung "imp 0", die Aenderung 2 und 4 entlastet hat, gilt also nicht
+ * mehr -- beide koennen ab jetzt zum ersten Mal ueberhaupt wirken, im Guten
+ * wie im Schlechten. Sie sind damit weniger erledigt als vorher, nicht mehr. */
+
+/* 1) gfx_dp_set_tile: G_TX_WRAP + G_TX_NOMASK als CLAMP behandeln. Hoechster
+ *    Verdacht -- wirkt global, und die Skybox laedt JEDE ihrer 31x31-Kacheln
+ *    mit genau dieser Kombination (z_vr_box.c:347). Der Mond-Fix haengt daran
+ *    und ist bestaetigt, also ist "aus" hier kein Rueckschritt, sondern der
+ *    Gegentest. */
+int gPspTileNomaskClamp = 1;
+
+/* 2) gfx_sp_tri1: nach jedem Textur-Upload die Bindung ausdruecklich
+ *    wiederherstellen. */
+int gPspRebindAfterUpload = 1;
+
+/* 3) z_vr_box_draw.c: bei blend == 0 auf G_CC_DECALRGBA/G_CYC_1CYCLE
+ *    umschalten (aus z2442 3f7c9cf3c). */
+int gPspSkyDecalNoBlend = 1;
+
+/* 4) tex_needs_u64_unswap: die Skybox als "nicht native" aussprechen, statt
+ *    ihre Byteordnung aus der Adresse zu erschliessen. */
+int gPspSkyForceNonNative = 1;
+
 /* Last texenv mode forced by gfx_scegu_set_two_texture_tint(); -1 == none. */
 static int mode_override = -1;
 
@@ -573,6 +740,21 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
         sceGuDisable(GU_TEXTURE_2D);
         return;
     }
+    /* Alpha test FIRST, before the untextured early-out below.
+     *
+     * This block used to sit after that `return`, so an untextured draw
+     * inherited whatever the last textured one had left switched on. It is
+     * per-draw state, not per-texture state. */
+    if (prg->shader_id & SHADER_OPT_TEXTURE_EDGE) {
+        /* CVG_X_ALPHA (G_RM_AA_ZB_TEX_EDGE et al): the N64 turns partial
+         * coverage into a hard edge. A mid-grey cut is the usual stand-in and
+         * is what leaves foliage, gratings and fences their shape. */
+        sceGuEnable(GU_ALPHA_TEST);
+        sceGuAlphaFunc(GU_GREATER, 0x55, 0xff);
+    } else {
+        sceGuDisable(GU_ALPHA_TEST);
+    }
+
     // If we have textures, Enable otherwise Disable
     if (prg->texture_used[0] || prg->texture_used[1]) {
         sceGuEnable(GU_TEXTURE_2D);
@@ -604,14 +786,6 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
         */
     }
 
-    if (prg->shader_id & SHADER_OPT_TEXTURE_EDGE) {
-        // (horrible) alpha discard
-        sceGuEnable(GU_ALPHA_TEST);
-        sceGuAlphaFunc(GU_GREATER, 0x55, 0xff); /* 0.3f  */
-    } else {
-        sceGuDisable(GU_ALPHA_TEST);
-    }
-
     if (!prg->enabled) {
         // configure formulae, we only need to do this once
         prg->enabled = true;
@@ -636,7 +810,32 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
         if (prg->shader_id == 0x01A00045) {
             mode = GU_TFX_REPLACE;
         }
-        sceGuTexFunc(mode, tcc_for_alpha(prg));
+        const int tcc = tcc_for_alpha(prg);
+
+        /* Narrow probe for the fairy. The summed TCC counters said the alpha
+         * channel arrives for most shaders, which ruled the alpha row out as
+         * the cause of the BLACK box -- that was the colour row, now fixed.
+         * What is left is a pale rectangle, i.e. flat colour with alpha that
+         * is still uniform. So count this one shader shape alone: how often
+         * it is bound, and how often it is bound WITHOUT the texture's alpha.
+         * flatRgb above zero is the remaining defect, and it is a different
+         * question from the one the summed counters answered. */
+        if (is_flat_colour_alpha_textured(prg)) {
+            gPspFlatBinds++;
+            if (tcc == GU_TCC_RGB) {
+                gPspFlatRgbBinds++;
+            }
+            /* Der Zustand, mit dem die GE das Leuchtsprite tatsaechlich
+             * zeichnet. Der Zweitdurchgang setzt fuer sein eigenes Material
+             * eine andere Texturumgebung, und wenn die stehen bleibt, wird der
+             * naechste Draw damit gezeichnet: RGB stimmt weiter (deshalb
+             * dunkelt der Kasten mit), der Alphakanal faellt weg. Genau das
+             * waere hier abzulesen -- erwartet ist BLEND(3)/RGBA(1). */
+            gPspFlatTfx = (uint32_t)mode;
+            gPspFlatTcc = (uint32_t)tcc;
+        }
+
+        sceGuTexFunc(mode, tcc);
         mode_override = -1;
     }
 }
@@ -667,6 +866,54 @@ void gfx_scegu_set_two_texture_tint(int has_tint) {
     if (mode != mode_override) {
         mode_override = mode;
         sceGuTexFunc(mode, tcc_for_alpha(cur_shader));
+    }
+}
+
+/* Distance fog, on the GE's own fog unit.
+ *
+ * The N64 fogs in the BLENDER, i.e. after texturing: the final pixel is
+ * lerp(pixel, fogColor, fogFactor). The GE's fog unit sits in the same place in
+ * its pipeline, so this is one draw call, not a second pass -- unlike Daedalus
+ * on this same hardware (reference/daedalus, RendererPSP::RenderFog), which
+ * re-draws every fogged triangle untextured with the fog factor in vertex
+ * alpha. It has to: Daedalus transforms vertices on the CPU and hands the GE
+ * screen-space positions, so the GE has no view-space Z to fog with. This port
+ * does not -- since session 13 the vertex handed to the GE is in EYE space and
+ * GU_PROJECTION alone does the rest (see gfx_sp_vertex), which is exactly the
+ * input the fog unit wants. The expensive path is not needed here.
+ *
+ * `start` and `end` are eye-space distances; gfx_pc.c derives them from the
+ * N64's fog multiplier/offset and the current projection. See the derivation
+ * there, including the one place this is an APPROXIMATION rather than a port:
+ * the GE's ramp is linear in distance, the N64's is linear in screen depth. */
+void gfx_scegu_set_fog(int enable, float start, float end, unsigned int color) {
+    static int cur_enable = -1;
+    static float cur_start = 0.0f, cur_end = 0.0f;
+    static unsigned int cur_color = 0xFFFFFFFFu;
+
+    if (!enable) {
+        if (cur_enable != 0) {
+            sceGuDisable(GU_FOG);
+            cur_enable = 0;
+        }
+        return;
+    }
+
+    if (cur_enable != 1) {
+        sceGuEnable(GU_FOG);
+        cur_enable = 1;
+        /* Force the parameters through on the enabling draw: the cached values
+         * describe the last time fog was ON, and the GE registers may have been
+         * left anywhere by whatever ran in between. */
+        cur_start = cur_end = 0.0f;
+        cur_color = 0xFFFFFFFFu;
+    }
+
+    if (start != cur_start || end != cur_end || color != cur_color) {
+        sceGuFog(start, end, color);
+        cur_start = start;
+        cur_end = end;
+        cur_color = color;
     }
 }
 
@@ -1312,7 +1559,39 @@ static uint32_t n64_logo_text_env_color(void) {
            (uint32_t)clamp_u8_from_unit(outg) << 8 | clamp_u8_from_unit(outr);
 }
 
+/* Draws issued while the GE's PHYSICAL texture binding is not the one
+ * gfx_scegu_select_texture chose.
+ *
+ * The two can only disagree by way of an upload: texman_upload/_swizzle end
+ * with a direct texman_bind_tex(), which changes the binding without going
+ * through the tile-priority rule above and without re-asserting the sampler
+ * state (see the comment in gfx_scegu_select_texture about exactly that). A
+ * frame that uploads nothing therefore cannot desync -- and the one frame
+ * after a room load uploads EVERYTHING, which is precisely the frame that comes
+ * out corrupted. This counts whether that coincidence is the mechanism or just
+ * a coincidence. Split by pass, because the terrain LERP's second pass is the
+ * confirmed trigger (turning it off makes the corruption go away, measured on
+ * hardware 2026-08-28) and it is also the one path where select_texture
+ * deliberately DECLINES to bind tile 0 -- leaving whatever the upload bound. */
+uint32_t gPspTexBindDesyncs;
+uint32_t gPspTexBindDesyncs2nd;
+/* Value at the start of the current frame; see gfx_run in gfx_pc.c. */
+uint32_t gPspTexBindDesyncsFrameBase;
+
 static void gfx_scegu_draw_triangles(float buf_vbo[], UNUSED size_t buf_vbo_len, size_t buf_vbo_num_tris) {
+    if (cur_shader != NULL && (cur_shader->texture_used[0] || cur_shader->texture_used[1])) {
+        const int want_tile = ((gPspGfxHackPreferTexel1 || gPspLerp2SecondPass) &&
+                               cur_shader->texture_used[0] && cur_shader->texture_used[1])
+                                  ? 1
+                                  : (cur_shader->texture_used[0] ? 0 : 1);
+
+        if (tmu_state[want_tile].tex != (uint32_t)texman_get_bound()) {
+            ++gPspTexBindDesyncs;
+            if (gPspLerp2SecondPass) {
+                ++gPspTexBindDesyncs2nd;
+            }
+        }
+    }
     if (!is_shader_enabled(cur_shader->shader_id)) {
         gfx_scegu_apply_shader(get_shader_from_id(get_shader_remap(cur_shader->shader_id)));
     }
@@ -1358,6 +1637,12 @@ static void gfx_scegu_draw_triangles(float buf_vbo[], UNUSED size_t buf_vbo_len,
  *
  * Depth writes stay ON with the default LEQUAL test: the geometry is bitwise
  * the same as the first pass, so it compares equal and passes. */
+/* Der zuletzt von gfx_scegu_lerp2_blend_begin gesetzte Mischfaktor, 0..255.
+ * gfx_sp_tri1 rechnet ihn im Zweitdurchgang ins Vertexalpha ein. */
+unsigned int gPspLerp2MixApplied;
+
+#define _UNUSED_FIX(x) ((void)(x))
+
 void gfx_scegu_lerp2_blend_begin(uint8_t mix) {
     /* One scalar, not three channels. The RDP multiplies the (TEXEL1 - TEXEL0)
      * term by a single value here -- ENV_ALPHA or the LOD fraction -- so the
@@ -1370,8 +1655,61 @@ void gfx_scegu_lerp2_blend_begin(uint8_t mix) {
     const unsigned int src_fix = m | (m << 8) | (m << 16);
     const unsigned int dst_fix = inv | (inv << 8) | (inv << 16);
 
+    /* Der Mischfaktor, den gfx_sp_tri1 im Zweitdurchgang ins Vertexalpha
+     * einrechnet -- siehe unten, warum das die festen Faktoren ersetzt. */
+    gPspLerp2MixApplied = m;
+
     sceGuEnable(GU_BLEND);
-    sceGuBlendFunc(GU_ADD, GU_FIX, GU_FIX, src_fix, dst_fix);
+    /* ALPHA-MISCHUNG STATT FESTER FAKTOREN.
+     *
+     * Vorher stand hier GU_FIX/GU_FIX mit mix und (1-mix). Das bildet
+     * (TEXEL1-TEXEL0)*mix + TEXEL0 exakt nach -- aber nur, solange das
+     * Material DECKEND ist. Beim Boden, wofuer dieser Pfad gebaut wurde, ist
+     * es das, und dort aendert sich durch die Umstellung rechnerisch nichts:
+     * bei Alpha 255 ist src_alpha == mix, also genau der alte Faktor.
+     *
+     * Bei der Sonne ist es das nicht. Ihre Alphazeile laeuft von 0 am Rand
+     * der Scheibe bis 255 in der Mitte, und ein FESTER Faktor traegt diesen
+     * Verlauf nicht: der zweite Durchgang malte innerhalb der Maske ueberall
+     * gleich stark. Sichtbar war das erst als Rechteck und, nachdem der
+     * Alpha-Test die voellig durchsichtigen Stellen entfernt hatte, als
+     * flache Scheibe mit harter Kante.
+     *
+     * gfx_sp_tri1 multipliziert das Vertexalpha im Zweitdurchgang mit
+     * gPspLerp2MixApplied, sodass der Mischfaktor erhalten bleibt und
+     * zusaetzlich mit dem Alphaverlauf der Textur gewichtet wird. */
+    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    _UNUSED_FIX(src_fix); _UNUSED_FIX(dst_fix);
+
+    /* DIE MASKE, DIE DIESEM DURCHGANG SONST FEHLT -- der Kasten um Sonne und
+     * Mond.
+     *
+     * Die festen Faktoren oben sind der ganze Witz des Zweitdurchgangs: sie
+     * bilden (TEXEL1-TEXEL0)*mix + TEXEL0 exakt nach. Sie benutzen aber
+     * KEIN Alpha, also malt dieser Durchgang ueber das ganze Viereck --
+     * auch dort, wo die N64 gar nichts gezeichnet haette.
+     *
+     * Auf der RDP ist das ein EINZIGER Draw mit einer Alphazeile, die beide
+     * Zyklen gemeinsam maskiert. Bei der Sonne (SETUPDL_54) lautet sie
+     * (TEXEL1-TEXEL0)*ENVIRONMENT + TEXEL0: ausserhalb der Scheibe sind beide
+     * Texel 0, also Alpha 0, also nichts. Zyklus 2 ist dort
+     * (PRIM-ENV)*COMBINED + ENV == ENV -- die Umgebungsfarbe steht also sehr
+     * wohl im Farbwert, sie wird auf der N64 nur vollstaendig wegmaskiert.
+     * Genau diese Maske geht verloren, wenn der Draw in zwei zerfaellt, und
+     * uebrig bleibt ein Rechteck in der Umgebungsfarbe, das mit ihr
+     * mitdunkelt.
+     *
+     * Deshalb: waehrend des Zweitdurchgangs alles verwerfen, was vollstaendig
+     * durchsichtig ist. GU_GREATER gegen 0 ist die schwaechstmoegliche Form
+     * davon -- sie trifft ausschliesslich Alpha == 0 und kann keinen Verlauf
+     * abschneiden, anders als der pauschale 0x55-Test, den dieser Port
+     * frueher hatte (siehe gDebugAlphaTest).
+     *
+     * Fuer den eigentlichen Zweck des Zweitdurchgangs, den zweischichtigen
+     * Boden, aendert das nichts: dessen Texturen sind deckend, ihr Alpha ist
+     * 255, der Test laesst sie unveraendert durch. */
+    sceGuEnable(GU_ALPHA_TEST);
+    sceGuAlphaFunc(GU_GREATER, 0, 0xff);
 }
 
 /* Hand the pipeline back exactly as gfx_pc.c's own cache (gl_blend, mirroring
@@ -1384,6 +1722,52 @@ void gfx_scegu_lerp2_blend_begin(uint8_t mix) {
  * and skipped re-enabling it. */
 void gfx_scegu_lerp2_blend_end(void) {
     sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    if (!gl_blend) {
+        sceGuDisable(GU_BLEND);
+    }
+    /* Den Alpha-Test wieder abschalten. Er ist per-Draw-Zustand, den
+     * gfx_scegu_apply_shader beim naechsten Bind ohnehin neu setzt (dort
+     * gesteuert ueber SHADER_OPT_TEXTURE_EDGE) -- ihn hier stehen zu lassen
+     * hiesse, dass der naechste Draw ohne eigenen Bind ihn erbt. */
+    sceGuDisable(GU_ALPHA_TEST);
+}
+
+/* Fog mode 2's second pass -- see gPspFogSecondPass in gfx_pc.c. Ported from
+ * reference/oot-psp-z2442 (commit 471a7eae7, "FOG!"): draw the same triangle
+ * again, flat fog-coloured and untextured, blended over the first pass by
+ * ordinary alpha (the vertex alpha carries the per-vertex N64 fog factor,
+ * written at the vertex-buffering site in gfx_sp_tri1 -- this function only
+ * owns the GE state around that draw, not the vertices themselves).
+ *
+ * GU_EQUAL, not the base pass's own depth func: the geometry is bitwise the
+ * same triangle at the same position as the base pass just drew (same
+ * argument as gfx_scegu_lerp2_blend_begin), so its depth compares equal
+ * exactly where the base pass wrote depth -- which is to say, exactly the
+ * pixels that passed the base pass's own alpha test. That is what keeps an
+ * alpha-tested cutout (foliage, a grate) from getting a flat fog-coloured
+ * quad drawn over the holes: a discarded pixel never had its depth written,
+ * so it can never compare equal here either. */
+void gfx_scegu_fog2_blend_begin(void) {
+    sceGuDisable(GU_TEXTURE_2D);
+    sceGuEnable(GU_BLEND);
+    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    sceGuDepthFunc(GU_EQUAL);
+}
+
+/* Hand GU_TEXTURE_2D and the depth func back exactly as gfx_pc.c's own state
+ * believes they are left -- the same discipline gfx_scegu_lerp2_blend_end
+ * documents, and for the same reason: GU_TEXTURE_2D is only ever re-applied
+ * by gfx_scegu_apply_shader on a SHADER CHANGE (see there), and this pass
+ * deliberately makes none, so leaving it disabled would silently carry over
+ * into whatever ordinary draw comes next. `textured` is the caller's own
+ * used_textures[0]||[1] for the material this fog pass was drawn for. */
+void gfx_scegu_fog2_blend_end(bool textured) {
+    sceGuDepthFunc(GU_GEQUAL); /* matches gfx_scegu_set_depth_test's own func */
+    if (textured) {
+        sceGuEnable(GU_TEXTURE_2D);
+    } else {
+        sceGuDisable(GU_TEXTURE_2D);
+    }
     if (!gl_blend) {
         sceGuDisable(GU_BLEND);
     }
@@ -1623,12 +2007,29 @@ static void gfx_scegu_init(void) {
     texman_reset(texman_aligned, texman_size);
 
     /* Spill region in main RAM. VRAM alone is not enough for a busy scene --
-     * the Market overflows ~1.2 MB on its own -- and overflowing used to mean
-     * wiping both texture caches mid-frame (the speckled corruption). With a
-     * fallback the hot textures still land in VRAM and only the tail is slower. */
-    void *texman_overflow = memalign(TEX_ALIGNMENT, TEXMAN_OVERFLOW_SIZE);
-    if (texman_overflow != NULL) {
-        texman_set_overflow_buffer(texman_overflow, TEXMAN_OVERFLOW_SIZE);
+     * the Market overflows ~1.2 MB on its own -- and overflowing means wiping
+     * both texture caches mid-frame (the speckled corruption). With a fallback
+     * the hot textures still land in VRAM and only the tail is slower.
+     *
+     * Take the largest that fits. One fixed request would mean that the day it
+     * no longer fits, the region silently disappears entirely and every busy
+     * scene starts wiping again -- a failure that looks like a rendering
+     * regression and has nothing to do with rendering. */
+    {
+        unsigned int want = TEXMAN_OVERFLOW_SIZE;
+        void *texman_overflow = NULL;
+
+        while (want >= TEXMAN_OVERFLOW_MIN) {
+            texman_overflow = memalign(TEX_ALIGNMENT, want);
+            if (texman_overflow != NULL) {
+                break;
+            }
+            want /= 2;
+        }
+        if (texman_overflow != NULL) {
+            texman_set_overflow_buffer(texman_overflow, want);
+            gPspTexSpillBytes = want;
+        }
     }
     if (!texman_buffer) {
         char msg[32];
@@ -1666,15 +2067,28 @@ int gPspGuClipPlanes = 0;
  * flipping this fixes or dramatically worsens the picture instantly -- either
  * outcome is an answer.
  *
- * gDebugAlphaTest -- the inherited setup enables GU_ALPHA_TEST unconditionally
- * with GU_GREATER, 0x55, i.e. every fragment with alpha <= 0x55 is discarded,
- * regardless of what other_mode_l's alpha compare actually asks for. That is a
- * standalone candidate for the HOLES in the mesh. 0 = disable the test.
+ * gDebugAlphaTest -- restores the OLD blanket behaviour: GU_ALPHA_TEST forced
+ * on for the whole frame with GU_GREATER, 0x55, discarding every fragment
+ * below alpha 85 regardless of what other_mode_l's alpha compare asked for.
+ *
+ * That was the default until it was measured. Object_Kankyo draws both the
+ * forest's floating fairy motes and its light shafts, and cycles their alpha
+ * between 0 and 100 (z_object_kankyo.c:545-550) -- against a fixed cut at 85,
+ * almost every one of them was thrown away. Their render mode asks for
+ * G_AC_THRESHOLD (SETUPDL_20), which on the N64 compares against the blend
+ * colour's alpha, not against a constant. The blanket test also cut light
+ * shafts off in mid-air instead of letting them fade into the floor.
+ *
+ * Now the alpha test follows the shader: on with the mid-grey cut for
+ * CVG_X_ALPHA / texture-edge materials (foliage, gratings, fences), off
+ * otherwise. Keep this switch for side-by-side comparison -- the old cut may
+ * have been hiding missing sorting of transparent surfaces, and that would
+ * show up as newly visible overlap rather than as anything disappearing.
  *
  * Both are applied per frame, so a poke takes effect on the next frame -- no
  * rebuild, no scene reload. */
 int gDebugDepthMode = 0;
-int gDebugAlphaTest = 1;
+int gDebugAlphaTest = 0;
 /* Flip ONLY the depth comparison (range and clear untouched) -> the far surface
  * wins instead of the near one. This is the actual inversion test. */
 int gDebugDepthFuncFlip = 0;
@@ -1712,7 +2126,11 @@ static void gfx_scegu_start_frame(void) {
         sceGuDisable(GU_DEPTH_TEST);
     }
     if (gDebugAlphaTest) {
+        /* Old behaviour, kept switchable: force the blanket cut for the whole
+         * frame. Off (the default) leaves the test to gfx_scegu_apply_shader,
+         * which decides it per draw from the render mode. */
         sceGuEnable(GU_ALPHA_TEST);
+        sceGuAlphaFunc(GU_GREATER, 0x55, 0xff);
     } else {
         sceGuDisable(GU_ALPHA_TEST);
     }
@@ -1825,6 +2243,21 @@ static void gfx_scegu_end_frame(void) {
     }
     sceGuSync(0, 0);
     PSP_DIAG_GFX("ge-sync");
+
+    /* Grab the finished picture here, between the GE going idle and the swap:
+     * the buffer just drawn into is complete and nothing is reading it. After
+     * the swap it would be the buffer the DISPLAY owns and the next frame's
+     * target, i.e. one frame stale and being overwritten while it is read.
+     *
+     * The address arithmetic mirrors getStaticVramBufferBytes: sFbp0/sFbp1
+     * hold VRAM-relative offsets with the uncached bit, which is what sceGu
+     * wants and not something the CPU can dereference. */
+    {
+        void *drawn = sDrawBufferIsFbp0 ? sFbp0 : sFbp1;
+
+        PspScreenshot_Tick((const void *)((unsigned int)drawn + (unsigned int)sceGeEdramGetAddr()),
+                           SCR_WIDTH, SCR_HEIGHT, BUF_WIDTH);
+    }
 
     {
         /* Timed so the pacer can charge this to idle rather than to the
