@@ -1712,9 +1712,34 @@ void Play_Draw(PlayState* this) {
             gfxP = Gfx_Open(sp1CC);
             gSPDisplayList(OVERLAY_DISP++, gfxP);
 
-#if !TARGET_PSP
+#if TARGET_PSP
+            /* Wieder eingeschaltet, nachdem die Uebergaenge echt geworden sind
+             * (src/code/z_fbdemo_fade.c laeuft jetzt im Build statt eines
+             * No-op-Stubs). Ohne diesen Block rechnet TransitionFade zwar sein
+             * Alpha aus, aber niemand zeichnet es -- der Szenenwechsel schaltet
+             * hart um, und genau so hat es der User gemeldet ("Verlauf sehe ich
+             * da nicht").
+             *
+             * Die dritte Klausel des Originals, `transitionType >= 56`, bleibt
+             * BEWUSST draussen. Sie war die Ursache des Absturzes, wegen dessen
+             * dieser Block ueberhaupt abgeschaltet wurde: sie haengt nicht an
+             * transitionMode, sondern allein an einem Feld, das vor dem ersten
+             * echten Play_SetupTransition noch nie geschrieben wurde. Uebrig
+             * gebliebene Arena-Bytes liessen es zufaellig >= 56 lesen, worauf
+             * durch einen nie gesetzten Funktionszeiger gesprungen wurde
+             * ("Bad Execution Address", an wechselnden Adressen -- das Muster
+             * uninitialisierten Speichers, kein fester Fehler an einer Stelle).
+             * Fuer die Fade-Familie wird sie nicht gebraucht: die laeuft ueber
+             * TRANS_MODE_INSTANCE_RUNNING/WAIT. Der NULL-Test kommt dazu, weil
+             * ein Zeiger, den niemand gesetzt hat, nie aufgerufen werden darf --
+             * unabhaengig davon, was transitionMode behauptet. */
+            if (((this->transitionMode == TRANS_MODE_INSTANCE_RUNNING) ||
+                 (this->transitionMode == TRANS_MODE_INSTANCE_WAIT)) &&
+                (this->transitionCtx.draw != NULL)) {
+#else
             if ((this->transitionMode == TRANS_MODE_INSTANCE_RUNNING) ||
                 (this->transitionMode == TRANS_MODE_INSTANCE_WAIT) || (this->transitionCtx.transitionType >= 56)) {
+#endif
                 View view;
 
                 View_Init(&view, gfxCtx);
@@ -1725,23 +1750,6 @@ void Play_Draw(PlayState* this) {
                 View_ApplyTo(&view, VIEW_ALL, &gfxP);
                 this->transitionCtx.draw(&this->transitionCtx.instanceData, &gfxP);
             }
-#else
-            /* Instance-style transition drawing (circle wipes, etc. -- real
-             * scene transitions triggered by walking through a door) is not
-             * exercised by this port's current single-room milestone, and
-             * calling through this->transitionCtx.draw has been observed to
-             * crash ("Bad Execution Address") several frames into gameplay:
-             * this->transitionCtx.draw reads back as a small-but-nonzero,
-             * not-a-real-function value (varies across runs/builds) even
-             * though it's explicitly bzero'd at the top of Play_Init --
-             * something (root cause not yet found, likely the same general
-             * class of wild-write bug as the corrupted skeleton limb chain
-             * investigated earlier this session) overwrites it before this
-             * point is ever reached. Skip this block entirely on this port
-             * until real scene-transition support is in scope -- safer than
-             * chasing the exact corruption source right now, since nothing
-             * in the current milestone actually needs it to draw anything. */
-#endif
 
 #if !TARGET_PSP
             TransitionFade_Draw(&this->transitionFadeFlash, &gfxP);

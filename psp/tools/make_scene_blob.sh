@@ -211,7 +211,26 @@ done
 vrom_of() {
     $AWK -v base=$((0x08804000)) -v sym="$1" '
         {
-            k = index($0, sym " = ")
+            # Den Trenner MITSUCHEN, sonst trifft ein Symbol, dessen Name auf
+            # den gesuchten endet. Jede Zeile hat die Form
+            #   __asm__(".globl _SYM\n_SYM = 0x...");
+            # also steht vor der Zuweisung immer das literale \n -- danach zu
+            # suchen verankert den Namen an seinem Anfang.
+            #
+            # Ohne das fand die Suche nach "_labo_sceneSegmentRomStart = "
+            # zuerst die Zeile von _hylia_labo_sceneSegmentRomStart (steht
+            # frueher in der Datei), und das `exit` unten nahm sie.
+            # labo_scene.bin -- also IMPAS HAUS, siehe scene_table.h -- landete
+            # damit in der Blob-Registry unter der vrom-Adresse des Labors am
+            # Hylia-See. Die Registry traf beim Laden nie, die Szene fiel aufs
+            # Roh-ROM zurueck, ihre bgCamList blieb big-endian, und die
+            # Prerender-Kamera stand daraufhin bei eye = (0, 13312, 0) statt
+            # (0, 52, 0) und schaute an Link vorbei. Das sah aus wie "Link wird
+            # in Impas Haus nicht gerendert" (Auftrag 06 / Fehlerliste F).
+            k = index($0, "\\n" sym " = ")
+            if (k > 0) {
+                k = k + 2
+            }
             if (k > 0) {
                 rest = substr($0, k)
                 if (match(rest, /0x[0-9a-fA-F]+/)) {

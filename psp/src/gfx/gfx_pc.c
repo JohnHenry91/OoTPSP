@@ -155,6 +155,13 @@ struct TextureHashmapNode {
      * uploaded pixels (hence part of the key) and the UV scale (hence read
      * back in gfx_sp_tri1). */
     uint8_t mirror_s, mirror_t;
+    /* PART OF THE CACHE KEY. Die Intensitaetsrampe, mit der die Texel beim
+     * Dekodieren vorverzerrt wurden -- siehe gfx_cyc1_texture_ramp(). 0 heisst
+     * unveraendert. Wie palette und line_size_bytes: eine andere Dekodier-
+     * Eingabe ist eine andere Textur. gEffUnknown10Tex wird von zwei
+     * Displaylisten mit verschiedenen Zyklus-1-Formen benutzt, ohne dieses
+     * Feld wuerde die zuerst dekodierte Variante fuer beide gelten. */
+    uint32_t ramp;
     /* Der Eintrag beschreibt Speicher, den das SPIEL seither ueberschrieben
      * hat -- der dekodierte Inhalt ist damit veraltet, obwohl jedes Feld des
      * Schluessels noch passt. Siehe gfx_texture_cache_invalidate_range(). */
@@ -358,6 +365,52 @@ static struct RDP {
      * 2-cycle mode (see its use next to alpha_src in gfx_sp_tri1). */
     bool combine_cyc2_alpha_is_prim;
 
+    /* Cycle 2's RGB row read as a genuine LERP BETWEEN TWO COLOUR REGISTERS,
+     * (HI - LO) * COMBINED + LO -- not the plain multiply combine_cyc2_tint
+     * above recovers. CC_PRIM / CC_ENV, or CC_0 in _hi for "not this shape".
+     *
+     * The N64 idiom for "the texture is a one-dimensional ramp between two
+     * colours": cycle 1 produces a grey value out of the texture(s) and cycle 2
+     * uses it as the interpolation fraction. gGiHeartPieceDL is exactly this --
+     * PRIM (255,0,100) and ENV (100,0,50), two shades of the same red -- so
+     * dropping cycle 2 leaves the bare intensity texture behind, which is the
+     * grey/white centre that was reported. combine_cycle2_tint cannot cover it:
+     * its `d` operand must be a genuine zero, and here it is ENVIRONMENT.
+     *
+     * The GE reproduces this exactly, no approximation: GU_TFX_BLEND computes
+     *     out = Cvertex * (1 - Ct) + Ctexenv * Ct
+     * so LO in the vertex colour and HI in the tex-env colour IS the formula.
+     * That is the same identity is_prim_env_lerp_combine already exploits for
+     * the Kokiri dust motes, which carry the shape in cycle 1 instead. */
+    uint8_t combine_cyc2_lerp_hi, combine_cyc2_lerp_lo;
+    /* Zyklus 1 als AFFINE Funktion der Textur statt als nackter Texel:
+     * (TEXEL0 - REG) * SKALAR + TEXEL0, also T*(1+s) - REG*s.
+     *
+     * combine_cycle2_prim_env_lerp() laesst diese Form durch -- es prueft nur,
+     * dass der d-Operand ein Texel ist und kein SHADE vorkommt. Die
+     * GU_TFX_BLEND-Identitaet, auf der es beruht, gilt aber nur, solange
+     * Zyklus 1 WIRKLICH der Texel ist: die GE bekommt T als Mischfaktor, die
+     * RDP rechnet mit clamp(T*(1+s) - REG*s). Dass die Differenz nicht
+     * theoretisch ist, zeigt gHeartPieceInteriorDL, wo s = 128/255 ist und der
+     * blau-weisse Verlauf dadurch viel zu frueh ins Weisse laeuft.
+     *
+     * Statt die Form abzulehnen (dann faellt Zyklus 2 ganz weg, was schlechter
+     * ist) wird die Rampe beim Dekodieren in die Textur gebacken -- inklusive
+     * der Klemmung, die eine Vertexfarbe nicht ausdruecken kann, weil ihr
+     * Rotanteil hier negativ waere. Siehe gfx_cyc1_texture_ramp().
+     *
+     * _reg == CC_0 heisst "nicht diese Form". */
+    uint8_t cyc1_ramp_reg;
+    uint8_t cyc1_ramp_scalar_raw;
+    /* Cycle 2's ALPHA row is (COMBINED - 0) * PRIMITIVE + 0, with cycle 1's
+     * alpha coming from the texture (as opposed to the constant-1 cycle 1 that
+     * combine_cyc2_alpha_is_prim insists on). The finished alpha is then
+     * texelAlpha * PRIM.a, which is precisely what BLEND's own alpha rule
+     * (Avertex * Atexture) gives once PRIM's alpha sits in the vertex. Only
+     * consulted alongside combine_cyc2_lerp_hi, so it cannot disturb the
+     * materials the older flag governs. */
+    bool combine_cyc2_alpha_mul_prim;
+
     struct RGBA env_color, prim_color, fog_color, fill_color;
     struct XYWidthHeight viewport, scissor;
     bool viewport_or_scissor_changed;
@@ -390,6 +443,27 @@ static struct RenderingState {
     float fog_start, fog_end;
     unsigned int fog_color;
 } rendering_state __attribute__((aligned(16)));
+
+#if TARGET_PSP
+/* Wird der A-Knopf-Kasten am ERSTEN Draw eines Bildes noch angewandt?
+ *
+ * `rendering_state` allein kann das nicht beantworten: es haelt den ZULETZT
+ * gesetzten Zustand, und das Bild endet immer mit dem A-Knopf, weil danach
+ * nichts mehr zeichnet. Jede Lesung ueber den Debugger sah deshalb den Kasten
+ * -- unabhaengig davon, ob die Welt damit gezeichnet wurde oder nicht.
+ *
+ * Diese Sonde latcht stattdessen beim ersten Draw NACH Bildbeginn. Zeigt sie
+ * Vollbild, wird die Welt korrekt beschnitten und das schwarze Bild hat eine
+ * andere Ursache; zeigt sie den Kasten, ist genau das die Ursache. */
+uint16_t gPspVpFirst[4];    /* Viewport am ersten Draw: x,y,w,h  */
+uint16_t gPspScisFirst[4];  /* Scissor  am ersten Draw: x,y,w,h  */
+uint16_t gPspVpLast[4];     /* ...und am letzten, zum Vergleich  */
+uint16_t gPspScisLast[4];
+uint32_t gPspVpApplies;     /* Viewport-Wechsel, die die GE sah  */
+uint32_t gPspScisApplies;   /* Scissor-Wechsel,  die die GE sah  */
+static int sVpFirstLatched;
+#endif
+
 
 /* gfx_scegu.c -- per-draw texenv override; see the call sites in gfx_sp_tri1. */
 void gfx_scegu_set_two_texture_tint(int has_tint);
@@ -1200,6 +1274,18 @@ float gPspBigTriArea2Prev;
  * Cumulative rather than per-frame so one debugger read answers the question. */
 uint32_t gPspLerp2Detected;
 uint32_t gPspLerp2Draws;
+#if TARGET_PSP
+/* Zwei feste Slots (Kern/Rand), gefiltert auf gGiHeartPieceDL's PRIM-Farben --
+ * siehe die Sonde in gfx_sp_tri1. [0]=cyc2_lerp [1]=tint [2]=hi [3]=lo
+ * [4]=combine_c0_raw [5]=prim_color packed [6]=used_textures[0]|[1]<<1
+ * [7]=LOADED_TEX(0).addr low 32 bit. */
+uint32_t gPspHeartProbe[3][8];
+/* Trefferzaehler: die Slots halten den ERSTEN Treffer nach dem Nullen, der
+ * Zaehler sagt, wie viele es insgesamt waren. Mit dem LETZTEN Treffer zu
+ * ueberschreiben hat einen fremden Draw gemeldet, der bloss OoTs ENV geerbt
+ * hatte -- RDP-Register bleiben ueber Displaylisten hinweg stehen. */
+uint32_t gPspHeartHits[3];
+#endif
 /* The mix factor most recently used, and which RDP operand it came from --
  * the pair that says whether the right source is being read. */
 uint32_t gPspLerp2LastMix;
@@ -1520,7 +1606,7 @@ static inline uint8_t tile_wants_mirror(uint32_t cm) {
     return ((cm & G_TX_MIRROR) && !(cm & G_TX_CLAMP)) ? 1 : 0;
 }
 
-static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, const uint8_t *orig_addr, uint32_t fmt, uint32_t siz) {
+static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, const uint8_t *orig_addr, uint32_t fmt, uint32_t siz, uint32_t ramp) {
     size_t hash = (uintptr_t)orig_addr;
     hash = (hash >> 5) & 0x3ff;
     struct TextureHashmapNode **node = &gfx_texture_cache.hashmap[hash];
@@ -1553,6 +1639,7 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
             (*node)->size_bytes == LOADED_TEX(tile).size_bytes &&
             (*node)->mirror_s == tile_wants_mirror(rdp.texture_tile[tile].cms) &&
             (*node)->mirror_t == tile_wants_mirror(rdp.texture_tile[tile].cmt) &&
+            (*node)->ramp == ramp &&
             (fmt != G_IM_FMT_CI || (*node)->palette == rdp.palette)) {
             gfx_rapi->select_texture(tile, (*node)->texture_id);
             gfx_rapi->set_sampler_parameters(0, (*node)->linear_filter, (*node)->cms, (*node)->cmt);
@@ -1666,6 +1753,7 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
     (*node)->palette = rdp.palette;
     (*node)->line_size_bytes = rdp.texture_tile[tile].line_size_bytes;
     (*node)->size_bytes = LOADED_TEX(tile).size_bytes;
+    (*node)->ramp = ramp;
     *n = *node;
     return false;
 }
@@ -1986,6 +2074,85 @@ static void import_texture_ia16(int tile) {
 int gDebugI4Opaque = 0;
 uint32_t gPspI4Probe[16];
 
+/* Die Intensitaetsrampe, mit der eine I4/I8-Textur dekodiert werden muss,
+ * damit der cyc2-LERP-Pfad stimmt: Zyklus 1 ist dort nicht der nackte Texel,
+ * sondern clamp(T*(1+s) - REG*s). Siehe rdp.cyc1_ramp_reg.
+ *
+ * Rueckgabe 0 == unveraendert dekodieren. Sonst Bit 31 gesetzt, k in Q8 ab
+ * Bit 8, m (0..255) in den unteren 8 Bit. Der Wert ist Teil des
+ * Texturcache-Schluessels, damit dieselbe Textur unter einer anderen Rampe
+ * einen eigenen Eintrag bekommt.
+ *
+ * Bewusst eng gefasst -- die Rampe wird nur gebacken, wenn sie auch wirklich
+ * gebraucht wird und exakt darstellbar ist:
+ *  - nur wo der cyc2-LERP-Pfad ueberhaupt greift (sonst waere die Textur
+ *    anderswo falsch),
+ *  - nur fuer Intensitaetsformate (bei ihnen IST der Texel der Mischfaktor),
+ *  - nur fuer ein GRAUES Register: die Subtraktion ist kanalweise, und eine
+ *    einkanalige Textur kann drei verschiedene Kanaele nicht tragen. */
+static uint32_t gfx_cyc1_texture_ramp(int tile) {
+    if (rdp.cyc1_ramp_reg == CC_0) {
+        return 0;
+    }
+    if (rdp.combine_cyc2_lerp_hi == CC_0) {
+        return 0;
+    }
+    if ((rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) != G_CYC_2CYCLE) {
+        return 0;
+    }
+    if (rdp.texture_tile[tile].fmt != G_IM_FMT_I) {
+        return 0;
+    }
+
+    const struct RGBA *reg = (rdp.cyc1_ramp_reg == CC_PRIM) ? &rdp.prim_color : &rdp.env_color;
+    if (reg->r != reg->g || reg->g != reg->b) {
+        return 0;
+    }
+
+    uint8_t scal;
+    switch (rdp.cyc1_ramp_scalar_raw) {
+        case G_CCMUX_ENV_ALPHA:       scal = rdp.env_color.a;  break;
+        case G_CCMUX_PRIMITIVE_ALPHA: scal = rdp.prim_color.a; break;
+        case G_CCMUX_PRIM_LOD_FRAC:   scal = rdp.prim_lod_frac; break;
+        default:                      return 0;
+    }
+    if (scal == 0) {
+        return 0; /* (T - REG) * 0 + T == T, schon die Identitaet */
+    }
+
+    /* k = 1 + s, m = REG * s, beide auf 0..255 normiert; k in Q8. */
+    const uint32_t k_q8 = 256u + ((uint32_t)scal * 256u + 127u) / 255u;
+    const uint32_t m    = ((uint32_t)reg->r * (uint32_t)scal + 127u) / 255u;
+
+    return 0x80000000u | (k_q8 << 8) | (m & 0xFFu);
+}
+
+/* Die beim Import aktive Rampe. Als Datei-Statik statt als Parameter, weil
+ * jeder Importer sie braeuchte und nur zwei von ihnen sie benutzen. */
+static uint32_t sImportRamp;
+
+/* Wie viele Texturimporte mit bzw. ohne Rampe dekodiert wurden, plus die
+ * zuletzt benutzte Rampe. Eine zu breit greifende Erkennung waere eine
+ * Regressionsquelle -- die Zahlen sagen, ob sie wirklich nur die paar
+ * Materialien trifft, um die es geht. */
+uint32_t gPspRampImports, gPspRampPlainImports, gPspRampLast;
+
+static inline uint8_t gfx_ramp_intensity(uint8_t i) {
+    if (sImportRamp == 0) {
+        return i;
+    }
+    const int32_t k_q8 = (int32_t)((sImportRamp >> 8) & 0x3FFu);
+    const int32_t m    = (int32_t)(sImportRamp & 0xFFu);
+    int32_t v = ((int32_t)i * k_q8) / 256 - m;
+
+    if (v < 0) {
+        v = 0;
+    } else if (v > 255) {
+        v = 255;
+    }
+    return (uint8_t)v;
+}
+
 static void import_texture_i4(int tile) {
     const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint8_t rgba32_buf[32768];
@@ -2019,12 +2186,12 @@ static void import_texture_i4(int tile) {
         uint8_t byte = TEXSRC(i / 2);
         uint8_t part = (byte >> (4 - (i % 2) * 4)) & 0xf;
         uint8_t intensity = part;
-        uint8_t r = intensity;
-        uint8_t g = intensity;
-        uint8_t b = intensity;
-        rgba32_buf[4*i + 0] = SCALE_4_8(r);
-        rgba32_buf[4*i + 1] = SCALE_4_8(g);
-        rgba32_buf[4*i + 2] = SCALE_4_8(b);
+        /* Rampe nur auf RGB, nach der 4->8-Bit-Streckung -- sie rechnet in
+         * 0..255. Alpha unten bleibt roh, siehe import_texture_i8. */
+        uint8_t rgb = gfx_ramp_intensity(SCALE_4_8(intensity));
+        rgba32_buf[4*i + 0] = rgb;
+        rgba32_buf[4*i + 1] = rgb;
+        rgba32_buf[4*i + 2] = rgb;
         /* Real N64 RDP I-format hardware outputs A=I, not a constant --
          * OoT's console-logo text relies on this (its combine samples
          * TEXEL0's alpha directly, gDPSetCombineLERP's alpha cycle in
@@ -2055,12 +2222,14 @@ static void import_texture_i8(int tile) {
 
     for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes; i++) {
         uint8_t intensity = TEXSRC(i);
-        uint8_t r = intensity;
-        uint8_t g = intensity;
-        uint8_t b = intensity;
-        rgba32_buf[4*i + 0] = r;
-        rgba32_buf[4*i + 1] = g;
-        rgba32_buf[4*i + 2] = b;
+        /* Die Rampe gehoert NUR auf RGB. Sie bildet Zyklus 1 der FARBzeile
+         * nach; die Alphazeile ist eine eigene Rechnung und liest den rohen
+         * Texel (bei gHeartPieceInteriorDL ist sie schlicht TEXEL0). Beide
+         * gemeinsam zu rampen wuerde die Silhouette mitverzerren. */
+        uint8_t rgb = gfx_ramp_intensity(intensity);
+        rgba32_buf[4*i + 0] = rgb;
+        rgba32_buf[4*i + 1] = rgb;
+        rgba32_buf[4*i + 2] = rgb;
         /* See import_texture_i4's identical comment -- real N64 RDP
          * I-format hardware outputs A=I, not a constant. */
         rgba32_buf[4*i + 3] = intensity;
@@ -2164,12 +2333,25 @@ static void import_texture(int tile) {
     uint8_t fmt = rdp.texture_tile[tile].fmt;
     uint8_t siz = rdp.texture_tile[tile].siz;
 
-    if (gfx_texture_cache_lookup(tile, &rendering_state.textures[tile], LOADED_TEX(tile).addr, fmt, siz)) {
+    /* Vor dem Lookup, weil die Rampe Teil des Schluessels ist: dieselbe
+     * Textur unter einer anderen Zyklus-1-Form ist ein anderes Bild. */
+    sImportRamp = gfx_cyc1_texture_ramp(tile);
+    if (sImportRamp != 0) {
+        gPspRampLast = sImportRamp;
+    }
+
+    if (gfx_texture_cache_lookup(tile, &rendering_state.textures[tile], LOADED_TEX(tile).addr, fmt, siz,
+                                 sImportRamp)) {
         GFXSTAT_INC(tex_hits);
         if (gPspSkyTriMark) {
             GFXSTAT_INC(sky_tex_hits);
         }
         return;
+    }
+    if (sImportRamp != 0) {
+        ++gPspRampImports;
+    } else {
+        ++gPspRampPlainImports;
     }
     GFXSTAT_INC(tex_imports);
     if (gPspSkyTriMark) {
@@ -2495,11 +2677,34 @@ struct ShaderProgram {
     int num_inputs;
 };
 
+/* Messsonde fuer die Kreisblende (TransitionCircle).
+ *
+ * sTransCircleDL laedt ihre 32 Vertices in EINEM gsSPVertex, und der erste
+ * davon ist objektraeumlich exakt (-25, 0, 0). Das ist eine Signatur, die im
+ * ganzen Spiel sonst nicht vorkommt -- damit laesst sich genau diese
+ * Displayliste erkennen, ohne den Uebergang von aussen markieren zu muessen.
+ *
+ * Aufgezeichnet wird das GROESSTE |x/w| und |y/w| ueber die Randvertices
+ * (die Mitte liegt bei z = -10 und wird ausgelassen), in Tausendsteln. Der
+ * Schirmrand liegt bei 1000. Damit ist direkt ablesbar, wie weit der Kranz
+ * ueber den Rand hinausreicht -- und ob die Projektionskette ueberhaupt das
+ * tut, was die Rechnung annimmt. */
+int gPspCircleNdcX = 0;   /* max |x/w| * 1000 ueber die Randvertices */
+int gPspCircleNdcY = 0;   /* max |y/w| * 1000 */
+int gPspCircleVtxLoads = 0;
+
 static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *vertices) {
     float temp_vec[4] __attribute__((aligned(16)));
     float world_vec[4] __attribute__((aligned(16)));
     float proj_vec[4] __attribute__((aligned(16)));
     GFXSTAT_ADD(verts_loaded, n_vertices);
+    const bool probe_circle = (n_vertices == 32 && vertices[0].v.ob[0] == -25 &&
+                               vertices[0].v.ob[1] == 0 && vertices[0].v.ob[2] == 0);
+    if (probe_circle) {
+        gPspCircleNdcX = 0;
+        gPspCircleNdcY = 0;
+        gPspCircleVtxLoads++;
+    }
     for (size_t i = 0; i < n_vertices; i++, dest_index++) {
         const Vtx_t *v = &vertices[i].v;
         const Vtx_tn *vn = &vertices[i].n;
@@ -2577,6 +2782,18 @@ static void gfx_sp_vertex(size_t n_vertices, size_t dest_index, const Vtx *verti
         const float y = proj_vec[1];
         const float z = proj_vec[2];
         float w = proj_vec[3];
+
+        /* Siehe gPspCircleNdcX. Nur die Randvertices (ob[2] == 0). */
+        if (probe_circle && v->ob[2] == 0 && proj_vec[3] > 0.0f) {
+            int nx = (int)(fabsf(proj_vec[0] / proj_vec[3]) * 1000.0f);
+            int ny = (int)(fabsf(proj_vec[1] / proj_vec[3]) * 1000.0f);
+            if (nx > gPspCircleNdcX) {
+                gPspCircleNdcX = nx;
+            }
+            if (ny > gPspCircleNdcY) {
+                gPspCircleNdcY = ny;
+            }
+        }
 
         short U = v->tc[0] * rsp.texture_scaling_factor.s >> 16;
         short V = v->tc[1] * rsp.texture_scaling_factor.t >> 16;
@@ -3299,16 +3516,31 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
         rendering_state.decal_mode = zmode_decal;
     }
     
+#if TARGET_PSP
+    if (!sVpFirstLatched) {
+        sVpFirstLatched = 1;
+        gPspVpFirst[0] = rendering_state.viewport.x;   gPspVpFirst[1] = rendering_state.viewport.y;
+        gPspVpFirst[2] = rendering_state.viewport.width; gPspVpFirst[3] = rendering_state.viewport.height;
+        gPspScisFirst[0] = rendering_state.scissor.x;  gPspScisFirst[1] = rendering_state.scissor.y;
+        gPspScisFirst[2] = rendering_state.scissor.width; gPspScisFirst[3] = rendering_state.scissor.height;
+    }
+    gPspVpLast[0] = rdp.viewport.x;   gPspVpLast[1] = rdp.viewport.y;
+    gPspVpLast[2] = rdp.viewport.width; gPspVpLast[3] = rdp.viewport.height;
+    gPspScisLast[0] = rdp.scissor.x;  gPspScisLast[1] = rdp.scissor.y;
+    gPspScisLast[2] = rdp.scissor.width; gPspScisLast[3] = rdp.scissor.height;
+#endif
     if (rdp.viewport_or_scissor_changed) {
         if (memcmp(&rdp.viewport, &rendering_state.viewport, sizeof(rdp.viewport)) != 0) {
             gfx_flush();
             gfx_rapi->set_viewport(rdp.viewport.x, rdp.viewport.y, rdp.viewport.width, rdp.viewport.height);
             rendering_state.viewport = rdp.viewport;
+            ++gPspVpApplies;
         }
         if (memcmp(&rdp.scissor, &rendering_state.scissor, sizeof(rdp.scissor)) != 0) {
             gfx_flush();
             gfx_rapi->set_scissor(rdp.scissor.x, rdp.scissor.y, rdp.scissor.width, rdp.scissor.height);
             rendering_state.scissor = rdp.scissor;
+            ++gPspScisApplies;
         }
         rdp.viewport_or_scissor_changed = false;
     }
@@ -3368,9 +3600,91 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
      * which under MODULATE blacks out the entire market. The Chamber of the
      * Sages waterfalls (cycle 2 = COMBINED * SHADE) need MODULATE or they lose
      * the blue and render as white pillars. */
-    if (used_textures[0] && used_textures[1]) {
-        const int tint = (rdp.combine_cyc2_tint != CC_0 &&
-                          (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ? 1 : 0;
+    /* Cycle 2 as a LERP between two colour registers (see combine_cyc2_lerp_hi).
+     * A THIRD texenv answer next to REPLACE/MODULATE, and it outranks both:
+     * where it matches, the material's whole colour comes out of cycle 2, so
+     * neither passing the texel through nor tinting it can produce it. Gated on
+     * 2-cycle mode for the same reason combine_cyc2_tint is -- in 1-cycle the
+     * second operand set is unused and the SetCombineMode macros merely repeat
+     * cycle 1 there. */
+    const bool cyc2_lerp = (rdp.combine_cyc2_lerp_hi != CC_0 &&
+                            (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE);
+
+    /* Sonde fuer die zwei Herzteil-Darstellungen. Beide werden VOR der
+     * Weiche unten aufgezeichnet, nicht darin: ob dieser Codepfad ueberhaupt
+     * betreten wird, ist genau die Frage, die die Sonde beantworten soll --
+     * sass sie innen, war "kein Treffer" nicht von "Aktor gar nicht
+     * gezeichnet" zu unterscheiden, was eine ganze Sitzung gekostet hat.
+     *
+     * Slot 0: gHeartPieceInteriorDL, das FREISTEHENDE Herzteil im Raum
+     * (EnItem00_DrawHeartPiece). Gefiltert auf sein ENV (0,100,255,128) --
+     * PRIM ist dort schlichtes Weiss und damit kein brauchbarer Filter.
+     * Slot 1: gGiHeartPieceDL, die Get-Item-Darstellung ueber dem Kopf,
+     * gefiltert auf ihr PRIM (255,0,100). Das sind ZWEI VERSCHIEDENE
+     * Displaylisten -- eine fruehere Sitzung hat die zweite gemessen und
+     * gefixt, waehrend der Fehlerbericht die erste meinte. */
+    {
+        extern uint32_t gPspHeartProbe[3][8];
+        extern uint32_t gPspHeartHits[3];
+        int idx = -1;
+        /* ENV allein reicht als Filter NICHT: es bleibt als RDP-Zustand stehen,
+         * bis eine spaetere Displayliste es neu setzt, also traf der erste
+         * Versuch nachfolgende fremde Draws. PRIM muss mitgeprueft werden. */
+        if (rdp.env_color.r < 10 && rdp.env_color.g > 90 && rdp.env_color.g < 110 &&
+            rdp.env_color.b > 245 && rdp.env_color.a > 120 && rdp.env_color.a < 136 &&
+            rdp.prim_color.r > 245 && rdp.prim_color.g > 245 && rdp.prim_color.b > 245) {
+            idx = 0; /* freistehendes Herzteil */
+        } else if (rdp.prim_color.r > 240 && rdp.prim_color.g < 15 &&
+                   rdp.prim_color.b > 80 && rdp.prim_color.b < 120) {
+            idx = 1; /* Get-Item-Herzteil */
+        } else if (rdp.prim_color.r > 190 && rdp.prim_color.r < 210 && rdp.prim_color.g < 15 &&
+                   rdp.prim_color.b > 90 && rdp.prim_color.b < 110) {
+            idx = 2; /* das rote Herz-Decal, zweite Materialgruppe desselben DL */
+        }
+        if (idx >= 0 && gPspHeartHits[idx]++ == 0) {
+            const int probe_tint =
+                cyc2_lerp ? 2
+                          : ((rdp.combine_cyc2_tint != CC_0 &&
+                              (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ? 1 : 0);
+            uint32_t *slot = gPspHeartProbe[idx];
+            slot[0] = cyc2_lerp ? 1u : 0u;
+            slot[1] = (uint32_t)probe_tint;
+            slot[2] = rdp.combine_cyc2_lerp_hi;
+            slot[3] = rdp.combine_cyc2_lerp_lo;
+            slot[4] = (uint32_t)rdp.combine_c0_raw;
+            slot[5] = (uint32_t)rdp.prim_color.a << 24 | (uint32_t)rdp.prim_color.b << 16 |
+                      (uint32_t)rdp.prim_color.g << 8 | (uint32_t)rdp.prim_color.r;
+            slot[6] = (used_textures[0] ? 1u : 0u) | (used_textures[1] ? 2u : 0u) |
+                      ((uint32_t)(rdp.other_mode_h >> G_MDSFT_CYCLETYPE & 3u) << 2);
+            slot[7] = (uint32_t)rdp.env_color.a << 24 | (uint32_t)rdp.env_color.b << 16 |
+                      (uint32_t)rdp.env_color.g << 8 | (uint32_t)rdp.env_color.r;
+            if (idx == 2) {
+                /* Fuer das Herz-Decal zaehlt etwas anderes: es ist ein
+                 * EIN-Textur-Draw (TEXEL0 * PRIM) und betritt die Weiche unten
+                 * gar nicht -- die Frage ist, welchen Texturmodus die GE von
+                 * der LERP-Gruppe unmittelbar davor noch stehen hat, und ob
+                 * PRIM ueberhaupt als Shader-Eingang ankommt. */
+                extern uint32_t gPspLastTfxMode, gPspLastTfxTcc, gPspLastTexEnvColor;
+                extern void gfx_scegu_shader_texenv(const struct ShaderProgram *prg,
+                                                    uint32_t *mode, uint32_t *tcc, uint32_t *mix,
+                                                    uint32_t *shader_id);
+                uint32_t pmode = 0xFFFFFFFFu, ptcc = 0xFFFFFFFFu, pmix = 0xFFFFFFFFu;
+                uint32_t psid = 0xFFFFFFFFu;
+                gfx_scegu_shader_texenv(prg, &pmode, &ptcc, &pmix, &psid);
+                /* GU_TFX_*: 0 MODULATE, 1 DECAL, 2 BLEND, 3 REPLACE, 4 ADD */
+                slot[0] = gPspLastTfxMode;   /* was die GE zuletzt gehoert hat */
+                slot[1] = pmode;             /* was DIESER Shader gesetzt bekam */
+                slot[2] = comb->cc_id;
+                slot[3] = pmix;              /* MixType des Shaders */
+                slot[4] = psid;              /* shader_id, wegen der hartkodierten Sonderfaelle */
+            }
+        }
+    }
+
+    if (cyc2_lerp || (used_textures[0] && used_textures[1])) {
+        const int tint = cyc2_lerp ? 2
+                       : ((rdp.combine_cyc2_tint != CC_0 &&
+                           (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ? 1 : 0);
 
         if (tint != rendering_state.two_texture_tint) {
             gfx_flush();
@@ -3382,9 +3696,24 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     /* The PRIM/ENV LERP carries PRIM in the tex-env colour, and PRIM changes
      * per draw (each dust mote sets its own). Same shape as the tint above:
      * only when it actually changed, and behind a flush, since the buffered
-     * triangles were built against the previous value. */
-    if ((gfx_scegu_shader_is_prim_env_lerp() || gfx_scegu_shader_is_flat_colour()) &&
-        gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
+     * triangles were built against the previous value.
+     *
+     * The cycle-2 LERP wants the same register in the same place, except that
+     * WHICH register is the far end is read off the combine rather than assumed
+     * to be PRIM -- gGiHeartPieceDL's two draws disagree about it. */
+    if (cyc2_lerp) {
+        const struct RGBA *hi = cc_operand_color(rdp.combine_cyc2_lerp_hi, NULL);
+        const uint32_t packed = hi == NULL ? 0xFFFFFFFFu
+                              : ((uint32_t)hi->a << 24 | (uint32_t)hi->b << 16 |
+                                 (uint32_t)hi->g << 8 | (uint32_t)hi->r);
+
+        if (packed != rendering_state.lerp_prim_color) {
+            gfx_flush();
+            gfx_scegu_set_lerp_prim_color(packed);
+            rendering_state.lerp_prim_color = packed;
+        }
+    } else if ((gfx_scegu_shader_is_prim_env_lerp() || gfx_scegu_shader_is_flat_colour()) &&
+               gRdpPrimColorPacked != rendering_state.lerp_prim_color) {
         gfx_flush();
         gfx_scegu_set_lerp_prim_color(gRdpPrimColorPacked);
         rendering_state.lerp_prim_color = gRdpPrimColorPacked;
@@ -4116,6 +4445,21 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             }
         }
 
+        /* Cycle 2 as a two-register LERP: the vertex carries the NEAR end (LO)
+         * and gfx_scegu_set_lerp_prim_color above put the far end (HI) in the
+         * tex-env colour, so GU_TFX_BLEND's Cv*(1-Ct) + Ctev*Ct is the combine
+         * itself. Written last, over whatever the input loop and the two blocks
+         * above decided: for this shape cycle 1 contributes only the fraction,
+         * and anything of it that reached the vertex colour would tint a result
+         * that the N64 leaves untinted. */
+        if (cyc2_lerp) {
+            const struct RGBA *lo = cc_operand_color(rdp.combine_cyc2_lerp_lo, clipped_vertices[i]);
+
+            if (lo != NULL) {
+                color = lo;
+            }
+        }
+
 #if TARGET_PSP
         if (psp_is_probe_tri) {
             /* Magenta: nothing in OoT's palette is near it, so the highlighted
@@ -4142,8 +4486,13 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
          * flag is computed unconditionally at G_SETCOMBINE time from
          * whatever bits happen to be there, and only means anything once
          * G_SETOTHERMODE_H has actually turned 2-cycle mode on. */
-        if (rdp.combine_cyc2_alpha_is_prim &&
-            (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) {
+        if ((rdp.combine_cyc2_alpha_is_prim &&
+             (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ||
+            (cyc2_lerp && rdp.combine_cyc2_alpha_mul_prim)) {
+            /* Second condition: cycle 2's alpha is COMBINED * PRIM over a
+             * TEXTURED cycle 1, so the finished alpha is texelAlpha * PRIM.a.
+             * GU_TFX_BLEND multiplies vertex alpha by texture alpha on its own,
+             * which leaves exactly PRIM's alpha to be supplied here. */
             buf_vbo[buf_num_vert].color.a = rdp.prim_color.a;
         } else {
             buf_vbo[buf_num_vert].color.a = alpha_src->a;
@@ -4321,16 +4670,31 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
         rendering_state.decal_mode = zmode_decal;
     }
     
+#if TARGET_PSP
+    if (!sVpFirstLatched) {
+        sVpFirstLatched = 1;
+        gPspVpFirst[0] = rendering_state.viewport.x;   gPspVpFirst[1] = rendering_state.viewport.y;
+        gPspVpFirst[2] = rendering_state.viewport.width; gPspVpFirst[3] = rendering_state.viewport.height;
+        gPspScisFirst[0] = rendering_state.scissor.x;  gPspScisFirst[1] = rendering_state.scissor.y;
+        gPspScisFirst[2] = rendering_state.scissor.width; gPspScisFirst[3] = rendering_state.scissor.height;
+    }
+    gPspVpLast[0] = rdp.viewport.x;   gPspVpLast[1] = rdp.viewport.y;
+    gPspVpLast[2] = rdp.viewport.width; gPspVpLast[3] = rdp.viewport.height;
+    gPspScisLast[0] = rdp.scissor.x;  gPspScisLast[1] = rdp.scissor.y;
+    gPspScisLast[2] = rdp.scissor.width; gPspScisLast[3] = rdp.scissor.height;
+#endif
     if (rdp.viewport_or_scissor_changed) {
         if (memcmp(&rdp.viewport, &rendering_state.viewport, sizeof(rdp.viewport)) != 0) {
             gfx_flush();
             gfx_rapi->set_viewport(rdp.viewport.x, rdp.viewport.y, rdp.viewport.width, rdp.viewport.height);
             rendering_state.viewport = rdp.viewport;
+            ++gPspVpApplies;
         }
         if (memcmp(&rdp.scissor, &rendering_state.scissor, sizeof(rdp.scissor)) != 0) {
             gfx_flush();
             gfx_rapi->set_scissor(rdp.scissor.x, rdp.scissor.y, rdp.scissor.width, rdp.scissor.height);
             rendering_state.scissor = rdp.scissor;
+            ++gPspScisApplies;
         }
         rdp.viewport_or_scissor_changed = false;
     }
@@ -4524,20 +4888,54 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
         }
         */
         struct RGBA white = (struct RGBA){0xff, 0xff, 0xff, 0xff};
-        struct RGBA *color = &white;
+        /* Derselbe Fix wie in gfx_sp_tri1 (siehe den langen Kommentar dort),
+         * der hier nie nachgezogen wurde: shader_input_mapping[0] ist die
+         * RGB-, [1] die ALPHA-Zeile, und mit EINER gemeinsamen Variablen
+         * entscheidet die Alphazeile still die Farbe.
+         *
+         * Was das im HUD anrichtet, am Munitionszaehler durchgerechnet. Sein
+         * Combine ist
+         *     RGB   (PRIM - ENV) * TEXEL0 + ENV
+         *     ALPHA (TEXEL0 - 0) * PRIM   + 0
+         * also mapping[0] = {PRIM, ENV} und mapping[1] = {PRIM}. num_inputs
+         * ist 2, weil die RGB-Zeile zwei Register nennt. Die Schleife lief
+         * damit bis j == 1, k == 1 -- und dort steht in der Alphazeile kein
+         * zweites Register mehr, der Eintrag ist die Null aus der
+         * Initialisierung. Der `default`-Zweig hat daraufhin WEISS
+         * geschrieben und die eben korrekt gewaehlte ENV-Farbe verworfen.
+         *
+         * GU_TFX_BLEND rechnet Cv*(1-Ct) + Ctev*Ct mit Ctev = PRIM. Mit
+         * Cv = weiss und PRIM = weiss kommt ueberall Weiss heraus: die
+         * Ziffern verschwinden in einem weissen Kasten, statt weiss auf dem
+         * dunklen ENV-Kaestchen zu stehen. Genau so sah der Zaehler aus.
+         *
+         * Zwei Aenderungen, beide notwendig:
+         *  - getrennte Ziele fuer RGB und Alpha (wie im 3D-Pfad),
+         *  - `default` laesst die bisherige Wahl STEHEN, statt sie auf Weiss
+         *    zurueckzusetzen. Ein Eintrag, der kein Farbregister nennt, ist
+         *    keine Aussage ueber die Farbe; "letzter Treffer gewinnt" bleibt
+         *    fuer echte Treffer unveraendert.
+         *
+         * Combines mit nur einem Register -- die Mehrheit des HUD, etwa
+         * G_CC_MODULATEIA_PRIM oder der Rupienzaehler -- ergeben in beiden
+         * Zeilen dieselbe Quelle und aendern sich dadurch nicht. */
+        struct RGBA *color = &white;       /* RGB   -Kanal, k == 0 */
+        struct RGBA *alpha_src = &white;   /* ALPHA -Kanal, k == 1 */
         
         //const int hack = (num_inputs > 1) * ((int)used_textures[0]);
         for (int j = 0; j < num_inputs; j++) {
             for (int k = 0; k < 1 + (use_alpha ? 1 : 0); k++) {
+                struct RGBA **dst = (k == 0) ? &color : &alpha_src;
+
                 switch (comb->shader_input_mapping[k][j]) {
                     case CC_PRIM:
-                        color = &rdp.prim_color;
+                        *dst = &rdp.prim_color;
                         break;
                     case CC_SHADE:
-                        color = &v_arr[i]->color;
+                        *dst = &v_arr[i]->color;
                         break;
                     case CC_ENV:
-                        color = &rdp.env_color;
+                        *dst = &rdp.env_color;
                         break;
                     /*
                     case CC_LOD:
@@ -4550,7 +4948,7 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
                         break;
                     }*/
                     default:
-                        color = &white;
+                        /* Kein Farbregister -- bisherige Wahl behalten. */
                         break;
                 }
                 /*@Note: should this be here ? */
@@ -4572,7 +4970,11 @@ static void gfx_sp_tri1_2d(uint8_t vtx1_idx, uint8_t vtx2_idx, UNUSED uint8_t vt
                 }*/
             }
         }
-        memcpy(&tri_buf[tri_num_vert].color, color, sizeof(struct RGBA));
+        tri_buf[tri_num_vert].color.r = color->r;
+        tri_buf[tri_num_vert].color.g = color->g;
+        tri_buf[tri_num_vert].color.b = color->b;
+        /* Alpha aus der ALPHA-Zeile, nicht aus der Quelle des RGB. */
+        tri_buf[tri_num_vert].color.a = alpha_src->a;
         tri_num_vert++;
     }
     gfx_scegu_draw_triangles_2d((float*)&tri_buf[0],0,1);
@@ -4977,6 +5379,36 @@ static uint8_t color_comb_component(uint32_t v) {
             return CC_TEXEL0A;
         case G_CCMUX_LOD_FRACTION:
             return CC_LOD;
+        /* PRIM_LOD_FRAC is a manually-set constant (gDPSetPrimColor's lodfrac
+         * argument, tracked in rdp.prim_lod_frac), not the per-triangle
+         * distance fraction CC_LOD's own per-vertex case computes -- reusing
+         * CC_LOD here is a deliberate approximation, not a correct decode.
+         * What matters is only that it is NOT CC_0: falling through to the
+         * default below (return CC_0) made the collapse rule in
+         * gfx_generate_cc ("c[i][2] == CC_0" -> zero the whole (A-B)*C term)
+         * fire on ANY combine using PRIM_LOD_FRAC as its 'c' operand, which
+         * silently threw away the second texture and the whole two-texture
+         * shape with it. gGiHeartPieceDL's core (the get-item shine, e.g. the
+         * heart piece in Impa's House) is exactly this:
+         *   (TEXEL1 - TEXEL0) * PRIM_LOD_FRAC + TEXEL0
+         * collapsing to bare TEXEL0 lost the second texture and, with it,
+         * used_textures[1] -- so the whole PRIM/ENV cycle-2 LERP this port
+         * already builds for gGiHeartPieceDL (see combine_cyc2_lerp_hi) never
+         * got a two-texture shader to attach to, and the material fell back
+         * to a plain textured MODULATE against a near-white glow texture:
+         * the white heart. Once the term survives the collapse, the existing
+         * two-texture LERP-factor switch a few hundred lines down (the one
+         * this same PRIM_LOD_FRAC value already has a correct case in) picks
+         * the real rdp.prim_lod_frac up instead of whatever CC_LOD's
+         * per-vertex case would have synthesised for this slot.
+         *
+         * Risk: a single-texture material that also uses PRIM_LOD_FRAC as a
+         * genuine SHADE/PRIM/ENV-style multiplier (not neutralised or
+         * overridden downstream the way the two-texture shapes are) would
+         * now get CC_LOD's distance-based value instead of the constant --
+         * no such case is known in OoT's content today. */
+        case G_CCMUX_PRIM_LOD_FRAC:
+            return CC_LOD;
         /* PRIMITIVE_ALPHA/SHADE_ALPHA/ENV_ALPHA select the alpha channel of
          * these colors as an RGB multiplier -- CC_* has no "alpha-as-scalar"
          * concept, so approximate by using the parent color's RGB instead of
@@ -5062,6 +5494,68 @@ static bool combine_cycle2_alpha_is_prim(uint32_t a0, uint32_t b0, uint32_t c0, 
     return (a1 == G_ACMUX_COMBINED) && (b1 == G_ACMUX_0) && (c1 == G_ACMUX_PRIMITIVE) && (d1 == G_ACMUX_0);
 }
 
+/* Cycle 2 == (HI - LO) * COMBINED + LO with HI/LO two different constant
+ * colour registers -- see combine_cyc2_lerp_hi in the rdp struct for what this
+ * buys and why GU_TFX_BLEND reproduces it exactly rather than approximately.
+ *
+ * Cycle 1 is checked too, and deliberately narrowly: BLEND feeds the TEXEL
+ * straight in as the fraction, so the identity only holds while cycle 1's
+ * result IS the texture. Requiring the `d` operand to be a texel and refusing
+ * any SHADE keeps out the far more common "texture * shade, then tint"
+ * materials, whose cycle 1 is not a bare texel and which combine_cycle2_tint
+ * already handles correctly by folding the register into the vertex colour.
+ *
+ * Slot widths differ (a is 4 bits, b 4, c 5, d 3), and raw 0 means COMBINED in
+ * every one of them -- the one operand color_comb_component cannot express, so
+ * it is tested directly, exactly as combine_cycle2_tint does. */
+static bool combine_cycle2_prim_env_lerp(uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1,
+                                         uint32_t a0, uint32_t b0, uint32_t c0, uint32_t d0,
+                                         uint8_t *hi, uint8_t *lo) {
+    if (c1 != G_CCMUX_COMBINED) {
+        return false; /* something other than cycle 1 steers the mix */
+    }
+    if (a1 == G_CCMUX_COMBINED || b1 == G_CCMUX_COMBINED || d1 == G_CCMUX_COMBINED) {
+        return false;
+    }
+
+    const uint8_t ra = color_comb_component(a1);
+    const uint8_t rb = color_comb_component(b1);
+    const uint8_t rd = color_comb_component(d1);
+
+    if (rb != rd) {
+        return false; /* not (A - B) * C + B */
+    }
+    if (ra != CC_PRIM && ra != CC_ENV) {
+        return false;
+    }
+    if (rb != CC_PRIM && rb != CC_ENV) {
+        return false;
+    }
+    if (ra == rb) {
+        return false; /* degenerate: both ends the same colour */
+    }
+
+    /* Cycle 1 must resolve to the texture alone. */
+    if (d0 != G_CCMUX_TEXEL0 && d0 != G_CCMUX_TEXEL1) {
+        return false;
+    }
+    if (color_comb_component(a0) == CC_SHADE || color_comb_component(b0) == CC_SHADE ||
+        color_comb_component(c0) == CC_SHADE) {
+        return false;
+    }
+
+    *hi = ra;
+    *lo = rb;
+    return true;
+}
+
+/* Just cycle 2's half of combine_cycle2_alpha_is_prim: (COMBINED - 0) * PRIM + 0,
+ * with no claim about cycle 1. See combine_cyc2_alpha_mul_prim. */
+static bool combine_cycle2_alpha_mul_prim(uint32_t a1, uint32_t b1, uint32_t c1, uint32_t d1) {
+    return (a1 == G_ACMUX_COMBINED) && (b1 == G_ACMUX_0) && (c1 == G_ACMUX_PRIMITIVE) &&
+           (d1 == G_ACMUX_0);
+}
+
 static void gfx_dp_set_combine_mode(uint32_t rgb, uint32_t alpha) {
     rdp.combine_mode = rgb | (alpha << 12);
 }
@@ -5134,7 +5628,50 @@ static void gfx_dp_set_fill_color(uint32_t packed_color) {
  * the HUD and the screen fades, so the two can be compared in place. */
 int gPspRect2dPillarbox = 0;
 
-static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
+/* Messsonden fuer den 2D-Rechteckpfad. Latchen das BREITESTE Rechteck seit dem
+ * letzten Nullen von gPspRectMaxW -- ein Vollbild-Rechteck (Blende, Pillarbox)
+ * ist das breiteste, das der Pfad ueberhaupt sehen kann, also faengt der Latch
+ * genau den Prueffall. Ueber den Debugger nullen, dann den Uebergang ausloesen. */
+int gPspRectMaxW = -1;      /* groesste bisher gesehene Eingangsbreite (U10.2) */
+int gPspRectCalls = 0;      /* Aufrufe insgesamt */
+int gPspRectInUlx = 0, gPspRectInUly = 0, gPspRectInLrx = 0, gPspRectInLry = 0;
+int gPspRectOutX0 = 0, gPspRectOutY0 = 0, gPspRectOutX1 = 0, gPspRectOutY1 = 0;
+int gPspRectScisX = 0, gPspRectScisY = 0, gPspRectScisW = 0, gPspRectScisH = 0;
+int gPspRectDimW = 0, gPspRectDimH = 0;
+int gPspRectCycle = 0;      /* other_mode_h Zyklustyp beim Latch */
+
+/* Ein Rechteck, das der SPIELCODE als bildfuellend meint.
+ *
+ * gDPFillRectangle nimmt EINSCHLIESSENDE Pixelkoordinaten, und OoT schreibt
+ * ueberall `gScreenWidth - 1` -- also 319, nicht 320. In FILL/COPY addiert die
+ * RDP dafuer einen Pixel; in 1-/2-Cycle NICHT, dort ist lrx ausschliessend. Auf
+ * dem N64 fehlt damit die Spalte 319, was hinter dem Overscan eines Fernsehers
+ * nie jemand gesehen hat.
+ *
+ * Der PSP-Schirm zeigt den Puffer vollstaendig, und der Massstab macht aus dem
+ * einen fehlenden N64-Pixel derer 1,5: 319 * (480/320) = 478,5, abgeschnitten
+ * 478. Uebrig bleiben zwei undurchsichtige Spalten ganz rechts (und genauso
+ * zwei Zeilen unten) -- der senkrechte Streifen, den die Szenenblende frei
+ * laesst, weil TransitionFade_Draw in G_CYC_1CYCLE zeichnet.
+ *
+ * Deshalb wird ein Rechteck, das die volle Breite (bzw. das ganze Bild)
+ * ANFORDERT, auf den Puffer geschnappt statt skaliert. Bewusst eng: nur wenn
+ * der Spielcode selbst 0..gScreenWidth-1 gesagt hat. Jedes andere 2D-Rechteck
+ * -- HUD-Kacheln, Textboxrahmen -- behaelt seine exakte Skalierung.
+ *
+ * oot-psp-z2442 hat an derselben Stelle dieselbe Sonderbehandlung
+ * (gfx_rectangle_covers_width/_covers_screen in gfx_fast3d.c). */
+static bool gfx_rectangle_covers_width(int32_t ulx, int32_t lrx) {
+    return (ulx <= 0) && (lrx >= ((SCREEN_WIDTH - 1) << 2));
+}
+
+static bool gfx_rectangle_covers_screen(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
+    return gfx_rectangle_covers_width(ulx, lrx) && (uly <= 0) &&
+           (lry >= ((SCREEN_HEIGHT - 1) << 2));
+}
+
+static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry,
+                               bool snap_full_screen, bool snap_full_width) {
     uint32_t saved_other_mode_h = rdp.other_mode_h;
     uint32_t cycle_type = (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE));
     
@@ -5194,6 +5731,16 @@ static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lr
 
     ulyf = (ulyf*136)+136;
     lryf = (lryf*136)+136;
+
+    /* Siehe den Kommentar an gfx_rectangle_covers_width. */
+    if (snap_full_width || snap_full_screen) {
+        ulxf = 0.0f;
+        lrxf = (float)gfx_current_dimensions.width;
+    }
+    if (snap_full_screen) {
+        ulyf = 0.0f;
+        lryf = (float)gfx_current_dimensions.height;
+    }
     
     struct VertexColor* ul = &rsp.loaded_vertices_2D[0];
     struct VertexColor* lr = &rsp.loaded_vertices_2D[1];
@@ -5203,6 +5750,23 @@ static void gfx_draw_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t lr
 
     lr->x = (unsigned short)lrxf;
     lr->y = (unsigned short)lryf;
+
+    gPspRectCalls++;
+    /* Nur 1-/2-Cycle-Rechtecke: der FILL-Pfad ist bereits gemessen und exakt
+     * (0..1280 -> 0..480). Die Blende ist G_CYC_1CYCLE. */
+    if (cycle_type != G_CYC_FILL && cycle_type != G_CYC_COPY &&
+        (int)(lrx - ulx) > gPspRectMaxW) {
+        gPspRectMaxW = (int)(lrx - ulx);
+        gPspRectInUlx = ulx; gPspRectInUly = uly;
+        gPspRectInLrx = lrx; gPspRectInLry = lry;
+        gPspRectOutX0 = ul->x; gPspRectOutY0 = ul->y;
+        gPspRectOutX1 = lr->x; gPspRectOutY1 = lr->y;
+        gPspRectScisX = (int)rdp.scissor.x; gPspRectScisY = (int)rdp.scissor.y;
+        gPspRectScisW = (int)rdp.scissor.width; gPspRectScisH = (int)rdp.scissor.height;
+        gPspRectDimW = (int)gfx_current_dimensions.width;
+        gPspRectDimH = (int)gfx_current_dimensions.height;
+        gPspRectCycle = (int)(cycle_type >> G_MDSFT_CYCLETYPE);
+    }
 
     // The coordinates for texture rectangle shall bypass the viewport setting
     struct XYWidthHeight default_viewport = {0, 0, gfx_current_dimensions.width, gfx_current_dimensions.height};
@@ -5275,7 +5839,9 @@ static void gfx_dp_texture_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int3
     }
     #endif
     
-    gfx_draw_rectangle(ulx, uly, lrx, lry);
+    /* Texturrechtecke nie schnappen: sie tragen HUD-Kacheln und Sprites, deren
+     * Kanten an ihre Nachbarn anschliessen muessen. */
+    gfx_draw_rectangle(ulx, uly, lrx, lry, false, false);
     rdp.combine_mode = saved_combine_mode;
 }
 
@@ -5322,7 +5888,9 @@ static void gfx_dp_fill_rectangle(int32_t ulx, int32_t uly, int32_t lrx, int32_t
         }
     }
 
-    gfx_draw_rectangle(ulx, uly, lrx, lry);
+    gfx_draw_rectangle(ulx, uly, lrx, lry,
+                       gfx_rectangle_covers_screen(ulx, uly, lrx, lry),
+                       gfx_rectangle_covers_width(ulx, lrx));
     rdp.combine_mode = saved_combine_mode;
 }
 
@@ -5930,6 +6498,38 @@ static void gfx_run_dl(Gfx* cmd) {
                 rdp.combine_cyc2_alpha_is_prim = combine_cycle2_alpha_is_prim(
                     C0(12, 3), C1(12, 3), C0(9, 3), C1(9, 3),
                     C1(21, 3), C1(3, 3), C1(18, 3), C1(0, 3));
+                /* Cycle 2 as a two-register LERP, the shape combine_cycle2_tint
+                 * has to reject. Cycle 1's operands are handed over too so the
+                 * match can insist the fraction really is the texture. */
+                rdp.combine_cyc2_lerp_hi = CC_0;
+                rdp.combine_cyc2_lerp_lo = CC_0;
+                if (combine_cycle2_prim_env_lerp(C0(5, 4), C1(24, 4), C0(0, 5), C1(6, 3),
+                                                 C0(20, 4), C1(28, 4), C0(15, 5), C1(15, 3),
+                                                 &rdp.combine_cyc2_lerp_hi,
+                                                 &rdp.combine_cyc2_lerp_lo) == false) {
+                    rdp.combine_cyc2_lerp_hi = CC_0;
+                }
+                rdp.combine_cyc2_alpha_mul_prim =
+                    combine_cycle2_alpha_mul_prim(C1(21, 3), C1(3, 3), C1(18, 3), C1(0, 3));
+                /* Zyklus 1 als (TEXEL0 - REG) * SKALAR + TEXEL0 -- siehe
+                 * rdp.cyc1_ramp_reg. Nur die Operandenformen werden hier
+                 * festgehalten; die Registerwerte selbst koennen sich bis zum
+                 * Zeichnen noch aendern und werden erst beim Import gelesen. */
+                rdp.cyc1_ramp_reg = CC_0;
+                rdp.cyc1_ramp_scalar_raw = 0;
+                {
+                    const uint32_t a0 = C0(20, 4), b0 = C1(28, 4);
+                    const uint32_t c0 = C0(15, 5), d0 = C1(15, 3);
+                    const bool scalar_ok = (c0 == G_CCMUX_ENV_ALPHA ||
+                                            c0 == G_CCMUX_PRIMITIVE_ALPHA ||
+                                            c0 == G_CCMUX_PRIM_LOD_FRAC);
+                    const bool reg_ok = (b0 == G_CCMUX_PRIMITIVE || b0 == G_CCMUX_ENVIRONMENT);
+
+                    if (a0 == G_CCMUX_TEXEL0 && d0 == G_CCMUX_TEXEL0 && reg_ok && scalar_ok) {
+                        rdp.cyc1_ramp_reg = (b0 == G_CCMUX_PRIMITIVE) ? CC_PRIM : CC_ENV;
+                        rdp.cyc1_ramp_scalar_raw = (uint8_t)c0;
+                    }
+                }
                 break;
             // G_SETPRIMCOLOR, G_CCMUX_PRIMITIVE, G_ACMUX_PRIMITIVE, is used by Goddard
             // G_CCMUX_TEXEL1, LOD_FRACTION is used in Bowser room 1
@@ -6104,6 +6704,23 @@ void PspGfx_NotifyResume(void) {
 }
 #endif
 
+/* Der Overlay-Zeichner (gfx_scegu_end_frame) setzt Scissor und Zeichenregion
+ * hinter dem Ruecken dieser Datei auf Vollbild zurueck, weil das Menue in die
+ * noch offene GE-Liste zeichnet und sonst den zuletzt gesetzten Ausschnitt
+ * erbt -- nach dem A-Knopf ist das ein 67x51-Rechteck, und vom Menue ist dann
+ * nur dieser Ausschnitt zu sehen (user-beobachtet).
+ *
+ * Danach muss der Zwischenspeicher entwertet werden: er wird pro Frame NICHT
+ * zurueckgesetzt, haelt sonst den A-Knopf-Ausschnitt fuer bare Muenze und
+ * setzt im naechsten Frame nichts neu -- die Hardware stuende dann auf
+ * Vollbild, waehrend die Pipeline glaubt, sie beschneide noch. */
+void gfx_invalidate_scissor_state(void) {
+    rendering_state.scissor.x = 0xFFFF;
+    rendering_state.scissor.y = 0xFFFF;
+    rendering_state.scissor.width = 0xFFFF;
+    rendering_state.scissor.height = 0xFFFF;
+}
+
 void gfx_start_frame(void) {
     //sceIoWrite(1, "----START FRAME!\n", 18);
     total_t0 = sceKernelLibcClock();
@@ -6115,6 +6732,7 @@ void gfx_start_frame(void) {
      * meldete drei Messungen lang denselben falschen Draw. Eine Sonde, deren
      * Gueltigkeit davon abhaengt, ob man sie gerade anschaut, ist keine. */
     gPspGlowArea2 = 0.0f;
+    sVpFirstLatched = 0;
     if (sGfxResumePending) {
         sGfxResumePending = 0;
         ++gPspGfxResumes;

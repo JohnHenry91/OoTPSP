@@ -1,4 +1,10 @@
 #include "array_count.h"
+#if TARGET_PSP
+/* gfx_pc.h laesst sich hier nicht einbinden (Typreihenfolge), und mehr als
+ * diese eine Funktion wird nicht gebraucht. */
+extern void gfx_texture_cache_invalidate_range(const void* addr, unsigned int size);
+extern int gPspDoActDiag[8];
+#endif
 #include "attributes.h"
 #include "controller.h"
 #include "flag_set.h"
@@ -31,6 +37,53 @@
 
 #pragma increment_block_number "gc-jp:128 gc-jp-ce:128 gc-jp-mq:128 gc-us:128 gc-us-mq:128 ntsc-1.0:128 ntsc-1.1:128" \
                                "ntsc-1.2:128"
+
+#if TARGET_PSP
+/* EINZELTEXTUR-FELDER STATT ZEIGERARITHMETIK IN parameter_static.
+ *
+ * Die Dekompilierung indiziert Ziffern als Versatz vom ersten Symbol:
+ * `(u8*)gCounterDigit0Tex + 8 * 16 * digit`. Auf dem N64 ist das exakt, weil
+ * alle elf Ziffern (0..9 und der Doppelpunkt) hintereinander im ROM-Segment
+ * 0x02 liegen und das Symbol nur ein Versatz IN dieses Segment ist.
+ *
+ * Hier ist parameter_static einkompiliert (Makefile.psp:502 haengt
+ * extracted/pal-1.0/assets/textures/parameter_static/parameter_static.c in den
+ * Build), also sind es einzelne C-Felder, und ihre Reihenfolge im Speicher
+ * bestimmt der Binder. GEMESSEN am gebauten ootpsp.elf mit psp-nm -- er legt
+ * sie in UMGEKEHRTER Deklarationsreihenfolge ab:
+ *
+ *     0x00733630  gCounterColonTex      <- im Quelltext ZULETZT deklariert
+ *     0x007336b0  gCounterDigit9Tex
+ *     ...
+ *     0x00733b30  gCounterDigit0Tex     <- im Quelltext ZUERST
+ *
+ * Der Versatz zeigt damit nicht auf Ziffer N, sondern um N*128 Byte NACH OBEN
+ * aus dem Ziffernblock heraus -- in die Navi-Beschriftungen. Dasselbe gilt fuer
+ * gAmmoDigit0Tex (Schrittweite 64) und fuer die leeren C-Tasten-Pfeile, die
+ * vanilla als `gButtonBackgroundTex + 32*32*(temp+1)` adressiert werden.
+ *
+ * Warum das bisher niemandem auffiel: Ziffer 0 ist der einzige Index, bei dem
+ * der Versatz null ist, und ein frischer Spielstand zeigt ueberall Nullen.
+ *
+ * oot-psp-z2442 loest es genauso (z_parameter.c, Zeilen 40, 59 und 2953): ein
+ * Feld mit den echten Symbolen, indiziert statt gerechnet. Das ist gegen jede
+ * Binderreihenfolge robust, nicht nur gegen die aktuelle. */
+static void* sCounterDigitTextures[] = {
+    gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
+    gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
+    gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex,
+};
+#define COUNTER_DIGIT_TEXTURE(digit) sCounterDigitTextures[(digit)]
+
+void* gAmmoDigitTextures[] = {
+    gAmmoDigit0Tex, gAmmoDigit1Tex, gAmmoDigit2Tex, gAmmoDigit3Tex, gAmmoDigit4Tex,
+    gAmmoDigit5Tex, gAmmoDigit6Tex, gAmmoDigit7Tex, gAmmoDigit8Tex, gAmmoDigit9Tex,
+};
+#define AMMO_DIGIT_TEXTURE(digit) gAmmoDigitTextures[(digit)]
+#else
+#define COUNTER_DIGIT_TEXTURE(digit) ((u8*)gCounterDigit0Tex + (8 * 16 * (digit)))
+#define AMMO_DIGIT_TEXTURE(digit) ((u8*)gAmmoDigit0Tex + (8 * 8 * (digit)))
+#endif
 
 typedef struct RestrictionFlags {
     /* 0x00 */ u8 sceneId;
@@ -2132,10 +2185,17 @@ void func_80086D5C(s32* buf, u16 size) {
 }
 
 void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 loadOffset) {
+    gPspDoActDiag[3]++;
+    gPspDoActDiag[4] = loadOffset;
+#if !TARGET_PSP
+    /* Nur der N64-Pfad braucht diese Tabelle: sie liefert die Segment-7-Adresse,
+     * ueber die das Original den Puffer leert. Der PSP-Zweig weiter unten nullt
+     * den Slot direkt -- siehe die Begruendung dort. */
 #if OOT_NTSC
     static void* sDoActionTextures[] = { gAttackDoActionJPNTex, gCheckDoActionJPNTex };
 #else
     static void* sDoActionTextures[] = { gAttackDoActionENGTex, gCheckDoActionENGTex };
+#endif
 #endif
 
     if (action >= DO_ACTION_MAX) {
@@ -2165,9 +2225,44 @@ void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 l
                           (uintptr_t)_do_action_staticSegmentRomStart + (action * DO_ACTION_TEX_SIZE),
                           DO_ACTION_TEX_SIZE, 0, &interfaceCtx->loadQueue, NULL, "../z_parameter.c", 2145);
         osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+#if TARGET_PSP
+        /* Derselbe Puffer, neuer Inhalt -- der Texturcache ist ueber die
+         * QUELLADRESSE geschluesselt und wuerde die alte Beschriftung
+         * weiterliefern. Ohne das steht auf dem A-Knopf fuer immer die
+         * Beschriftung aus Interface_Init ("Attack"). Gleiche Ursache wie beim
+         * Himmel, siehe gfx_texture_cache_invalidate_range(). */
+        gfx_texture_cache_invalidate_range(interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE),
+                                           DO_ACTION_TEX_SIZE);
+#endif
     } else {
+#if TARGET_PSP
+        /* DO_ACTION_NONE: die Beschriftung wird geleert, nicht geladen.
+         *
+         * Das Original tut das ueber einen Umweg, der hier bricht:
+         * sDoActionTextures[] sind auf N64 SEGMENT-7-Adressen (Offset 0 bzw.
+         * 384 in do_action_static), und mit gSegments[7] = doActionSegment
+         * zeigt SEGMENTED_TO_VIRTUAL genau auf Slot 0 bzw. Slot 1 -- es nullt
+         * also den Puffer. In diesem Port sind es EINKOMPILIERTE echte
+         * Adressen. SEGMENT_NUMBER liefert dafuer 8, gSegments[8] ist 0, und
+         * PspSegmentedToVirtualDefensive reicht die Adresse dann unveraendert
+         * durch. func_80086D5C nullt damit die einkompilierte Textur SELBST.
+         *
+         * Am laufenden Spiel gemessen: gAttackDoActionENGTex und
+         * gCheckDoActionENGTex standen beide auf 0 von 384 Bytes, waehrend
+         * gSpeak/gReturn intakt waren. Ein stiller Ueberschreiber im
+         * .data-Segment -- und weil der Puffer unangetastet bleibt, leert
+         * DO_ACTION_NONE die Beschriftung nie: der A-Knopf blendet von
+         * "Attack" auf "Attack" um (user-beobachtet).
+         *
+         * Hier also direkt den Slot nullen, was die Absicht des Originals ist. */
+        func_80086D5C((s32*)(interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE)),
+                      DO_ACTION_TEX_SIZE / 4);
+        gfx_texture_cache_invalidate_range(interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE),
+                                           DO_ACTION_TEX_SIZE);
+#else
         gSegments[7] = OS_K0_TO_PHYSICAL(interfaceCtx->doActionSegment);
         func_80086D5C(SEGMENTED_TO_VIRTUAL(sDoActionTextures[loadOffset]), DO_ACTION_TEX_SIZE / 4);
+#endif
     }
 }
 
@@ -2175,7 +2270,11 @@ void Interface_SetDoAction(PlayState* play, u16 action) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     PauseContext* pauseCtx = &play->pauseCtx;
 
+    gPspDoActDiag[0]++;
+    gPspDoActDiag[1] = action;
+
     if (interfaceCtx->unk_1F0 != action) {
+        gPspDoActDiag[2]++;
         interfaceCtx->unk_1F0 = action;
         interfaceCtx->unk_1EC = 1;
         interfaceCtx->unk_1F4 = 0.0f;
@@ -2228,6 +2327,9 @@ void Interface_LoadActionLabelB(PlayState* play, u16 action) {
                       (uintptr_t)_do_action_staticSegmentRomStart + (action * DO_ACTION_TEX_SIZE), DO_ACTION_TEX_SIZE,
                       0, &interfaceCtx->loadQueue, NULL, "../z_parameter.c", 2228);
     osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+#if TARGET_PSP
+    gfx_texture_cache_invalidate_range(interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE, DO_ACTION_TEX_SIZE);
+#endif
 
     interfaceCtx->unk_1FA = true;
 }
@@ -2692,8 +2794,42 @@ void Magic_DrawMeter(PlayState* play) {
         OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gMagicMeterEndTex, 8, 16, R_MAGIC_METER_X, magicMeterY, 8, 16,
                                       1 << 10, 1 << 10);
 
+#if TARGET_PSP
+        /* Die Mitte der Magieleiste in Kacheln der Texturbreite zeichnen,
+         * statt eine 24 Pixel breite Textur auf magicCapacity (48 bzw. 96)
+         * Pixel zu wiederholen.
+         *
+         * Vanilla verlaesst sich auf G_TX_WRAP: die RDP laesst s ueber die
+         * Texturbreite hinauslaufen und faengt von vorn an. Die GE kann nur
+         * Zweierpotenzen abtasten, und gfx_scegu_upload_texture (gfx_scegu.c)
+         * STRECKT alles andere per Nachbarschaftsabtastung auf die naechste
+         * Zweierpotenz -- hier also 24 auf 32. Danach wiederholt GU_REPEAT im
+         * 32er-Raster ein Bild, dessen Inhalt auf 32 gedehnt ist; die Naht
+         * sitzt an der falschen Stelle und die Kachel ist verzerrt. Der
+         * Kommentar an gPspNonPow2Uploads sagt genau das voraus: "padding only
+         * works where the texture does not REPEAT".
+         *
+         * Jede Kachel ist hoechstens so breit wie die Textur, damit kommt der
+         * Pfad ohne Wiederholung aus. oot-psp-z2442 macht es genauso
+         * (z_parameter.c Zeile 2824). */
+        {
+            s16 midX = R_MAGIC_METER_X + 8;
+            s16 remainingWidth = gSaveContext.magicCapacity;
+
+            while (remainingWidth > 0) {
+                s16 chunkWidth = (remainingWidth < gMagicMeterMidTex_WIDTH) ? remainingWidth : gMagicMeterMidTex_WIDTH;
+
+                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gMagicMeterMidTex, gMagicMeterMidTex_WIDTH,
+                                              gMagicMeterMidTex_HEIGHT, midX, magicMeterY, chunkWidth,
+                                              gMagicMeterMidTex_HEIGHT, 1 << 10, 1 << 10);
+                midX += chunkWidth;
+                remainingWidth -= chunkWidth;
+            }
+        }
+#else
         OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gMagicMeterMidTex, 24, 16, R_MAGIC_METER_X + 8, magicMeterY,
                                       gSaveContext.magicCapacity, 16, 1 << 10, 1 << 10);
+#endif
 
         gDPLoadTextureBlock(OVERLAY_DISP++, gMagicMeterEndTex, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 16, 0,
                             G_TX_MIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 3, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -2803,6 +2939,17 @@ void Interface_DrawActionLabel(GraphicsContext* gfxCtx, void* texture) {
 
 void Interface_DrawItemButtons(PlayState* play) {
     static void* cUpLabelTextures[] = LANGUAGE_ARRAY(gNaviCUpJPNTex, gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpENGTex);
+#if TARGET_PSP
+    /* Siehe COUNTER_DIGIT_TEXTURE oben: `gButtonBackgroundTex + 32*32*(temp+1)`
+     * setzt die ROM-Reihenfolge voraus. Slot 0 bleibt leer, weil die Schleife
+     * unten bei temp == 1 anfaengt. */
+    static void* emptyCButtonTextures[] = {
+        NULL,
+        gEmptyCLeftArrowTex,
+        gEmptyCDownArrowTex,
+        gEmptyCRightArrowTex,
+    };
+#endif
 #if OOT_VERSION >= PAL_1_0
     static s16 startButtonLeftPos[] = { 132, 130, 130 };
 #endif
@@ -2968,7 +3115,13 @@ void Interface_DrawItemButtons(PlayState* play) {
                                 interfaceCtx->cRightAlpha);
             }
 
-            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gButtonBackgroundTex + ((32 * 32) * (temp + 1))), 32, 32,
+            OVERLAY_DISP = Gfx_TextureIA8(
+#if TARGET_PSP
+                OVERLAY_DISP, emptyCButtonTextures[temp],
+#else
+                OVERLAY_DISP, ((u8*)gButtonBackgroundTex + ((32 * 32) * (temp + 1))),
+#endif
+                32, 32,
                                           R_ITEM_BTN_X(temp), R_ITEM_BTN_Y(temp), R_ITEM_BTN_WIDTH(temp),
                                           R_ITEM_BTN_WIDTH(temp), R_ITEM_BTN_DD(temp) << 1, R_ITEM_BTN_DD(temp) << 1);
         }
@@ -3040,11 +3193,11 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         }
 
         if (i != 0) {
-            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * i)), 8, 8,
+            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, AMMO_DIGIT_TEXTURE(i), 8, 8,
                                           R_ITEM_AMMO_X(button), R_ITEM_AMMO_Y(button), 8, 8, 1 << 10, 1 << 10);
         }
 
-        OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * ammo)), 8, 8,
+        OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, AMMO_DIGIT_TEXTURE(ammo), 8, 8,
                                       R_ITEM_AMMO_X(button) + 6, R_ITEM_AMMO_Y(button), 8, 8, 1 << 10, 1 << 10);
     }
 
@@ -3176,7 +3329,85 @@ void func_8008A994(InterfaceContext* interfaceCtx) {
     View_ApplyOrthoToOverlay(&interfaceCtx->view);
 }
 
+/* Laufzeitschalter, um den neu aufgenommenen HUD-Block einzeln abzuschalten.
+ * Ohne sie laesst sich nicht trennen, WELCHER Teil das Bild schwarz macht --
+ * der Block bringt sieben Dateien und 33 zuvor gestubbte Funktionen auf einmal
+ * ins Spiel. Ueber den Debugger umlegbar, kein Neubau noetig. */
+int gPspHudDraw = 1;
+int gPspHudUpdate = 1;
+int gPspHudSegments = 1;
+/* Abschnittsgrenze fuer die Eingrenzung: Interface_Draw bricht ab, sobald der
+ * naechste Abschnitt eine hoehere Nummer als dieser Wert traegt. 999 = alles
+ * zeichnen. Ueber den Debugger setzbar, damit sich per Halbierung finden
+ * laesst, welcher Abschnitt das Bild stehen laesst -- die Funktion ist 800
+ * Zeilen lang, und jeder Einzelverdacht war falsch. Das Aufraeumen am Ende
+ * (Segmentrueckgabe) laeuft in jedem Fall, sonst misst man den Abbruch statt
+ * des Abschnitts.
+ *
+ * VORGABE 6, NICHT 999, weil Abschnitt 7 -- der A-Knopf -- das Bild dauerhaft
+ * schwarz macht. Zweimal unabhaengig gemessen: Stufe 6 zeichnet sauber, Stufe
+ * 7 nicht, und der Schaden ueberlebt das Abschalten von Interface_Draw; nur
+ * ein Szenenwechsel heilt ihn. Abschnitt 7 ist der einzige Teil der Funktion,
+ * der ueber func_8008A8B8 einen eigenen Viewport aufspannt (45x45,
+ * perspektivisch statt orthogonal).
+ *
+ * Mit 6 laeuft das ganze uebrige Interface. Ein Standardwert, der ein
+ * schwarzes Bild liefert, waere schlimmer als ein fehlender A-Knopf --
+ * dasselbe Argument wie beim TransitionTile-Stub, der Erfolg meldet, ohne
+ * etwas getan zu haben. Auf 999 stellen, sobald Abschnitt 7 geklaert ist. */
+int gPspHudStage = 999;
+
+/* Diagnose fuer die A-Knopf-Beschriftung ("steht immer Attack").
+ * [0] Aufrufe Interface_SetDoAction   [1] zuletzt uebergebene action
+ * [2] davon mit NEUEM Wert (also die, die wirklich laden)
+ * [3] Aufrufe Interface_LoadActionLabel  [4] letzter loadOffset
+ * [5] unk_1EC beim Zeichnen  [6] unk_1F0 beim Zeichnen
+ * [7] wie oft der switch(unk_1EC) case 2 erreicht hat (Slot 0 wird nachgeladen) */
+int gPspDoActDiag[8] = { 0 };
+
+/* Feineingrenzung INNERHALB von Abschnitt 7 (dem A-Knopf). Zaehlt, wie viele
+ * der sieben Teilschritte ausgefuehrt werden; der Rest des Abschnitts wird
+ * uebersprungen, ohne die Funktion zu verlassen -- anders als gPspHudStage,
+ * das per goto abbricht. Das ist Absicht: die Wiederherstellung des Vollbild-
+ * Viewports (func_8008A994) muss in JEDER Stufe laufen, sonst misst man sie
+ * mit statt den Teilschritt.
+ *
+ *   1  Gfx_SetupDL_42Overlay
+ *   2  func_8008A8B8  -- eigener 45x45-Viewport, perspektivisch
+ *   3  gSPClearGeometryMode(G_CULL_BOTH)
+ *   4  Combine + PrimColor (reiner Zustand)
+ *   5  Interface_DrawActionButton  -- zeichnet das Knopf-Viereck
+ *   6  zweiter func_8008A8B8 (Symbol) + Geometry/Combine/Prim/Env
+ *   7  Matrix + Vertices + Interface_DrawActionLabel
+ */
+int gPspHudAStage = 7;
+
+/* Bitmaske ueber gPspHudAStage: Bit (N-1) haelt Teilschritt N an.
+ *
+ * Notwendig, weil die Schwelle allein die Frage nicht beantworten kann. Die
+ * Teilschritte 1 bis 4 sind AUSSCHLIESSLICH Zustand -- Setup-Displayliste,
+ * Viewport, Geometriemodus, Combine. Keiner davon erreicht die GE, solange
+ * nichts gezeichnet wird. "Stufe 4 sauber, Stufe 5 schwarz" trennt deshalb
+ * nicht Ursache von Ausloeser: Schritt 5 ist nur der erste Draw, der den
+ * vorher gesetzten Zustand ueberhaupt wirksam macht.
+ *
+ * Mit der Maske laesst sich das Zeichnen ANLASSEN und jeder Zustandsschritt
+ * einzeln weglassen -- also genau andersherum bisektieren. */
+int gPspHudAMask = 0xFF;
+
+/* Bit 7 (0x80) trennt die beiden Dinge, die func_8008A8B8 in EINEM Schritt
+ * tut: den kleinen 45x45-Viewport und die perspektivische Projektion.
+ * Gesetzt = wie im Original. Geloescht = derselbe kleine Viewport, aber
+ * ORTHOGONAL wie der Rest des HUD. Gemessen ist bisher nur, dass Zeichnen
+ * MIT dieser Funktion das Bild schwaerzt und ohne sie nicht -- welche ihrer
+ * beiden Haelften es ist, sagt erst dieser Schnitt. */
+unsigned int gPspHudSegAddr[4];
+
 void Interface_Draw(PlayState* play) {
+    if (!gPspHudDraw) {
+        return;
+    }
+
     static s16 magicArrowEffectsR[] = { 255, 100, 255 };
     static s16 magicArrowEffectsG[] = { 0, 100, 255 };
     static s16 magicArrowEffectsB[] = { 0, 255, 100 };
@@ -3209,18 +3440,33 @@ void Interface_Draw(PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx, "../z_parameter.c", 3405);
 
-    gSPSegment(OVERLAY_DISP++, 0x02, interfaceCtx->parameterSegment);
-    gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->doActionSegment);
-    gSPSegment(OVERLAY_DISP++, 0x08, interfaceCtx->iconItemSegment);
-    gSPSegment(OVERLAY_DISP++, 0x0B, interfaceCtx->mapSegment);
+    /* Einzeln abschaltbar, um die Segmentumschaltung von allem anderen zu
+     * trennen, was diese Funktion tut. Ohne die Segmente sehen die Symbole
+     * falsch aus -- das ist erwuenscht, die Frage ist allein, ob DANN das Bild
+     * stehen bleibt. Siehe die Rueckgabe am Ende der Funktion. */
+    if (gPspHudSegments) {
+        gSPSegment(OVERLAY_DISP++, 0x02, interfaceCtx->parameterSegment);
+        gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->doActionSegment);
+        gSPSegment(OVERLAY_DISP++, 0x08, interfaceCtx->iconItemSegment);
+        gSPSegment(OVERLAY_DISP++, 0x0B, interfaceCtx->mapSegment);
+    }
+
+    /* Die Adressen, gegen die sich das pruefen laesst: sind sie NULL oder
+     * Muell, ist gSegments[] danach Muell. */
+    gPspHudSegAddr[0] = (unsigned int)(uintptr_t)interfaceCtx->parameterSegment;
+    gPspHudSegAddr[1] = (unsigned int)(uintptr_t)interfaceCtx->doActionSegment;
+    gPspHudSegAddr[2] = (unsigned int)(uintptr_t)interfaceCtx->iconItemSegment;
+    gPspHudSegAddr[3] = (unsigned int)(uintptr_t)interfaceCtx->mapSegment;
 
     if (pauseCtx->debugState == PAUSE_DEBUG_STATE_CLOSED) {
+        if (gPspHudStage < 1) { goto hudEnd; }   /* Vertices, Health_DrawMeter */
         Interface_InitVertices(play);
         func_8008A994(interfaceCtx);
         Health_DrawMeter(play);
 
         Gfx_SetupDL_39Overlay(play->state.gfxCtx);
 
+        if (gPspHudStage < 2) { goto hudEnd; }   /* Rupee-Symbol */
         // Rupee Icon
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 255, 100, interfaceCtx->magicAlpha);
         gDPSetEnvColor(OVERLAY_DISP++, 0, 80, 0, 255);
@@ -3268,13 +3514,13 @@ void Interface_Draw(PlayState* play) {
 
                     if (interfaceCtx->counterDigits[2] != 0) {
                         OVERLAY_DISP = Gfx_TextureI8(
-                            OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * interfaceCtx->counterDigits[2])), 8, 16,
+                            OVERLAY_DISP, COUNTER_DIGIT_TEXTURE(interfaceCtx->counterDigits[2]), 8, 16,
                             svar3, 190, 8, 16, 1 << 10, 1 << 10);
                         svar3 += 8;
                     }
 
                     OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP,
-                                                 ((u8*)gCounterDigit0Tex + (8 * 16 * interfaceCtx->counterDigits[3])),
+                                                 COUNTER_DIGIT_TEXTURE(interfaceCtx->counterDigits[3]),
                                                  8, 16, svar3, 190, 8, 16, 1 << 10, 1 << 10);
                 }
                 break;
@@ -3282,6 +3528,7 @@ void Interface_Draw(PlayState* play) {
                 break;
         }
 
+        if (gPspHudStage < 3) { goto hudEnd; }   /* Rupee-Zaehler */
         // Rupee Counter
         gDPPipeSync(OVERLAY_DISP++);
 
@@ -3318,10 +3565,11 @@ void Interface_Draw(PlayState* play) {
 
         for (svar1 = 0, svar3 = 42; svar1 < svar4; svar1++, svar2++, svar3 += 8) {
             OVERLAY_DISP =
-                Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * interfaceCtx->counterDigits[svar2])), 8,
+                Gfx_TextureI8(OVERLAY_DISP, COUNTER_DIGIT_TEXTURE(interfaceCtx->counterDigits[svar2]), 8,
                               16, svar3, 206, 8, 16, 1 << 10, 1 << 10);
         }
 
+        if (gPspHudStage < 4) { goto hudEnd; }   /* Magieleiste + Minikarte */
         Magic_DrawMeter(play);
         Minimap_Draw(play);
 
@@ -3332,6 +3580,7 @@ void Interface_Draw(PlayState* play) {
 
         Gfx_SetupDL_39Overlay(play->state.gfxCtx);
 
+        if (gPspHudStage < 5) { goto hudEnd; }   /* Gegenstandstasten */
         Interface_DrawItemButtons(play);
 
         gDPPipeSync(OVERLAY_DISP++);
@@ -3372,6 +3621,7 @@ void Interface_Draw(PlayState* play) {
 
         gDPPipeSync(OVERLAY_DISP++);
 
+        if (gPspHudStage < 6) { goto hudEnd; }   /* C-Tasten */
         // C-Left Button Icon & Ammo Count
         if (gSaveContext.save.info.equips.buttonItems[1] < 0xF0) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->cLeftAlpha);
@@ -3410,35 +3660,75 @@ void Interface_Draw(PlayState* play) {
         }
 
         // A Button
-        Gfx_SetupDL_42Overlay(play->state.gfxCtx);
-        func_8008A8B8(play, R_A_BTN_Y, R_A_BTN_Y + 45, R_A_BTN_X, R_A_BTN_X + 45);
-        gSPClearGeometryMode(OVERLAY_DISP++, G_CULL_BOTH);
-        gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, R_A_BTN_COLOR(0), R_A_BTN_COLOR(1), R_A_BTN_COLOR(2),
-                        interfaceCtx->aAlpha);
-        Interface_DrawActionButton(play);
-        gDPPipeSync(OVERLAY_DISP++);
-        func_8008A8B8(play, R_A_ICON_Y, R_A_ICON_Y + 45, R_A_ICON_X, R_A_ICON_X + 45);
-        gSPSetGeometryMode(OVERLAY_DISP++, G_CULL_BACK);
-        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
-                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
-        gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
-        Matrix_Translate(0.0f, 0.0f, R_A_LABEL_Z(gSaveContext.language) / 10.0f, MTXMODE_NEW);
-        Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
-        Matrix_RotateX(interfaceCtx->unk_1F4 / 10000.0f, MTXMODE_APPLY);
-        MATRIX_FINALIZE_AND_LOAD(OVERLAY_DISP++, play->state.gfxCtx, "../z_parameter.c", 3701);
-        gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
+        if (gPspHudStage >= 7) {
+            if (gPspHudAStage >= 1 && (gPspHudAMask & (1 << 0))) {
+                Gfx_SetupDL_42Overlay(play->state.gfxCtx);
+            }
+            if (gPspHudAStage >= 2 && (gPspHudAMask & (1 << 1))) {
+                if (gPspHudAMask & 0x80) {
+                    func_8008A8B8(play, R_A_BTN_Y, R_A_BTN_Y + 45, R_A_BTN_X, R_A_BTN_X + 45);
+                } else {
+                    interfaceCtx->viewport.topY = R_A_BTN_Y;
+                    interfaceCtx->viewport.bottomY = R_A_BTN_Y + 45;
+                    interfaceCtx->viewport.leftX = R_A_BTN_X;
+                    interfaceCtx->viewport.rightX = R_A_BTN_X + 45;
+                    View_SetViewport(&interfaceCtx->view, &interfaceCtx->viewport);
+                    View_ApplyOrthoToOverlay(&interfaceCtx->view);
+                }
+            }
+            if (gPspHudAStage >= 3 && (gPspHudAMask & (1 << 2))) {
+                gSPClearGeometryMode(OVERLAY_DISP++, G_CULL_BOTH);
+            }
+            if (gPspHudAStage >= 4 && (gPspHudAMask & (1 << 3))) {
+                gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, R_A_BTN_COLOR(0), R_A_BTN_COLOR(1), R_A_BTN_COLOR(2),
+                                interfaceCtx->aAlpha);
+            }
+            if (gPspHudAStage >= 5 && (gPspHudAMask & (1 << 4))) {
+                Interface_DrawActionButton(play);
+            }
+            if (gPspHudAStage >= 6 && (gPspHudAMask & (1 << 5))) {
+                gDPPipeSync(OVERLAY_DISP++);
+                func_8008A8B8(play, R_A_ICON_Y, R_A_ICON_Y + 45, R_A_ICON_X, R_A_ICON_X + 45);
+                gSPSetGeometryMode(OVERLAY_DISP++, G_CULL_BACK);
+                gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                                  PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
+                gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
+            }
+            if (gPspHudAStage >= 7 && (gPspHudAMask & (1 << 6))) {
+                Matrix_Translate(0.0f, 0.0f, R_A_LABEL_Z(gSaveContext.language) / 10.0f, MTXMODE_NEW);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+                Matrix_RotateX(interfaceCtx->unk_1F4 / 10000.0f, MTXMODE_APPLY);
+                MATRIX_FINALIZE_AND_LOAD(OVERLAY_DISP++, play->state.gfxCtx, "../z_parameter.c", 3701);
+                gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
 
-        if ((interfaceCtx->unk_1EC < 2) || (interfaceCtx->unk_1EC == 3)) {
-            Interface_DrawActionLabel(play->state.gfxCtx, interfaceCtx->doActionSegment);
-        } else {
-            Interface_DrawActionLabel(play->state.gfxCtx, interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE);
+                gPspDoActDiag[5] = interfaceCtx->unk_1EC;
+                gPspDoActDiag[6] = interfaceCtx->unk_1F0;
+                if ((interfaceCtx->unk_1EC < 2) || (interfaceCtx->unk_1EC == 3)) {
+                    Interface_DrawActionLabel(play->state.gfxCtx, interfaceCtx->doActionSegment);
+                } else {
+                    Interface_DrawActionLabel(play->state.gfxCtx, interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE);
+                }
+
+                gDPPipeSync(OVERLAY_DISP++);
+            }
         }
 
-        gDPPipeSync(OVERLAY_DISP++);
-
+        /* AUSSERHALB jeder Stufenschranke, und das ist der Punkt.
+         *
+         * func_8008A8B8 (oben, Stufe 7.2/7.6) ist die einzige Stelle der ganzen
+         * Funktion, die einen eigenen Viewport aufspannt -- 45x45 Pixel,
+         * perspektivisch. func_8008A994 ist die einzige, die den Vollbild-
+         * Viewport zurueckgibt. Solange die Rueckgabe hinter `gPspHudStage < 8`
+         * lag, hat Stufe 7 den kleinen Viewport gesetzt und NIE
+         * zurueckgenommen: die Messung "Stufe 7 macht das Bild schwarz" konnte
+         * gar nicht zwischen "der A-Knopf zeichnet falsch" und "der Viewport
+         * bleibt auf 45x45 stehen" unterscheiden. Genau der Unterschied wird
+         * hier gesucht, also darf er nicht in der Messvorrichtung stecken. */
         func_8008A994(interfaceCtx);
+
+        if (gPspHudStage < 8) { goto hudEnd; }   /* Rest */
 
         if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_3)) {
             // Inventory Equip Effects
@@ -3539,7 +3829,7 @@ void Interface_Draw(PlayState* play) {
                 for (svar1 = svar2 = 0; svar1 < 4; svar1++) {
                     if (sHBAScoreDigits[svar1] != 0 || (svar2 != 0) || (svar1 >= 3)) {
                         OVERLAY_DISP = Gfx_TextureI8(
-                            OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sHBAScoreDigits[svar1])), 8, 16, svar5,
+                            OVERLAY_DISP, COUNTER_DIGIT_TEXTURE(sHBAScoreDigits[svar1]), 8, 16, svar5,
                             (ZREG(15) - 2), sDigitWidths[0], VREG(42), VREG(43) << 1, VREG(43) << 1);
                         svar5 += 9;
                         svar2++;
@@ -3993,7 +4283,7 @@ void Interface_Draw(PlayState* play) {
 
                 for (svar1 = 0; svar1 < ARRAY_COUNT(sTimerDigits); svar1++) {
                     OVERLAY_DISP =
-                        Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sTimerDigits[svar1])), 8, 16,
+                        Gfx_TextureI8(OVERLAY_DISP, COUNTER_DIGIT_TEXTURE(sTimerDigits[svar1]), 8, 16,
                                       ((void)0, gSaveContext.timerX[timerId]) + timerDigitLeftPos[svar1],
                                       ((void)0, gSaveContext.timerY[timerId]), sDigitWidths[svar1], VREG(42),
                                       VREG(43) << 1, VREG(43) << 1);
@@ -4015,10 +4305,59 @@ void Interface_Draw(PlayState* play) {
         gDPFillRectangle(OVERLAY_DISP++, 0, 0, gScreenWidth - 1, gScreenHeight - 1);
     }
 
+hudEnd:
+#if TARGET_PSP
+    /* SEGMENT 0x02 IST DAS SZENENSEGMENT, und diese Funktion biegt es oben auf
+     * interfaceCtx->parameterSegment um. Ohne die Rueckgabe hier bleibt das
+     * dauerhaft stehen, und das Bild wird schwarz.
+     *
+     * Der Grund liegt in der Reihenfolge, nicht im Interface. gSegments[] ist
+     * EIN Feld, das sich die C-Seite und der Displaylisten-Interpreter teilen,
+     * aber sie greifen zu verschiedenen Zeitpunkten darauf zu:
+     *
+     *   Bild N   C-Seite:      Play_Update (liest gSegments), dann Play_Draw,
+     *                          das ganz vorn gSPSegment(0x02, sceneSegment)
+     *                          in POLY_OPA schreibt; Interface_Draw haengt
+     *                          seine gSPSegment-Befehle ans OVERLAY.
+     *   Bild N   Interpreter:  OPA (Segment 2 = Szene) ... zuletzt OVERLAY,
+     *                          und dort setzt das Interface Segment 2 auf sein
+     *                          Parametersegment. Dabei BLEIBT es.
+     *   Bild N+1 C-Seite:      Play_Update laeuft ZUERST -- mit Segment 2, das
+     *                          noch ins Parametersegment zeigt.
+     *
+     * Ab da loest jeder szenensegmentierte Zeiger in Aktoren, Kollision und
+     * Raumdaten in fremden Speicher auf. Gemessen: die Dreieckszahl bleibt
+     * hoch (1882 pro Bild), der Bildspeicher ist trotzdem vollstaendig null --
+     * es wird also fleissig Unsinn gezeichnet. Und es heilt NICHT, wenn man
+     * Interface_Draw wieder abschaltet; nur ein Szenenwechsel setzt gSegments
+     * neu. Genau dieses Verhalten hat den Fehler von einem "der HUD malt
+     * darueber" zu einem Zustandsschaden entlarvt.
+     *
+     * oot-psp-z2442 hat dieselbe Sicherung (z_parameter.c: savedSegment2/7/8/B
+     * um Interface_Draw herum). Dort wird die C-Seite gerettet, weil dort auch
+     * die C-Seite umgebogen wird (Interface_SetPspSegmentBase); hier tut das
+     * niemand, deshalb genuegt und noetig ist die Rueckgabe im DISPLAYLISTEN-
+     * Strom -- der ist der Einzige, der gSegments[] in diesem Port ueberhaupt
+     * veraendert.
+     *
+     * Segment 2 geht auf die Szene zurueck statt auf NULL, weil genau das der
+     * Wert ist, den Play_Draw jedes Bild setzt. 7/8/0x0B waren vorher
+     * unbesetzt; 8 ist zusaetzlich dasjenige, das auf dieser Plattform mit
+     * echten Zeigern kollidiert (siehe seg_addr in gfx_pc.c). */
+    gSPSegment(OVERLAY_DISP++, 0x02, play->sceneSegment);
+    gSPSegment(OVERLAY_DISP++, 0x07, NULL);
+    gSPSegment(OVERLAY_DISP++, 0x08, NULL);
+    gSPSegment(OVERLAY_DISP++, 0x0B, NULL);
+#endif
+
     CLOSE_DISPS(play->state.gfxCtx, "../z_parameter.c", 4269);
 }
 
 void Interface_Update(PlayState* play) {
+    if (!gPspHudUpdate) {
+        return;
+    }
+
     static u8 D_80125B60 = false;
     static s16 sPrevTimeSpeed = 0;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
@@ -4246,6 +4585,7 @@ void Interface_Update(PlayState* play) {
             if (interfaceCtx->unk_1F4 >= 0.0f) {
                 interfaceCtx->unk_1F4 = 0.0f;
                 interfaceCtx->unk_1EC = 0;
+                gPspDoActDiag[7]++;
                 interfaceCtx->unk_1EE = interfaceCtx->unk_1F0;
                 action = interfaceCtx->unk_1EE;
                 if ((action == DO_ACTION_MAX) || (action == DO_ACTION_MAX + 1)) {

@@ -1885,6 +1885,23 @@ s32 Camera_Normal2(Camera* camera) {
         case 20:
         case 25:
             bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+            /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+             * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+             * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+             * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+             * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+             * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+            {
+                extern void PspReadBgCamFuncDataStruct(void*, void*);
+                static BgCamFuncData sBgCamNative;
+            
+                if (bgCamFuncData != NULL) {
+                    PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+                    bgCamFuncData = &sBgCamNative;
+                }
+            }
+#endif
             rwData->unk_00 = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
             rwData->unk_20 = bgCamFuncData->rot.x;
             rwData->unk_22 = bgCamFuncData->rot.y;
@@ -4012,6 +4029,23 @@ s32 Camera_KeepOn0(Camera* camera) {
     CAM_DEBUG_RELOAD_PREG(camera);
 
     bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+    /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+     * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+     * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+     * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+     * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+     * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+    {
+        extern void PspReadBgCamFuncDataStruct(void*, void*);
+        static BgCamFuncData sBgCamNative;
+    
+        if (bgCamFuncData != NULL) {
+            PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+            bgCamFuncData = &sBgCamNative;
+        }
+    }
+#endif
     *eyeNext = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
     *eye = *eyeNext;
 
@@ -4077,6 +4111,23 @@ s32 Camera_Fixed1(Camera* camera) {
         CameraModeValue* values = sCameraSettings[camera->setting].cameraModes[camera->mode].values;
 
         bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+        /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+         * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+         * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+         * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+         * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+         * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+        {
+            extern void PspReadBgCamFuncDataStruct(void*, void*);
+            static BgCamFuncData sBgCamNative;
+        
+            if (bgCamFuncData != NULL) {
+                PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+                bgCamFuncData = &sBgCamNative;
+            }
+        }
+#endif
         rwData->eyePosRotTarget.pos = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
         rwData->eyePosRotTarget.rot = bgCamFuncData->rot;
         rwData->fov = bgCamFuncData->fov;
@@ -4157,6 +4208,23 @@ s32 Camera_Fixed2(Camera* camera) {
         rwData->fov = roData->fov * 100.0f;
 
         bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+        /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+         * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+         * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+         * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+         * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+         * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+        {
+            extern void PspReadBgCamFuncDataStruct(void*, void*);
+            static BgCamFuncData sBgCamNative;
+        
+            if (bgCamFuncData != NULL) {
+                PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+                bgCamFuncData = &sBgCamNative;
+            }
+        }
+#endif
         if (bgCamFuncData != NULL) {
             rwData->eye = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
             if (bgCamFuncData->fov != -1) {
@@ -4317,6 +4385,23 @@ s32 Camera_Fixed4(Camera* camera) {
         roData->interfaceField = GET_NEXT_RO_DATA(values);
 
         bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+        /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+         * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+         * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+         * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+         * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+         * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+        {
+            extern void PspReadBgCamFuncDataStruct(void*, void*);
+            static BgCamFuncData sBgCamNative;
+        
+            if (bgCamFuncData != NULL) {
+                PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+                bgCamFuncData = &sBgCamNative;
+            }
+        }
+#endif
         if (bgCamFuncData != NULL) {
             rwData->eyeTarget = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
         } else {
@@ -4720,6 +4805,23 @@ s32 Camera_Data4(Camera* camera) {
         roData->interfaceField = GET_NEXT_RO_DATA(values);
 
         bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+        /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+         * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+         * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+         * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+         * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+         * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+        {
+            extern void PspReadBgCamFuncDataStruct(void*, void*);
+            static BgCamFuncData sBgCamNative;
+        
+            if (bgCamFuncData != NULL) {
+                PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+                bgCamFuncData = &sBgCamNative;
+            }
+        }
+#endif
         rwData->eyePosRot.pos = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
         rwData->eyePosRot.rot = bgCamFuncData->rot;
         fov = bgCamFuncData->fov;
@@ -4979,6 +5081,23 @@ s32 Camera_Unique3(Camera* camera) {
             }
 
             bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+            /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+             * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+             * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+             * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+             * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+             * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+            {
+                extern void PspReadBgCamFuncDataStruct(void*, void*);
+                static BgCamFuncData sBgCamNative;
+            
+                if (bgCamFuncData != NULL) {
+                    PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+                    bgCamFuncData = &sBgCamNative;
+                }
+            }
+#endif
             camera->eyeNext = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
             camera->eye = camera->eyeNext;
             bgCamRot = bgCamFuncData->rot;
@@ -5094,6 +5213,23 @@ s32 Camera_Unique0(Camera* camera) {
         camera->stateFlags &= ~CAM_STATE_CHECK_BG;
 
         bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+        /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+         * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+         * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+         * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+         * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+         * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+        {
+            extern void PspReadBgCamFuncDataStruct(void*, void*);
+            static BgCamFuncData sBgCamNative;
+        
+            if (bgCamFuncData != NULL) {
+                PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+                bgCamFuncData = &sBgCamNative;
+            }
+        }
+#endif
         rwData->eyeAndDirection.point = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
 
         *eye = camera->eyeNext = rwData->eyeAndDirection.point;
@@ -5253,6 +5389,23 @@ s32 Camera_Unique7(Camera* camera) {
     CAM_DEBUG_RELOAD_PREG(camera);
 
     bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+    /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+     * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+     * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+     * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+     * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+     * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+    {
+        extern void PspReadBgCamFuncDataStruct(void*, void*);
+        static BgCamFuncData sBgCamNative;
+    
+        if (bgCamFuncData != NULL) {
+            PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+            bgCamFuncData = &sBgCamNative;
+        }
+    }
+#endif
 
     *eyeNext = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
     *eye = *eyeNext;
@@ -7236,6 +7389,23 @@ s32 Camera_Special6(Camera* camera) {
     eyeAtOffset = OLib_Vec3fDiffToVecGeo(eye, at);
 
     bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+    /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+     * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+     * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+     * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+     * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+     * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+    {
+        extern void PspReadBgCamFuncDataStruct(void*, void*);
+        static BgCamFuncData sBgCamNative;
+    
+        if (bgCamFuncData != NULL) {
+            PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+            bgCamFuncData = &sBgCamNative;
+        }
+    }
+#endif
     bgCamPos = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
     bgCamRot = bgCamFuncData->rot;
     fov = bgCamFuncData->fov;
@@ -7380,6 +7550,23 @@ s32 Camera_Special9(Camera* camera) {
                 camera->animState++;
                 if (roData->interfaceField & SPECIAL9_FLAG_0) {
                     bgCamFuncData = (BgCamFuncData*)Camera_GetBgCamFuncData(camera);
+#if TARGET_PSP
+                    /* Dieselbe Endian-Korrektur wie in Camera_Fixed3: BgCamFuncData ist
+                     * roh-DMAte Big-Endian-Daten und wird nirgends im Block getauscht. Ohne
+                     * das liest diese Kamera pos/rot/fov byteverdreht -- gemessen in Impas
+                     * Haus: eye.y = 13312 (0x3400) statt 52 (0x0034), zFar = -12281 (0xD007)
+                     * statt 2000 (0x07D0). Die Kamera steht dann weit ueber dem Raum und
+                     * schaut daran vorbei, was wie "Link wird nicht gerendert" aussieht. */
+                    {
+                        extern void PspReadBgCamFuncDataStruct(void*, void*);
+                        static BgCamFuncData sBgCamNative;
+                    
+                        if (bgCamFuncData != NULL) {
+                            PspReadBgCamFuncDataStruct(bgCamFuncData, &sBgCamNative);
+                            bgCamFuncData = &sBgCamNative;
+                        }
+                    }
+#endif
                     *eyeNext = Camera_Vec3sToVec3f(&bgCamFuncData->pos);
                     spAC = *eye = *eyeNext;
                 } else {

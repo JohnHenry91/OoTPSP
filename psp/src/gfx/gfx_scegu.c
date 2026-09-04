@@ -223,6 +223,14 @@ enum MixType {
     SH_MT_COLOR_COLOR,
 };
 
+/* Was der GE zuletzt als Texturumgebung gesagt wurde -- die einzige ehrliche
+ * Antwort auf "womit wird dieser Draw wirklich gezeichnet". Aus gfx_pc.c
+ * gelesen, weil dort die Frage entsteht und der dortige
+ * rendering_state.two_texture_tint nur sagt, was gfx_pc GLAUBT. */
+uint32_t gPspLastTfxMode = 0xFFFFFFFFu;
+uint32_t gPspLastTfxTcc  = 0xFFFFFFFFu;
+uint32_t gPspLastTexEnvColor = 0xFFFFFFFFu;
+
 struct ShaderProgram {
     bool enabled;
     uint32_t shader_id;
@@ -231,6 +239,10 @@ struct ShaderProgram {
     bool texture_used[2];
     int texture_ord[2];
     int num_inputs;
+    /* Die Texturumgebung, die dieser Shader zuletzt gesetzt bekommen hat.
+     * Der globale gPspLastTfxMode sagt nur, was die GE zuletzt gehoert hat --
+     * das kann ein ganz anderer Shader gewesen sein. */
+    int tfx_mode, tfx_tcc;
 };
 
 struct SamplerState {
@@ -382,6 +394,15 @@ static bool gfx_scegu_z_is_from_0_to_1(void) {
 uint32_t gPspFlatBinds;
 uint32_t gPspFlatTfx, gPspFlatTcc;
 uint32_t gPspFlatRgbBinds;
+
+/* Sonde fuer die PRIM/ENV-LERP-Form (Herzen, Kokiri-Staubkoerner, ...): siehe
+ * gfx_scegu_apply_shader. Cumulative binds + the last shader_id/mode/tcc/mix
+ * seen, so one debugger read says whether the shape is recognised at all and
+ * what it renders as. */
+uint32_t gPspPrimEnvLerpBinds;
+uint32_t gPspPrimEnvLerpShaderId;
+uint32_t gPspPrimEnvLerpTfx, gPspPrimEnvLerpTcc;
+uint32_t gPspPrimEnvLerpMix;
 uint32_t gPspTccRgbNoAlphaOpt;
 uint32_t gPspTccRgbNoTexelRow;
 uint32_t gPspTccRgbaOk;
@@ -493,11 +514,26 @@ int gfx_scegu_shader_is_prim_env_lerp(void) {
     return (cur_shader != NULL && is_prim_env_lerp_combine(cur_shader)) ? 1 : 0;
 }
 
+/* Was DIESER Shader als Texturumgebung gesetzt bekommen hat, plus sein
+ * MixType -- fuer die Sonde in gfx_pc.c, die sonst nur den globalen
+ * "zuletzt gesetzt" sieht und damit womoeglich einen fremden Shader misst. */
+void gfx_scegu_shader_texenv(const struct ShaderProgram *prg, uint32_t *mode, uint32_t *tcc,
+                             uint32_t *mix, uint32_t *shader_id) {
+    if (prg == NULL) {
+        return;
+    }
+    *mode = (uint32_t)prg->tfx_mode;
+    *tcc  = (uint32_t)prg->tfx_tcc;
+    *mix  = (uint32_t)prg->mix;
+    *shader_id = prg->shader_id;
+}
+
 /* The tex-env colour carries PRIM for the LERP above, and PRIM changes per
  * mote, so gfx_pc.c re-issues this per draw (after a flush) the same way it
  * does for the two-texture tint. */
 void gfx_scegu_set_lerp_prim_color(uint32_t packed) {
     sceGuTexEnvColor(packed);
+    gPspLastTexEnvColor = packed;
 }
 
 /* Colour row is a bare constant, alpha row is textured:
@@ -544,29 +580,30 @@ int gfx_scegu_shader_is_flat_colour(void) {
     return (cur_shader != NULL && is_flat_colour_alpha_textured(cur_shader)) ? 1 : 0;
 }
 
+/* Hier stand eine aus sm64-port geerbte shader_id-Tabelle -- 0x0000038D
+ * (mario's eyes) / 0x01045A00 (peach letter) / 0x01200A00 (intro copyright
+ * fade) auf GU_TFX_DECAL, 0x00000551 (goddard) auf GU_TFX_BLEND -- und daneben
+ * ein fuenfter Fall 0x01A00045 ("Transition Screens") auf GU_TFX_REPLACE.
+ *
+ * Alle fuenf sind ausgebaut. Gemessen (2026-09-03, gPspShaderIdHackHits ueber
+ * Boot und vier Szenenwechsel): die vier sm64-IDs schlagen in OoT NIE an, und
+ * der Transition-Fall traf keine einzige Blende -- wohl aber das rote
+ * Herz-Decal in gHeartPieceInteriorDL, das dieselbe shader_id hat. REPLACE
+ * warf dort die Vertexfarbe mit dem roten PRIM weg und liess ein weisses Herz
+ * stehen.
+ *
+ * Der Grund ist allgemein: eine shader_id ist die Combine-Form plus
+ * Opt-Flags, kein Materialfingerabdruck. Unverwandte Displaylisten teilen sie
+ * sich, und ein Spiel, aus dem diese IDs gar nicht stammen, trifft sie nur
+ * zufaellig. Deshalb sind is_n64_logo_cube_combine, is_prim_env_lerp_combine
+ * und is_flat_colour_alpha_textured strukturell auf den Operanden formuliert:
+ * wo die Form gilt, gilt die Identitaet, und es gibt nichts misszuwenden. */
 static inline int texenv_set_texture_color(struct ShaderProgram *prg) {
-    int mode;
-    /*@Hack: lord forgive me for this, but this is easier */
-    switch (prg->shader_id) {
-        case 0x0000038D: // mario's eyes
-        case 0x01045A00: // peach letter
-        case 0x01200A00: // intro copyright fade in
-            mode = GU_TFX_DECAL;
-            break;
-        case 0x00000551: // goddard
-            mode = GU_TFX_BLEND;
-            break;
-        default:
-            if (is_n64_logo_cube_combine(prg) || is_prim_env_lerp_combine(prg) ||
-                is_flat_colour_alpha_textured(prg)) {
-                mode = GU_TFX_BLEND;
-            } else {
-                mode = GU_TFX_MODULATE;
-            }
-            break;
+    if (is_n64_logo_cube_combine(prg) || is_prim_env_lerp_combine(prg) ||
+        is_flat_colour_alpha_textured(prg)) {
+        return GU_TFX_BLEND;
     }
-
-    return mode;
+    return GU_TFX_MODULATE;
 }
 
 static inline int texenv_set_texture_texture(struct ShaderProgram *prg) {
@@ -806,10 +843,28 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
                 break;
         }
 
-        /* Transition Screens */
-        if (prg->shader_id == 0x01A00045) {
-            mode = GU_TFX_REPLACE;
-        }
+        /* Hier stand ein "Transition Screens"-Hack: shader_id == 0x01A00045
+         * wurde pauschal auf GU_TFX_REPLACE gezwungen.
+         *
+         * Das war eine ID-Kollision, live gemessen (2026-09-03): das rote
+         * Herz-Decal in gHeartPieceInteriorDL -- die zweite Materialgruppe des
+         * freistehenden Herzteils -- hat exakt dieselbe shader_id. Sein
+         * Combine ist G_CC_MODULATEIDECALA_PRIM, also (TEXEL0 - 0) * PRIM + 0
+         * mit PRIM = (200,0,100). REPLACE wirft die Vertexfarbe weg, in der
+         * genau dieses PRIM steckt, und uebrig bleibt die nackte I8-Herzform:
+         * ein WEISSES Herz statt eines roten. MODULATE ist fuer diese Form das
+         * Richtige und faellt hier ohnehin aus texenv_set_texture_color.
+         *
+         * Eine shader_id ist kein stabiler Fingerabdruck fuer ein Material --
+         * sie ist die Combine-Form plus Opt-Flags, und die teilen sich viele
+         * unverwandte Displaylisten. Genau deshalb sind
+         * is_n64_logo_cube_combine und is_prim_env_lerp_combine strukturell
+         * auf den Operanden formuliert und nicht auf einer ID; siehe deren
+         * Kommentare. Sollte der Uebergangsbildschirm REPLACE wirklich
+         * brauchen, gehoert er ebenso strukturell erkannt.
+         *
+         * Beim Entfernen gegenzupruefen: die Blenden beim Szenenwechsel
+         * (jeder Warp zeigt eine), siehe [[project_oot_psp_uebergaenge]]. */
         const int tcc = tcc_for_alpha(prg);
 
         /* Narrow probe for the fairy. The summed TCC counters said the alpha
@@ -835,7 +890,25 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
             gPspFlatTcc = (uint32_t)tcc;
         }
 
+        /* Sonde fuer die "weiss statt Farbe"-Serie (Herzen, Triforce,
+         * Warp-Glut, ...): faengt JEDEN Bind ab, dessen Operanden die
+         * PRIM/ENV-LERP-Form is_prim_env_lerp_combine() erfuellen, egal aus
+         * welcher Szene. Haelt shader_id, gewaehlten TFX-Modus und tcc fest,
+         * damit ein einziger Debugger-Read sagt, ob die Form ueberhaupt
+         * erkannt wird und was die GE daraus macht. */
+        if (is_prim_env_lerp_combine(prg)) {
+            gPspPrimEnvLerpBinds++;
+            gPspPrimEnvLerpShaderId = prg->shader_id;
+            gPspPrimEnvLerpTfx = (uint32_t)mode;
+            gPspPrimEnvLerpTcc = (uint32_t)tcc;
+            gPspPrimEnvLerpMix = (uint32_t)prg->mix;
+        }
+
         sceGuTexFunc(mode, tcc);
+        prg->tfx_mode = mode;
+        prg->tfx_tcc = tcc;
+        gPspLastTfxMode = (uint32_t)mode;
+        gPspLastTfxTcc = (uint32_t)tcc;
         mode_override = -1;
     }
 }
@@ -853,7 +926,15 @@ static void gfx_scegu_apply_shader(struct ShaderProgram *prg) {
  * `mode_override` is reset whenever a shader is (re)applied, since that path
  * issues its own sceGuTexFunc and would otherwise leave this cache stale. */
 void gfx_scegu_set_two_texture_tint(int has_tint) {
-    if (cur_shader == NULL || cur_shader->mix != SH_MT_TEXTURE_TEXTURE) {
+    if (cur_shader == NULL) {
+        return;
+    }
+    /* has_tint == 2 is the cycle-2 two-register LERP (gfx_pc.c's cyc2_lerp).
+     * Unlike the REPLACE/MODULATE question it is not confined to two-texture
+     * combines -- gGiHeartPieceDL carries the shape over a single-texture
+     * cycle 1 in its second half -- so only the 0/1 answers keep the mix
+     * guard. */
+    if (has_tint != 2 && cur_shader->mix != SH_MT_TEXTURE_TEXTURE) {
         return;
     }
     /* The boot logo has its own approximation, don't disturb it. */
@@ -861,11 +942,14 @@ void gfx_scegu_set_two_texture_tint(int has_tint) {
         return;
     }
 
-    const int mode = has_tint ? GU_TFX_MODULATE : GU_TFX_REPLACE;
+    const int mode = (has_tint == 2) ? GU_TFX_BLEND
+                   : (has_tint ? GU_TFX_MODULATE : GU_TFX_REPLACE);
 
     if (mode != mode_override) {
         mode_override = mode;
         sceGuTexFunc(mode, tcc_for_alpha(cur_shader));
+        gPspLastTfxMode = (uint32_t)mode;
+        gPspLastTfxTcc = (uint32_t)tcc_for_alpha(cur_shader);
     }
 }
 
@@ -1353,13 +1437,121 @@ static void gfx_scegu_set_zmode_decal(bool zmode_decal) {
     }
 }
 
+/* Zwei Laufzeitschalter, um die beiden Dinge zu trennen, die diese Funktion in
+ * einem Atemzug tut. Gemessen ist bislang nur: ein Draw MIT einem kleinen
+ * Viewport schwaerzt das ganze Bild, derselbe Draw ohne ihn nicht -- und zwar
+ * unabhaengig von der Projektion. Welche der beiden GE-Anweisungen das tut,
+ * sagt erst dieser Schnitt.
+ *
+ *   gPspVpNoScissor  1 = sceGuScissor hier NICHT mitsetzen (die Kopplung, die
+ *                        am rendering_state.scissor-Zwischenspeicher vorbeigeht)
+ *   gPspVpForceFull  1 = sceGuViewport immer auf Vollbild, egal was ankommt
+ *
+ * Y-Verdacht, der bei Vollbild prinzipiell unsichtbar bleibt: die Mitte wird
+ * als `2048 + SCR_HEIGHT/2 - y - height/2` gerechnet, also von UNTEN gemessen,
+ * waehrend rdp.viewport.y von OBEN zaehlt. Fuer 0/272 ist das symmetrisch und
+ * faellt nie auf -- der A-Knopf ist der erste Teil-Viewport im ganzen Spiel. */
+int gPspVpNoScissor = 0;
+int gPspVpForceFull = 0;
+
+/* 1 = Y wird wie X gerechnet. 0 = die geerbte Formel -- und die ist RICHTIG.
+ *
+ * GEMESSEN UND WIDERLEGT (der Y-Fix aus 066350460 war ein Fehlschluss):
+ * `rdp.viewport.y` zaehlt NICHT von oben. gfx_pc.c rechnet in
+ * gfx_calc_and_set_viewport
+ *
+ *     y = SCREEN_HEIGHT - ((vtrans[1] / 4.0f) + height / 2.0f);
+ *
+ * also von UNTEN -- die OpenGL-Konvention, fuer die gfx_opengl geschrieben
+ * wurde und die dieser Port geerbt hat. Die alte Formel
+ * `2048 + SCR_HEIGHT/2 - y - h/2` ist damit korrekt. Mit gPspVpYFix = 1 landet
+ * der A-Knopf unten rechts statt oben rechts -- user-bestaetigt am Bild, nicht
+ * nur nachgerechnet. Der Schalter bleibt als Gegentest stehen.
+ *
+ * Die Ausgangsbeobachtung ("fuer Vollbild sind beide Formeln zahlengleich")
+ * stimmt; nur der Schluss daraus war falsch herum. */
+int gPspVpYFix = 0;
+
+/* 1 = sceGuScissor bekommt BREITE und HOEHE (richtig fuer die installierte
+ * libpspgu). 0 = die geerbte Fassung, die dort x2/y2 uebergibt.
+ *
+ * Nachgesehen in ~/pspdev/psp/sdk/lib/libpspgu.a (disassembliert, nicht geraten):
+ *
+ *     scissor_end[0] = x + w - 1;      a2 = a0 + a2 - 1
+ *     scissor_end[1] = y + h - 1;      a3 = a1 + a3 - 1
+ *
+ * Das dritte und vierte Argument sind also Breite und Hoehe. Dieser Port hat
+ * von sm64-port-psp `sceGuScissor(x, y, x + width, y + height)` geerbt, was
+ * gegen eine aeltere SDK-Fassung (`end = w - 1`) richtig war. Fuer den
+ * Vollbild-Scissor (0, 0, 480, 272) sind beide Lesarten zahlengleich, weil
+ * x und y null sind -- deshalb ist es nie aufgefallen.
+ *
+ * Fuer den A-Knopf (279, 210, 67, 51) wird daraus:
+ *     end = (279 + 346 - 1, 210 + 261 - 1) = (624, 470)
+ * also ein Scissor von 279..624 x 210..470 statt 279..345 x 210..260 -- und da
+ * sceGuScissor auch REGION1/REGION2 mitsetzt, eine Zeichenregion von 625x471
+ * statt 480x272. Der A-Knopf ist der einzige Teil-Scissor im ganzen Spiel.
+ *
+ * Achtung bei der Beurteilung von gPspVpForceFull: das ueberschreibt
+ * x/y/width/height VOR beiden Aufrufen und repariert damit auch den Scissor --
+ * es trennt Viewport und Scissor also NICHT. */
+int gPspScisWH = 1;
+
+/* 1 = die Zeichenregion (REGION1/REGION2) bleibt immer der volle Bildschirm.
+ *
+ * sceGuScissor setzt REGION1/REGION2 MIT -- nachgesehen in der installierten
+ * libpspgu.a, nicht in der Doku. Die Region ist aber die Zeichenflaeche des
+ * Framebuffers, kein Ausschnitt: sie darf mit einem Teil-Scissor nicht
+ * mitwandern. PPSSPP leitet aus ihr die Framebuffergroesse ab und ordnet bei
+ * einer abweichenden Region einen anderen Framebuffer zu -- dann ist das ganze
+ * Bild leer, auch alles, was vorher in DERSELBEN GE-Liste schon gezeichnet
+ * wurde. Genau der Befund "ein Befehl am Ende loescht, was vorher da war".
+ *
+ * Vier user-bestaetigte Blicke auf den A-Knopf, nach Regionsgroesse sortiert:
+ *
+ *     625x471  schwarz       (YFix 1, ScisWH 0 -- der Auslieferungszustand)
+ *     625x73   schwarz       (YFix 0, ScisWH 0)
+ *     346x62   schwarz       (YFix 0, ScisWH 1)
+ *     346x261  BILD DA       (YFix 1, ScisWH 1)
+ *
+ * Nur die Region, die dem Vollbild nahekommt, ueberlebt -- der Scissor selbst
+ * war in beiden 346er-Faellen gleich gross. Deshalb ist die Region der
+ * Ausloeser, nicht der Scissor und nicht der Viewport. */
+int gPspScisKeepRegion = 1;
+
+static void gfx_scegu_scissor_rect(int x, int y, int width, int height) {
+    int top = gPspVpYFix ? y : (SCR_HEIGHT - y - height);
+    if (gPspScisWH) {
+        sceGuScissor(x, top, width, height);
+    } else {
+        sceGuScissor(x, top, x + width, top + height);
+    }
+    if (gPspScisKeepRegion) {
+        /* REGION1 = 0x15, REGION2 = 0x16 (guInternal.h; im Disassembly der
+         * installierten libpspgu als lui 0x1500 / 0x1600 wiedererkennbar). */
+        sceGuSendCommandi(0x15, 0);
+        sceGuSendCommandi(0x16, ((SCR_HEIGHT - 1) << 10) | (SCR_WIDTH - 1));
+    }
+}
+
 static void gfx_scegu_set_viewport(int x, int y, int width, int height) {
-    sceGuViewport(2048 - (SCR_WIDTH / 2) + x + (width / 2), 2048 + (SCR_HEIGHT / 2) - y - (height / 2), width, height);
-    sceGuScissor(x, SCR_HEIGHT - y - height, x + width, SCR_HEIGHT - y);
+    if (gPspVpForceFull) {
+        x = 0; y = 0; width = SCR_WIDTH; height = SCR_HEIGHT;
+    }
+    if (gPspVpYFix) {
+        sceGuViewport(2048 - (SCR_WIDTH / 2) + x + (width / 2),
+                      2048 - (SCR_HEIGHT / 2) + y + (height / 2), width, height);
+    } else {
+        sceGuViewport(2048 - (SCR_WIDTH / 2) + x + (width / 2),
+                      2048 + (SCR_HEIGHT / 2) - y - (height / 2), width, height);
+    }
+    if (!gPspVpNoScissor) {
+        gfx_scegu_scissor_rect(x, y, width, height);
+    }
 }
 
 static void gfx_scegu_set_scissor(int x, int y, int width, int height) {
-    sceGuScissor(x, SCR_HEIGHT - y - height, x + width, SCR_HEIGHT - y);
+    gfx_scegu_scissor_rect(x, y, width, height);
 }
 
 static void gfx_scegu_set_use_alpha(bool use_alpha) {
@@ -2213,6 +2405,16 @@ static void gfx_scegu_end_frame(void) {
      * menu overlay (drawn into the still-open list) from the engine's own
      * geometry. First 24 frames only, same window as the rest. */
     PSP_DIAG_GFX("ge-menu-begin");
+    /* Das Overlay zeichnet in die noch offene GE-Liste und erbt damit den
+     * zuletzt gesetzten Ausschnitt. Nach dem A-Knopf ist das sein 67x51-
+     * Rechteck, und vom Menue bleibt genau dieser Fleck sichtbar. Erst seit
+     * der A-Knopf ueberhaupt gezeichnet wird, faellt das auf: vorher war der
+     * letzte Scissor des Frames immer der Vollbild-Scissor. */
+    {
+        extern void gfx_invalidate_scissor_state(void); /* gfx_pc.h ist hier nicht eingebunden */
+        gfx_scegu_scissor_rect(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        gfx_invalidate_scissor_state();
+    }
     PspSceneMenu_DrawBackdrop();
     PspSceneMenu_DrawHud();
     PSP_DIAG_GFX("ge-menu-done");

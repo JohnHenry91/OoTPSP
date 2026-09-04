@@ -4460,7 +4460,17 @@ u16 WaterBox_GetBgCamSetting(CollisionContext* colCtx, WaterBox* waterBox) {
         return CAM_SET_NONE;
     }
 
+#if TARGET_PSP
+    /* Same raw big-endian read its sister BgCheck_GetBgCamSettingImpl already
+     * does -- BgCamInfo is DMA'd in untouched, so the native field is byte-
+     * reversed here too. This one was simply missed when that fix went in. */
+    {
+        extern unsigned short PspReadBgCamSettingRaw(void*);
+        return PspReadBgCamSettingRaw(&bgCamList[bgCamIndex]);
+    }
+#else
     return colCtx->colHeader->bgCamList[bgCamIndex].setting;
+#endif
 }
 
 /**

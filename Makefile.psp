@@ -81,6 +81,23 @@ PSP_C_FILES += src/code/padmgr.c
 PSP_C_FILES += src/code/game.c
 PSP_C_FILES += src/code/sys_cfb.c
 PSP_C_FILES += src/code/TwoHeadGfxArena.c
+# Bildschirmuebergaenge. Die echten Implementierungen lagen die ganze Zeit im
+# Baum (src/code/z_fbdemo*.c) und wurden nur nicht gebaut -- statt ihrer liefen
+# No-op-Stubs aus phase2_stubs_gen.c, weshalb jeder Szenenwechsel hart
+# umschaltete. Nacheinander eingeschaltet, weil sie sich in ihren Anforderungen
+# stark unterscheiden: Fade braucht nur ein Vollbild-Rechteck, waehrend Tile,
+# Circle, Wipe und Triforce ueber PreRender am Framebuffer arbeiten und der
+# PreRender-Block noch gestubbt ist.
+PSP_C_FILES += src/code/z_fbdemo_fade.c
+# Circle, Triforce und Wipe kommen mit: nachgesehen, sie haben KEINE
+# Abhaengigkeit auf PreRender, gDPSetColorImage oder sonst einen
+# Framebuffer-Zugriff -- sie zeichnen texturierte Ueberlagerungen und sind damit
+# genauso eigenstaendig wie die Blende. Einzig z_fbdemo.c (TransitionTile,
+# das verzerrte Gitternetz) liest den Framebuffer als Textur und bleibt
+# deshalb draussen, bis Render-to-Texture existiert.
+PSP_C_FILES += src/code/z_fbdemo_circle.c
+PSP_C_FILES += src/code/z_fbdemo_triforce.c
+PSP_C_FILES += src/code/z_fbdemo_wipe1.c
 PSP_C_FILES += src/libc64/malloc.c
 PSP_C_FILES += src/boot/viconfig.c
 PSP_C_FILES += src/code/title_setup.c
@@ -107,10 +124,31 @@ PSP_C_FILES += src/code/z_scene.c
 PSP_C_FILES += src/code/z_scene_table.c
 PSP_C_FILES += src/code/z_room.c
 PSP_C_FILES += src/code/z_construct.c
+# --- HUD / Interface -------------------------------------------------------
+# Beide lagen fertig im Baum und wurden nur nicht gebaut, waehrend sechs
+# Funktionen daraus in phase2_stubs_gen.c als leere Ruempfe standen -- derselbe
+# Fall wie bei z_fbdemo*.c und gu/*.c. z_parameter.c ist mit 4415 Zeilen das
+# ganze Interface (Herzen, Magie, C-Tasten, Rupien, Minikarte, Textfenster-
+# Rahmen), z_lifemeter.c die Herzleiste.
+PSP_C_FILES += src/code/z_parameter.c
+PSP_C_FILES += src/code/z_lifemeter.c
+# Minikarte -- z_parameter.c ruft Minimap_Draw/Map_Update, und auch die lagen
+# schon fertig im Baum.
+PSP_C_FILES += src/code/z_map_exp.c
+PSP_C_FILES += src/code/z_map_mark.c
+PSP_C_FILES += src/code/z_map_data.c
+# Die Markierungsdaten der Dungeon-Karten. Auf dem N64 ein nachgeladenes
+# Overlay, hier fest mitgelinkt -- siehe den TARGET_PSP-Zweig in z_map_mark.c.
+PSP_C_FILES += src/overlays/misc/ovl_map_mark_data/z_map_mark_data.c
 PSP_C_FILES += src/code/z_lights.c
 PSP_C_FILES += src/code/z_vr_box.c
 PSP_C_FILES += src/code/z_vr_box_draw.c
 PSP_C_FILES += src/code/z_bgcheck.c
+# Promoted out of phase2_stubs_gen.c: DamageTable_Get stand dort als
+# `void DamageTable_Get(void) {}` und gab damit den Restwert aus v0 zurueck --
+# einen ZEIGER aus Muell, an 15 Aufrufstellen. Die Datei ist reine Tabellendaten
+# plus zwei kurze Funktionen und haengt nur an vier harmlosen Headern.
+PSP_C_FILES += src/code/z_collision_btltbls.c
 PSP_C_FILES += src/code/z_collision_check.c
 PSP_C_FILES += src/code/z_camera.c
 PSP_C_FILES += src/code/z_actor.c
@@ -442,6 +480,12 @@ PSP_C_FILES += src/libultra/gu/lookathil.c
 PSP_C_FILES += src/libultra/gu/perspective.c
 PSP_C_FILES += src/libultra/gu/translate.c
 PSP_C_FILES += src/libultra/gu/mtxutil.c
+# Von den Uebergaengen gebraucht (guScale/guRotate in z_fbdemo_circle,
+# _triforce und _wipe1). Wie die Uebergaenge selbst lagen auch diese beiden
+# Dateien fertig im Baum und standen nur nicht im Makefile.
+PSP_C_FILES += src/libultra/gu/scale.c
+PSP_C_FILES += src/libultra/gu/rotate.c
+PSP_C_FILES += src/libultra/gu/normalize.c
 PSP_C_FILES += src/code/z_lib.c
 PSP_C_FILES += src/libc64/aprintf.c
 PSP_C_FILES += psp/src/libultra/trig_stub.c
@@ -461,6 +505,10 @@ PSP_C_FILES += extracted/pal-1.0/assets/textures/nintendo_rogo_static/nintendo_r
 PSP_C_FILES += extracted/pal-1.0/assets/textures/icon_item_static/icon_item_static.c
 PSP_C_FILES += assets/textures/icon_item_24_static/icon_item_24_static.c
 PSP_C_FILES += extracted/pal-1.0/assets/textures/parameter_static/parameter_static.c
+# Die "Do Action"-Beschriftungen der A-Taste (Angriff/Pruefen/...). Die
+# .inc.c-Dateien erzeugt die Asset-Pipeline laengst nach build/pal-1.0, nur die
+# uebersetzende .c fehlte im Build.
+PSP_C_FILES += assets/textures/do_action_static/do_action_static.c
 
 PSP_C_FILES += psp/src/psp_blob_assets.c
 PSP_C_FILES += psp/src/psp_hw_diag.c

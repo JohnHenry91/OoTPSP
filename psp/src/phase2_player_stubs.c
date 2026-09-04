@@ -35,44 +35,24 @@ struct EnItem00;
  * real src/code/z_kankyo.c (see Makefile.psp). */
 
 /* func_8002836C promoted with the block above. */
-void func_800849EC(void* play) {}
 /* func_800F4138/func_800F4190 PROMOTED to the real src/audio/game/general.c
  * (Phase 4 audio bring-up, see Makefile.psp). */
 
 void GetItem_Draw(void* play, s16 giDrawId) {}
 
-s32 Health_ChangeBy(void* play, s16 amount) {
-    return 0;
-}
 
-u32 Health_IsCritical(void) {
-    return 0;
-}
 
-void Interface_SetDoAction(void* play, u16 action) {}
-void Interface_SetNaviCall(void* play, u16 naviCallState) {}
-void Interface_SetSubTimerToFinalSecond(void* play) {}
 
-void Inventory_ChangeAmmo(s16 item, s16 ammoChange) {}
-s32 Inventory_ConsumeFairy(void* play) {
-    return 0;
-}
-void Inventory_UpdateBottleItem(void* play, u8 item, u8 button) {}
 
-u8 Item_CheckObtainability(u8 item) {
-    return item;
-}
 /* Item_DropCollectible PROMOTED to the real src/code/z_en_item00.c
  * (Phase 3) -- it now really does drop the collectible instead of
  * returning NULL. */
 
-void Magic_Fill(void* play) {}
-s32 Magic_RequestChange(void* play, s16 amount, s16 type) {
-    return 0;
-}
 
 void Message_StartOcarina(void* play, u16 ocarinaActionId) {}
 
 s16 OnePointCutscene_EndCutscene(void* play, s16 subCamId) {
     return 0;
 }
+/* PROMOTED to the real src/code/z_parameter.c / z_lifemeter.c / z_map_exp.c (siehe Makefile.psp):
+ *   Health_ChangeBy, Health_IsCritical, Interface_SetDoAction, Interface_SetNaviCall, Interface_SetSubTimerToFinalSecond, Inventory_ChangeAmmo, Inventory_ConsumeFairy, Inventory_UpdateBottleItem, Item_CheckObtainability, Magic_Fill, Magic_RequestChange, func_800849EC */

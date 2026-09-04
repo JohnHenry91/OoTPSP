@@ -201,7 +201,14 @@ void Map_InitData(PlayState* play, s16 room) {
     }
 }
 
+/* Siehe gPspHudDraw in z_parameter.c. Minikarte getrennt schaltbar. */
+int gPspMapEnable = 1;
+
 void Map_InitRoomData(PlayState* play, s16 room) {
+    if (!gPspMapEnable) {
+        return;
+    }
+
     s32 mapIndex = gSaveContext.mapIndex;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
@@ -264,6 +271,10 @@ void Map_Destroy(PlayState* play) {
 }
 
 void Map_Init(PlayState* play) {
+    if (!gPspMapEnable) {
+        return;
+    }
+
     s32 mapIndex = gSaveContext.mapIndex;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
@@ -408,6 +419,10 @@ void Minimap_DrawCompassIcons(PlayState* play) {
 }
 
 void Minimap_Draw(PlayState* play) {
+    if (!gPspMapEnable) {
+        return;
+    }
+
     s32 pad[2];
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s32 mapIndex = gSaveContext.mapIndex;
@@ -557,6 +572,10 @@ s16 Map_GetFloorTextIndexOffset(s32 mapIndex, s32 floor) {
 }
 
 void Map_Update(PlayState* play) {
+    if (!gPspMapEnable) {
+        return;
+    }
+
     static s16 sLastRoomNum = 99;
     Player* player = GET_PLAYER(play);
     s32 mapIndex = gSaveContext.mapIndex;

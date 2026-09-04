@@ -132,6 +132,13 @@ void TransitionWipe_SetType(void* thisx, s32 type) {
 void TransitionWipe_SetColor(void* thisx, u32 color) {
     TransitionWipe* this = (TransitionWipe*)thisx;
 
+    /* Hier ABSICHTLICH ueber die Union: diese Datei schreibt die Farbe als
+     * u32 und liest sie in _Draw ebenfalls als u32 (gDPSetColor mit
+     * this->color.rgba). Ein solcher Rundlauf ist auf jeder Byteordnung in
+     * sich stimmig -- das Wort geht RGBA8-gepackt hinein und genauso wieder
+     * heraus. Eine Umrechnung waere hier nicht die Behebung eines Fehlers,
+     * sondern seine Einfuehrung. Anders im Fade, der die EINZELFELDER liest;
+     * dort ist COLOR_RGBA8_U32_SET noetig. */
     this->color.rgba = color;
 }
 

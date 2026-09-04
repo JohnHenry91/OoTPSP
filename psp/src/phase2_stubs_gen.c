@@ -1,3 +1,14 @@
+/* Aus dieser Datei entfernt, weil ein `void X(void) {}`-Stub v0 NICHT schreibt
+ * und der Aufrufer den Restwert des vorigen Aufrufs als Rueckgabewert liest.
+ * Alle Funktionen unten geben in Wirklichkeit einen Wert zurueck; sie stehen
+ * jetzt mit echter Signatur in phase2_stubs.c (DamageTable_Get ist ganz raus,
+ * z_collision_btltbls.c ist im Build). Siehe PORTING_PITFALLS.md.
+ *
+ *   DamageTable_Get  Message_ShouldAdvance  OnePointCutscene_Init  func_800BB2B4
+ *   Overlay_Load  DynaPolyActor_TransformCarriedActor  Jpeg_Decode
+ *   FrameAdvance_Update  Fault_Printf  EffectShieldParticle_Update
+ *   EffectSpark_Update  SysUcode_GetUCode  SysUcode_GetUCodeData
+ */
 /* AUTO-GENERATED Phase 2 stubs (psp/src/phase2_stubs_gen.c).
  * No-op / dummy definitions for cosmetic and out-of-scope subsystems
  * (HUD/interface, screen transitions, pause/kaleido menu, message system,
@@ -47,14 +58,6 @@
  * to do. The scene change happens without a fade until the real transitions
  * are ported. Init returns the instance pointer it was handed, same as the
  * real ones. */
-void* TransitionFade_Init(void* thisx) { return thisx; }
-int TransitionFade_IsDone(void* thisx) { (void)thisx; return 1; }
-void* TransitionCircle_Init(void* thisx) { return thisx; }
-int TransitionCircle_IsDone(void* thisx) { (void)thisx; return 1; }
-void* TransitionWipe_Init(void* thisx) { return thisx; }
-int TransitionWipe_IsDone(void* thisx) { (void)thisx; return 1; }
-void* TransitionTriforce_Init(void* thisx) { return thisx; }
-int TransitionTriforce_IsDone(void* thisx) { (void)thisx; return 1; }
 void* TransitionTile_Init(void* thisx) { return thisx; }
 
 void Cutscene_HandleConditionalTriggers(void) {}
@@ -62,10 +65,8 @@ void Cutscene_HandleEntranceTriggers(void) {}
 void Cutscene_InitContext(void) {}
 void Cutscene_UpdateManual(void) {}
 void Cutscene_UpdateScripted(void) {}
-void DamageTable_Get(void) {}
 void DebugDisplay_DrawObjects(void) {}
 void DebugDisplay_Init(void) {}
-void DynaPolyActor_TransformCarriedActor(void) {}
 /* Promoted to the real src/code/z_bg_item.c (Phase 3, enabled by the first
  * dyna-poly actors). Stub removed -- keeping it would be a duplicate symbol. */
 /* EffectBlure_Destroy/Draw/Init1/Init2/Update PROMOTED to the real
@@ -74,11 +75,9 @@ void DynaPolyActor_TransformCarriedActor(void) {}
 void EffectShieldParticle_Destroy(void) {}
 void EffectShieldParticle_Draw(void) {}
 void EffectShieldParticle_Init(void) {}
-void EffectShieldParticle_Update(void) {}
 void EffectSpark_Destroy(void) {}
 void EffectSpark_Draw(void) {}
 void EffectSpark_Init(void) {}
-void EffectSpark_Update(void) {}
 /* Environment_* PROMOTED to the real src/code/z_kankyo.c (see Makefile.psp).
  *
  * Second instance of the same failure mode as the Quake_* block below, and the
@@ -101,25 +100,14 @@ void EffectSpark_Update(void) {}
  * Environment_ZBufValToFixedPoint, Environment_LerpWeight and
  * Environment_IsForcedSequenceDisabled additionally return values, so they were
  * in the 29-strong "caller reads garbage $v0" class as well. */
-void Fault_Printf(void) {}
 void Fault_SetCursor(void) {}
 void Font_LoadOrderedFont(void) {}
 void FrameAdvance_Init(void) {}
-void FrameAdvance_Update(void) {}
 void GameOver_FadeInLights(void) {}
 void GameOver_Init(void) {}
 void GameOver_Update(void) {}
-void Health_InitMeter(void) {}
 /* Horse_InitPlayerHorse PROMOTED to the real src/code/z_horse.c
  * (Phase 3). Stub removed. */
-void Interface_ChangeHudVisibilityMode(void) {}
-void Interface_Draw(void) {}
-void Interface_SetSceneRestrictions(void) {}
-void Interface_Update(void) {}
-void Inventory_ReplaceItem(void) {}
-void Inventory_SwapAgeEquipment(void) {}
-void Item_Give(void) {}
-void Jpeg_Decode(void) {}
 void KaleidoManager_Destroy(void) {}
 void KaleidoManager_Init(void) {}
 void KaleidoScopeCall_Destroy(void) {}
@@ -127,20 +115,13 @@ void KaleidoScopeCall_Draw(void) {}
 void KaleidoScopeCall_Init(void) {}
 void KaleidoScopeCall_Update(void) {}
 void KaleidoSetup_Update(void) {}
-void Magic_Reset(void) {}
-void Map_Destroy(void) {}
-void Map_Init(void) {}
-void Map_InitRoomData(void) {}
-void Map_SavePlayerInitialInfo(void) {}
 void Message_ContinueTextbox(void) {}
 void Message_Draw(void) {}
-void Message_GetState(void) {}
+/* Message_GetState: nach phase2_stubs.c hochgezogen -- ein void-Stub laesst v0
+ * stehen, und der Aufrufer liest das als Textzustand. Siehe dort. */
 void Message_SetTables(void) {}
-void Message_ShouldAdvance(void) {}
 void Message_StartTextbox(void) {}
 void Message_Update(void) {}
-void OnePointCutscene_Init(void) {}
-void Overlay_Load(void) {}
 void PreRender_ApplyFilters(void) {}
 void PreRender_Destroy(void) {}
 void PreRender_DrawCoverage(void) {}
@@ -176,44 +157,15 @@ void PreRender_SetValuesSave(void) {}
  * runtime for any function that returns a value or fills an out-parameter.
  * A no-op stub is only safe for a function that returns void AND writes
  * nothing through its arguments. */
-void Rupees_ChangeBy(void) {}
 void SfxSource_InitAll(void) {}
 void SfxSource_PlaySfxAtFixedWorldPos(void) {}
 void SfxSource_UpdateAll(void) {}
-void SysUcode_GetUCode(void) {}
-void SysUcode_GetUCodeData(void) {}
-void TransitionCircle_Destroy(void) {}
-void TransitionCircle_Draw(void) {}
-void TransitionCircle_SetColor(void) {}
-void TransitionCircle_SetType(void) {}
-void TransitionCircle_SetUnkColor(void) {}
-void TransitionCircle_Start(void) {}
-void TransitionCircle_Update(void) {}
-void TransitionFade_Destroy(void) {}
-void TransitionFade_Draw(void) {}
-void TransitionFade_SetColor(void) {}
-void TransitionFade_SetType(void) {}
-void TransitionFade_Start(void) {}
-void TransitionFade_Update(void) {}
 void TransitionTile_Destroy(void) {}
 void TransitionTile_Draw(void) {}
 void TransitionTile_Update(void) {}
-void TransitionTriforce_Destroy(void) {}
-void TransitionTriforce_Draw(void) {}
-void TransitionTriforce_SetColor(void) {}
-void TransitionTriforce_SetType(void) {}
-void TransitionTriforce_Start(void) {}
-void TransitionTriforce_Update(void) {}
-void TransitionWipe_Destroy(void) {}
-void TransitionWipe_Draw(void) {}
-void TransitionWipe_SetColor(void) {}
-void TransitionWipe_SetType(void) {}
-void TransitionWipe_Start(void) {}
-void TransitionWipe_Update(void) {}
 /* func_80026400/80026608/80026860/80026A6C PROMOTED to the real
  * src/code/z_eff_ss_dead.c (Phase 3). Stubs removed. */
 void func_80043334(void) {}
-void func_800BB2B4(void) {}
 /* func_800F4010/func_800F4C58/func_800F6964 PROMOTED to the real
  * src/audio/game/general.c (Phase 4 audio bring-up, see Makefile.psp). */
 void func_801C7C1C(void) {}
@@ -297,3 +249,5 @@ void guS2DInitBg(void) {}
  * The rule this establishes: when a placeholder's real data becomes reachable,
  * the placeholder is not neutral any more. It outranks it. */
 char gspS2DEX2d_fifoDataStart[64];
+/* PROMOTED to the real src/code/z_parameter.c / z_lifemeter.c / z_map_exp.c (siehe Makefile.psp):
+ *   Health_InitMeter, Interface_ChangeHudVisibilityMode, Interface_Draw, Interface_SetSceneRestrictions, Interface_Update, Inventory_ReplaceItem, Inventory_SwapAgeEquipment, Item_Give, Magic_Reset, Map_Destroy, Map_Init, Map_InitRoomData, Map_SavePlayerInitialInfo, Rupees_ChangeBy */

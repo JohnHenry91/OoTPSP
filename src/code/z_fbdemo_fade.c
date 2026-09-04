@@ -133,7 +133,8 @@ s32 TransitionFade_IsDone(void* thisx) {
 void TransitionFade_SetColor(void* thisx, u32 color) {
     TransitionFade* this = (TransitionFade*)thisx;
 
-    this->color.rgba = color;
+    /* Nicht ueber die Union -- siehe COLOR_RGBA8_U32_SET in color.h. */
+    COLOR_RGBA8_U32_SET(this->color, color);
 }
 
 void TransitionFade_SetType(void* thisx, s32 type) {
