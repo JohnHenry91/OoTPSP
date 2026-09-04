@@ -37,8 +37,8 @@ INVOKE_DIR=$(pwd -P)
 
 # Overridable so the repo can be cloned from a local path during testing
 # (see installer-test/run-test.sh); users never need to set this.
-REPO_URL="${OOTPSP_REPO_URL:-https://github.com/JohnHenry91/OoTPSP.git}"
-REPO_DIR_NAME="OoTPSP"
+REPO_URL="${OOTPSP_REPO_URL:-https://github.com/SloppyHenry/SlopcarinaOfTime.git}"
+REPO_DIR_NAME="SlopcarinaOfTime"
 # Empty means "whatever the repository's default branch is", which is the
 # normal case. Overridable for testing a branch before it is merged.
 REPO_BRANCH="${OOTPSP_REPO_BRANCH:-}"

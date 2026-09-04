@@ -58,7 +58,7 @@ folder to copy onto your memory stick.
 Download it, put your own ROM in the same folder, and run it:
 
 ```sh
-curl -fLO https://raw.githubusercontent.com/JohnHenry91/OoTPSP/main/install.sh
+curl -fLO https://raw.githubusercontent.com/SloppyHenry/SlopcarinaOfTime/main/install.sh
 chmod +x install.sh
 ./install.sh
 ```
