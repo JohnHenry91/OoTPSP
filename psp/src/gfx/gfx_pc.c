@@ -155,6 +155,13 @@ struct TextureHashmapNode {
      * uploaded pixels (hence part of the key) and the UV scale (hence read
      * back in gfx_sp_tri1). */
     uint8_t mirror_s, mirror_t;
+    /* PART OF THE CACHE KEY. Die Intensitaetsrampe, mit der die Texel beim
+     * Dekodieren vorverzerrt wurden -- siehe gfx_cyc1_texture_ramp(). 0 heisst
+     * unveraendert. Wie palette und line_size_bytes: eine andere Dekodier-
+     * Eingabe ist eine andere Textur. gEffUnknown10Tex wird von zwei
+     * Displaylisten mit verschiedenen Zyklus-1-Formen benutzt, ohne dieses
+     * Feld wuerde die zuerst dekodierte Variante fuer beide gelten. */
+    uint32_t ramp;
     /* Der Eintrag beschreibt Speicher, den das SPIEL seither ueberschrieben
      * hat -- der dekodierte Inhalt ist damit veraltet, obwohl jedes Feld des
      * Schluessels noch passt. Siehe gfx_texture_cache_invalidate_range(). */
@@ -376,6 +383,25 @@ static struct RDP {
      * That is the same identity is_prim_env_lerp_combine already exploits for
      * the Kokiri dust motes, which carry the shape in cycle 1 instead. */
     uint8_t combine_cyc2_lerp_hi, combine_cyc2_lerp_lo;
+    /* Zyklus 1 als AFFINE Funktion der Textur statt als nackter Texel:
+     * (TEXEL0 - REG) * SKALAR + TEXEL0, also T*(1+s) - REG*s.
+     *
+     * combine_cycle2_prim_env_lerp() laesst diese Form durch -- es prueft nur,
+     * dass der d-Operand ein Texel ist und kein SHADE vorkommt. Die
+     * GU_TFX_BLEND-Identitaet, auf der es beruht, gilt aber nur, solange
+     * Zyklus 1 WIRKLICH der Texel ist: die GE bekommt T als Mischfaktor, die
+     * RDP rechnet mit clamp(T*(1+s) - REG*s). Dass die Differenz nicht
+     * theoretisch ist, zeigt gHeartPieceInteriorDL, wo s = 128/255 ist und der
+     * blau-weisse Verlauf dadurch viel zu frueh ins Weisse laeuft.
+     *
+     * Statt die Form abzulehnen (dann faellt Zyklus 2 ganz weg, was schlechter
+     * ist) wird die Rampe beim Dekodieren in die Textur gebacken -- inklusive
+     * der Klemmung, die eine Vertexfarbe nicht ausdruecken kann, weil ihr
+     * Rotanteil hier negativ waere. Siehe gfx_cyc1_texture_ramp().
+     *
+     * _reg == CC_0 heisst "nicht diese Form". */
+    uint8_t cyc1_ramp_reg;
+    uint8_t cyc1_ramp_scalar_raw;
     /* Cycle 2's ALPHA row is (COMBINED - 0) * PRIMITIVE + 0, with cycle 1's
      * alpha coming from the texture (as opposed to the constant-1 cycle 1 that
      * combine_cyc2_alpha_is_prim insists on). The finished alpha is then
@@ -1253,7 +1279,12 @@ uint32_t gPspLerp2Draws;
  * siehe die Sonde in gfx_sp_tri1. [0]=cyc2_lerp [1]=tint [2]=hi [3]=lo
  * [4]=combine_c0_raw [5]=prim_color packed [6]=used_textures[0]|[1]<<1
  * [7]=LOADED_TEX(0).addr low 32 bit. */
-uint32_t gPspHeartProbe[2][8];
+uint32_t gPspHeartProbe[3][8];
+/* Trefferzaehler: die Slots halten den ERSTEN Treffer nach dem Nullen, der
+ * Zaehler sagt, wie viele es insgesamt waren. Mit dem LETZTEN Treffer zu
+ * ueberschreiben hat einen fremden Draw gemeldet, der bloss OoTs ENV geerbt
+ * hatte -- RDP-Register bleiben ueber Displaylisten hinweg stehen. */
+uint32_t gPspHeartHits[3];
 #endif
 /* The mix factor most recently used, and which RDP operand it came from --
  * the pair that says whether the right source is being read. */
@@ -1575,7 +1606,7 @@ static inline uint8_t tile_wants_mirror(uint32_t cm) {
     return ((cm & G_TX_MIRROR) && !(cm & G_TX_CLAMP)) ? 1 : 0;
 }
 
-static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, const uint8_t *orig_addr, uint32_t fmt, uint32_t siz) {
+static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, const uint8_t *orig_addr, uint32_t fmt, uint32_t siz, uint32_t ramp) {
     size_t hash = (uintptr_t)orig_addr;
     hash = (hash >> 5) & 0x3ff;
     struct TextureHashmapNode **node = &gfx_texture_cache.hashmap[hash];
@@ -1608,6 +1639,7 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
             (*node)->size_bytes == LOADED_TEX(tile).size_bytes &&
             (*node)->mirror_s == tile_wants_mirror(rdp.texture_tile[tile].cms) &&
             (*node)->mirror_t == tile_wants_mirror(rdp.texture_tile[tile].cmt) &&
+            (*node)->ramp == ramp &&
             (fmt != G_IM_FMT_CI || (*node)->palette == rdp.palette)) {
             gfx_rapi->select_texture(tile, (*node)->texture_id);
             gfx_rapi->set_sampler_parameters(0, (*node)->linear_filter, (*node)->cms, (*node)->cmt);
@@ -1721,6 +1753,7 @@ static bool gfx_texture_cache_lookup(int tile, struct TextureHashmapNode **n, co
     (*node)->palette = rdp.palette;
     (*node)->line_size_bytes = rdp.texture_tile[tile].line_size_bytes;
     (*node)->size_bytes = LOADED_TEX(tile).size_bytes;
+    (*node)->ramp = ramp;
     *n = *node;
     return false;
 }
@@ -2041,6 +2074,85 @@ static void import_texture_ia16(int tile) {
 int gDebugI4Opaque = 0;
 uint32_t gPspI4Probe[16];
 
+/* Die Intensitaetsrampe, mit der eine I4/I8-Textur dekodiert werden muss,
+ * damit der cyc2-LERP-Pfad stimmt: Zyklus 1 ist dort nicht der nackte Texel,
+ * sondern clamp(T*(1+s) - REG*s). Siehe rdp.cyc1_ramp_reg.
+ *
+ * Rueckgabe 0 == unveraendert dekodieren. Sonst Bit 31 gesetzt, k in Q8 ab
+ * Bit 8, m (0..255) in den unteren 8 Bit. Der Wert ist Teil des
+ * Texturcache-Schluessels, damit dieselbe Textur unter einer anderen Rampe
+ * einen eigenen Eintrag bekommt.
+ *
+ * Bewusst eng gefasst -- die Rampe wird nur gebacken, wenn sie auch wirklich
+ * gebraucht wird und exakt darstellbar ist:
+ *  - nur wo der cyc2-LERP-Pfad ueberhaupt greift (sonst waere die Textur
+ *    anderswo falsch),
+ *  - nur fuer Intensitaetsformate (bei ihnen IST der Texel der Mischfaktor),
+ *  - nur fuer ein GRAUES Register: die Subtraktion ist kanalweise, und eine
+ *    einkanalige Textur kann drei verschiedene Kanaele nicht tragen. */
+static uint32_t gfx_cyc1_texture_ramp(int tile) {
+    if (rdp.cyc1_ramp_reg == CC_0) {
+        return 0;
+    }
+    if (rdp.combine_cyc2_lerp_hi == CC_0) {
+        return 0;
+    }
+    if ((rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) != G_CYC_2CYCLE) {
+        return 0;
+    }
+    if (rdp.texture_tile[tile].fmt != G_IM_FMT_I) {
+        return 0;
+    }
+
+    const struct RGBA *reg = (rdp.cyc1_ramp_reg == CC_PRIM) ? &rdp.prim_color : &rdp.env_color;
+    if (reg->r != reg->g || reg->g != reg->b) {
+        return 0;
+    }
+
+    uint8_t scal;
+    switch (rdp.cyc1_ramp_scalar_raw) {
+        case G_CCMUX_ENV_ALPHA:       scal = rdp.env_color.a;  break;
+        case G_CCMUX_PRIMITIVE_ALPHA: scal = rdp.prim_color.a; break;
+        case G_CCMUX_PRIM_LOD_FRAC:   scal = rdp.prim_lod_frac; break;
+        default:                      return 0;
+    }
+    if (scal == 0) {
+        return 0; /* (T - REG) * 0 + T == T, schon die Identitaet */
+    }
+
+    /* k = 1 + s, m = REG * s, beide auf 0..255 normiert; k in Q8. */
+    const uint32_t k_q8 = 256u + ((uint32_t)scal * 256u + 127u) / 255u;
+    const uint32_t m    = ((uint32_t)reg->r * (uint32_t)scal + 127u) / 255u;
+
+    return 0x80000000u | (k_q8 << 8) | (m & 0xFFu);
+}
+
+/* Die beim Import aktive Rampe. Als Datei-Statik statt als Parameter, weil
+ * jeder Importer sie braeuchte und nur zwei von ihnen sie benutzen. */
+static uint32_t sImportRamp;
+
+/* Wie viele Texturimporte mit bzw. ohne Rampe dekodiert wurden, plus die
+ * zuletzt benutzte Rampe. Eine zu breit greifende Erkennung waere eine
+ * Regressionsquelle -- die Zahlen sagen, ob sie wirklich nur die paar
+ * Materialien trifft, um die es geht. */
+uint32_t gPspRampImports, gPspRampPlainImports, gPspRampLast;
+
+static inline uint8_t gfx_ramp_intensity(uint8_t i) {
+    if (sImportRamp == 0) {
+        return i;
+    }
+    const int32_t k_q8 = (int32_t)((sImportRamp >> 8) & 0x3FFu);
+    const int32_t m    = (int32_t)(sImportRamp & 0xFFu);
+    int32_t v = ((int32_t)i * k_q8) / 256 - m;
+
+    if (v < 0) {
+        v = 0;
+    } else if (v > 255) {
+        v = 255;
+    }
+    return (uint8_t)v;
+}
+
 static void import_texture_i4(int tile) {
     const bool tex_unswap = tex_needs_u64_unswap(LOADED_TEX(tile).addr);
     uint8_t rgba32_buf[32768];
@@ -2074,12 +2186,12 @@ static void import_texture_i4(int tile) {
         uint8_t byte = TEXSRC(i / 2);
         uint8_t part = (byte >> (4 - (i % 2) * 4)) & 0xf;
         uint8_t intensity = part;
-        uint8_t r = intensity;
-        uint8_t g = intensity;
-        uint8_t b = intensity;
-        rgba32_buf[4*i + 0] = SCALE_4_8(r);
-        rgba32_buf[4*i + 1] = SCALE_4_8(g);
-        rgba32_buf[4*i + 2] = SCALE_4_8(b);
+        /* Rampe nur auf RGB, nach der 4->8-Bit-Streckung -- sie rechnet in
+         * 0..255. Alpha unten bleibt roh, siehe import_texture_i8. */
+        uint8_t rgb = gfx_ramp_intensity(SCALE_4_8(intensity));
+        rgba32_buf[4*i + 0] = rgb;
+        rgba32_buf[4*i + 1] = rgb;
+        rgba32_buf[4*i + 2] = rgb;
         /* Real N64 RDP I-format hardware outputs A=I, not a constant --
          * OoT's console-logo text relies on this (its combine samples
          * TEXEL0's alpha directly, gDPSetCombineLERP's alpha cycle in
@@ -2110,12 +2222,14 @@ static void import_texture_i8(int tile) {
 
     for (uint32_t i = 0; i < LOADED_TEX(tile).size_bytes; i++) {
         uint8_t intensity = TEXSRC(i);
-        uint8_t r = intensity;
-        uint8_t g = intensity;
-        uint8_t b = intensity;
-        rgba32_buf[4*i + 0] = r;
-        rgba32_buf[4*i + 1] = g;
-        rgba32_buf[4*i + 2] = b;
+        /* Die Rampe gehoert NUR auf RGB. Sie bildet Zyklus 1 der FARBzeile
+         * nach; die Alphazeile ist eine eigene Rechnung und liest den rohen
+         * Texel (bei gHeartPieceInteriorDL ist sie schlicht TEXEL0). Beide
+         * gemeinsam zu rampen wuerde die Silhouette mitverzerren. */
+        uint8_t rgb = gfx_ramp_intensity(intensity);
+        rgba32_buf[4*i + 0] = rgb;
+        rgba32_buf[4*i + 1] = rgb;
+        rgba32_buf[4*i + 2] = rgb;
         /* See import_texture_i4's identical comment -- real N64 RDP
          * I-format hardware outputs A=I, not a constant. */
         rgba32_buf[4*i + 3] = intensity;
@@ -2219,12 +2333,25 @@ static void import_texture(int tile) {
     uint8_t fmt = rdp.texture_tile[tile].fmt;
     uint8_t siz = rdp.texture_tile[tile].siz;
 
-    if (gfx_texture_cache_lookup(tile, &rendering_state.textures[tile], LOADED_TEX(tile).addr, fmt, siz)) {
+    /* Vor dem Lookup, weil die Rampe Teil des Schluessels ist: dieselbe
+     * Textur unter einer anderen Zyklus-1-Form ist ein anderes Bild. */
+    sImportRamp = gfx_cyc1_texture_ramp(tile);
+    if (sImportRamp != 0) {
+        gPspRampLast = sImportRamp;
+    }
+
+    if (gfx_texture_cache_lookup(tile, &rendering_state.textures[tile], LOADED_TEX(tile).addr, fmt, siz,
+                                 sImportRamp)) {
         GFXSTAT_INC(tex_hits);
         if (gPspSkyTriMark) {
             GFXSTAT_INC(sky_tex_hits);
         }
         return;
+    }
+    if (sImportRamp != 0) {
+        ++gPspRampImports;
+    } else {
+        ++gPspRampPlainImports;
     }
     GFXSTAT_INC(tex_imports);
     if (gPspSkyTriMark) {
@@ -3483,6 +3610,77 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
     const bool cyc2_lerp = (rdp.combine_cyc2_lerp_hi != CC_0 &&
                             (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE);
 
+    /* Sonde fuer die zwei Herzteil-Darstellungen. Beide werden VOR der
+     * Weiche unten aufgezeichnet, nicht darin: ob dieser Codepfad ueberhaupt
+     * betreten wird, ist genau die Frage, die die Sonde beantworten soll --
+     * sass sie innen, war "kein Treffer" nicht von "Aktor gar nicht
+     * gezeichnet" zu unterscheiden, was eine ganze Sitzung gekostet hat.
+     *
+     * Slot 0: gHeartPieceInteriorDL, das FREISTEHENDE Herzteil im Raum
+     * (EnItem00_DrawHeartPiece). Gefiltert auf sein ENV (0,100,255,128) --
+     * PRIM ist dort schlichtes Weiss und damit kein brauchbarer Filter.
+     * Slot 1: gGiHeartPieceDL, die Get-Item-Darstellung ueber dem Kopf,
+     * gefiltert auf ihr PRIM (255,0,100). Das sind ZWEI VERSCHIEDENE
+     * Displaylisten -- eine fruehere Sitzung hat die zweite gemessen und
+     * gefixt, waehrend der Fehlerbericht die erste meinte. */
+    {
+        extern uint32_t gPspHeartProbe[3][8];
+        extern uint32_t gPspHeartHits[3];
+        int idx = -1;
+        /* ENV allein reicht als Filter NICHT: es bleibt als RDP-Zustand stehen,
+         * bis eine spaetere Displayliste es neu setzt, also traf der erste
+         * Versuch nachfolgende fremde Draws. PRIM muss mitgeprueft werden. */
+        if (rdp.env_color.r < 10 && rdp.env_color.g > 90 && rdp.env_color.g < 110 &&
+            rdp.env_color.b > 245 && rdp.env_color.a > 120 && rdp.env_color.a < 136 &&
+            rdp.prim_color.r > 245 && rdp.prim_color.g > 245 && rdp.prim_color.b > 245) {
+            idx = 0; /* freistehendes Herzteil */
+        } else if (rdp.prim_color.r > 240 && rdp.prim_color.g < 15 &&
+                   rdp.prim_color.b > 80 && rdp.prim_color.b < 120) {
+            idx = 1; /* Get-Item-Herzteil */
+        } else if (rdp.prim_color.r > 190 && rdp.prim_color.r < 210 && rdp.prim_color.g < 15 &&
+                   rdp.prim_color.b > 90 && rdp.prim_color.b < 110) {
+            idx = 2; /* das rote Herz-Decal, zweite Materialgruppe desselben DL */
+        }
+        if (idx >= 0 && gPspHeartHits[idx]++ == 0) {
+            const int probe_tint =
+                cyc2_lerp ? 2
+                          : ((rdp.combine_cyc2_tint != CC_0 &&
+                              (rdp.other_mode_h & (3U << G_MDSFT_CYCLETYPE)) == G_CYC_2CYCLE) ? 1 : 0);
+            uint32_t *slot = gPspHeartProbe[idx];
+            slot[0] = cyc2_lerp ? 1u : 0u;
+            slot[1] = (uint32_t)probe_tint;
+            slot[2] = rdp.combine_cyc2_lerp_hi;
+            slot[3] = rdp.combine_cyc2_lerp_lo;
+            slot[4] = (uint32_t)rdp.combine_c0_raw;
+            slot[5] = (uint32_t)rdp.prim_color.a << 24 | (uint32_t)rdp.prim_color.b << 16 |
+                      (uint32_t)rdp.prim_color.g << 8 | (uint32_t)rdp.prim_color.r;
+            slot[6] = (used_textures[0] ? 1u : 0u) | (used_textures[1] ? 2u : 0u) |
+                      ((uint32_t)(rdp.other_mode_h >> G_MDSFT_CYCLETYPE & 3u) << 2);
+            slot[7] = (uint32_t)rdp.env_color.a << 24 | (uint32_t)rdp.env_color.b << 16 |
+                      (uint32_t)rdp.env_color.g << 8 | (uint32_t)rdp.env_color.r;
+            if (idx == 2) {
+                /* Fuer das Herz-Decal zaehlt etwas anderes: es ist ein
+                 * EIN-Textur-Draw (TEXEL0 * PRIM) und betritt die Weiche unten
+                 * gar nicht -- die Frage ist, welchen Texturmodus die GE von
+                 * der LERP-Gruppe unmittelbar davor noch stehen hat, und ob
+                 * PRIM ueberhaupt als Shader-Eingang ankommt. */
+                extern uint32_t gPspLastTfxMode, gPspLastTfxTcc, gPspLastTexEnvColor;
+                extern void gfx_scegu_shader_texenv(const struct ShaderProgram *prg,
+                                                    uint32_t *mode, uint32_t *tcc, uint32_t *mix,
+                                                    uint32_t *shader_id);
+                uint32_t pmode = 0xFFFFFFFFu, ptcc = 0xFFFFFFFFu, pmix = 0xFFFFFFFFu;
+                uint32_t psid = 0xFFFFFFFFu;
+                gfx_scegu_shader_texenv(prg, &pmode, &ptcc, &pmix, &psid);
+                /* GU_TFX_*: 0 MODULATE, 1 DECAL, 2 BLEND, 3 REPLACE, 4 ADD */
+                slot[0] = gPspLastTfxMode;   /* was die GE zuletzt gehoert hat */
+                slot[1] = pmode;             /* was DIESER Shader gesetzt bekam */
+                slot[2] = comb->cc_id;
+                slot[3] = pmix;              /* MixType des Shaders */
+                slot[4] = psid;              /* shader_id, wegen der hartkodierten Sonderfaelle */
+            }
+        }
+    }
+
     if (cyc2_lerp || (used_textures[0] && used_textures[1])) {
         const int tint = cyc2_lerp ? 2
                        : ((rdp.combine_cyc2_tint != CC_0 &&
@@ -3493,39 +3691,6 @@ static void gfx_sp_tri1(uint8_t vtx1_idx, uint8_t vtx2_idx, uint8_t vtx3_idx) {
             gfx_scegu_set_two_texture_tint(tint);
             rendering_state.two_texture_tint = tint;
         }
-#if TARGET_PSP
-        /* Sonde fuer gGiHeartPieceDL, gezielt: der Ringpuffer-Vorlaeufer lief
-         * in 166003 Treffern voll (Skybox nutzt dieselbe Zwei-Textur-Form
-         * jeden Frame etliche Male), acht Slots waren also immer die
-         * Skybox, nie das Herzteil. Stattdessen zwei FESTE Slots, gefiltert
-         * auf genau die zwei PRIM-Farben aus gGiHeartPieceDL.inc.c (Kern
-         * 255,0,100 / Rand 170,255,255) -- die werden von nichts anderem in
-         * dieser Szene getroffen, damit ueberschreiben nur die zwei echten
-         * Aufrufe ihren jeweiligen Slot, egal wie oft die Skybox dazwischen
-         * feuert. */
-        {
-            extern uint32_t gPspHeartProbe[2][8];
-            int idx = -1;
-            if (rdp.prim_color.r > 240 && rdp.prim_color.g < 15 && rdp.prim_color.b > 80 && rdp.prim_color.b < 120) {
-                idx = 0; /* core */
-            } else if (rdp.prim_color.r > 150 && rdp.prim_color.r < 190 &&
-                       rdp.prim_color.g > 240 && rdp.prim_color.b > 240) {
-                idx = 1; /* border */
-            }
-            if (idx >= 0) {
-                uint32_t *slot = gPspHeartProbe[idx];
-                slot[0] = cyc2_lerp ? 1 : 0;
-                slot[1] = (uint32_t)tint;
-                slot[2] = rdp.combine_cyc2_lerp_hi;
-                slot[3] = rdp.combine_cyc2_lerp_lo;
-                slot[4] = (uint32_t)rdp.combine_c0_raw;
-                slot[5] = (uint32_t)rdp.prim_color.a << 24 | (uint32_t)rdp.prim_color.b << 16 |
-                          (uint32_t)rdp.prim_color.g << 8 | (uint32_t)rdp.prim_color.r;
-                slot[6] = (used_textures[0] ? 1u : 0u) | (used_textures[1] ? 2u : 0u);
-                slot[7] = (uint32_t)(uintptr_t)LOADED_TEX(0).addr;
-            }
-        }
-#endif
     }
 
     /* The PRIM/ENV LERP carries PRIM in the tex-env colour, and PRIM changes
@@ -6346,6 +6511,25 @@ static void gfx_run_dl(Gfx* cmd) {
                 }
                 rdp.combine_cyc2_alpha_mul_prim =
                     combine_cycle2_alpha_mul_prim(C1(21, 3), C1(3, 3), C1(18, 3), C1(0, 3));
+                /* Zyklus 1 als (TEXEL0 - REG) * SKALAR + TEXEL0 -- siehe
+                 * rdp.cyc1_ramp_reg. Nur die Operandenformen werden hier
+                 * festgehalten; die Registerwerte selbst koennen sich bis zum
+                 * Zeichnen noch aendern und werden erst beim Import gelesen. */
+                rdp.cyc1_ramp_reg = CC_0;
+                rdp.cyc1_ramp_scalar_raw = 0;
+                {
+                    const uint32_t a0 = C0(20, 4), b0 = C1(28, 4);
+                    const uint32_t c0 = C0(15, 5), d0 = C1(15, 3);
+                    const bool scalar_ok = (c0 == G_CCMUX_ENV_ALPHA ||
+                                            c0 == G_CCMUX_PRIMITIVE_ALPHA ||
+                                            c0 == G_CCMUX_PRIM_LOD_FRAC);
+                    const bool reg_ok = (b0 == G_CCMUX_PRIMITIVE || b0 == G_CCMUX_ENVIRONMENT);
+
+                    if (a0 == G_CCMUX_TEXEL0 && d0 == G_CCMUX_TEXEL0 && reg_ok && scalar_ok) {
+                        rdp.cyc1_ramp_reg = (b0 == G_CCMUX_PRIMITIVE) ? CC_PRIM : CC_ENV;
+                        rdp.cyc1_ramp_scalar_raw = (uint8_t)c0;
+                    }
+                }
                 break;
             // G_SETPRIMCOLOR, G_CCMUX_PRIMITIVE, G_ACMUX_PRIMITIVE, is used by Goddard
             // G_CCMUX_TEXEL1, LOD_FRACTION is used in Bowser room 1
